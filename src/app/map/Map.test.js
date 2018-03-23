@@ -1,9 +1,8 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import Map from "./Map";
 import { shallow } from "enzyme";
-import App from "./App";
 
 it("renders without crashing", () => {
-  const wrapper = shallow(<App />);
+  const wrapper = shallow(<Map />);
   expect(wrapper).toHaveLength(1);
 });
