@@ -1,8 +1,8 @@
 import React from "react";
 import { shallow } from "enzyme";
-import App from "./App";
+import Button from "./Button";
 
 it("renders without crashing", () => {
-  const wrapper = shallow(<App />);
+  const wrapper = shallow(<Button />);
   expect(wrapper).toHaveLength(1);
 });
