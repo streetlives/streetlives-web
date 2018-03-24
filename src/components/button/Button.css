@@ -1,0 +1,46 @@
+@value yellow: #f8e71c;
+@value darkGray: #323333;
+@value gray: #f2f2f2;
+@value borderGray: #b2b2b2;
+
+.Button {
+  background: gray;
+  border: 1px solid borderGray;
+  color: black;
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  margin-right: 3px;
+  min-width: 100px;
+  padding: 12px;
+  text-transform: uppercase;
+}
+
+.Button-primary {
+  background: yellow;
+  border: 1px solid yellow;
+}
+
+.Button-secondary {
+  background: darkGray;
+  border: 1px solid darkGray;
+  color: white;
+}
+
+.Button-fluid {
+  width: 100%;
+}
+
+.Button-disabled {
+  opacity: 0.6;
+}
+
+.Button-basic {
+  background: transparent;
+  border-width: 3px;
+  padding: 10px;
+}
+
+.Button-basic.Button-secondary {
+  color: black;
+}

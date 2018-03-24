@@ -1,4 +1,5 @@
 import { configure } from "@storybook/react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const stories = require.context("../src", true, /\.story\.(jsx|js)$/);
 
