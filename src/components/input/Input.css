@@ -1,0 +1,17 @@
+@value placeholderGray: #C2C2C2;
+@value borderGray: #DDDDDD;
+
+.Input {
+  border: none;
+  border-bottom: 1px solid borderGray;
+  padding: 4px 0;
+}
+
+.Input::placeholder {
+  color: placeholderGray;
+  font-weight: 300;
+}
+
+.Input-fluid {
+  width: 100%;
+}
