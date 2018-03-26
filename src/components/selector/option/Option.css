@@ -1,14 +1,12 @@
-@value borderGray: #C4C4C4;
 @value cardShadow: 0px 2px 4px rgba(0,0,0,0.15);
-@value darkGray: #333333;
-@value yellow: #F8E71C;
+@value borderGray, darkerGray from "../../../colors.css";
 
 .Option {
   border: 1px solid borderGray;
   box-sizing: border-box;
   box-shadow: cardShadow;
   border-radius: 2px;
-  color: darkGray;
+  color: darkerGray;
   cursor: pointer;
   padding: 10px;
   min-width: 250px;
@@ -16,8 +14,8 @@
 }
 
 .Option.Option-active {
-  background: darkGray;
-  border: 1px solid darkGray;
+  background: darkerGray;
+  border: 1px solid darkerGray;
   color: yellow;
   font-weight: 300;
 }
