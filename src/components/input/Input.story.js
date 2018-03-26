@@ -20,4 +20,5 @@ const FluidExample = (
 
 storiesOf("Input", module)
   .add("Overview", () => [DefaultExample, FluidExample])
-  .add("Default example", () => DefaultExample);
+  .add("Default example", () => DefaultExample)
+  .add("Fluid example", () => FluidExample);
