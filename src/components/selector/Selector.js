@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import cx from "classnames";
 import "./Selector.css";
 
-import Option from "./Option";
+import Option from "./option/Option";
 
 class Selector extends Component {
   render() {
