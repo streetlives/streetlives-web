@@ -16,7 +16,6 @@ class App extends Component {
 
   componentWillMount(){
     Amplify.Auth.currentAuthenticatedUser().then((user) => {
-      console.log('user',user);
       user.getUserAttributes((err, attributes) => {
         let o = {}; 
         attributes.forEach(x => o[x.Name] = x.Value)
@@ -28,7 +27,7 @@ class App extends Component {
   logout() {
     Amplify.Auth.signOut()
         .then(data => {
-          window.location.href=window.location.href;
+          window.location.reload();
         })
         .catch(err => console.log(err));
   }
