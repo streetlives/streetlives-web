@@ -1,5 +1,4 @@
-@value placeholderGray: #C2C2C2;
-@value borderGray: #DDDDDD;
+@vaue placeholderGray, darkerGray from "../../colors.css";
 
 .Input {
   border: none;
@@ -17,7 +16,7 @@
 }
 
 label {
-  color: #333333;
+  color: darkerGray;
   font-weight: 600;
   font-size: 1.2em;
   letter-spacing: -.75px;
