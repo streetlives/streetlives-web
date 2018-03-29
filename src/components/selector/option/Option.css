@@ -1,5 +1,5 @@
 @value cardShadow: 0px 2px 4px rgba(0,0,0,0.15);
-@value borderGray, darkerGray from "../../../colors.css";
+@value primaryColor, borderGray, darkerGray from "../../../colors.css";
 
 .Option {
   border: 1px solid borderGray;
@@ -16,6 +16,6 @@
 .Option.Option-active {
   background: darkerGray;
   border: 1px solid darkerGray;
-  color: yellow;
+  color: primaryColor;
   font-weight: 300;
 }
