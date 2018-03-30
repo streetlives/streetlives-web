@@ -1,10 +1,10 @@
 export default {
   Auth: {
   // REQUIRED - Amazon Cognito Identity Pool ID
-      identityPoolId: 'us-east-2:a474fd65-5d53-4a95-8c88-62b800b8fbaf', 
+      identityPoolId: 'us-east-1:fbb09891-723a-48db-80ac-facd1ca9ec4b', 
   // REQUIRED - Amazon Cognito Region
-      region: 'us-east-2',
-      userPoolId: 'us-east-2_1b7twTyIS',
-      userPoolWebClientId: '32qk7q3p62vpf85op2omg9v3n8'
+      region: 'us-east-1',
+      userPoolId: 'us-east-1_EvBbozIjd',
+      userPoolWebClientId: 'kpd58387a2f9e4fe1d42sfd1q'
   }
 }

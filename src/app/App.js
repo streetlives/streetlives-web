@@ -16,6 +16,19 @@ class App extends Component {
 
   componentWillMount(){
     Amplify.Auth.currentAuthenticatedUser().then((user) => {
+      console.log('user',user)
+      const apigClient = window.apigClientFactory.newClient();
+      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+      apigClient.locationsGet(
+        {},
+        {},
+        {
+          headers : {
+            Authorization : idJwtToken 
+          }
+        })
+        .then((result) => console.log('result', result))
+        .catch( (e) => console.log('error', e) )
       user.getUserAttributes((err, attributes) => {
         let o = {}; 
         attributes.forEach(x => o[x.Name] = x.Value)
