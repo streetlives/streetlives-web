@@ -11,9 +11,11 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-google-maps": "^9.4.5",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.1.1"
+    "react-scripts": "1.1.1",
+    "recompose": "^0.26.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -22,7 +24,7 @@
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "publish" : "aws s3 cp --recursive ./build s3://streetlives-web/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
+    "publish": "aws s3 cp --recursive ./build s3://streetlives-web/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.3.15",
