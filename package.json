@@ -5,10 +5,12 @@
   "dependencies": {
     "aws-amplify": "^0.2.11",
     "aws-amplify-react": "^0.1.36",
+    "axios": "^0.18.0",
     "bootstrap": "^4.0.0",
     "classnames": "^2.2.5",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "lodash.debounce": "^4.0.8",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-google-maps": "^9.4.5",
