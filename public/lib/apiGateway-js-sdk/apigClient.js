@@ -53,7 +53,7 @@ apigClientFactory.newClient = function (config) {
 
     
     // extract endpoint and path from url
-    var invokeUrl = 'https://u3e529kbzd.execute-api.us-east-1.amazonaws.com/test';
+    var invokeUrl = 'https://98pn5dzwsg.execute-api.us-east-1.amazonaws.com/Stage';
     var endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
     var pathComponent = invokeUrl.substring(endpoint.length);
 
@@ -83,39 +83,39 @@ apigClientFactory.newClient = function (config) {
     
     
     
-    apigClient.locationsGet = function (params, body, additionalParams) {
+    apigClient.rootOptions = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
         
-        var locationsGetRequest = {
-            verb: 'get'.toUpperCase(),
-            path: pathComponent + uritemplate('/locations').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+        var rootOptionsRequest = {
+            verb: 'options'.toUpperCase(),
+            path: pathComponent + uritemplate('/').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
             headers: apiGateway.core.utils.parseParametersToObject(params, []),
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
         
         
-        return apiGatewayClient.makeRequest(locationsGetRequest, authType, additionalParams, config.apiKey);
+        return apiGatewayClient.makeRequest(rootOptionsRequest, authType, additionalParams, config.apiKey);
     };
     
     
-    apigClient.locationsOptions = function (params, body, additionalParams) {
+    apigClient.proxyOptions = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
         
-        var locationsOptionsRequest = {
+        var proxyOptionsRequest = {
             verb: 'options'.toUpperCase(),
-            path: pathComponent + uritemplate('/locations').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            path: pathComponent + uritemplate('/{proxy+}').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
             headers: apiGateway.core.utils.parseParametersToObject(params, []),
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
         
         
-        return apiGatewayClient.makeRequest(locationsOptionsRequest, authType, additionalParams, config.apiKey);
+        return apiGatewayClient.makeRequest(proxyOptionsRequest, authType, additionalParams, config.apiKey);
     };
     
 

@@ -1,7 +1,7 @@
 // TODO: Break down this file into a bunch of components, utils, etc.
 
 import React, { Component } from "react";
-// import Amplify from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import { Link } from "react-router-dom";
 import debounce from "lodash/debounce";
 import { compose, withProps, withStateHandlers, lifecycle } from "recompose";
@@ -20,7 +20,7 @@ import "./Map.css";
 // TODO: The default center should be the user's location.
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
-const baseUrl = "http://localhost:3001";
+const baseUrl = 'https://98pn5dzwsg.execute-api.us-east-1.amazonaws.com/prod';
 
 const defaultZoom = 14;
 const minZoom = 11;
@@ -161,29 +161,27 @@ class Map extends Component {
 
   fetchLocations = debounce(() => {
     // TODO: Re-integrate with AWS.
-    // Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    //   console.log('user',user)
-    //   const apigClient = window.apigClientFactory.newClient();
-    //   const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-    //   apigClient.locationsGet(
-    //     {},
-    //     {},
-    //     {
-    //       headers : {
-    //         Authorization : idJwtToken
-    //       }
-    //     })
+    Amplify.Auth.currentAuthenticatedUser().then((user) => {
+      console.log('user',user)
+      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+      const params = {
+        latitude: this.state.center.lat,
+        longitude: this.state.center.lng,
+        radius: this.state.radius,
+        searchString: this.state.searchString,
+      };
 
-    const params = {
-      latitude: this.state.center.lat,
-      longitude: this.state.center.lng,
-      radius: this.state.radius,
-      searchString: this.state.searchString,
-    };
-
-    axios.get(`${baseUrl}/locations`, { params })
-      .then((result) => this.setState({ locations : result.data }))
-      .catch((e) => console.log('error', e));
+      axios.request({
+          url : `${baseUrl}/locations`, 
+          method : 'get',
+          params,
+          //headers : {
+          //  Authorization : idJwtToken
+          //}
+        })
+        .then((result) => this.setState({ locations : result.data }))
+        .catch((e) => console.log('error', e));
+    })
   }, fetchLocationsDebouncePeriod);
 
   onChange = (event) => {
