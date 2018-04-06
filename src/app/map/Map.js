@@ -20,7 +20,7 @@ import "./Map.css";
 // TODO: The default center should be the user's location.
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
-const baseUrl = 'https://98pn5dzwsg.execute-api.us-east-1.amazonaws.com/prod';
+const baseUrl = 'https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod';
 
 const defaultZoom = 14;
 const minZoom = 11;
@@ -175,9 +175,9 @@ class Map extends Component {
           url : `${baseUrl}/locations`, 
           method : 'get',
           params,
-          //headers : {
-          //  Authorization : idJwtToken
-          //}
+          headers : {
+            Authorization : idJwtToken
+          }
         })
         .then((result) => this.setState({ locations : result.data }))
         .catch((e) => console.log('error', e));
