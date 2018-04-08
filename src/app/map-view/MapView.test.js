@@ -1,8 +1,8 @@
 import React from "react";
-import Map from "./Map";
+import MapView from "./MapView";
 import { shallow } from "enzyme";
 
 it("renders without crashing", () => {
-  const wrapper = shallow(<Map />);
+  const wrapper = shallow(<MapView />);
   expect(wrapper).toHaveLength(1);
 });

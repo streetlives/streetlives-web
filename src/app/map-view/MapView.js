@@ -17,8 +17,7 @@ const minZoom = 11;
 
 const fetchLocationsDebouncePeriod = 500;
 
-// TODO: Rename this, to make it clear this is the page, not the reusable component.
-class Map extends Component {
+class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
@@ -87,4 +86,4 @@ class Map extends Component {
   }
 }
 
-export default Map;
+export default MapView;
