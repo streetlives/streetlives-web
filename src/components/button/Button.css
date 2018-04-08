@@ -1,11 +1,8 @@
-@value yellow: #f8e71c;
-@value darkGray: #323333;
-@value gray: #f2f2f2;
-@value borderGray: #b2b2b2;
+@value gray, darkBorder, yellow, darkerGray from "../../colors.css";
 
 .Button {
   background: gray;
-  border: 1px solid borderGray;
+  border: 1px solid darkBorder;
   color: black;
   font-size: 0.75em;
   font-weight: 600;
@@ -22,8 +19,8 @@
 }
 
 .Button-secondary {
-  background: darkGray;
-  border: 1px solid darkGray;
+  background: darkerGray;
+  border: 1px solid darkerGray;
   color: white;
 }
 
