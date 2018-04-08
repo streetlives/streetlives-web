@@ -23,8 +23,8 @@ class LocationMarker extends Component {
   }
 
   renderUrl(url) {
-    // TODO: Add protocol if not already there, to make this absolute.
-    return <a href={url}>{url}</a>;
+    const linkUrl = url.includes('//') ? url : `http://${url}`;
+    return <a href={linkUrl} target="_blank">{url}</a>;
   }
 
   render() {
