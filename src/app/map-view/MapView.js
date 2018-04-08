@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import debounce from "lodash/debounce";
 import axios from "axios";
 import Map from "../../components/map";
-import Button from "../../components/button";
 
 // TODO: Get the constants from some config or consts file.
 // TODO: The default center should be the user's location.
@@ -75,8 +74,7 @@ class MapView extends Component {
           minZoom={minZoom}
           defaultCenter={defaultCenter}
         />
-        <div><input onChange={this.onChange} /></div>
-        <Button>Click Link</Button>
+        <div>Search: <input onChange={this.onChange} /></div>
         <div>
           <Link to="/login">Login</Link>
           <Link to="/form">Add location</Link>
