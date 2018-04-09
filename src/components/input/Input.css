@@ -1,0 +1,24 @@
+@value placeholderGray, darkerGray, borderGray from "../../colors.css";
+
+.Input {
+  border: none;
+  border-bottom: 1px solid borderGray;
+  padding: 4px 0;
+}
+
+.Input::placeholder {
+  color: placeholderGray;
+  font-weight: 300;
+}
+
+.Input-fluid {
+  width: 100%;
+}
+
+label {
+  color: darkerGray;
+  font-weight: 600;
+  font-size: 1.2em;
+  letter-spacing: -.75px;
+  line-height: 24px;
+}

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import withTracker from "./withTracker";
 
 import Amplify from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
@@ -43,8 +44,8 @@ class App extends Component {
         }
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" component={Map} />
-            <Route path="/form" component={Form} />
+            <Route exact path="/" component={withTracker(Map)} />
+            <Route path="/form" component={withTracker(Form)} />
           </Switch>
         </BrowserRouter>
       </div>

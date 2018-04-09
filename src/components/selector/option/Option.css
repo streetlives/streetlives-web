@@ -1,0 +1,21 @@
+@value cardShadow: 0px 2px 4px rgba(0,0,0,0.15);
+@value primaryColor, borderGray, darkerGray from "../../../colors.css";
+
+.Option {
+  border: 1px solid borderGray;
+  box-sizing: border-box;
+  box-shadow: cardShadow;
+  border-radius: 2px;
+  color: darkerGray;
+  cursor: pointer;
+  padding: 10px;
+  min-width: 250px;
+  width: fit-content;
+}
+
+.Option.Option-active {
+  background: darkerGray;
+  border: 1px solid darkerGray;
+  color: primaryColor;
+  font-weight: 300;
+}
