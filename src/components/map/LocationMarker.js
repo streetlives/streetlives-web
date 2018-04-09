@@ -28,7 +28,6 @@ class LocationMarker extends Component {
   }
 
   render() {
-    // TODO: Change the API so the back-end returns this in a much nicer format.
     const { location, isOpen } = this.props;
     const {
       Organization: organization,

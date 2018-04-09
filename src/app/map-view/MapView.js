@@ -4,7 +4,6 @@ import debounce from "lodash/debounce";
 import { getLocations } from '../../services/api';
 import Map from "../../components/map";
 
-// TODO: Get the constants from some config or consts file.
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
 
@@ -18,7 +17,6 @@ class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
-    // TODO: Find a way to get new radius when bounds change (or use other param for bounding).
     radius: defaultRadius,
   };
 
