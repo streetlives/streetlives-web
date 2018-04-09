@@ -14,7 +14,7 @@ class Button extends Component {
     });
 
     return (
-      <button onClick={onClick} className={classNames} disabled>
+      <button onClick={onClick} className={classNames}>
         {children}
       </button>
     );

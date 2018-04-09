@@ -3,8 +3,22 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import withTracker from "./withTracker";
 
 import Amplify from 'aws-amplify';
-import { withAuthenticator } from 'aws-amplify-react';
+import { 
+  AmplifyTheme,
+//	ConfirmSignIn,
+	ConfirmSignUp,
+//	ForgotPassword,
+	Greetings,
+	RequireNewPassword,
+//	SignIn,
+	SignUp,
+//	Theme,
+	VerifyContact,
+  Authenticator } from 'aws-amplify-react';
+import SignIn from './auth/SignIn';
+import ForgotPassword from './auth/ForgotPassword';
 import aws_exports from './aws-exports';
+
 
 import Map from "./map/Map";
 import Form from "./form/Form";
@@ -13,36 +27,13 @@ import "./App.css";
 
 Amplify.configure(aws_exports);
 
+
 class App extends Component {
 
-  componentWillMount(){
-    Amplify.Auth.currentAuthenticatedUser().then((user) => {
-      console.log('user',user)
-      user.getUserAttributes((err, attributes) => {
-        let o = {}; 
-        attributes.forEach(x => o[x.Name] = x.Value)
-        this.setState({user : o});
-      })
-    });
-  }
-
-  logout() {
-    Amplify.Auth.signOut()
-        .then(data => {
-          window.location.reload();
-        })
-        .catch(err => console.log(err));
-  }
-
   render() {
+    if(this.props.authState !== 'signedIn') return null;
     return (
       <div className="App">
-        { this.state && this.state.user && 
-          <p> 
-            Hello {this.state.user.name}!&nbsp;
-            <span onClick={() => this.logout()} style={{cursor : 'pointer', color : 'blue'}}>(Logout)</span>
-          </p> 
-        }
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={withTracker(Map)} />
@@ -54,4 +45,20 @@ class App extends Component {
   }
 }
 
-export default withAuthenticator(App);
+AmplifyTheme.container.paddingRight = AmplifyTheme.container.paddingLeft = 0;
+
+const auth = () => (
+  <Authenticator hideDefault={true} theme={AmplifyTheme}>
+    <Greetings />
+    <SignIn  />
+    <ForgotPassword  />
+    <RequireNewPassword  />
+    <SignUp  />
+    <ConfirmSignUp  />
+    <VerifyContact  />
+    <App />
+  </Authenticator>
+);
+
+export default auth;
+
