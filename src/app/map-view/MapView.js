@@ -1,14 +1,12 @@
 import React, { Component } from "react";
-import Amplify from 'aws-amplify';
 import { Link } from "react-router-dom";
 import debounce from "lodash/debounce";
-import axios from "axios";
+import { getLocations } from '../../services/api';
 import Map from "../../components/map";
 
 // TODO: Get the constants from some config or consts file.
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
-const baseUrl = 'https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod';
 
 const defaultZoom = 14;
 const minZoom = 11;
@@ -25,28 +23,14 @@ class MapView extends Component {
   };
 
   fetchLocations = debounce(() => {
-    // TODO: The API requests should be encapsulated behind a dedicated module.
-    Amplify.Auth.currentAuthenticatedUser().then((user) => {
-      console.log('user',user)
-      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-      const params = {
-        latitude: this.state.center.lat,
-        longitude: this.state.center.lng,
-        radius: this.state.radius,
-        searchString: this.state.searchString,
-      };
-
-      axios.request({
-          url : `${baseUrl}/locations`,
-          method : 'get',
-          params,
-          headers : {
-            Authorization : idJwtToken
-          }
-        })
-        .then((result) => this.setState({ locations : result.data }))
-        .catch((e) => console.error('error', e));
+    getLocations({
+      latitude: this.state.center.lat,
+      longitude: this.state.center.lng,
+      radius: this.state.radius,
+      searchString: this.state.searchString,
     })
+      .then((locations) => this.setState({ locations }))
+      .catch((e) => console.error('error', e));
   }, fetchLocationsDebouncePeriod);
 
   onSearchChanged = (event) => {
