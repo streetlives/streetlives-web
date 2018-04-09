@@ -34,7 +34,9 @@ const Map = compose(
         },
         onCenterChanged: () => {
           const center = mapRef.getCenter();
-          this.props.onCenterChanged({ lat: center.lat(), lng: center.lng() });
+          if (this.props.onCenterChanged) {
+            this.props.onCenterChanged({ lat: center.lat(), lng: center.lng() });
+          }
         },
       });
     },
@@ -43,10 +45,7 @@ const Map = compose(
   withGoogleMap
 )(props => (
   <GoogleMap
-    defaultZoom={props.defaultZoom}
-    options={{ minZoom: props.minZoom }}
-    defaultCenter={props.defaultCenter}
-    onCenterChanged={props.onCenterChanged}
+    {...props}
     ref={props.onMapMounted}
   >
     {props.locations && (

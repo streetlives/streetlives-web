@@ -6,7 +6,6 @@ import axios from "axios";
 import Map from "../../components/map";
 
 // TODO: Get the constants from some config or consts file.
-// TODO: The default center should be the user's location.
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
 const baseUrl = 'https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod';
@@ -14,6 +13,7 @@ const baseUrl = 'https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod';
 const defaultZoom = 14;
 const minZoom = 11;
 
+const geolocationTimeout = 5000;
 const fetchLocationsDebouncePeriod = 500;
 
 class MapView extends Component {
@@ -23,10 +23,6 @@ class MapView extends Component {
     // TODO: Find a way to get new radius when bounds change (or use other param for bounding).
     radius: defaultRadius,
   };
-
-  componentWillMount() {
-    this.fetchLocations();
-  }
 
   fetchLocations = debounce(() => {
     // TODO: The API requests should be encapsulated behind a dedicated module.
@@ -49,19 +45,43 @@ class MapView extends Component {
           }
         })
         .then((result) => this.setState({ locations : result.data }))
-        .catch((e) => console.log('error', e));
+        .catch((e) => console.error('error', e));
     })
   }, fetchLocationsDebouncePeriod);
 
-  onChange = (event) => {
-    this.setState({ searchString: event.target.value });
-    this.fetchLocations();
+  onSearchChanged = (event) => {
+    this.setState({ searchString: event.target.value }, () => {
+      this.fetchLocations();
+    });
   };
 
   onCenterChanged = (center) => {
-    this.setState({ center });
-    this.fetchLocations();
+    this.setState({ center }, () => {
+      this.fetchLocations();
+    });
   };
+
+  componentWillMount() {
+    this.fetchLocations();
+  }
+
+  componentDidMount() {
+    if (!navigator || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (userPosition) => {
+        const { coords } = userPosition;
+        this.onCenterChanged({
+          lat: coords.latitude,
+          lng: coords.longitude,
+        });
+      },
+      (e) => console.error('Failed to get current position', e),
+      { timeout: geolocationTimeout },
+    );
+  }
 
   render() {
     return (
@@ -69,12 +89,13 @@ class MapView extends Component {
         <h1>Map View</h1>
         <Map
           locations={this.state && this.state.locations}
-          onCenterChanged={this.onCenterChanged}
+          options={{ minZoom }}
           defaultZoom={defaultZoom}
-          minZoom={minZoom}
           defaultCenter={defaultCenter}
+          center={this.state.center}
+          onCenterChanged={this.onCenterChanged}
         />
-        <div>Search: <input onChange={this.onChange} /></div>
+        <div>Search: <input onChange={this.onSearchChanged} /></div>
         <div>
           <Link to="/login">Login</Link>
           <Link to="/form">Add location</Link>
