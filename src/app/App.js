@@ -6,16 +6,18 @@ import Amplify from 'aws-amplify';
 import { 
   AmplifyTheme,
 //	ConfirmSignIn,
-	ConfirmSignUp,
+//	ConfirmSignUp,
 //	ForgotPassword,
 	Greetings,
 	RequireNewPassword,
 //	SignIn,
-	SignUp,
+//	SignUp,
 //	Theme,
 	VerifyContact,
   Authenticator } from 'aws-amplify-react';
 import SignIn from './auth/SignIn';
+import SignUp from './auth/SignUp';
+import ConfirmSignUp from './auth/ConfirmSignUp';
 import ForgotPassword from './auth/ForgotPassword';
 import aws_exports from './aws-exports';
 
