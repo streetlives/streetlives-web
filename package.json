@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@storybook/addon-actions": "^3.3.15",
-    "@storybook/addon-links": "^3.3.15",
-    "@storybook/react": "^3.3.15",
     "aws-amplify": "^0.2.11",
     "aws-amplify-react": "^0.1.36",
     "bootstrap": "^4.0.0",
@@ -33,7 +30,8 @@
     "lint": "eslint .",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "publish": "aws s3 cp --recursive ./build s3://streetlives-web/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
+    "publish":
+      "aws s3 cp --recursive ./build s3://streetlives-web/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.3.15",
