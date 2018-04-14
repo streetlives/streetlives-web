@@ -1,10 +1,18 @@
 import React, { Component } from "react";
 import { Marker, InfoWindow } from "react-google-maps";
 import "./LocationMarker.css";
+import Button from '../button';
+import { withRouter } from 'react-router-dom'
 
 class LocationMarker extends Component {
+
+  constructor(props){
+    super(props);
+    this.handleYesClick = this.handleYesClick.bind(this);
+  }
+
   onToggleInfo = () => {
-    this.props.onToggleInfo(this.props.location.id);
+    this.props.onToggleInfo(this.props.mapLocation.id);
   };
 
   renderAddress(address) {
@@ -27,38 +35,57 @@ class LocationMarker extends Component {
     return <a href={linkUrl} target="_blank">{url}</a>;
   }
 
+  handleYesClick(){
+    this.props.history.push('/recap');
+  }
+
   render() {
-    const { location, isOpen } = this.props;
+    const { mapLocation, isOpen } = this.props;
     const {
       Organization: organization,
       PhysicalAddresses: physicalAddresses,
       Phones: phones,
-    } = location;
+    } = mapLocation;
     const position = {
-      lng: location.position.coordinates[0],
-      lat: location.position.coordinates[1],
+      lng: mapLocation.position.coordinates[0],
+      lat: mapLocation.position.coordinates[1],
     };
 
     return (
       <Marker
-        key={location.id}
+        key={mapLocation.id}
         position={position}
         onClick={this.onToggleInfo}
       >
         {isOpen && <InfoWindow onCloseClick={this.onToggleInfo}>
-          <div className="locationInfo">
-            <div className="locationInfoHeader">
-              <div>{organization.name}</div>
-              {location.name && <div>{location.name}</div>}
+          <div style={{textAlign:'left'}}>
+            <div>This location is:</div>
+            <br/>
+            <div className="locationInfo" style={{textAlign:'center'}}>
+              <div className="locationInfoHeader">
+                <div>{organization.name}</div>
+                {mapLocation.name && <div>{mapLocation.name}</div>}
+              </div>
+              <div>{physicalAddresses.map(this.renderAddress)}</div>
+              <div>{this.renderUrl(organization.url)}</div>
+              <div>{phones.map(this.renderPhone)}</div>
             </div>
-            <div>{physicalAddresses.map(this.renderAddress)}</div>
-            <div>{this.renderUrl(organization.url)}</div>
-            <div>{phones.map(this.renderPhone)}</div>
+            <br/>
+            <div>Would you like to review, add, or edit<br/> information about this location?</div>
+            <br/>
+            <Button primary fluid onClick={this.handleYesClick}>
+              <span>YES</span>
+            </Button>
+            <div style={{margin:'.5em'}}/>
+            <Button primary basic fluid onClick={this.onToggleInfo}>
+              <span>NO THANKS</span>
+            </Button>
           </div>
+          
         </InfoWindow>}
       </Marker>
     );
   }
 }
 
-export default LocationMarker;
+export default withRouter(LocationMarker);

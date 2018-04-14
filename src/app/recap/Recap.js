@@ -7,7 +7,7 @@ function Recap() {
     <div className="d-flex flex-column">
       <NavBar title="Recap" />
       <div
-        style={{ backgroundColor: "#525252" }}
+        style={{ backgroundColor: "#525252", position:'absolute', top:'2.6em', bottom:'2.6em' }}
         className="text-white text-left font-weight-light"
       >
         <div className="container">
@@ -28,9 +28,11 @@ function Recap() {
           </div>
         </div>
       </div>
-      <Button fluid primary>
-        Let's Get Started
-      </Button>
+      <div style={{position:'absolute',bottom:0,left:0,right:0}}>
+        <Button fluid primary>
+          Let's Get Started
+        </Button>
+      </div>
     </div>
   );
 }

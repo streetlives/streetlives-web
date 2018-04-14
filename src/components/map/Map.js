@@ -47,7 +47,7 @@ const Map = compose(
         location => (
           <LocationMarker
             key={location.id}
-            location={location}
+            mapLocation={location}
             isOpen={location.id === props.openLocationId}
             onToggleInfo={props.onToggleMarkerInfo}
           />
