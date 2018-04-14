@@ -8,7 +8,7 @@ const Map = compose(
   withProps({
     googleMapURL: urls.googleMaps,
     loadingElement: <div style={{ height: `100%` }} />,
-    containerElement: <div style={{ height: `400px` }} />,
+    containerElement: <div style={{ height: `100%` }} />,
     mapElement: <div style={{ height: `100%` }} />
   }),
   withStateHandlers(() => ({

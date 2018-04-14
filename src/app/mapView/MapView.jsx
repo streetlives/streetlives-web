@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import debounce from 'lodash/debounce';
+import React, { Component } from "react";
+import debounce from "lodash/debounce";
 import { getLocations } from '../../services/api';
 import Map from '../../components/map';
 
@@ -68,21 +67,23 @@ class MapView extends Component {
   render() {
     return (
       <div className="Map">
-        <h1>Map View</h1>
-        <Map
-          locations={this.state && this.state.locations}
-          options={{ minZoom }}
-          defaultZoom={defaultZoom}
-          defaultCenter={defaultCenter}
-          center={this.state.center}
-          onCenterChanged={this.onCenterChanged}
-        />
-        <div>
-          Search: <input onChange={this.onSearchChanged} />
+        <div style={{backgroundColor:'#323232',position:'absolute',left:0,top:'0em',right:0}}>
+          <div className="input-group" style={{padding:'.5em'}}>
+            <div className="input-group-prepend">
+              <span style={{backgroundColor:'white',border:'none', borderRadius:0}} className="input-group-text"><i className="fa fa-search"></i></span>
+            </div>
+            <input style={{border:'none',borderRadius:0}} type="text" className="form-control" placeholder="Type the address, or drop a pin" required></input>
+          </div>
         </div>
-        <div>
-          <Link to="/login">Login</Link>
-          <Link to="/form">Add location</Link>
+        <div style={{position:'absolute',left:0,top:'3.2em',right:0,bottom:0}}>
+          <Map
+            locations={this.state && this.state.locations}
+            options={{ minZoom, disableDefaultUI: true }}
+            defaultZoom={defaultZoom}
+            defaultCenter={defaultCenter}
+            center={this.state.center}
+            onCenterChanged={this.onCenterChanged}
+          />
         </div>
       </div>
     );
