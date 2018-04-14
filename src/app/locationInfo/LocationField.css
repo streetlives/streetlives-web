@@ -1,0 +1,6 @@
+@value yellow  from "../../colors.css";
+
+.LocationField.bg-yellow {
+  background: yellow;
+  border-color: #d2c418 !important;
+}
