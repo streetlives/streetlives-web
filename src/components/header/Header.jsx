@@ -2,8 +2,7 @@ import React from "react";
 import cx from "classnames";
 import "./Header.css";
 
-function Header() {
-  const { children, size, className } = this.props;
+function Header({ children, size, className}) {
   const classNames = cx("Header", className, {
     "Header-large": size === "large",
     "Header-medium": size === "medium",

@@ -23,8 +23,9 @@ function LocationInfo() {
       <ProgressBar progress={0} />
       <LocationHeader />
       <LocationField title="Entrance picture" required />
-      <LocationField title="Address" updatedAt={moment().subtract(30, "days")} />
-      <LocationField title="Organization" updatedAt={moment().subtract(3, "months")} />
+      <LocationField title="Address" updatedAt={moment().subtract(1, "years")} />
+      <LocationField title="Organization name" updatedAt={moment().subtract(30, "days")} />
+      <LocationField title="Location name" updatedAt={moment().subtract(3, "months")} />
       <LocationField title="Location description" updatedAt={moment().subtract(3, "months")} />
       <LocationField title="Phone number" required />
       <LocationField title="Website" updatedAt={moment().subtract(3, "months")} />
