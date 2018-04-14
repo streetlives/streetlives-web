@@ -1,0 +1,7 @@
+.Selector > .Option {
+  margin-bottom: 10px;
+}
+
+.Selector.Selector-fluid > .Option {
+  width: 100%;
+}
