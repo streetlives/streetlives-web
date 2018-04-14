@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import withTracker from "./withTracker";
 
 import Amplify from "aws-amplify";
 import {
@@ -10,25 +9,22 @@ import {
   VerifyContact,
   Authenticator,
 } from "aws-amplify-react";
-import SignIn from "./auth/SignIn";
-import SignUp from "./auth/SignUp";
-import ConfirmSignUp from "./auth/ConfirmSignUp";
-import ForgotPassword from "./auth/ForgotPassword";
-import aws_exports from "./aws-exports";
-import SignIn from "./auth/SignIn";
-import SignUp from "./auth/SignUp";
-import ConfirmSignUp from "./auth/ConfirmSignUp";
-import ForgotPassword from "./auth/ForgotPassword";
-import aws_exports from "./aws-exports";
 
-import MapView from "./map-view/MapView";
+import SignIn from "./auth/SignIn";
+import SignUp from "./auth/SignUp";
+import ConfirmSignUp from "./auth/ConfirmSignUp";
+import ForgotPassword from "./auth/ForgotPassword";
+import awsExports from "./aws-exports";
+
+import withTracker from "./withTracker";
+import MapView from "./mapView/MapView";
 import Form from "./form/Form";
 import Recap from "./recap/Recap";
 import LocationInfo from "./locationInfo/LocationInfo";
 
 import "./App.css";
 
-Amplify.configure(aws_exports);
+Amplify.configure(awsExports);
 
 class App extends Component {
   render() {
@@ -51,7 +47,7 @@ class App extends Component {
 AmplifyTheme.container.paddingRight = AmplifyTheme.container.paddingLeft = 0;
 
 const auth = () => (
-  <Authenticator hideDefault={true} theme={AmplifyTheme}>
+  <Authenticator hideDefault theme={AmplifyTheme}>
     <Greetings />
     <SignIn />
     <ForgotPassword />

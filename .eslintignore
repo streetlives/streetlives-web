@@ -1,2 +1,5 @@
 /coverage/**
 !.eslintrc.js
+
+// Temporarily disable eslint for app files
+src/*

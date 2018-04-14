@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import debounce from "lodash/debounce";
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 import { getLocations } from '../../services/api';
-import Map from "../../components/map";
+import Map from '../../components/map';
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
@@ -27,17 +27,17 @@ class MapView extends Component {
       radius: this.state.radius,
       searchString: this.state.searchString,
     })
-      .then((locations) => this.setState({ locations }))
-      .catch((e) => console.error('error', e));
+      .then(locations => this.setState({ locations }))
+      .catch(e => console.error('error', e));
   }, fetchLocationsDebouncePeriod);
 
-  onSearchChanged = (event) => {
+  onSearchChanged = event => {
     this.setState({ searchString: event.target.value }, () => {
       this.fetchLocations();
     });
   };
 
-  onCenterChanged = (center) => {
+  onCenterChanged = center => {
     this.setState({ center }, () => {
       this.fetchLocations();
     });
@@ -53,14 +53,14 @@ class MapView extends Component {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (userPosition) => {
+      userPosition => {
         const { coords } = userPosition;
         this.onCenterChanged({
           lat: coords.latitude,
           lng: coords.longitude,
         });
       },
-      (e) => console.error('Failed to get current position', e),
+      e => console.error('Failed to get current position', e),
       { timeout: geolocationTimeout },
     );
   }
@@ -77,7 +77,9 @@ class MapView extends Component {
           center={this.state.center}
           onCenterChanged={this.onCenterChanged}
         />
-        <div>Search: <input onChange={this.onSearchChanged} /></div>
+        <div>
+          Search: <input onChange={this.onSearchChanged} />
+        </div>
         <div>
           <Link to="/login">Login</Link>
           <Link to="/form">Add location</Link>
