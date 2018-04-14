@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Marker, InfoWindow } from "react-google-maps";
 import "./LocationMarker.css";
+import Button from '../button';
 
 class LocationMarker extends Component {
   onToggleInfo = () => {
@@ -46,15 +47,30 @@ class LocationMarker extends Component {
         onClick={this.onToggleInfo}
       >
         {isOpen && <InfoWindow onCloseClick={this.onToggleInfo}>
-          <div className="locationInfo">
-            <div className="locationInfoHeader">
-              <div>{organization.name}</div>
-              {location.name && <div>{location.name}</div>}
+          <div style={{textAlign:'left'}}>
+            <div>This location is:</div>
+            <br/>
+            <div className="locationInfo" style={{textAlign:'center'}}>
+              <div className="locationInfoHeader">
+                <div>{organization.name}</div>
+                {location.name && <div>{location.name}</div>}
+              </div>
+              <div>{physicalAddresses.map(this.renderAddress)}</div>
+              <div>{this.renderUrl(organization.url)}</div>
+              <div>{phones.map(this.renderPhone)}</div>
             </div>
-            <div>{physicalAddresses.map(this.renderAddress)}</div>
-            <div>{this.renderUrl(organization.url)}</div>
-            <div>{phones.map(this.renderPhone)}</div>
+            <br/>
+            <div>Would you like to review, add, or edit<br/> information about this location?</div>
+            <br/>
+            <Button primary fluid onClick={() => {}}>
+              <span>YES</span>
+            </Button>
+            <div style={{margin:'.5em'}}/>
+            <Button primary basic fluid onClick={() => {}}>
+              <span>NO THANKS</span>
+            </Button>
           </div>
+          
         </InfoWindow>}
       </Marker>
     );
