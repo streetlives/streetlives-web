@@ -1,8 +1,9 @@
 import React from "react";
 import Button from "../../components/button";
 import NavBar from "../NavBar";
+import { withRouter } from 'react-router-dom'
 
-function Recap() {
+function Recap({history}) {
   return (
     <div className="d-flex flex-column">
       <NavBar title="Recap" />
@@ -29,7 +30,7 @@ function Recap() {
         </div>
       </div>
       <div style={{position:'absolute',bottom:0,left:0,right:0}}>
-        <Button fluid primary>
+        <Button fluid primary onClick={() => history.push('/location')}>
           Let's Get Started
         </Button>
       </div>
@@ -37,4 +38,4 @@ function Recap() {
   );
 }
 
-export default Recap;
+export default withRouter(Recap);
