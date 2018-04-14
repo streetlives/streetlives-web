@@ -5,14 +5,8 @@ import withTracker from "./withTracker";
 import Amplify from "aws-amplify";
 import {
   AmplifyTheme,
-  //	ConfirmSignIn,
-  //	ConfirmSignUp,
-  //	ForgotPassword,
   Greetings,
   RequireNewPassword,
-  //	SignIn,
-  //	SignUp,
-  //	Theme,
   VerifyContact,
   Authenticator,
 } from "aws-amplify-react";
@@ -21,8 +15,13 @@ import SignUp from "./auth/SignUp";
 import ConfirmSignUp from "./auth/ConfirmSignUp";
 import ForgotPassword from "./auth/ForgotPassword";
 import aws_exports from "./aws-exports";
+import SignIn from "./auth/SignIn";
+import SignUp from "./auth/SignUp";
+import ConfirmSignUp from "./auth/ConfirmSignUp";
+import ForgotPassword from "./auth/ForgotPassword";
+import aws_exports from "./aws-exports";
 
-import Map from "./map/Map";
+import MapView from "./map-view/MapView";
 import Form from "./form/Form";
 import Recap from "./recap/Recap";
 import LocationInfo from "./locationInfo/LocationInfo";
@@ -38,7 +37,7 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" component={withTracker(Map)} />
+            <Route exact path="/" component={withTracker(MapView)} />
             <Route path="/form" component={withTracker(Form)} />
             <Route path="/recap" component={withTracker(Recap)} />
             <Route path="/location" component={withTracker(LocationInfo)} />

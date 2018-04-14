@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-import { storiesOf } from "@storybook/react";
+import { storiesOf } from '@storybook/react';
 
-import Input from "./Input";
+import Input from './Input';
 
 const DefaultExample = (
   <div className="container-fluid">
@@ -18,7 +18,7 @@ const FluidExample = (
   </div>
 );
 
-storiesOf("Input", module)
-  .add("Overview", () => [DefaultExample, FluidExample])
-  .add("Default example", () => DefaultExample)
-  .add("Fluid example", () => FluidExample);
+storiesOf('Input', module)
+  .add('Overview', () => [DefaultExample, FluidExample])
+  .add('Default example', () => DefaultExample)
+  .add('Fluid example', () => FluidExample);

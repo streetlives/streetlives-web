@@ -2,23 +2,24 @@ import React from "react";
 import { ForgotPassword } from 'aws-amplify-react';
 import Input from '../../components/input';
 import Button from '../../components/button';
+import {Grid, Row, Col} from '../../components/layout/bootstrap';
 
 export default class StreetlivesForgotPassword extends ForgotPassword {
 
   sendView() {
       return [
-        <div className="row" key={1}>
-          <div className="col-sm-12 col-md-8 offset-md-2">
+        <Row key={1}>
+          <Col>
             <h3> Forgotten password?<br/>No worries.</h3>
             <p>
               Enter the phone number you used to sign up to the Streetlives
               street team tool.  We'll send an SMS with a reactivation code to the phone
               number you used to sign up.
             </p>
-          </div>
-        </div>,
-        <div className="row" key={2}>
-          <div className="col-sm-12 col-md-8 offset-md-2">        
+          </Col>
+        </Row>,
+        <Row key={2}>
+          <Col>        
             <label className="w-100">Phone Number</label>
             <Input 
               fluid 
@@ -27,29 +28,29 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
               name="username"
               onChange={this.handleInputChange}
               />
-          </div>
-        </div>,
-        <div className="row" key={3}>
-          <div className="col-sm-12 col-md-8 offset-md-2">
+          </Col>
+        </Row>,
+        <Row key={3}>
+          <Col>
             <Button primary onClick={this.send}>
-              Send
+              <span>Send</span>
             </Button>
-          </div>
-        </div>
+          </Col>
+        </Row>
       ]
   }
 
   submitView() {
       return [
-        <div className="row" key={1}>
-          <div className="col-sm-12 col-md-8 offset-md-2">
+        <Row key={1}>
+          <Col>
             <p>
               Enter the the SMS reactivation code and a new password.
             </p>
-          </div>
-        </div>,
-        <div className="row" key={2}>
-          <div className="col-sm-12 col-md-8 offset-md-2">        
+          </Col>
+        </Row>,
+        <Row key={2}>
+          <Col>        
             <label className="w-100">Code</label>
             <Input 
               fluid 
@@ -58,10 +59,10 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
               name="code"
               onChange={this.handleInputChange}
               />
-          </div>
-        </div>,
-        <div className="row" key={3}>
-          <div className="col-sm-12 col-md-8 offset-md-2">        
+          </Col>
+        </Row>,
+        <Row key={3}>
+          <Col>        
             <label className="w-100">New password</label>
             <Input 
               fluid 
@@ -71,15 +72,15 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
               name="password"
               onChange={this.handleInputChange}
               />
-          </div>
-        </div>,
-        <div className="row" key={4}>
-          <div className="col-sm-12 col-md-8 offset-md-2">
+          </Col>
+        </Row>,
+        <Row key={4}>
+          <Col>
             <Button primary onClick={this.submit}>
-              Submit
+              <span>Submit</span>
             </Button>
-          </div>
-        </div>
+          </Col>
+        </Row>
       ]
   }
 
@@ -88,19 +89,19 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
       if (hide && hide.includes(ForgotPassword)) { return null; }
 
       return (
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col-sm-12 col-md-8 offset-md-2 sign-in-header">
+          <Grid>
+            <Row>
+              <Col customClasses="sign-in-header">
                 <div>Streetlives <strong>NYC</strong></div>
-              </div>
-            </div>
+              </Col>
+            </Row>
             { this.state.delivery? this.submitView() : this.sendView() }
-            <div className="row">
-              <div className="col-sm-12 col-md-8 offset-md-2">
+            <Row>
+              <Col>
                 <a onClick={() => this.changeState('signIn')}>Back to Sign In</a>
-              </div>
-            </div>
-          </div>
+              </Col>
+            </Row>
+          </Grid>
       )
   }
 }

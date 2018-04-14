@@ -1,8 +1,8 @@
 import React from "react";
-import Login from "./Login";
 import { shallow } from "enzyme";
+import LocationMarker from "./LocationMarker";
 
 it("renders without crashing", () => {
-  const wrapper = shallow(<Login />);
+  const wrapper = shallow(<LocationMarker />);
   expect(wrapper).toHaveLength(1);
 });
