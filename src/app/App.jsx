@@ -21,6 +21,7 @@ import MapView from "./mapView/MapView";
 import Form from "./form/Form";
 import Recap from "./recap/Recap";
 import LocationInfo from "./locationInfo/LocationInfo";
+import LocationForm from './locationForm/LocationForm';
 
 import "./App.css";
 
@@ -37,6 +38,7 @@ class App extends Component {
             <Route path="/form" component={withTracker(Form)} />
             <Route path="/recap" component={withTracker(Recap)} />
             <Route path="/location" component={withTracker(LocationInfo)} />
+            <Route path="/question" component={withTracker(LocationForm)} />
           </Switch>
         </BrowserRouter>
       </div>

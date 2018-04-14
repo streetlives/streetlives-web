@@ -13,6 +13,10 @@
   text-transform: uppercase;
 }
 
+.Button-compact {
+  min-width: 0;
+}
+
 .Button-primary {
   background: yellow;
   border: 1px solid yellow;

@@ -7,7 +7,9 @@ function ProgressBar({ progress }) {
       className="text-left font-weight-light p-1"
     >
       <div className="container">
-        <span>Progress {progress}/10 completed</span>
+        <div className='row px-4'>
+          <span>Progress {progress}/10 completed</span>
+        </div>
       </div>
     </div>
   );

@@ -5,14 +5,15 @@ import PropTypes from 'prop-types';
 import './Button.css';
 
 function Button({
-  onClick, children, basic, primary, secondary, disabled = undefined, fluid,
+  onClick, children, className, compact, basic, primary, secondary,  fluid, disabled = undefined,
 }) {
-  const classNames = cx('Button', {
+  const classNames = cx('Button', className, {
     'Button-primary': primary,
     'Button-secondary': secondary,
     'Button-fluid': fluid,
     'Button-disabled': disabled,
     'Button-basic': basic,
+    'Button-compact': compact
   });
 
   return (
@@ -32,7 +33,7 @@ Button.defaultProps = {
 
 Button.propTypes = {
   onClick: PropTypes.func.isRequired,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.string.isRequired,
   basic: PropTypes.bool,
   primary: PropTypes.bool,
   secondary: PropTypes.bool,
