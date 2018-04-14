@@ -4,17 +4,14 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Amplify from "aws-amplify";
 import {
   AmplifyTheme,
-  Greetings,
-  RequireNewPassword,
-  VerifyContact,
-  Authenticator,
-} from "aws-amplify-react";
-
-import SignIn from "./auth/SignIn";
-import SignUp from "./auth/SignUp";
-import ConfirmSignUp from "./auth/ConfirmSignUp";
-import ForgotPassword from "./auth/ForgotPassword";
-import awsExports from "./aws-exports";
+	RequireNewPassword,
+	VerifyContact,
+  Authenticator } from 'aws-amplify-react';
+import SignIn from './auth/SignIn';
+import SignUp from './auth/SignUp';
+import ConfirmSignUp from './auth/ConfirmSignUp';
+import ForgotPassword from './auth/ForgotPassword';
+import awsExports from './aws-exports';
 
 import withTracker from "./withTracker";
 import MapView from "./mapView/MapView";
@@ -50,7 +47,6 @@ AmplifyTheme.container.paddingRight = AmplifyTheme.container.paddingLeft = 0;
 
 const auth = () => (
   <Authenticator hideDefault theme={AmplifyTheme}>
-    <Greetings />
     <SignIn />
     <ForgotPassword />
     <RequireNewPassword />
