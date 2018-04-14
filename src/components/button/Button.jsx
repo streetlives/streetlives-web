@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import './Button.css';
 
 function Button({
-  onClick, children, basic, primary, secondary, disabled, fluid,
+  onClick, children, basic, primary, secondary, disabled = undefined, fluid,
 }) {
   const classNames = cx('Button', {
     'Button-primary': primary,
@@ -16,7 +16,7 @@ function Button({
   });
 
   return (
-    <button onClick={onClick} className={classNames} disabled={disabled || undefined}>
+    <button onClick={onClick} className={classNames} disabled={disabled}>
       {children}
     </button>
   );

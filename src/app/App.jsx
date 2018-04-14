@@ -5,14 +5,8 @@ import withTracker from "./withTracker";
 import Amplify from 'aws-amplify';
 import { 
   AmplifyTheme,
-//	ConfirmSignIn,
-//	ConfirmSignUp,
-//	ForgotPassword,
 	Greetings,
 	RequireNewPassword,
-//	SignIn,
-//	SignUp,
-//	Theme,
 	VerifyContact,
   Authenticator } from 'aws-amplify-react';
 import SignIn from './auth/SignIn';
