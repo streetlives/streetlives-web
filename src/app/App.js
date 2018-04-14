@@ -25,6 +25,7 @@ import aws_exports from "./aws-exports";
 import Map from "./map/Map";
 import Form from "./form/Form";
 import Recap from "./recap/Recap";
+import LocationInfo from "./locationInfo/LocationInfo";
 
 import "./App.css";
 
@@ -40,6 +41,7 @@ class App extends Component {
             <Route exact path="/" component={withTracker(Map)} />
             <Route path="/form" component={withTracker(Form)} />
             <Route path="/recap" component={withTracker(Recap)} />
+            <Route path="/location" component={withTracker(LocationInfo)} />
           </Switch>
         </BrowserRouter>
       </div>
