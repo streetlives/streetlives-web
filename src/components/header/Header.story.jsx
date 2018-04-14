@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-import { storiesOf } from "@storybook/react";
+import { storiesOf } from '@storybook/react';
 
-import Header from "./Header";
+import Header from './Header';
 
 const DefaultExample = (
   <div className="container-fluid">
@@ -13,6 +13,6 @@ const DefaultExample = (
   </div>
 );
 
-storiesOf("Header", module)
-  .add("Overview", () => [DefaultExample])
-  .add("Default example", () => DefaultExample);
+storiesOf('Header', module)
+  .add('Overview', () => [DefaultExample])
+  .add('Default example', () => DefaultExample);

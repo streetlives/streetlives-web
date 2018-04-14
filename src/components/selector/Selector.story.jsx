@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-import { storiesOf } from "@storybook/react";
+import { storiesOf } from '@storybook/react';
 
-import Selector from "./Selector";
+import Selector from './Selector';
 
 const OptionExample = (
   <div className="container-fluid">
@@ -53,13 +53,13 @@ const SelectedExample = (
   </div>
 );
 
-storiesOf("Selector", module)
-  .add("Overview", () => [
+storiesOf('Selector', module)
+  .add('Overview', () => [
     OptionExample,
     ActiveExample,
     DefaultExample,
     FluidExample,
     SelectedExample,
   ])
-  .add("Default example", () => DefaultExample)
-  .add("Full width example", () => FluidExample);
+  .add('Default example', () => DefaultExample)
+  .add('Full width example', () => FluidExample);
