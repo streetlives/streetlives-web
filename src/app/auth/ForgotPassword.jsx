@@ -33,7 +33,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
         <Row key={3}>
           <Col>
             <Button primary onClick={this.send}>
-              Send
+              <span>Send</span>
             </Button>
           </Col>
         </Row>
@@ -77,7 +77,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
         <Row key={4}>
           <Col>
             <Button primary onClick={this.submit}>
-              Submit
+              <span>Submit</span>
             </Button>
           </Col>
         </Row>

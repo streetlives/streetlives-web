@@ -22,7 +22,7 @@ import ForgotPassword from './auth/ForgotPassword';
 import aws_exports from './aws-exports';
 
 
-import Map from "./map/Map";
+import MapView from "./map-view/MapView";
 import Form from "./form/Form";
 
 import "./App.css";
@@ -38,7 +38,7 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" component={withTracker(Map)} />
+            <Route exact path="/" component={withTracker(MapView)} />
             <Route path="/form" component={withTracker(Form)} />
           </Switch>
         </BrowserRouter>
@@ -63,4 +63,3 @@ const auth = () => (
 );
 
 export default auth;
-

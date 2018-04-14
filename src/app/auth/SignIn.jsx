@@ -50,7 +50,7 @@ export default class StreetlivesSignIn extends SignIn {
         <Row>
           <Col>
             <Button primary onClick={this.signIn}>
-              Login
+              <span>Login</span>
             </Button>
           </Col>
         </Row>

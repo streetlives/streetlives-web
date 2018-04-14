@@ -69,7 +69,7 @@ export default class StreetlivesSignUp extends SignUp {
         <Row>
           <Col>
             <Button primary onClick={this.signUp}>
-              Sign Up
+              <span>Sign Up</span>
             </Button>
           </Col>
         </Row>

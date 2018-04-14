@@ -47,12 +47,12 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         <Row>
           <Col>
             <Button primary onClick={this.confirm}>
-              Confirm
+              <span>Confirm</span>
             </Button>
           </Col>
           <Col>
             <Button secondary onClick={this.resend}>
-              Resend Code
+              <span>Resend Code</span>
             </Button>
           </Col>
         </Row>
