@@ -14,16 +14,16 @@ class LocationForm extends Component {
     this.onNext = this.onNext.bind(this);
   }
 
-  getCurrentIndex() {
-    return routes.map(route => route[0]).indexOf(this.props.location.pathname);
-  }
-
   onBack() {
     this.props.history.push(routes[this.getCurrentIndex() - 1][0]);
   }
 
   onNext() {
     this.props.history.push(routes[this.getCurrentIndex() + 1][0]);
+  }
+
+  getCurrentIndex() {
+    return routes.map(route => route[0]).indexOf(this.props.location.pathname);
   }
 
   render() {

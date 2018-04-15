@@ -1,6 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
 import Badge from '../../components/badge';
@@ -8,7 +9,7 @@ import Badge from '../../components/badge';
 import './LocationField.css';
 
 function LocationField({
-  title, updatedAt, required = false, navigateToLocation, history,
+  title, updatedAt, required, navigateToLocation, history,
 }) {
   const classNames = {
     field: cx('LocationField border-top border-bottom', { 'bg-yellow': required }),
@@ -38,5 +39,16 @@ function LocationField({
     </div>
   );
 }
+
+LocationField.propTypes = {
+  title: PropTypes.string.isRequired,
+  updatedAt: PropTypes.string.isRequired,
+  required: PropTypes.bool,
+  navigateToLocation: PropTypes.string.isRequired,
+};
+
+LocationField.defaultProps = {
+  required: false,
+};
 
 export default withRouter(LocationField);
