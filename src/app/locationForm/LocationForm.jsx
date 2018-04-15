@@ -41,7 +41,6 @@ class LocationForm extends Component {
     const { questionId } = this.props.match.params;
     return routes.map(route => route[0].split('/').pop()).indexOf(questionId);
   }
-
   render() {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
