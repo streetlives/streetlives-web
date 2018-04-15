@@ -15,20 +15,28 @@ class LocationForm extends Component {
   }
 
   onBack() {
-    this.props.history.push(routes[this.getCurrentIndex() - 1][0]);
+    this.props.history.push({
+      pathname: routes[this.getCurrentIndex() - 1][0],
+      state: { locationId: this.props.location.state.locationId },
+    });
   }
 
   onNext() {
-    this.props.history.push(routes[this.getCurrentIndex() + 1][0]);
+    this.props.history.push({
+      pathname: routes[this.getCurrentIndex() + 1][0],
+      state: { locationId: this.props.location.state.locationId },
+    });
   }
 
   getCurrentIndex() {
     return routes.map(route => route[0]).indexOf(this.props.location.pathname);
   }
+
   render() {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
 
+    // TODO: Pass the onFieldVerified prop so the form can progress to the next field.
     return (
       <div className="text-left">
         <NavBar title={currentRoute[2]} />

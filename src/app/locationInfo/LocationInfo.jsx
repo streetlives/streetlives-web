@@ -51,6 +51,7 @@ class LocationInfo extends Component {
         {routes.map((route, i) => (
           <LocationField
             key={route[0]}
+            locationId={this.props.locationData.id}
             updatedAt={this.dummyLastUpdatedValues[i]}
             title={route[2]}
             navigateToLocation={route[0]}

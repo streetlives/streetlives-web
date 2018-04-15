@@ -1,18 +1,63 @@
-import React from 'react';
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Input from '../../../components/input';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { selectLocationData } from '../../../reducers';
+import { updateLocation } from '../../../actions';
+import LocationNameView from './LocationNameView';
+import LocationNameEdit from './LocationNameEdit';
 
-function LocationName(props) {
-  return (
-    <div>
-      <Header>What&apos;s this location&apos;s name?</Header>
-      <Input fluid placeholder="Enter the name of the organization" />
-      <Button onClick={() => {}} primary className="mt-3">
-        OK
-      </Button>
-    </div>
-  );
+class LocationName extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { isEditing: !props.name };
+    this.onConfirm = this.onConfirm.bind(this);
+    this.onEdit = this.onEdit.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onConfirm() {
+    this.setState({ isEditing: false }, this.props.onFieldVerified);
+  }
+
+  onEdit() {
+    this.setState({ isEditing: true });
+  }
+
+  onSubmit() {
+    this.setState({ isEditing: false }, this.props.onFieldVerified);
+  }
+
+  render() {
+    if (this.state.isEditing) {
+      return (
+        <LocationNameEdit
+          name={this.props.name}
+          onSubmit={this.onSubmit}
+          updateName={this.props.updateName}
+        />
+      );
+    }
+
+    return (
+      <LocationNameView
+        name={this.props.name}
+        onConfirm={this.onConfirm}
+        onEdit={this.onEdit}
+      />
+    );
+  }
 }
 
-export default LocationName;
+const mapStateToProps = (state, ownProps) => {
+  const { locationId } = ownProps.location.state;
+  const locationData = selectLocationData(state, locationId);
+
+  return {
+    name: locationData ? locationData.name : null,
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  updateName: name => dispatch(updateLocation(ownProps.location.state.locationId, { name })),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(LocationName);
