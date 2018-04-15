@@ -7,7 +7,8 @@ import Button from "../../components/button";
 import LocationField from "./LocationField";
 import routes from '../locationForm/routes';
 import { withRouter } from 'react-router-dom'
-import { getLocation } from '../../services/api';
+import { connect } from 'react-redux'
+import { getLocation } from '../../actions'
 
 function LocationHeader() {
   return (
@@ -23,15 +24,6 @@ class LocationInfo extends Component {
 
   constructor(props){
     super(props);
-    this.state = {
-      locationData : null
-    };
-
-    getLocation({
-      id : props.match.params.locationId
-    })
-      .then(locationData => this.setState({ locationData }))
-      .catch(e => console.error('error', e));
 
     this.dummyLastUpdatedValues = [
       null,
@@ -43,45 +35,27 @@ class LocationInfo extends Component {
       moment().subtract(3, "months"),
       null
     ];
-  }
 
-  isRequired(x){
-    return !(Array.isArray(x) ? x.length : x);
+    if(!props.locationData){
+      props.getLocation(props.match.params.locationId);
+    }
+
   }
 
   render(){ 
 
-    if(!this.state.locationData) return <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>;
+    if(!this.props.locationData) return <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>;
     
-    const organizationName = this.state.locationData.Organization.name;
-    const addresses = this.state.locationData.PhysicalAddresses;
-    const locationName = this.state.locationData.name;
-    const locationDescription = this.state.locationData.description;
-    const phoneNumbers = this.state.locationData.Phones;
-    const website = this.state.locationData.Organization.url;
-
-    const values = 
-      [
-        organizationName,
-        addresses,
-        locationName,
-        locationDescription,
-        phoneNumbers,
-        website
-      ]
-
-    const step = values.length - values.filter( this.isRequired ).length;
-
     return <div className="d-flex flex-column">
         <NavBar title="Location Info" />
-        <ProgressBar step={step} steps={routes.length} /> 
+        <ProgressBar step={this.props.step} steps={routes.length} /> 
         <LocationHeader />
         { routes.map( (route,i) => <LocationField 
             key={route[0]} 
             updatedAt={this.dummyLastUpdatedValues[i]} 
             title={route[2]} 
             navigateToLocation={route[0]} 
-            required={this.isRequired(values[i])}/>) }
+            required={isRequired(this.props.values[i])}/>) }
         <Button fluid primary onClick={() => console.log('Clicked done')}>
           Done
         </Button>
@@ -89,4 +63,49 @@ class LocationInfo extends Component {
   }
 }
 
-export default withRouter(LocationInfo);
+export function mapStateToProps(state, ownProps){
+  let locationData = state.db[ownProps.match.params.locationId];
+
+  const organizationName = locationData && locationData.Organization.name;
+  const addresses = locationData && locationData.PhysicalAddresses;
+  const locationName = locationData && locationData.name;
+  const locationDescription = locationData && locationData.description;
+  const phoneNumbers = locationData && locationData.Phones;
+  const website = locationData && locationData.Organization.url;
+
+  const values = 
+    [
+      organizationName,
+      addresses,
+      locationName,
+      locationDescription,
+      phoneNumbers,
+      website
+    ]
+
+  const step = values.length - values.filter( isRequired ).length;
+
+  return {
+    locationData,
+    values,
+    step
+  }
+}
+
+export function mapDispatchToProps(dispatch, ownProps){
+  return {
+    getLocation : (locationId) => {
+      dispatch(getLocation(locationId));
+    }
+  }
+}
+
+
+function isRequired(x){
+  return !(Array.isArray(x) ? x.length : x);
+}
+
+export default withRouter(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LocationInfo));
