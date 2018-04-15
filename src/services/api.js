@@ -38,8 +38,7 @@ export const getLocation = ({ id }) =>
       headers: {
         Authorization: idJwtToken,
       },
-    })
-      .then(result => result.data);
+    });
   });
 
 const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) =>
