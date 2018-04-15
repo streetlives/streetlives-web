@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import GoogleAnalytics from "react-ga";
-import config from "../config";
+import React, { Component } from 'react';
+import GoogleAnalytics from 'react-ga';
+import config from '../config';
 
 GoogleAnalytics.initialize(config.gaTrackingId);
 
 const withTracker = (WrappedComponent, options = {}) => {
-  const trackPage = page => {
+  const trackPage = (page) => {
     GoogleAnalytics.set({
       page,
       ...options,

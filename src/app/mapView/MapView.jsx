@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import debounce from "lodash/debounce";
+import React, { Component } from 'react';
+import debounce from 'lodash/debounce';
 import { getLocations } from '../../services/api';
 import Map from '../../components/map';
 
@@ -12,7 +12,7 @@ const minZoom = 11;
 const geolocationTimeout = 5000;
 const fetchLocationsDebouncePeriod = 500;
 
-class MapView extends Component {
+export default class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
@@ -67,15 +67,34 @@ class MapView extends Component {
   render() {
     return (
       <div className="Map">
-        <div style={{backgroundColor:'#323232',position:'absolute',left:0,top:'0em',right:0}}>
-          <div className="input-group" style={{padding:'.5em'}}>
+        <div
+          style={{
+            backgroundColor: '#323232',
+            position: 'absolute',
+            left: 0,
+            top: '0em',
+            right: 0,
+          }}
+        >
+          <div className="input-group" style={{ padding: '.5em' }}>
             <div className="input-group-prepend">
-              <span style={{backgroundColor:'white',border:'none', borderRadius:0}} className="input-group-text"><i className="fa fa-search"></i></span>
+              <span
+                style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
+                className="input-group-text"
+              >
+                <i className="fa fa-search" />
+              </span>
             </div>
-            <input style={{border:'none',borderRadius:0}} type="text" className="form-control" placeholder="Type the address, or drop a pin" required></input>
+            <input
+              style={{ border: 'none', borderRadius: 0 }}
+              type="text"
+              className="form-control"
+              placeholder="Type the address, or drop a pin"
+              required
+            />
           </div>
         </div>
-        <div style={{position:'absolute',left:0,top:'3.2em',right:0,bottom:0}}>
+        <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
           <Map
             locations={this.state && this.state.locations}
             options={{ minZoom, disableDefaultUI: true }}
@@ -89,5 +108,3 @@ class MapView extends Component {
     );
   }
 }
-
-export default MapView;

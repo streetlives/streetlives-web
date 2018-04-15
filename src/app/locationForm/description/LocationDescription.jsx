@@ -16,4 +16,3 @@ function LocationDescription(props) {
 }
 
 export default LocationDescription;
-

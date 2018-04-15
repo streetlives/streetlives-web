@@ -16,4 +16,3 @@ function OrganizationName(props) {
 }
 
 export default OrganizationName;
-

@@ -1,5 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'react-router-redux';
+import PropTypes from 'prop-types';
 
 import Amplify from 'aws-amplify';
 import { AmplifyTheme, RequireNewPassword, VerifyContact, Authenticator } from 'aws-amplify-react';
@@ -16,36 +19,36 @@ import Recap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
 import { store, history } from '../store/index';
-import { Provider } from 'react-redux'
-import { ConnectedRouter } from 'react-router-redux'
-
 
 import './App.css';
 
 Amplify.configure(awsExports);
 
-class App extends Component {
-  render() {
-    if (this.props.authState !== 'signedIn') return null;
-    return (
-      <Provider store={store}>
-        <div className="App">
-          <ConnectedRouter history={history}>
-            <Switch>
-              <Route exact path="/" component={withTracker(MapView)} />
-              <Route path="/form" component={withTracker(Form)} />
-              <Route path="/recap/:locationId" component={withTracker(Recap)} />
-              <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
-              <Route path="/questions/:id" component={withTracker(LocationForm)} />
-            </Switch>
-          </ConnectedRouter>
-        </div>
-      </Provider>
-    );
-  }
+function App({ authState }) {
+  if (authState !== 'signedIn') return null;
+  return (
+    <Provider store={store}>
+      <div className="App">
+        <ConnectedRouter history={history}>
+          <Switch>
+            <Route exact path="/" component={withTracker(MapView)} />
+            <Route path="/form" component={withTracker(Form)} />
+            <Route path="/recap/:locationId" component={withTracker(Recap)} />
+            <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
+            <Route path="/questions/:id" component={withTracker(LocationForm)} />
+          </Switch>
+        </ConnectedRouter>
+      </div>
+    </Provider>
+  );
 }
 
-AmplifyTheme.container.paddingRight = AmplifyTheme.container.paddingLeft = 0;
+App.propTypes = {
+  authState: PropTypes.string.isRequired,
+};
+
+AmplifyTheme.container.paddingRight = 0;
+AmplifyTheme.container.paddingLeft = 0;
 
 const auth = () => (
   <Authenticator hideDefault theme={AmplifyTheme}>
@@ -58,7 +61,5 @@ const auth = () => (
     <App />
   </Authenticator>
 );
-
-
 
 export default auth;

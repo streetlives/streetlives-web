@@ -1,22 +1,24 @@
-import React from "react";
-import cx from "classnames";
-import moment from "moment";
-import { withRouter } from 'react-router-dom'
+import React from 'react';
+import cx from 'classnames';
+import moment from 'moment';
+import { withRouter } from 'react-router-dom';
 
-import Badge from "../../components/badge";
+import Badge from '../../components/badge';
 
-import "./LocationField.css";
+import './LocationField.css';
 
-function LocationField({ title, updatedAt, required = false, navigateToLocation, history }) {
+function LocationField({
+  title, updatedAt, required = false, navigateToLocation, history,
+}) {
   const classNames = {
-    field: cx("LocationField border-top border-bottom", { "bg-yellow": required }),
+    field: cx('LocationField border-top border-bottom', { 'bg-yellow': required }),
     updatedAt: cx({
-      "text-danger": updatedAt && moment(updatedAt).isSameOrBefore(moment().subtract(1, "years")),
-      "text-warning": updatedAt && moment(updatedAt).isSameOrBefore(moment()),
+      'text-danger': updatedAt && moment(updatedAt).isSameOrBefore(moment().subtract(1, 'years')),
+      'text-warning': updatedAt && moment(updatedAt).isSameOrBefore(moment()),
     }),
   };
 
-  const updatedAtText = updatedAt ? moment(updatedAt).fromNow() : "never";
+  const updatedAtText = updatedAt ? moment(updatedAt).fromNow() : 'never';
 
   return (
     <div className={classNames.field} onClick={() => history.push(navigateToLocation)}>

@@ -1,14 +1,21 @@
-import React from "react";
-import Button from "../../components/button";
-import NavBar from "../NavBar";
-import { withRouter } from 'react-router-dom'
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import Button from '../../components/button';
+import NavBar from '../NavBar';
 
-function Recap({history, match}) {
+function Recap({ history, match }) {
   return (
     <div className="d-flex flex-column">
       <NavBar title="Recap" />
       <div
-        style={{ backgroundColor: "#525252", position:'absolute', top:'2.6em', bottom:'2.6em' }}
+        style={{
+          backgroundColor: '#525252',
+          position: 'absolute',
+          top: '2.6em',
+          bottom: '2.6em',
+          right: 0,
+          left: 0,
+        }}
         className="text-white text-left font-weight-light"
       >
         <div className="container">
@@ -29,7 +36,14 @@ function Recap({history, match}) {
           </div>
         </div>
       </div>
-      <div style={{position:'absolute',bottom:0,left:0,right:0}}>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+        }}
+      >
         <Button fluid primary onClick={() => history.push(`/location/${match.params.locationId}`)}>
           Let's Get Started
         </Button>

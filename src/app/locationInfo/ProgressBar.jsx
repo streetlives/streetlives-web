@@ -22,7 +22,9 @@ function ProgressBar({ step, steps }) {
       />
       <div className="container">
         <div className="row px-4">
-          <span style={{ zIndex: 1 }}>Progress {step}/{steps} completed</span>
+          <span style={{ zIndex: 1 }}>
+            Progress {step}/{steps} completed
+          </span>
         </div>
       </div>
     </div>
@@ -31,6 +33,7 @@ function ProgressBar({ step, steps }) {
 
 ProgressBar.propTypes = {
   step: PropTypes.number.isRequired,
+  steps: PropTypes.number.isRequired,
 };
 
 export default ProgressBar;
