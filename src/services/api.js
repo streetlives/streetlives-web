@@ -58,6 +58,5 @@ export const updateLocation = ({ id, params }) =>
       headers: {
         Authorization: idJwtToken,
       },
-    })
-      .then(result => result.data);
+    });
   });
