@@ -3,10 +3,10 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
 
-function LocationName(props) {
+function OrganizationName(props) {
   return (
     <div>
-      <Header>What&apos;s this location&apos;s name?</Header>
+      <Header>What&apos;s this organization&apos;s name?</Header>
       <Input fluid placeholder="Enter the name of the organization" />
       <Button onClick={() => {}} primary className="mt-3">
         OK
@@ -15,4 +15,5 @@ function LocationName(props) {
   );
 }
 
-export default LocationName;
+export default OrganizationName;
+

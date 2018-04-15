@@ -5,6 +5,7 @@ import ProgressBar from "./ProgressBar";
 import Header from "../../components/header";
 import Button from "../../components/button";
 import LocationField from "./LocationField";
+import routes from '../locationForm/routes';
 
 function LocationHeader() {
   return (
@@ -20,7 +21,7 @@ function LocationInfo() {
   return (
     <div className="d-flex flex-column">
       <NavBar title="Location Info" />
-      <ProgressBar step={8} />
+      <ProgressBar step={2} steps={routes.length} /> 
       <LocationHeader />
       <LocationField title="Entrance picture" required navigateToLocation="/questions/entrance-picture" />
       <LocationField title="Address" updatedAt={moment().subtract(1, "years")} navigateToLocation="/questions/location-address" />

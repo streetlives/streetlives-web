@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function ProgressBar({ step }) {
-  const progress = Number(step / 10) * 100;
+function ProgressBar({ step, steps }) {
+  const progress = Number(step / steps) * 100;
   const width = 100 - progress;
   return (
     <div
@@ -22,7 +22,7 @@ function ProgressBar({ step }) {
       />
       <div className="container">
         <div className="row px-4">
-          <span style={{ zIndex: 1 }}>Progress {step}/10 completed</span>
+          <span style={{ zIndex: 1 }}>Progress {step}/{steps} completed</span>
         </div>
       </div>
     </div>
