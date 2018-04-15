@@ -14,38 +14,44 @@ class LocationForm extends Component {
   constructor(props) {
     super(props);
 
+    this.routes = [
+      ["/questions/entrance-picture", LocationImage],
+      ["/questions/location-address", LocationAddress],
+      ["/questions/organization-name", null],
+      ["/questions/location-name", LocationName],
+      ["/questions/location-description", null],
+      ["/questions/phone-number", LocationNumber],
+      ["/questions/website", LocationWebsite],
+      ["/questions/additional-info", null]
+    ];
+
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
 
     const { params } = props.match;
-    this.state = { index: Number(params.id) };
+  }
+
+  getCurrentIndex() {
+    return this.routes.map( route => route[0] ).indexOf(this.props.location.pathname);
   }
 
   onBack() {
-    const { index } = this.state;
-    this.setState({ index: index - 1 });
-    this.props.history.push(`/questions/${index - 1}`);
+    this.props.history.push(this.routes[this.getCurrentIndex()-1][0]);
   }
 
   onNext() {
-    const { index } = this.state;
-    this.setState({ index: index + 1 });
-    this.props.history.push(`/questions/${index + 1}`);
+    this.props.history.push(this.routes[this.getCurrentIndex()+1][0]);
   }
 
   render() {
-    const { index } = this.state;
+    const index = this.getCurrentIndex();
     return (
       <div className="text-left">
         <NavBar title="Entrance Picture" />
-        <ProgressBar step={index} />
+        <ProgressBar step={index + 1} />
         <div className="container">
           <div className="row px-4">
-            <Route path="/questions/1" component={LocationImage} />
-            <Route path="/questions/2" component={LocationName} />
-            <Route path="/questions/3" component={LocationAddress} />
-            <Route path="/questions/4" component={LocationNumber} />
-            <Route path="/questions/5" component={LocationWebsite} />
+            { this.routes.map( route => <Route key={route[0]} path={route[0]} component={route[1]} />) } 
           </div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
@@ -54,7 +60,7 @@ class LocationForm extends Component {
               <Button onClick={this.onBack} compact disabled={index === 0}>
                 <Icon name="chevron-up" />
               </Button>
-              <Button onClick={this.onNext} compact disabled={index === 10}>
+              <Button onClick={this.onNext} compact disabled={(this.routes.length - 1) === index}>
                 <Icon name="chevron-down" />
               </Button>
             </div>
