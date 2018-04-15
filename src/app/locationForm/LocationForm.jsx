@@ -25,12 +25,13 @@ class LocationForm extends Component {
   getCurrentIndex() {
     return routes.map(route => route[0]).indexOf(this.props.location.pathname);
   }
-
   render() {
     const index = this.getCurrentIndex();
+    const currentRoute = routes[index];
+
     return (
       <div className="text-left">
-        <NavBar title="Entrance Picture" />
+        <NavBar title={currentRoute[2]} />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
