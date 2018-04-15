@@ -67,7 +67,7 @@ class LocationMarker extends Component {
                 {mapLocation.name && <div>{mapLocation.name}</div>}
               </div>
               <div>{physicalAddresses.map(this.renderAddress)}</div>
-              <div>{this.renderUrl(organization.url)}</div>
+              <div>{organization.url && this.renderUrl(organization.url)}</div>
               <div>{phones.map(this.renderPhone)}</div>
             </div>
             <br/>
@@ -81,7 +81,7 @@ class LocationMarker extends Component {
               <span>NO THANKS</span>
             </Button>
           </div>
-          
+
         </InfoWindow>}
       </Marker>
     );
