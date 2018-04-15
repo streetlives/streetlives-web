@@ -13,8 +13,6 @@ class LocationForm extends Component {
 
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
-
-    const { params } = props.match;
   }
 
   getCurrentIndex() {

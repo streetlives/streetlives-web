@@ -36,7 +36,7 @@ class LocationMarker extends Component {
   }
 
   handleYesClick(){
-    this.props.history.push('/recap');
+    this.props.history.push(`/recap/${this.props.mapLocation.id}`);
   }
 
   render() {

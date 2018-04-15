@@ -16,3 +16,18 @@ export const getLocations = ({ latitude, longitude, radius, searchString }) =>
       })
       .then((result) => result.data);
   });
+
+
+export const getLocation = ({ id }) =>
+  Amplify.Auth.currentAuthenticatedUser().then((user) => {
+    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+
+    return axios.request({
+        url : `${urls.baseApi}/locations/${id}`,
+        method : 'get',
+        headers : {
+          Authorization : idJwtToken
+        }
+      })
+      .then((result) => result.data);
+  });

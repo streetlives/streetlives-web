@@ -29,8 +29,8 @@ class App extends Component {
           <Switch>
             <Route exact path="/" component={withTracker(MapView)} />
             <Route path="/form" component={withTracker(Form)} />
-            <Route path="/recap" component={withTracker(Recap)} />
-            <Route path="/location" component={withTracker(LocationInfo)} />
+            <Route path="/recap/:locationId" component={withTracker(Recap)} />
+            <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
             <Route path="/questions/:id" component={withTracker(LocationForm)} />
           </Switch>
         </BrowserRouter>

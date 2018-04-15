@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import moment from "moment";
 import NavBar from "../NavBar";
 import ProgressBar from "./ProgressBar";
@@ -6,6 +6,8 @@ import Header from "../../components/header";
 import Button from "../../components/button";
 import LocationField from "./LocationField";
 import routes from '../locationForm/routes';
+import { withRouter } from 'react-router-dom'
+import { getLocation } from '../../services/api';
 
 function LocationHeader() {
   return (
@@ -17,25 +19,74 @@ function LocationHeader() {
   );
 }
 
-function LocationInfo() {
-  return (
-    <div className="d-flex flex-column">
-      <NavBar title="Location Info" />
-      <ProgressBar step={2} steps={routes.length} /> 
-      <LocationHeader />
-      <LocationField title="Entrance picture" required navigateToLocation="/questions/entrance-picture" />
-      <LocationField title="Address" updatedAt={moment().subtract(1, "years")} navigateToLocation="/questions/location-address" />
-      <LocationField title="Organization name" updatedAt={moment().subtract(30, "days")} navigateToLocation="/questions/organization-name" />
-      <LocationField title="Location name" updatedAt={moment().subtract(3, "months")} navigateToLocation="/questions/location-name" />
-      <LocationField title="Location description" updatedAt={moment().subtract(3, "months")} navigateToLocation="/questions/location-description" />
-      <LocationField title="Phone number" required navigateToLocation="/questions/phone-number" />
-      <LocationField title="Website" updatedAt={moment().subtract(3, "months")} navigateToLocation="/questions/website" />
-      <LocationField title="Additional info" navigateToLocation="/questions/additional-info" />
-      <Button fluid primary onClick={() => console.log('Clicked done')}>
-        Done
-      </Button>
-    </div>
-  );
+class LocationInfo extends Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      locationData : null
+    };
+
+    getLocation({
+      id : props.match.params.locationId
+    })
+      .then(locationData => this.setState({ locationData }))
+      .catch(e => console.error('error', e));
+
+    this.dummyLastUpdatedValues = [
+      null,
+      moment().subtract(1, "years"),
+      moment().subtract(30, "days"),
+      moment().subtract(3, "months"),
+      moment().subtract(3, "months"),
+      null,
+      moment().subtract(3, "months"),
+      null
+    ];
+  }
+
+  isRequired(x){
+    return !(Array.isArray(x) ? x.length : x);
+  }
+
+  render(){ 
+
+    if(!this.state.locationData) return <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>;
+    
+    const organizationName = this.state.locationData.Organization.name;
+    const addresses = this.state.locationData.PhysicalAddresses;
+    const locationName = this.state.locationData.name;
+    const locationDescription = this.state.locationData.description;
+    const phoneNumbers = this.state.locationData.Phones;
+    const website = this.state.locationData.Organization.url;
+
+    const values = 
+      [
+        organizationName,
+        addresses,
+        locationName,
+        locationDescription,
+        phoneNumbers,
+        website
+      ]
+
+    const step = values.length - values.filter( this.isRequired ).length;
+
+    return <div className="d-flex flex-column">
+        <NavBar title="Location Info" />
+        <ProgressBar step={step} steps={routes.length} /> 
+        <LocationHeader />
+        { routes.map( (route,i) => <LocationField 
+            key={route[0]} 
+            updatedAt={this.dummyLastUpdatedValues[i]} 
+            title={route[2]} 
+            navigateToLocation={route[0]} 
+            required={this.isRequired(values[i])}/>) }
+        <Button fluid primary onClick={() => console.log('Clicked done')}>
+          Done
+        </Button>
+      </div>;
+  }
 }
 
-export default LocationInfo;
+export default withRouter(LocationInfo);
