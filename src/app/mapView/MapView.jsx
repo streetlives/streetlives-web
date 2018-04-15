@@ -86,6 +86,7 @@ export default class MapView extends Component {
               </span>
             </div>
             <input
+              onChange={this.onSearchChanged}
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
               className="form-control"
