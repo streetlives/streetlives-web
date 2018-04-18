@@ -4,7 +4,6 @@ import ConfirmationOptions from '../ConfirmationOptions';
 import Header from '../../../components/header';
 
 function LocationNameEdit(props) {
-  // TODO: Style title, probably turn into component, etc.
   return (
     <div>
       <div style={{ fontSize: '13px' }} className="font-weight-bold mt-2">

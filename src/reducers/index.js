@@ -1,6 +1,5 @@
 import _ from 'underscore';
 
-// TODO: Split up this file.
 const dbReducer = (state = {}, action) => {
   switch(action.type){
     case 'GET_LOCATION_RESPONSE':

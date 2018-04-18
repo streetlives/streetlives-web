@@ -47,7 +47,6 @@ export const updateLocation = ({ id, params }) =>
     const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
     const {
-      // TODO: Add more supported params.
       name,
     } = params;
 

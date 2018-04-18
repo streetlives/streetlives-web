@@ -12,6 +12,17 @@ class LocationForm extends Component {
 
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
+
+    this.routeComponents = routes.map(route => (
+      <Route
+        key={route[0]}
+        path={route[0]}
+        render={(routeProps) => {
+          const RouteComponent = route[1];
+          return <RouteComponent {...routeProps} onFieldVerified={this.onNext} />;
+        }}
+      />
+    ));
   }
 
   onBack() {
@@ -36,14 +47,13 @@ class LocationForm extends Component {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
 
-    // TODO: Pass the onFieldVerified prop so the form can progress to the next field.
     return (
       <div className="text-left">
         <NavBar title={currentRoute[2]} />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
-            {routes.map(route => <Route key={route[0]} path={route[0]} component={route[1]} />)}
+            {this.routeComponents}
           </div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
