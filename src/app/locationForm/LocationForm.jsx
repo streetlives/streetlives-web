@@ -15,21 +15,15 @@ class LocationForm extends Component {
   }
 
   onBack() {
-    this.props.history.push({
-      pathname: routes[this.getCurrentIndex() - 1][0],
-      state: { locationId: this.props.location.state.locationId },
-    });
+    this.props.history.push(`${routes[this.getCurrentIndex() - 1][0]}/${this.props.match.params.locationId}`);
   }
 
   onNext() {
-    this.props.history.push({
-      pathname: routes[this.getCurrentIndex() + 1][0],
-      state: { locationId: this.props.location.state.locationId },
-    });
+    this.props.history.push( `${routes[this.getCurrentIndex() + 1][0]}/${this.props.match.params.locationId}`);
   }
 
   getCurrentIndex() {
-    return routes.map(route => route[0]).indexOf(this.props.location.pathname);
+    return routes.map(route => route[0].split('/').pop()).indexOf(this.props.match.params.id);
   }
 
   render() {
@@ -43,7 +37,7 @@ class LocationForm extends Component {
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
-            {routes.map(route => <Route key={route[0]} path={route[0]} component={route[1]} />)}
+            {routes.map(route => <Route key={route[0]} path={`${route[0]}/:locationId`} component={route[1]} />)}
           </div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>

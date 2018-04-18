@@ -33,7 +33,7 @@ function App({ authState }) {
             <Route exact path="/" component={withTracker(MapView)} />
             <Route path="/recap/:locationId" component={withTracker(Recap)} />
             <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
-            <Route path="/questions/:id" component={withTracker(LocationForm)} />
+            <Route path="/questions/:id/:locationId" component={withTracker(LocationForm)} />
           </Switch>
         </ConnectedRouter>
       </div>

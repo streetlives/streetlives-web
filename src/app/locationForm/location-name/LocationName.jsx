@@ -4,6 +4,7 @@ import { selectLocationData } from '../../../reducers';
 import { updateLocation } from '../../../actions';
 import LocationNameView from './LocationNameView';
 import LocationNameEdit from './LocationNameEdit';
+import { getLocation } from '../../../actions';
 
 class LocationName extends Component {
   constructor(props) {
@@ -12,6 +13,14 @@ class LocationName extends Component {
     this.onConfirm = this.onConfirm.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+
+    if (!props.locationData) {
+      props.getLocation(props.match.params.locationId);
+    }
+  }
+
+  componentWillReceiveProps(props){
+    this.setState({ isEditing: !props.name });
   }
 
   onConfirm() {
@@ -48,16 +57,20 @@ class LocationName extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.location.state;
+  const locationId = ownProps.match.params.locationId;
   const locationData = selectLocationData(state, locationId);
 
   return {
     name: locationData ? locationData.name : null,
+    locationData 
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateName: name => dispatch(updateLocation(ownProps.location.state.locationId, { name })),
+  updateName: name => dispatch(updateLocation(ownProps.match.params.locationId, { name })),
+  getLocation: (locationId) => {
+    dispatch(getLocation(locationId));
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LocationName);
