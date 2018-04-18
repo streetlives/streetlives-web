@@ -32,6 +32,7 @@ function NavBar({ title, history }) {
 
 NavBar.propTypes = {
   title: PropTypes.string.isRequired,
+  history: PropTypes.any,
 };
 
 export default withRouter(NavBar);

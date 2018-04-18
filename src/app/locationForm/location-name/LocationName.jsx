@@ -38,11 +38,7 @@ class LocationName extends Component {
     }
 
     return (
-      <LocationNameView
-        name={this.props.name}
-        onConfirm={this.onConfirm}
-        onEdit={this.onEdit}
-      />
+      <LocationNameView name={this.props.name} onConfirm={this.onConfirm} onEdit={this.onEdit} />
     );
   }
 }
