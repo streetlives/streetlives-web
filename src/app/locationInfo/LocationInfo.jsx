@@ -46,7 +46,7 @@ class LocationInfo extends Component {
     return (
       <div className="d-flex flex-column">
         <NavBar title="Location Info" />
-        <ProgressBar step={this.props.step} steps={routes.length} />
+        <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
         {routes.map((route, i) => (
           <LocationField
@@ -86,12 +86,9 @@ export function mapStateToProps(state, ownProps) {
     website,
   ];
 
-  const step = values.length - values.filter(isRequired).length;
-
   return {
     locationData,
-    values,
-    step,
+    values
   };
 }
 
