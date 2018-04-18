@@ -10,25 +10,26 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
       <Row key={1}>
         <Col>
           <h3>
-            {' '}
             Forgotten password?<br />No worries.
           </h3>
           <p>
-            Enter the phone number you used to sign up to the Streetlives street team tool. We'll
-            send an SMS with a reactivation code to the phone number you used to sign up.
+            Enter the phone number you used to sign up to the Streetlives street team tool.
+            We&apos;ll send an SMS with a reactivation code to the phone number you used to sign up.
           </p>
         </Col>
       </Row>,
       <Row key={2}>
         <Col>
-          <label className="w-100">Phone Number</label>
-          <Input
-            fluid
-            placeholder="Enter your phone number"
-            key="username"
-            name="username"
-            onChange={this.handleInputChange}
-          />
+          <label className="w-100" htmlFor="username">
+            Phone Number
+            <Input
+              fluid
+              placeholder="Enter your phone number"
+              id="username"
+              name="username"
+              onChange={this.handleInputChange}
+            />
+          </label>
         </Col>
       </Row>,
       <Row key={3}>
@@ -50,27 +51,25 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
       </Row>,
       <Row key={2}>
         <Col>
-          <label className="w-100">Code</label>
-          <Input
-            fluid
-            placeholder="Code"
-            key="code"
-            name="code"
-            onChange={this.handleInputChange}
-          />
+          <label className="w-100" htmlFor="code">
+            Code
+            <Input placeholder="Code" name="code" onChange={this.handleInputChange} fluid />
+          </label>
         </Col>
       </Row>,
       <Row key={3}>
         <Col>
-          <label className="w-100">New password</label>
-          <Input
-            fluid
-            type="password"
-            placeholder="New password"
-            key="password"
-            name="password"
-            onChange={this.handleInputChange}
-          />
+          <label className="w-100" htmlFor="password">
+            New password
+            <Input
+              fluid
+              type="password"
+              placeholder="New password"
+              key="password"
+              name="password"
+              onChange={this.handleInputChange}
+            />
+          </label>
         </Col>
       </Row>,
       <Row key={4}>
@@ -101,7 +100,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
         {this.state.delivery ? this.submitView() : this.sendView()}
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signIn')}>Back to Sign In</a>
+            <button onClick={() => this.changeState('signIn')}>Back to Sign In</button>
           </Col>
         </Row>
       </Grid>

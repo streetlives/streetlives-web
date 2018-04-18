@@ -12,35 +12,16 @@ const minZoom = 11;
 const geolocationTimeout = 5000;
 const fetchLocationsDebouncePeriod = 500;
 
-export default class MapView extends Component {
-  state = {
-    searchString: '',
-    center: defaultCenter,
-    radius: defaultRadius,
-  };
+class MapView extends Component {
+  constructor(props) {
+    super(props);
 
-  fetchLocations = debounce(() => {
-    getLocations({
-      latitude: this.state.center.lat,
-      longitude: this.state.center.lng,
-      radius: this.state.radius,
-      searchString: this.state.searchString,
-    })
-      .then(locations => this.setState({ locations }))
-      .catch(e => console.error('error', e));
-  }, fetchLocationsDebouncePeriod);
-
-  onSearchChanged = event => {
-    this.setState({ searchString: event.target.value }, () => {
-      this.fetchLocations();
-    });
-  };
-
-  onCenterChanged = center => {
-    this.setState({ center }, () => {
-      this.fetchLocations();
-    });
-  };
+    this.state = {
+      searchString: '',
+      center: defaultCenter,
+      radius: defaultRadius,
+    };
+  }
 
   componentWillMount() {
     this.fetchLocations();
@@ -52,16 +33,41 @@ export default class MapView extends Component {
     }
 
     navigator.geolocation.getCurrentPosition(
-      userPosition => {
+      (userPosition) => {
         const { coords } = userPosition;
         this.onCenterChanged({
           lat: coords.latitude,
           lng: coords.longitude,
         });
       },
-      e => console.error('Failed to get current position', e),
+      e => console.error('Failed to get current position', e), // eslint-disable-line no-console
       { timeout: geolocationTimeout },
     );
+  }
+
+  onSearchChanged(event) {
+    this.setState({ searchString: event.target.value }, () => {
+      this.fetchLocations();
+    });
+  }
+
+  onCenterChanged(center) {
+    this.setState({ center }, () => {
+      this.fetchLocations();
+    });
+  }
+
+  fetchLocations() {
+    debounce(() => {
+      getLocations({
+        latitude: this.state.center.lat,
+        longitude: this.state.center.lng,
+        radius: this.state.radius,
+        searchString: this.state.searchString,
+      })
+        .then(locations => this.setState({ locations }))
+        .catch(e => console.error('error', e)); // eslint-disable-line no-console
+    }, fetchLocationsDebouncePeriod);
   }
 
   render() {
@@ -95,7 +101,15 @@ export default class MapView extends Component {
             />
           </div>
         </div>
-        <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: '3.2em',
+            right: 0,
+            bottom: 0,
+          }}
+        >
           <Map
             locations={this.state && this.state.locations}
             options={{ minZoom, disableDefaultUI: true }}
@@ -109,3 +123,5 @@ export default class MapView extends Component {
     );
   }
 }
+
+export default MapView;

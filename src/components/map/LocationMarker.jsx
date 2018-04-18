@@ -1,45 +1,48 @@
+/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { Marker, InfoWindow } from 'react-google-maps';
+import { withRouter } from 'react-router-dom';
+
 import './LocationMarker.css';
 import Button from '../button';
-import { withRouter } from 'react-router-dom';
+
+const renderAddress = (address) => {
+  const {
+    id, address_1, city, state_province, postal_code,
+  } = address;
+  return (
+    <div key={id}>
+      <div>{address_1}</div>
+      <div>{`${city}, ${state_province} ${postal_code}`}</div>
+    </div>
+  );
+};
+const renderPhone = (phone) => {
+  const phoneLink = `tel:${phone.number}`;
+  return (
+    <a href={phoneLink} key={phone.id}>
+      {phone.number}
+    </a>
+  );
+};
+const renderUrl = (url) => {
+  const linkUrl = url.includes('//') ? url : `http://${url}`;
+  return (
+    <a href={linkUrl} target="_blank">
+      {url}
+    </a>
+  );
+};
 
 class LocationMarker extends Component {
   constructor(props) {
     super(props);
     this.handleYesClick = this.handleYesClick.bind(this);
+    this.onToggleInfo = this.onToggleInfo.bind(this);
   }
 
-  onToggleInfo = () => {
+  onToggleInfo() {
     this.props.onToggleInfo(this.props.mapLocation.id);
-  };
-
-  renderAddress(address) {
-    const { id, address_1, city, state_province, postal_code } = address;
-    return (
-      <div key={id}>
-        <div>{address_1}</div>
-        <div>{`${city}, ${state_province} ${postal_code}`}</div>
-      </div>
-    );
-  }
-
-  renderPhone(phone) {
-    const phoneLink = `tel:${phone.number}`;
-    return (
-      <a href={phoneLink} key={phone.id}>
-        {phone.number}
-      </a>
-    );
-  }
-
-  renderUrl(url) {
-    const linkUrl = url.includes('//') ? url : `http://${url}`;
-    return (
-      <a href={linkUrl} target="_blank">
-        {url}
-      </a>
-    );
   }
 
   handleYesClick() {
@@ -70,9 +73,9 @@ class LocationMarker extends Component {
                   <div>{organization.name}</div>
                   {mapLocation.name && <div>{mapLocation.name}</div>}
                 </div>
-                <div>{physicalAddresses.map(this.renderAddress)}</div>
-                <div>{organization.url && this.renderUrl(organization.url)}</div>
-                <div>{phones.map(this.renderPhone)}</div>
+                <div>{physicalAddresses.map(renderAddress)}</div>
+                <div>{organization.url && renderUrl(organization.url)}</div>
+                <div>{phones.map(renderPhone)}</div>
               </div>
               <br />
               <div>

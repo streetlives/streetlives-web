@@ -30,27 +30,31 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username or Phone Number</label>
-            <Input
-              fluid
-              placeholder="Enter your username or phone number"
-              key="username"
-              name="username"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="username">
+              Username or Phone Number
+              <Input
+                fluid
+                placeholder="Enter your username or phone number"
+                key="username"
+                name="username"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Password</label>
-            <Input
-              fluid
-              placeholder="Enter your password"
-              key="password"
-              name="password"
-              type="password"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="password">
+              Password
+              <Input
+                fluid
+                placeholder="Enter your password"
+                key="password"
+                name="password"
+                type="password"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
@@ -62,12 +66,16 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('forgotPassword')}>Forgot password? Click here</a>
+            <button onClick={() => this.changeState('forgotPassword')}>
+              Forgot password? Click here
+            </button>
           </Col>
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signUp')}>Don't have an account? Click here</a>
+            <button onClick={() => this.changeState('signUp')}>
+              Don&apos;t have an account? Click here
+            </button>
           </Col>
         </Row>
       </Grid>

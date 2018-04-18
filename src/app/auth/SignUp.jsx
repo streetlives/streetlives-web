@@ -27,53 +27,61 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username</label>
-            <Input
-              fluid
-              placeholder="Enter your username"
-              key="username"
-              name="username"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="username">
+              Username
+              <Input
+                fluid
+                placeholder="Enter your username"
+                key="username"
+                name="username"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Password</label>
-            <Input
-              fluid
-              placeholder="Enter your password"
-              key="password"
-              name="password"
-              type="password"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="password">
+              Password
+              <Input
+                fluid
+                placeholder="Enter your password"
+                key="password"
+                name="password"
+                type="password"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Email</label>
-            <Input
-              fluid
-              placeholder="Enter your email"
-              key="email"
-              name="email"
-              type="email"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="email">
+              Email
+              <Input
+                fluid
+                placeholder="Enter your email"
+                key="email"
+                name="email"
+                type="email"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Phone Number</label>
-            <Input
-              fluid
-              placeholder="Enter your phone number"
-              key="phone_number"
-              name="phone_number"
-              type="phone_number"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="phone_number">
+              Phone Number
+              <Input
+                fluid
+                placeholder="Enter your phone number"
+                key="phone_number"
+                name="phone_number"
+                type="phone_number"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
@@ -85,14 +93,16 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signIn')}>Want to go back to sign in? Click here</a>
+            <button onClick={() => this.changeState('signIn')}>
+              Want to go back to sign in? Click here
+            </button>
           </Col>
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('confirmSignUp')}>
+            <button onClick={() => this.changeState('confirmSignUp')}>
               Already signed up? Click here to enter your confirm code
-            </a>
+            </button>
           </Col>
         </Row>
       </Grid>

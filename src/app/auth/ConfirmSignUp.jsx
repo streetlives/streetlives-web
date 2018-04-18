@@ -27,27 +27,31 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username</label>
-            <Input
-              fluid
-              placeholder="Enter your username"
-              key="username"
-              name="username"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="username">
+              Username
+              <Input
+                fluid
+                id="username"
+                placeholder="Enter your username"
+                name="username"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Code</label>
-            <Input
-              fluid
-              placeholder="Enter your code"
-              key="code"
-              name="code"
-              type="code"
-              onChange={this.handleInputChange}
-            />
+            <label className="w-100" htmlFor="code">
+              Code
+              <Input
+                fluid
+                placeholder="Enter your code"
+                id="code"
+                name="code"
+                type="code"
+                onChange={this.handleInputChange}
+              />
+            </label>
           </Col>
         </Row>
         <Row>
@@ -64,7 +68,9 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signIn')}>Want to go back to sign in? Click here</a>
+            <button onClick={() => this.changeState('signIn')}>
+              Want to go back to sign in? Click here
+            </button>
           </Col>
         </Row>
       </Grid>

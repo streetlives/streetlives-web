@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
 import Button from '../../components/button';
 import LocationField from './LocationField';
 import routes from '../locationForm/routes';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
 
 function LocationHeader() {
@@ -18,6 +19,10 @@ function LocationHeader() {
       </div>
     </div>
   );
+}
+
+function isRequired(x) {
+  return !(Array.isArray(x) ? x.length : x);
 }
 
 class LocationInfo extends Component {
@@ -58,7 +63,7 @@ class LocationInfo extends Component {
             required={isRequired(this.props.values[i])}
           />
         ))}
-        <Button fluid primary onClick={() => console.log('Clicked done')}>
+        <Button fluid primary onClick={() => {}}>
           Done
         </Button>
       </div>
@@ -101,10 +106,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
       dispatch(getLocation(locationId));
     },
   };
-}
-
-function isRequired(x) {
-  return !(Array.isArray(x) ? x.length : x);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationInfo));
