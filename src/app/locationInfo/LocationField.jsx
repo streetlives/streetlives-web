@@ -7,8 +7,6 @@ import { withRouter } from 'react-router-dom';
 import Badge from '../../components/badge';
 import Icon from '../../components/icon';
 
-import './LocationField.css';
-
 class LocationField extends Component {
   constructor() {
     super();
