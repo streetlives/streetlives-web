@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
 import Button from '../../components/button';
 import LocationField from './LocationField';
 import routes from '../locationForm/routes';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
 
 function LocationHeader() {
@@ -29,7 +30,7 @@ class LocationInfo extends Component {
       moment().subtract(1, 'years'),
       moment().subtract(30, 'days'),
       moment().subtract(3, 'months'),
-      moment().subtract(3, 'months'),
+      moment().subtract(7, 'months'),
       null,
       moment().subtract(3, 'months'),
       null,
@@ -55,7 +56,6 @@ class LocationInfo extends Component {
             updatedAt={this.dummyLastUpdatedValues[i]}
             title={route[2]}
             navigateToLocation={route[0]}
-            required={isRequired(this.props.values[i])}
           />
         ))}
         <Button fluid primary onClick={() => console.log('Clicked done')}>
@@ -88,7 +88,7 @@ export function mapStateToProps(state, ownProps) {
 
   return {
     locationData,
-    values
+    values,
   };
 }
 
@@ -98,10 +98,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
       dispatch(getLocation(locationId));
     },
   };
-}
-
-function isRequired(x) {
-  return !(Array.isArray(x) ? x.length : x);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationInfo));
