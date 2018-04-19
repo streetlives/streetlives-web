@@ -88,7 +88,7 @@ export function mapStateToProps(state, ownProps) {
 
   return {
     locationData,
-    values
+    values,
   };
 }
 

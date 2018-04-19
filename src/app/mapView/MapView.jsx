@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
 import { getLocations } from '../../services/api';
 import Map from '../../components/map';
+/* eslint-env es6 */
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultRadius = 10000;
@@ -17,29 +18,6 @@ export default class MapView extends Component {
     searchString: '',
     center: defaultCenter,
     radius: defaultRadius,
-  };
-
-  fetchLocations = debounce(() => {
-    getLocations({
-      latitude: this.state.center.lat,
-      longitude: this.state.center.lng,
-      radius: this.state.radius,
-      searchString: this.state.searchString,
-    })
-      .then(locations => this.setState({ locations }))
-      .catch(e => console.error('error', e));
-  }, fetchLocationsDebouncePeriod);
-
-  onSearchChanged = event => {
-    this.setState({ searchString: event.target.value }, () => {
-      this.fetchLocations();
-    });
-  };
-
-  onCenterChanged = center => {
-    this.setState({ center }, () => {
-      this.fetchLocations();
-    });
   };
 
   componentWillMount() {
@@ -63,6 +41,28 @@ export default class MapView extends Component {
       { timeout: geolocationTimeout },
     );
   }
+  onSearchChanged = event => {
+    this.setState({ searchString: event.target.value }, () => {
+      this.fetchLocations();
+    });
+  };
+
+  onCenterChanged = center => {
+    this.setState({ center }, () => {
+      this.fetchLocations();
+    });
+  };
+
+  fetchLocations = debounce(() => {
+    getLocations({
+      latitude: this.state.center.lat,
+      longitude: this.state.center.lng,
+      radius: this.state.radius,
+      searchString: this.state.searchString,
+    })
+      .then(locations => this.setState({ locations }))
+      .catch(e => console.error('error', e));
+  }, fetchLocationsDebouncePeriod);
 
   render() {
     return (

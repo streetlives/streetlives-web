@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+
 import { selectLocationData } from '../../../reducers';
-import { updateLocation } from '../../../actions';
+import { updateLocation, getLocation } from '../../../actions';
 import LocationNameView from './LocationNameView';
 import LocationNameEdit from './LocationNameEdit';
-import { getLocation } from '../../../actions';
 
 class LocationName extends Component {
   constructor(props) {
     super(props);
+
     this.state = { isEditing: !props.name };
     this.onConfirm = this.onConfirm.bind(this);
     this.onEdit = this.onEdit.bind(this);
@@ -19,7 +20,7 @@ class LocationName extends Component {
     }
   }
 
-  componentWillReceiveProps(props){
+  componentWillReceiveProps(props) {
     this.setState({ isEditing: !props.name });
   }
 
@@ -47,11 +48,7 @@ class LocationName extends Component {
     }
 
     return (
-      <LocationNameView
-        name={this.props.name}
-        onConfirm={this.onConfirm}
-        onEdit={this.onEdit}
-      />
+      <LocationNameView name={this.props.name} onConfirm={this.onConfirm} onEdit={this.onEdit} />
     );
   }
 }
@@ -62,7 +59,7 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     name: locationData ? locationData.name : null,
-    locationData 
+    locationData,
   };
 };
 
