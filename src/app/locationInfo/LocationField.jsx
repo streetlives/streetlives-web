@@ -18,7 +18,7 @@ class LocationField extends Component {
   }
 
   render() {
-    const { title, updatedAt, required } = this.props;
+    const { title, updatedAt } = this.props;
 
     const classNames = {
       field: cx('LocationField border-top border-bottom'),
