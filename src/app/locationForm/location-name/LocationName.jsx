@@ -48,7 +48,7 @@ class LocationName extends Component {
 
     return (
       <LocationNameView
-        name={this.props.name}
+        value={this.props.name}
         onConfirm={this.onConfirm}
         onEdit={this.onEdit}
       />
