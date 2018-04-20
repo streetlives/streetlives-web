@@ -46,14 +46,10 @@ export const updateLocation = ({ id, params }) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
-    const {
-      name,
-    } = params;
-
     return axios.request({
       url: `${config.baseApi}/locations/${id}`,
       method: 'patch',
-      data: { name },
+      data: params,
       headers: {
         Authorization: idJwtToken,
       },
