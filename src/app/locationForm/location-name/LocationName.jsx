@@ -39,9 +39,9 @@ class LocationName extends Component {
     if (this.state.isEditing) {
       return (
         <LocationNameEdit
-          name={this.props.name}
+          value={this.props.name}
           onSubmit={this.onSubmit}
-          updateName={this.props.updateName}
+          updateValue={this.props.updateName}
         />
       );
     }
