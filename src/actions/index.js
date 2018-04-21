@@ -12,9 +12,29 @@ export const getLocation = locationId => (dispatch) => {
 };
 
 export const updateLocation = (locationId, params) => (dispatch) => {
+  //optimistically update the data store
+  dispatch({
+    type: 'OPTIMISTIC_UPDATE_LOCATION',
+    payload: {
+      id : locationId, 
+      params
+    }
+  });
   updateLoc({
     id: locationId,
     params,
   })
-    .catch(e => console.error('error', e));
+    .then(locationData => {
+      //do nothing, because save succeeded
+    })
+    .catch(e => {
+      //roll back
+      console.error('error', e);
+      dispatch({
+        type: 'ROLLBACK_UPDATE_LOCATION',
+        payload: {
+          id : locationId
+        }
+      })
+    });
 };

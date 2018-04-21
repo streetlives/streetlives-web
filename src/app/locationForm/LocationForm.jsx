@@ -16,7 +16,7 @@ class LocationForm extends Component {
     this.routeComponents = routes.map(route => (
       <Route
         key={route[0]}
-        path={route[0]}
+        path={`${route[0]}/:locationId`}
         render={(routeProps) => {
           const RouteComponent = route[1];
           return <RouteComponent {...routeProps} onFieldVerified={this.onNext} />;
@@ -26,21 +26,15 @@ class LocationForm extends Component {
   }
 
   onBack() {
-    this.props.history.push({
-      pathname: routes[this.getCurrentIndex() - 1][0],
-      state: { locationId: this.props.location.state.locationId },
-    });
+    this.props.history.push(`${routes[this.getCurrentIndex() - 1][0]}/${this.props.match.params.locationId}`);
   }
 
   onNext() {
-    this.props.history.push({
-      pathname: routes[this.getCurrentIndex() + 1][0],
-      state: { locationId: this.props.location.state.locationId },
-    });
+    this.props.history.push( `${routes[this.getCurrentIndex() + 1][0]}/${this.props.match.params.locationId}`);
   }
 
   getCurrentIndex() {
-    return routes.map(route => route[0]).indexOf(this.props.location.pathname);
+    return routes.map(route => route[0].split('/').pop()).indexOf(this.props.match.params.id);
   }
 
   render() {
