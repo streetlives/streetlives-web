@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 class Form extends Component {
   constructor(props) {
     super(props);
-    this.state = { isEditing: !props.value };
+    this.state = { isEditing: this.isEditing(props) };
     this.onConfirm = this.onConfirm.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -15,8 +15,18 @@ class Form extends Component {
     }
   }
 
+  isEditing(props){
+    return props.value === null ||  
+      ( typeof props.value === 'object' ? 
+          Object.keys(props.value).some( key => !props.value[key] ) :
+          !props.value
+      );
+  }
+
   componentWillReceiveProps(props){
-    this.setState({ isEditing: !props.value });
+    this.setState({ 
+      isEditing: this.isEditing(props)
+    });
   }
 
   onConfirm() {
@@ -51,7 +61,7 @@ class Form extends Component {
 Form.propTypes = {
   viewComponent: PropTypes.func.isRequired,
   editComponent: PropTypes.func.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string,PropTypes.object]),
   locationData: PropTypes.object,
   getLocation: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
