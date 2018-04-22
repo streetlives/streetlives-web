@@ -56,7 +56,7 @@ class LocationNumberEdit extends Component {
         (<Input
           customValidationMessage="Area code must contain three digits"
           type="tel"
-          value={this.state.areaCode}
+          defaultValue={this.state.areaCode}
           onChange={this.onChange_areaCode}
           pattern="\d{3}"
           size="3"
@@ -65,7 +65,7 @@ class LocationNumberEdit extends Component {
         <Input
           customValidationMessage="Enter first three digits for phone number"
           type="tel"
-          value={this.state.firstThree}
+          defaultValue={this.state.firstThree}
           onChange={this.onChange_firstThree}
           size="3"
           pattern="\d{3}"
@@ -74,7 +74,7 @@ class LocationNumberEdit extends Component {
         <Input
           customValidationMessage="Enter last four digits for phone number"
           type="tel"
-          value={this.state.lastFour}
+          defaultValue={this.state.lastFour}
           onChange={this.onChange_lastFour}
           pattern="\d{4}"
           required
@@ -83,7 +83,7 @@ class LocationNumberEdit extends Component {
         <Input
           type="tel"
           size="4"
-          value={this.state.extension}
+          defaultValue={this.state.extension}
           onChange={this.onChange_extension}
           />
         <input type="submit" className="Button Button-primary mt-3" value="OK"/>
