@@ -12,33 +12,35 @@ export const getLocation = locationId => (dispatch) => {
       type: GET_LOCATION_RESPONSE,
       payload: locationData,
     }))
+    /* eslint-disable no-console */
     .catch(e => console.error('error', e));
 };
 
 export const updateLocation = (locationId, params) => (dispatch) => {
-  //optimistically update the data store
+  // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_LOCATION,
     payload: {
-      id : locationId, 
-      params
-    }
+      id: locationId,
+      params,
+    },
   });
   updateLoc({
     id: locationId,
     params,
   })
-    .then(locationData => {
-      //do nothing, because save succeeded
+    .then((locationData) => {
+      // do nothing, because save succeeded
     })
-    .catch(e => {
-      //roll back
+    .catch((e) => {
+      // roll back
+      /* eslint-disable no-console */
       console.error('error', e);
       dispatch({
         type: ROLLBACK_UPDATE_LOCATION,
         payload: {
-          id : locationId
-        }
-      })
+          id: locationId,
+        },
+      });
     });
 };

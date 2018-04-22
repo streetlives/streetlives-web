@@ -1,30 +1,31 @@
-import { createStore, applyMiddleware } from 'redux'
-import {combineReducers, compose} from 'redux';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import thunk from 'redux-thunk';
-import rootReducer  from '../reducers';
-import _ from 'underscore';
-import createHistory from 'history/createBrowserHistory'
-import { routerReducer, routerMiddleware } from 'react-router-redux'
+import createHistory from 'history/createBrowserHistory';
+import { routerReducer, routerMiddleware } from 'react-router-redux';
+import rootReducer from '../reducers';
 
-let composedEnhancers;
-export const history = createHistory()
-const enhancers = []
+export const history = createHistory();
+const enhancers = [];
 const middleware = [
   thunk,
-  routerMiddleware(history)
-]
+  routerMiddleware(history),
+];
 
 if (process.env.NODE_ENV === 'development') {
-  const devToolsExtension = window['__REDUX_DEVTOOLS_EXTENSION__']
+  /* eslint-disable no-underscore-dangle */
+  const devToolsExtension = window.__REDUX_DEVTOOLS_EXTENSION__;
 
   if (typeof devToolsExtension === 'function') {
-    enhancers.push(devToolsExtension())
+    enhancers.push(devToolsExtension());
   }
 }
 
-composedEnhancers = compose(
+const composedEnhancers = compose(
   applyMiddleware(...middleware),
-  ...enhancers
-)
+  ...enhancers,
+);
 
-export const store = createStore(combineReducers(_.extend({},rootReducer,{router : routerReducer})), composedEnhancers);
+export const store = createStore(
+  combineReducers({ ...rootReducer, router: routerReducer }),
+  composedEnhancers,
+);
