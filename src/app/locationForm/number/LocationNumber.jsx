@@ -68,19 +68,19 @@ class LocationNumberEdit extends Component {
               type="number"
               value={this.state.areaCode}
               onChange={this.onChange_areaCode}
-            />&nbsp;-&nbsp;
+              />&nbsp;-&nbsp;
             <Input
               width="2em"
               type="number"
               value={this.state.firstThree}
               onChange={this.onChange_firstThree}
-            />&nbsp;-&nbsp;
+              />&nbsp;-&nbsp;
             <Input
               width="3em"
               type="number"
               value={this.state.lastFour}
               onChange={this.onChange_lastFour}
-            />
+              />
           </div>
           <div>
             ext.
@@ -88,7 +88,7 @@ class LocationNumberEdit extends Component {
               type="number"
               value={this.state.extension}
               onChange={this.onChange_extension}
-            />
+              />
           </div>
         <Button onClick={this.onSubmit} primary className="mt-3">
           OK
