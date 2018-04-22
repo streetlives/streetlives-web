@@ -34,16 +34,16 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     value: locationData && 
-              locationData.PhysicalAddresses && 
-              locationData.PhysicalAddresses[0] && 
-              locationData.PhysicalAddresses[0].address_1 ? 
-              locationData.PhysicalAddresses[0].address_1 : null,
+              locationData.address && 
+              locationData.address && 
+              locationData.address.street ? 
+              locationData.address.street : null,
     locationData 
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: newAddress => dispatch(updateLocation(ownProps.match.params.locationId, { PhysicalAddresses: [{address_1 : newAddress}] })),
+  updateValue: newAddress => dispatch(updateLocation(ownProps.match.params.locationId, { address: {street : newAddress}})),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
