@@ -1,34 +1,29 @@
-import _ from 'underscore';
-
 const dbReducer = (state = {}, action) => {
   switch(action.type){
     case 'GET_LOCATION_RESPONSE':
       if(action.payload){
-        return _.extend({ [action.payload.id] : action.payload}, state)
+        return {...state, [action.payload.id] : action.payload}
       }
       break;
     case 'OPTIMISTIC_UPDATE_LOCATION':
       if(action.payload){
-        return _.extend(
-          {},
-          state,
-          {
-            [`last/${action.payload.id}`] : state[action.payload.id],
-            [action.payload.id] : _.extend({}, state[action.payload.id], action.payload.params)
+        return {
+          ...state,
+          [`last/${action.payload.id}`] : state[action.payload.id],
+          [action.payload.id] : { 
+            ...state[action.payload.id],
+            ...action.payload.params,
           }
-        )
+        }
       }
       break;
     case 'ROLLBACK_UPDATE_LOCATION':
       if(action.payload){
-        return _.extend(
-          {},
-          state,
-          {
-            [`last/${action.payload.id}`] : null,
-            [action.payload.id] : state[`last/${action.payload.id}`]
-          }
-        )
+        return {
+          ...state,
+          [`last/${action.payload.id}`] : null,
+          [action.payload.id] : state[`last/${action.payload.id}`]
+        }
       }
       break;
     default:
