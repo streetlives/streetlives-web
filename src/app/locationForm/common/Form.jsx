@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import LoadingLabel from './LoadingLabel';
 
 class Form extends Component {
   constructor(props) {
@@ -42,6 +43,8 @@ class Form extends Component {
   }
 
   render() {
+    if (!this.props.locationData) return <LoadingLabel />;
+
     if (this.state.isEditing) {
       return <this.props.editComponent
           value={this.props.value}

@@ -6,7 +6,6 @@ import { getLocation } from '../../../actions';
 import Form from '../common/Form';
 import FormView from '../common/FormView';
 import { compose, withProps } from 'recompose';
-import PropTypes from 'prop-types';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
