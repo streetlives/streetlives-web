@@ -22,6 +22,12 @@ class LocationNumberEdit extends Component {
       extension : props.value.extension || ''
     };
 
+    this.keyToMaxDigits = {
+      areaCode: 3,
+      firstThree: 3,
+      lastFour: 4
+    };
+
     this.onSubmit = this.onSubmit.bind(this);
     Object.keys(this.state).forEach(k => {
       this[`onChange_${k}`] = this.onChange.bind(this, k);
@@ -47,7 +53,10 @@ class LocationNumberEdit extends Component {
   }
 
   onChange(key, event) {
-    this.setState({ [key]: event.target.value });
+    let value = event.target.value;
+    const maxLength = this.keyToMaxDigits[key];
+    value = value.length > maxLength ? value.slice(0, maxLength) : value;   //truncate
+    this.setState({ [key]: value });
   }
 
   onSubmit() {
@@ -64,28 +73,28 @@ class LocationNumberEdit extends Component {
         <Header>What's this location's phone number?</Header>
           <div>
             <Input
-              width="2em"
-              type="number"
+              type="tel"
               value={this.state.areaCode}
               onChange={this.onChange_areaCode}
+              size="3"
               />&nbsp;-&nbsp;
             <Input
-              width="2em"
-              type="number"
+              type="tel"
               value={this.state.firstThree}
               onChange={this.onChange_firstThree}
+              size="3"
               />&nbsp;-&nbsp;
             <Input
-              width="3em"
-              type="number"
+              type="tel"
               value={this.state.lastFour}
               onChange={this.onChange_lastFour}
+              size="4"
               />
           </div>
           <div>
             ext.
             <Input
-              type="number"
+              type="tel"
               value={this.state.extension}
               onChange={this.onChange_extension}
               />
