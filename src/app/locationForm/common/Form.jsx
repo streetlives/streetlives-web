@@ -19,7 +19,7 @@ class Form extends Component {
   isEditing(props){
     return props.value === null ||  
       ( typeof props.value === 'object' ? 
-          Object.keys(props.value).some( key => !props.value[key] ) :
+          Object.keys(props.value).some( key => props.value[key] ) :
           !props.value
       );
   }
