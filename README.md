@@ -50,6 +50,11 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#deployment) for more information.
 
+### `npm run publish`
+
+Deploys the app to the S3 bucket currently used for production.
+
+Should only be done after first running `REACT_APP_API_URL="<API URL>" npm run build`, with "API URL" as the API Gateway URL exposing the Streetlives API in production.
 
 ## License
 
