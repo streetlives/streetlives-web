@@ -134,20 +134,10 @@ const LocationNumber = compose(
 const mapStateToProps = (state, ownProps) => {
   const locationId = ownProps.match.params.locationId;
   const locationData = selectLocationData(state, locationId);
+  const phone = locationData && locationData.Phones && locationData.Phones[0];
 
   return {
-    value : {
-      number: locationData && 
-                locationData.Phones &&
-                locationData.Phones[0] && 
-                locationData.Phones[0].number ? 
-                locationData.Phones[0].number : null,
-      extension: locationData && 
-                locationData.Phones &&
-                locationData.Phones[0] && 
-                locationData.Phones[0].extension ? 
-                locationData.Phones[0].extension : null,
-    },
+    value : phone,
     locationData 
   };
 };
