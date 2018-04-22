@@ -8,23 +8,23 @@ import FormEdit from '../common/FormEdit';
 import FormView from '../common/FormView';
 import { compose, withProps } from 'recompose';
 
-const LocationDescriptionEdit = compose(
+const OrganizationDescriptionEdit = compose(
   withProps({
-    headerText : 'Please describe this location',
+    headerText : 'How would you describe this organization?',
     placeholderText : 'Enter a description of the location',
   })
 )(props => <FormEdit {...props} />)
 
-const LocationDescriptionView = compose(
+const OrganizationDescriptionView = compose(
   withProps({
     topText : 'LOCATION DESCRIPTION',
   })
 )(props => <FormView {...props} />)
 
-const LocationDescription = compose(
+const OrganizationDescription = compose(
   withProps({
-    viewComponent: LocationDescriptionView,
-    editComponent: LocationDescriptionEdit
+    viewComponent: OrganizationDescriptionView,
+    editComponent: OrganizationDescriptionEdit
   })
 )(props => <Form {...props} />)
 
@@ -41,10 +41,10 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: newLocationDescription => dispatch(updateLocation(ownProps.match.params.locationId, { description : newLocationDescription})),
+  updateValue: newOrganizationDescription => dispatch(updateLocation(ownProps.match.params.locationId, { description : newOrganizationDescription})),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationDescription);
+export default connect(mapStateToProps, mapDispatchToProps)(OrganizationDescription);
