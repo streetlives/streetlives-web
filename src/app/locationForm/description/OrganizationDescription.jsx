@@ -11,13 +11,13 @@ import { compose, withProps } from 'recompose';
 const OrganizationDescriptionEdit = compose(
   withProps({
     headerText : 'How would you describe this organization?',
-    placeholderText : 'Enter a description of the location',
+    placeholderText : 'Enter a description of the organization',
   })
 )(props => <FormEdit {...props} />)
 
 const OrganizationDescriptionView = compose(
   withProps({
-    topText : 'LOCATION DESCRIPTION',
+    topText : 'ORGANIZATION DESCRIPTION',
   })
 )(props => <FormView {...props} />)
 
