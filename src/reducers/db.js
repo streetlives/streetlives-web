@@ -1,11 +1,13 @@
+import { GET_LOCATION_RESPONSE, OPTIMISTIC_UPDATE_LOCATION, ROLLBACK_UPDATE_LOCATION } from '../actions';
+
 const dbReducer = (state = {}, action) => {
   switch(action.type){
-    case 'GET_LOCATION_RESPONSE':
+    case GET_LOCATION_RESPONSE:
       if(action.payload){
         return {...state, [action.payload.id] : action.payload}
       }
       break;
-    case 'OPTIMISTIC_UPDATE_LOCATION':
+    case OPTIMISTIC_UPDATE_LOCATION:
       if(action.payload){
         return {
           ...state,
@@ -17,7 +19,7 @@ const dbReducer = (state = {}, action) => {
         }
       }
       break;
-    case 'ROLLBACK_UPDATE_LOCATION':
+    case ROLLBACK_UPDATE_LOCATION:
       if(action.payload){
         return {
           ...state,
