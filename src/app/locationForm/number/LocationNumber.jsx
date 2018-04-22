@@ -69,25 +69,34 @@ class LocationNumberEdit extends Component {
 
   render() {
     return (
-      <div>
+      <form ref={ e => this.form = e } className="container" onSubmit={this.onSubmit}>
         <Header>What's this location's phone number?</Header>
           <div>
-            <Input
+            (<Input
+              customValidationMessage="Area code must contain three digits"
               type="tel"
               value={this.state.areaCode}
               onChange={this.onChange_areaCode}
+              pattern="\d{3}"
               size="3"
-              />&nbsp;-&nbsp;
+              required
+              />)&nbsp;-&nbsp;
             <Input
+              customValidationMessage="Enter first three digits for phone number"
               type="tel"
               value={this.state.firstThree}
               onChange={this.onChange_firstThree}
               size="3"
+              pattern="\d{3}"
+              required
               />&nbsp;-&nbsp;
             <Input
+              customValidationMessage="Enter last four digits for phone number"
               type="tel"
               value={this.state.lastFour}
               onChange={this.onChange_lastFour}
+              pattern="\d{4}"
+              required
               size="4"
               />
           </div>
@@ -99,10 +108,8 @@ class LocationNumberEdit extends Component {
               onChange={this.onChange_extension}
               />
           </div>
-        <Button onClick={this.onSubmit} primary className="mt-3">
-          OK
-        </Button>
-      </div>
+          <input type="submit" className="Button Button-primary mt-3" value="OK"/>
+      </form>
     );
   }
 }
