@@ -1,6 +1,6 @@
-import dbReducer from './db';
+import { dbReducer } from './db';
 
-export const selectLocationData = (state, locationId) => state.db[locationId];
+export { selectLocationData } from './db';
 
 export const rootReducerObj = {
   db: dbReducer,

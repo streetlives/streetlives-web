@@ -4,7 +4,7 @@ import {
   ROLLBACK_UPDATE_LOCATION,
 } from '../actions';
 
-const dbReducer = (state = {}, action) => {
+export const dbReducer = (state = {}, action) => {
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
@@ -39,4 +39,4 @@ const dbReducer = (state = {}, action) => {
   return state;
 };
 
-export default dbReducer;
+export const selectLocationData = (state, locationId) => state.db[locationId];
