@@ -64,19 +64,19 @@ class LocationNumberEdit extends Component {
         <Header>What's this location's phone number?</Header>
           <div>
             <Input
-              style={{width:'2em'}}
+              width="2em"
               type="number"
               value={this.state.areaCode}
               onChange={this.onChange_areaCode}
             />&nbsp;-&nbsp;
             <Input
-              style={{width:'2em'}}
+              width="2em"
               type="number"
               value={this.state.firstThree}
               onChange={this.onChange_firstThree}
             />&nbsp;-&nbsp;
             <Input
-              style={{width:'3em'}}
+              width="3em"
               type="number"
               value={this.state.lastFour}
               onChange={this.onChange_lastFour}
