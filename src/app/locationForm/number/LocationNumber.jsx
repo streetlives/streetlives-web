@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { selectLocationData } from '../../../reducers';
-import { updateLocation } from '../../../actions';
+import { updatePhone } from '../../../actions';
 import { getLocation } from '../../../actions';
 import Form from '../common/Form';
 import FormView from '../common/FormView';
@@ -42,7 +42,7 @@ class LocationNumberEdit extends Component {
   }
 
   onSubmit() {
-    this.props.updateValue({
+    this.props.updateValue(this.props.value.id, {
       number : [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
       extension : this.state.extension
     });
@@ -121,7 +121,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: newLocationNumberAndExtension => dispatch(updateLocation(ownProps.match.params.locationId, { Phones : [newLocationNumberAndExtension]})),
+  updateValue: (phoneId, newLocationNumberAndExtension) => dispatch(updatePhone(ownProps.match.params.locationId, phoneId, newLocationNumberAndExtension)),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
