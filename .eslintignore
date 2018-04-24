@@ -1,2 +1,3 @@
 /coverage/**
 !.eslintrc.js
+/build/**

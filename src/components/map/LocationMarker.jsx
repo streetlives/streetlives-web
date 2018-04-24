@@ -1,22 +1,24 @@
-import React, { Component } from "react";
-import { Marker, InfoWindow } from "react-google-maps";
-import "./LocationMarker.css";
+import React, { Component } from 'react';
+import { Marker, InfoWindow } from 'react-google-maps';
+import './LocationMarker.css';
 import Button from '../button';
-import { withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom';
 
 class LocationMarker extends Component {
-
-  constructor(props){
+  constructor(props) {
     super(props);
     this.handleYesClick = this.handleYesClick.bind(this);
+    this.onToggleInfo = this.onToggleInfo.bind(this);
   }
 
-  onToggleInfo = () => {
+  onToggleInfo() {
     this.props.onToggleInfo(this.props.mapLocation.id);
-  };
+  }
 
   renderAddress(address) {
-    const { id, address_1, city, state_province, postal_code } = address;
+    const {
+      id, address_1, city, state_province, postal_code,
+    } = address;
     return (
       <div key={id}>
         <div>{address_1}</div>
@@ -35,7 +37,7 @@ class LocationMarker extends Component {
     return <a href={linkUrl} target="_blank">{url}</a>;
   }
 
-  handleYesClick(){
+  handleYesClick() {
     this.props.history.push(`/recap/${this.props.mapLocation.id}`);
   }
 
@@ -58,10 +60,10 @@ class LocationMarker extends Component {
         onClick={this.onToggleInfo}
       >
         {isOpen && <InfoWindow onCloseClick={this.onToggleInfo}>
-          <div style={{textAlign:'left'}}>
+          <div style={{ textAlign: 'left' }}>
             <div>This location is:</div>
-            <br/>
-            <div className="locationInfo" style={{textAlign:'center'}}>
+            <br />
+            <div className="locationInfo" style={{ textAlign: 'center' }}>
               <div className="locationInfoHeader">
                 <div>{organization.name}</div>
                 {mapLocation.name && <div>{mapLocation.name}</div>}
@@ -70,13 +72,13 @@ class LocationMarker extends Component {
               <div>{organization.url && this.renderUrl(organization.url)}</div>
               <div>{phones.map(this.renderPhone)}</div>
             </div>
-            <br/>
-            <div>Would you like to review, add, or edit<br/> information about this location?</div>
-            <br/>
+            <br />
+            <div>Would you like to review, add, or edit<br /> information about this location?</div>
+            <br />
             <Button primary fluid onClick={this.handleYesClick}>
               <span>YES</span>
             </Button>
-            <div style={{margin:'.5em'}}/>
+            <div style={{ margin: '.5em' }} />
             <Button primary basic fluid onClick={this.onToggleInfo}>
               <span>NO THANKS</span>
             </Button>

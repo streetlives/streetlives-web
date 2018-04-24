@@ -8,23 +8,23 @@ import FormEdit from '../common/FormEdit';
 import FormView from '../common/FormView';
 import { compose, withProps } from 'recompose';
 
-const WebsiteEdit = compose(
+const OrganizationDescriptionEdit = compose(
   withProps({
-    headerText : 'What is this organization\'s website?',
-    placeholderText : 'Enter a wesbite for this organization',
+    headerText : 'How would you describe this organization?',
+    placeholderText : 'Enter a description of the organization',
   })
 )(props => <FormEdit {...props} />)
 
-const WebsiteView = compose(
+const OrganizationDescriptionView = compose(
   withProps({
-    topText : 'ORGANIZATION WEBSITE',
+    topText : 'ORGANIZATION DESCRIPTION',
   })
 )(props => <FormView {...props} />)
 
-const Website = compose(
+const OrganizationDescription = compose(
   withProps({
-    viewComponent: WebsiteView,
-    editComponent: WebsiteEdit
+    viewComponent: OrganizationDescriptionView,
+    editComponent: OrganizationDescriptionEdit
   })
 )(props => <Form {...props} />)
 
@@ -34,18 +34,17 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     value: locationData && 
-              locationData.Organization && 
-              locationData.Organization.url ? 
-              locationData.Organization.url : null,
+              locationData.description ? 
+              locationData.description : null,
     locationData 
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: newWebsite => dispatch(updateLocation(ownProps.match.params.locationId, { Organization : {url : newWebsite}})),
+  updateValue: newOrganizationDescription => dispatch(updateLocation(ownProps.match.params.locationId, { description : newOrganizationDescription})),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Website);
+export default connect(mapStateToProps, mapDispatchToProps)(OrganizationDescription);
