@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
 import Button from '../../components/button';
 import LocationField from './LocationField';
 import routes from '../locationForm/routes';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
 import LoadingLabel from '../locationForm/common/LoadingLabel';
 
@@ -102,10 +103,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
       dispatch(getLocation(locationId));
     },
   };
-}
-
-function isRequired(x) {
-  return !(Array.isArray(x) ? x.length : x);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationInfo));

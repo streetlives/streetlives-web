@@ -2,7 +2,7 @@ import {
   GET_LOCATION_RESPONSE,
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
-  OPTIMISTIC_UPDATE_PHONE
+  OPTIMISTIC_UPDATE_PHONE,
 } from '../actions';
 
 export const dbReducer = (state = {}, action) => {
@@ -33,12 +33,13 @@ export const dbReducer = (state = {}, action) => {
         };
       }
       break;
-    case OPTIMISTIC_UPDATE_PHONE:
+    case OPTIMISTIC_UPDATE_PHONE: {
       const location = state[action.payload.locationId];
-      const idx = location.Phones.map( phone => phone.id).indexOf(action.payload.phoneId)
-      const phone = location.Phones[idx]
-      const newPhones = location.Phones.slice(0,idx).concat({...phone, ...action.payload.params}).concat(location.Phones.slice(idx+1))
-      console.log('newPhones',newPhones);
+      const idx = location.Phones.map(phone => phone.id).indexOf(action.payload.phoneId);
+      const phone = location.Phones[idx];
+      const newPhones = location.Phones.slice(0, idx)
+        .concat({ ...phone, ...action.payload.params })
+        .concat(location.Phones.slice(idx + 1));
       if (action.payload) {
         return {
           ...state,
@@ -46,11 +47,12 @@ export const dbReducer = (state = {}, action) => {
           [action.payload.locationId]: {
             ...state[action.payload.locationId],
             ...action.payload.params,
-            'Phones' :  newPhones
+            Phones: newPhones,
           },
         };
       }
       break;
+    }
     default:
       return state;
   }
