@@ -1,4 +1,4 @@
 /coverage/**
 !.eslintrc.js
 
-build/*
+/build/**

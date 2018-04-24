@@ -3,7 +3,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
 
-function LocationDescription(props) {
+function AdditionalInfo(props) {
   return (
     <div>
       <Header>
@@ -17,4 +17,4 @@ function LocationDescription(props) {
   );
 }
 
-export default LocationDescription;
+export default AdditionalInfo;

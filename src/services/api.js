@@ -42,20 +42,19 @@ export const getLocation = ({ id }) =>
       .then(result => result.data);
   });
 
-export const updateLocation = ({ id, params }) =>
+const updateResource = (path, { id, params }) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
-    const {
-      name,
-    } = params;
-
     return axios.request({
-      url: `${config.baseApi}/locations/${id}`,
+      url: `${config.baseApi}/${path}/${id}`,
       method: 'patch',
-      data: { name },
+      data: params,
       headers: {
         Authorization: idJwtToken,
       },
     });
   });
+
+export const updateLocation = updateResource.bind(this, 'locations');
+export const updatePhone = updateResource.bind(this, 'phones');

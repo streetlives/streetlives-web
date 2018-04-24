@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import './Badge.css';
+
 function Badge({ children }) {
-  return (
-    <small className="bg-dark text-light rounded text-left font-weight-light p-1">{children}</small>
-  );
+  return <div className="Badge d-flex align-items-center rounded px-2 py-1">{children}</div>;
 }
 
 Badge.propTypes = {

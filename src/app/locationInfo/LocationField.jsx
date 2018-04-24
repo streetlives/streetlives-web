@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
 import Badge from '../../components/badge';
-
-import './LocationField.css';
+import Icon from '../../components/icon';
+import { FIELD_TYPES, getFieldType } from './utils';
 
 class LocationField extends Component {
   constructor() {
@@ -19,30 +19,42 @@ class LocationField extends Component {
   }
 
   render() {
-    const { title, updatedAt, required } = this.props;
+    const { title, updatedAt } = this.props;
 
+    const fieldType = getFieldType(updatedAt);
     const classNames = {
-      field: cx('LocationField border-top border-bottom', { 'bg-yellow': required }),
-      updatedAt: cx({
-        'text-danger': updatedAt && moment(updatedAt).isSameOrBefore(moment().subtract(1, 'years')),
-        'text-warning': updatedAt && moment(updatedAt).isSameOrBefore(moment()),
+      field: cx('LocationField border-top border-bottom'),
+      emptyDot: cx('rounded-circle mr-2', {
+        'bg-success': fieldType === FIELD_TYPES.SUCCESS,
+        'bg-warning': fieldType === FIELD_TYPES.WARNING,
+        'bg-danger': fieldType === FIELD_TYPES.DANGER || fieldType === FIELD_TYPES.MISSING,
+      }),
+      updatedAt: cx('font-weight-light', {
+        'text-uppercase text-danger font-weight-bold': fieldType === FIELD_TYPES.MISSING,
       }),
     };
 
-    const updatedAtText = updatedAt ? moment(updatedAt).fromNow() : 'never';
+    const shouldVerify = fieldType === FIELD_TYPES.DANGER || fieldType === FIELD_TYPES.WARNING;
+    const isMissing = fieldType === FIELD_TYPES.MISSING;
+
+    const timeAgoText = !isMissing ? moment(updatedAt).fromNow() : 'Missing info. Please add!';
+    const updatedAtText = shouldVerify ? `${timeAgoText}. Please verify.` : timeAgoText;
 
     return (
       <div className={classNames.field} onClick={this.navigateToFieldForm}>
         <div className="container p-4 text-left">
-          <div className="row">
+          <div className="row d-flex justify-content-between align-items-center">
             <div className="d-flex flex-column">
-              <div className="mb-2">
+              <h5 className="font-weight-light mb-1">{title}</h5>
+              <div className="d-flex">
                 <Badge>
-                  Last update: <span className={classNames.updatedAt}>{updatedAtText}</span>
+                  <div className={classNames.emptyDot} style={{ height: '10px', width: '10px' }} />
+                  <small className={classNames.updatedAt}>{updatedAtText}</small>
                 </Badge>
               </div>
-              <h5 className="font-weight-light mb-2">{title}</h5>
-              {required && <span>Please fill in this info</span>}
+            </div>
+            <div>
+              <Icon name="chevron-right" className="text-secondary" />
             </div>
           </div>
         </div>
@@ -54,12 +66,7 @@ class LocationField extends Component {
 LocationField.propTypes = {
   title: PropTypes.string.isRequired,
   updatedAt: PropTypes.string.isRequired,
-  required: PropTypes.bool,
   navigateToLocation: PropTypes.string.isRequired,
-};
-
-LocationField.defaultProps = {
-  required: false,
 };
 
 export default withRouter(LocationField);
