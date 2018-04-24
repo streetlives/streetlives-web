@@ -1,7 +1,9 @@
-import { configure } from "@storybook/react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { configure } from '@storybook/react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const stories = require.context("../src", true, /\.story\.(jsx|js)$/);
+import '../src/index.css';
+
+const stories = require.context('../src', true, /\.story\.(jsx|js)$/);
 
 function loadStories() {
   stories.keys().forEach(stories);

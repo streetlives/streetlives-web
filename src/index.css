@@ -1,5 +1,40 @@
+@value darkerGray from "./colors.css";
+
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  font-style: normal;
+  font-weight: bold;
+  line-height: 28px;
+  font-size: 21px;
+  letter-spacing: -0.741176px;
+  color: darkerGray;
+}
+h2 {
+  font-weight: bold;
+  line-height: 24px;
+  font-size: 17px;
+  letter-spacing: -0.741176px;
+  color: darkerGray;
+}
+h3 {
+  font-style: normal;
+  font-weight: normal;
+  line-height: 24px;
+  font-size: 17px;
+  letter-spacing: -0.370588px;
+  color: darkerGray;
+}
+
+p {
+  font-style: normal;
+  font-weight: normal;
+  line-height: 20px;
+  font-size: 13px;
+  letter-spacing: -0.370588px;
+  color: darkerGray;
 }

@@ -19,9 +19,6 @@ const HeadingExample = (
     <Header as="h1">H1 Header</Header>
     <Header as="h2">H2 Header</Header>
     <Header as="h3">H3 Header</Header>
-    <Header as="h4">H4 Header</Header>
-    <Header as="h5">H5 Header</Header>
-    <Header as="h6">H6 Header</Header>
   </div>
 );
 
