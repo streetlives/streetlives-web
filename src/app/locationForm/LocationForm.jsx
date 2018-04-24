@@ -30,7 +30,7 @@ class LocationForm extends Component {
   }
 
   onNext() {
-    this.props.history.push( `${routes[this.getCurrentIndex() + 1][0]}/${this.props.match.params.locationId}`);
+    this.props.history.push(`${routes[this.getCurrentIndex() + 1][0]}/${this.props.match.params.locationId}`);
   }
 
   getCurrentIndex() {
@@ -46,9 +46,7 @@ class LocationForm extends Component {
         <NavBar title={currentRoute[2]} />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
-          <div className="row px-4">
-            {this.routeComponents}
-          </div>
+          <div className="row px-4">{this.routeComponents}</div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
           <div className="container">

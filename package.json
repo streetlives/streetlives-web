@@ -6,6 +6,7 @@
     "aws-amplify": "^0.2.11",
     "aws-amplify-react": "^0.1.36",
     "axios": "^0.18.0",
+    "babel-eslint": "^8.2.3",
     "bootstrap": "^4.0.0",
     "classnames": "^2.2.5",
     "enzyme": "^3.3.0",
@@ -31,7 +32,8 @@
     "react-scripts": "1.1.1",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "underscore": "^1.9.0"
   },
   "scripts": {
     "start": "react-scripts start",

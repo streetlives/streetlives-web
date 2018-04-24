@@ -1,4 +1,8 @@
-import { getLocation as getLoc, updateLocation as updateLoc, updatePhone as updatePh } from '../services/api';
+import {
+  getLocation as getLoc,
+  updateLocation as updateLoc,
+  updatePhone as updatePh,
+} from '../services/api';
 
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
@@ -9,10 +13,11 @@ export const getLocation = locationId => (dispatch) => {
   getLoc({
     id: locationId,
   })
-    .then(locationData => dispatch({
-      type: GET_LOCATION_RESPONSE,
-      payload: locationData,
-    }))
+    .then(locationData =>
+      dispatch({
+        type: GET_LOCATION_RESPONSE,
+        payload: locationData,
+      }))
     /* eslint-disable no-console */
     .catch(e => console.error('error', e));
 };
@@ -46,7 +51,6 @@ export const updateLocation = (locationId, params) => (dispatch) => {
     });
 };
 
-
 export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
   // optimistically update the data store
   dispatch({
@@ -71,8 +75,8 @@ export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
       dispatch({
         type: ROLLBACK_UPDATE_LOCATION,
         payload: {
-          id : locationId
-        }
+          id: locationId,
+        },
       });
     });
 };
