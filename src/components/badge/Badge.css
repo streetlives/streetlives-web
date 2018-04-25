@@ -1,0 +1,6 @@
+@value lightGray, mediumGray from "../../colors.css";
+
+.Badge {
+  background: lightGray;
+  color: mediumGray;
+}
