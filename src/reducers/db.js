@@ -35,17 +35,15 @@ export const dbReducer = (state = {}, action) => {
       break;
     case OPTIMISTIC_UPDATE_PHONE:
       const location = state[action.payload.locationId];
-      const idx = location.Phones.map( phone => phone.id).indexOf(action.payload.phoneId)
+      const idx = location.Phones.findIndex(phone => phone.id === action.payload.phoneId)
       const phone = location.Phones[idx]
-      const newPhones = location.Phones.slice(0,idx).concat({...phone, ...action.payload.params}).concat(location.Phones.slice(idx+1))
-      console.log('newPhones',newPhones);
+      const newPhones = [...location.Phones.slice(0,idx), {...phone, ...action.payload.params}, ...location.Phones.slice(idx+1)];
       if (action.payload) {
         return {
           ...state,
           [`last/${action.payload.locationId}`]: state[action.payload.locationId],
           [action.payload.locationId]: {
             ...state[action.payload.locationId],
-            ...action.payload.params,
             'Phones' :  newPhones
           },
         };
