@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 
 import { selectLocationData } from '../../../reducers';
-import { updatePhone, getLocation } from '../../../actions';
+import { updatePhone, getLocation, createPhone } from '../../../actions';
 import Form from '../common/Form';
 import FormView from '../common/FormView';
 import Header from '../../../components/header';
@@ -13,14 +13,14 @@ class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
 
-    const [areaCode, firstThree, lastFour] = props.value.number
+    const [areaCode, firstThree, lastFour] = props.value && props.value.number
       ? props.value.number.split('.')
       : ['', '', ''];
     this.state = {
       areaCode,
       firstThree,
       lastFour,
-      extension: props.value.extension || '',
+      extension: props.value && props.value.extension || '',
     };
 
     this.keyToMaxDigits = {
@@ -43,7 +43,7 @@ class LocationNumberEdit extends Component {
   }
 
   onSubmit() {
-    this.props.updateValue(this.props.value.id, {
+    this.props.updateValue(this.props.value && this.props.value.id, {
       number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
       extension: this.state.extension,
     });
@@ -123,8 +123,12 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (phoneId, newLocationNumberAndExtension) =>
-    dispatch(updatePhone(ownProps.match.params.locationId, phoneId, newLocationNumberAndExtension)),
+  updateValue: (phoneId, newLocationNumberAndExtension) => 
+    dispatch(
+      (phoneId ? updatePhone : createPhone)(
+        ownProps.match.params.locationId, phoneId, newLocationNumberAndExtension
+      )
+    ),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },

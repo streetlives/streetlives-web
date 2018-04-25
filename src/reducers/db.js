@@ -3,6 +3,8 @@ import {
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
   OPTIMISTIC_UPDATE_PHONE,
+  OPTIMISTIC_CREATE_PHONE,
+  CREATE_PHONE_SUCCESS,
 } from '../actions';
 
 export const dbReducer = (state = {}, action) => {
@@ -42,17 +44,28 @@ export const dbReducer = (state = {}, action) => {
         {...phone, ...action.payload.params}, 
         ...location.Phones.slice(idx+1)
       ];
-      if (action.payload) {
-        return {
-          ...state,
-          [`last/${action.payload.locationId}`]: state[action.payload.locationId],
-          [action.payload.locationId]: {
-            ...state[action.payload.locationId],
-            Phones: newPhones,
-          },
-        };
+      return constructNewStateWithUpdatedPhones(state, action, newPhones);
+    }
+    case OPTIMISTIC_CREATE_PHONE:{
+      const location = state[action.payload.locationId];
+      let newPhones;
+      if(!location.Phones){
+        newPhones = [ action.payload.params ];
+      }else{
+        newPhones = location.Phones.concat(action.payload.params);
       }
-      break;
+      return constructNewStateWithUpdatedPhones(state, action, newPhones)
+    }
+    case CREATE_PHONE_SUCCESS:{
+      const location = state[action.payload.locationId];
+      const idx = location.Phones.findIndex(phone => !phone.id && phone.number === action.payload.params.number && phone.extension === action.payload.params.extension )
+      const phone = location.Phones[idx]
+      const newPhones = [
+        ...location.Phones.slice(0,idx), 
+        {...phone, ...action.payload.params}, 
+        ...location.Phones.slice(idx+1)
+      ];
+      return constructNewStateWithUpdatedPhones(state, action, newPhones);
     }
     default:
       return state;
@@ -60,5 +73,16 @@ export const dbReducer = (state = {}, action) => {
 
   return state;
 };
+
+function constructNewStateWithUpdatedPhones(state, action, newPhones){
+  return {
+    ...state,
+    [`last/${action.payload.locationId}`]: state[action.payload.locationId],
+    [action.payload.locationId]: {
+      ...state[action.payload.locationId],
+      Phones: newPhones,
+    },
+  };
+}
 
 export const selectLocationData = (state, locationId) => state.db[locationId];
