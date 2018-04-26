@@ -19,7 +19,7 @@ function Header({
 
 Header.propTypes = {
   children: PropTypes.string.isRequired,
-  as: PropTypes.oneOf(['h1', 'h2', 'h3']),
+  as: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4']),
   size: PropTypes.string,
   className: PropTypes.string,
 };
