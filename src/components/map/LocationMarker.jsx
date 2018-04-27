@@ -59,8 +59,12 @@ class LocationMarker extends Component {
         position={position}
         onClick={this.onToggleInfo}
       >
-        {isOpen && <InfoWindow onCloseClick={this.onToggleInfo}>
-          <div style={{ textAlign: 'left' }}>
+        {isOpen && <InfoWindow 
+          options={{
+            maxWidth:window.innerWidth - 100
+          }}
+          onCloseClick={this.onToggleInfo}>
+          <div style={{ textAlign: 'left', maxHeight: window.innerHeight - 200, overflowY: 'auto'  }}>
             <div>This location is:</div>
             <br />
             <div className="locationInfo" style={{ textAlign: 'center' }}>
