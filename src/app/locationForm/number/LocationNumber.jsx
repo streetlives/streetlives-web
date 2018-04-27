@@ -8,6 +8,7 @@ import Form from '../common/Form';
 import FormView from '../common/FormView';
 import Header from '../../../components/header';
 import Input from '../../../components/input';
+import Button from '../../../components/button';
 
 class LocationNumberEdit extends Component {
   constructor(props) {
@@ -87,7 +88,12 @@ class LocationNumberEdit extends Component {
           value={this.state.extension}
           onChange={this.onChange_extension}
         />
-        <input type="submit" className="Button Button-primary mt-3" value="OK" />
+        <div>
+          <input type="submit" className="Button Button-primary mt-3" value="OK" />&nbsp;
+          <Button onClick={this.props.onCancel} basic primary className="mt-3">
+            CANCEL
+          </Button>
+        </div>
       </form>
     );
   }

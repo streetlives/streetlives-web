@@ -9,6 +9,7 @@ class Form extends Component {
     this.onConfirm = this.onConfirm.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onCancel = this.onCancel.bind(this);
 
     if (!props.locationData) {
       //lazy-load the location data
@@ -42,6 +43,10 @@ class Form extends Component {
     this.setState({ isEditing: false }, this.props.onFieldVerified);
   }
 
+  onCancel() {
+    this.setState({ isEditing: false });
+  }
+
   render() {
     if (!this.props.locationData) return <LoadingLabel />;
 
@@ -49,6 +54,7 @@ class Form extends Component {
       return <this.props.editComponent
           value={this.props.value}
           onSubmit={this.onSubmit}
+          onCancel={this.onCancel}
           updateValue={this.props.updateValue}
           />;
     }
