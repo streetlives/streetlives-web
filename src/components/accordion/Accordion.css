@@ -1,0 +1,17 @@
+@value darkerGray, borderGray, primaryColor from "../../colors.css";
+
+.Accordion .Item {
+  border: 1px solid borderGray;
+  box-sizing: border-box;
+  color: darkerGray;
+  cursor: pointer;
+  padding: 10px;
+  width: fit-content;
+  text-align: left;
+}
+
+.Accordion .Item-active {
+  background: darkerGray;
+  border: 1px solid darkerGray;
+  color: primaryColor;
+}
