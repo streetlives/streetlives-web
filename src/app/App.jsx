@@ -17,6 +17,7 @@ import MapView from './mapView/MapView';
 import Recap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
+import ServiceContainer from './services/ServiceContainer';
 import { store, history } from '../store/index';
 
 import './App.css';
@@ -34,6 +35,7 @@ function App({ authState }) {
             <Route path="/recap/:locationId" component={withTracker(Recap)} />
             <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
             <Route path="/questions/:id/:locationId" component={withTracker(LocationForm)} />
+            <Route path="/services" component={withTracker(ServiceContainer)} />
           </Switch>
         </ConnectedRouter>
       </div>
