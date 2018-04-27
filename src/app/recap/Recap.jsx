@@ -15,6 +15,7 @@ function Recap({ history, match }) {
           bottom: '2.6em',
           right: 0,
           left: 0,
+          overflowY: 'auto'
         }}
         className="text-white text-left font-weight-light"
       >
