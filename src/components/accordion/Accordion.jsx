@@ -24,15 +24,12 @@ function Item({
 }
 
 function Content({ children, active }) {
-  const classNames = cx('p-3', { 'd-none': !active });
+  const classNames = cx('container p-3', { 'd-none': !active });
   return <div className={classNames}>{children}</div>;
 }
 
-class Accordion extends Component {
-  render() {
-    const { children } = this.props;
-    return <div className="Accordion w-100">{children}</div>;
-  }
+function Accordion({ children }) {
+  return <div className="Accordion w-100">{children}</div>;
 }
 
 Accordion.Item = Item;
