@@ -1,10 +1,12 @@
 module.exports = {
+  parser: 'babel-eslint',
   extends: 'airbnb',
 
   env: {
     node: true,
     jest: true,
     browser: true,
+    es6: true,
   },
 
   rules: {

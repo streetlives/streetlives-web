@@ -1,20 +1,23 @@
-import React from "react";
+import React from 'react';
 import { ConfirmSignUp } from 'aws-amplify-react';
 import Input from '../../components/input';
 import Button from '../../components/button';
-import {Grid, Row, Col} from '../../components/layout/bootstrap';
+import { Grid, Row, Col } from '../../components/layout/bootstrap';
 
 export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
-
   showComponent(theme) {
     const { hide } = this.props;
-    if (hide && hide.includes(ConfirmSignUp)) { return null; }
+    if (hide && hide.includes(ConfirmSignUp)) {
+      return null;
+    }
 
     return (
       <Grid>
         <Row>
           <Col customClasses="sign-in-header">
-            <div>Streetlives <strong>NYC</strong></div>
+            <div>
+              Streetlives <strong>NYC</strong>
+            </div>
           </Col>
         </Row>
         <Row>
@@ -23,25 +26,28 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
           </Col>
         </Row>
         <Row>
-          <Col>          
+          <Col>
             <label className="w-100">Username</label>
-            <Input 
-              fluid placeholder="Enter your username" 
+            <Input
+              fluid
+              placeholder="Enter your username"
               key="username"
               name="username"
               onChange={this.handleInputChange}
-              />
+            />
           </Col>
         </Row>
         <Row>
           <Col>
             <label className="w-100">Code</label>
-            <Input fluid placeholder="Enter your code" 
+            <Input
+              fluid
+              placeholder="Enter your code"
               key="code"
               name="code"
               type="code"
               onChange={this.handleInputChange}
-              />
+            />
           </Col>
         </Row>
         <Row>
@@ -62,8 +68,6 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
           </Col>
         </Row>
       </Grid>
-    )
+    );
   }
 }
-
-
