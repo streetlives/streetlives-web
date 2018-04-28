@@ -18,13 +18,14 @@ import Recap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
 import { store, history } from '../store/index';
+import config from '../config';
 
 import './App.css';
 
 Amplify.configure(awsExports);
 
 function App({ authState }) {
-  if (authState !== 'signedIn') return null;
+  if (!config.disableAuth && authState !== 'signedIn') return null;
   return (
     <Provider store={store}>
       <div className="App">
@@ -60,4 +61,6 @@ const auth = () => (
   </Authenticator>
 );
 
-export default auth;
+const mainComponent = config.disableAuth ? App : auth;
+
+export default mainComponent;

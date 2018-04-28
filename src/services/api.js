@@ -2,15 +2,24 @@ import axios from 'axios';
 import Amplify from 'aws-amplify';
 import config from '../config';
 
+const requestWithAuth = (cb) => {
+  if(config.disableAuth){
+    return cb(null);
+  }else{
+    return Amplify.Auth.currentAuthenticatedUser().then((user) => {
+      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+      return cb(idJwtToken);
+    });
+  }
+}
+
 export const getLocations = ({
   latitude,
   longitude,
   radius,
   searchString,
-}) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+}) => {
+  return requestWithAuth( idJwtToken => {
     return axios
       .request({
         url: `${config.baseApi}/locations`,
@@ -27,11 +36,10 @@ export const getLocations = ({
       })
       .then(result => result.data);
   });
+}
 
-export const getLocation = ({ id }) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+export const getLocation = ({ id }) => {
+  return requestWithAuth( idJwtToken => {
     return axios.request({
       url: `${config.baseApi}/locations/${id}`,
       method: 'get',
@@ -39,13 +47,12 @@ export const getLocation = ({ id }) =>
         Authorization: idJwtToken,
       },
     })
-      .then(result => result.data);
+    .then(result => result.data);
   });
+}
 
-const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
+  return requestWithAuth( idJwtToken => {
     //construct the path
     const pathComponents = [config.baseApi, pathPrefix, id];
     if(pathSuffix) pathComponents.push(pathSuffix)
@@ -60,6 +67,7 @@ const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) =>
       },
     });
   });
+}
 
 export const updateLocation = updateResource.bind(this, { pathPrefix: 'locations', method: 'patch' });
 export const updatePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'patch' });
