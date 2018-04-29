@@ -12,7 +12,7 @@ class ServicesRecapPage extends Component {
       const service = services[category][id];
 
       return service.selected ? (
-        <ListItem title={service.name} progress={service.progress || 0} />
+        <ListItem key={id} title={service.name} progress={service.progress || 0} />
       ) : (
         undefined
       );
