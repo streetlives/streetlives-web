@@ -14,7 +14,6 @@ class LocationForm extends Component {
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
 
-    console.log('this.props',this.props);
     this.routeComponents = routes.map(route => (
       <Route
         key={route[0]}
