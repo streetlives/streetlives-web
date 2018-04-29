@@ -2,6 +2,7 @@
 
 .Accordion .Item {
   border: none;
+  border-top: 1px solid borderGray;
   border-bottom: 1px solid borderGray;
   box-sizing: border-box;
   color: darkerGray;
@@ -9,10 +10,6 @@
   padding: 10px;
   width: fit-content;
   text-align: left;
-}
-
-.Accordion .Item:first-child {
-  border-top: 1px solid borderGray;
 }
 
 .Accordion .Item-active {
