@@ -1,0 +1,15 @@
+@value darkerGray, borderGray, primaryColor from "../../colors.css";
+
+.SectionHeader {
+  border: none;
+  background: darkerGray;
+  color: primaryColor;
+  border-bottom: 1px solid borderGray;
+  box-sizing: border-box;
+  padding: 10px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 11px;
+  line-height: 11px;
+}
