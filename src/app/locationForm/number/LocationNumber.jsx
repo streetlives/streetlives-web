@@ -13,14 +13,13 @@ class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
 
-    const [areaCode, firstThree, lastFour] = props.value && props.value.number
-      ? props.value.number.split('.')
-      : ['', '', ''];
+    const [areaCode, firstThree, lastFour] =
+      props.value && props.value.number ? props.value.number.split('.') : ['', '', ''];
     this.state = {
       areaCode,
       firstThree,
       lastFour,
-      extension: props.value && props.value.extension || '',
+      extension: (props.value && props.value.extension) || '',
     };
 
     this.keyToMaxDigits = {
@@ -53,7 +52,7 @@ class LocationNumberEdit extends Component {
   render() {
     return (
       <form ref={e => (this.form = e)} className="container" onSubmit={this.onSubmit}>
-        <Header>What's this location's phone number?</Header>
+        <Header>What&apos;s this location&apos;s phone number?</Header>
         (<Input
           customValidationMessage="Area code must contain three digits"
           type="tel"
@@ -123,12 +122,12 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (phoneId, newLocationNumberAndExtension) => 
-    dispatch(
-      (phoneId ? updatePhone : createPhone)(
-        ownProps.match.params.locationId, phoneId, newLocationNumberAndExtension
-      )
-    ),
+  updateValue: (phoneId, newLocationNumberAndExtension) =>
+    dispatch((phoneId ? updatePhone : createPhone)(
+      ownProps.match.params.locationId,
+      phoneId,
+      newLocationNumberAndExtension,
+    )),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
