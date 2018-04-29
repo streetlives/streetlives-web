@@ -44,11 +44,13 @@ class ServicesContainer extends Component {
     return (
       <div className="text-left">
         <NavBar title={PAGES.INFO} />
-        {page === PAGES.INFO && (
-          <ServicesInfoPage services={services} onSelectService={this.onSelectService} />
-        )}
-        {page === PAGES.RECAP && <ServicesRecapPage services={services} />}
-        <div className="position-absolute" style={{ right: 0, bottom: 0, left: 0 }}>
+        <div className="mb-5">
+          {page === PAGES.INFO && (
+            <ServicesInfoPage services={services} onSelectService={this.onSelectService} />
+          )}
+          {page === PAGES.RECAP && <ServicesRecapPage services={services} />}
+        </div>
+        <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
           <Button fluid primary onClick={this.onNext}>
             Next
           </Button>

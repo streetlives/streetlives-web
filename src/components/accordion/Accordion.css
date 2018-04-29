@@ -2,6 +2,7 @@
 
 .Accordion .Item {
   border: none;
+  background: white;
   border-top: 1px solid borderGray;
   border-bottom: 1px solid borderGray;
   box-sizing: border-box;
