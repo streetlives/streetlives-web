@@ -5,8 +5,6 @@ import Map from '../../components/map';
 /* eslint-env es6 */
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
-const defaultRadius = 10000;
-
 const defaultZoom = 14;
 const minZoom = 11;
 
@@ -17,7 +15,7 @@ export default class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
-    radius: defaultRadius,
+    radius: null,
   };
 
   componentWillMount() {
@@ -28,41 +26,30 @@ export default class MapView extends Component {
     if (!navigator || !navigator.geolocation) {
       return;
     }
-
-    navigator.geolocation.getCurrentPosition(
-      userPosition => {
-        const { coords } = userPosition;
-        this.onCenterChanged({
-          lat: coords.latitude,
-          lng: coords.longitude,
-        });
-      },
-      e => console.error('Failed to get current position', e),
-      { timeout: geolocationTimeout },
-    );
   }
   onSearchChanged = event => {
     this.setState({ searchString: event.target.value }, () => {
-      this.fetchLocations();
+      //this.fetchLocations();
     });
   };
 
-  onCenterChanged = center => {
-    this.setState({ center }, () => {
+  onBoundsChanged = ({radius}) => {
+    this.setState({ radius }, () => {
       this.fetchLocations();
     });
-  };
+  }
 
-  fetchLocations = debounce(() => {
+  fetchLocations = () => {
+    if(!this.state.radius) return;
     getLocations({
       latitude: this.state.center.lat,
       longitude: this.state.center.lng,
-      radius: this.state.radius,
+      radius: Math.floor(this.state.radius),
       searchString: this.state.searchString,
     })
       .then(locations => this.setState({ locations }))
       .catch(e => console.error('error', e));
-  }, fetchLocationsDebouncePeriod);
+  };
 
   render() {
     return (
@@ -98,11 +85,25 @@ export default class MapView extends Component {
         <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
           <Map
             locations={this.state && this.state.locations}
-            options={{ minZoom, disableDefaultUI: true }}
+            options={{ 
+              minZoom, 
+              disableDefaultUI: true, 
+              gestureHandling: 'greedy',
+              clickableIcons: false,
+              styles:[
+                  {
+                      featureType: "poi",
+                      elementType: "labels",
+                      stylers: [
+                            { visibility: "off" }
+                      ]
+                  }
+              ]
+            }}
             defaultZoom={defaultZoom}
             defaultCenter={defaultCenter}
             center={this.state.center}
-            onCenterChanged={this.onCenterChanged}
+            onBoundsChanged={this.onBoundsChanged}
           />
         </div>
       </div>
