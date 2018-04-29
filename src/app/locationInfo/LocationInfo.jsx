@@ -7,10 +7,22 @@ import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
 import Button from '../../components/button';
-import LocationField from './LocationField';
 import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
 import LoadingLabel from '../locationForm/common/LoadingLabel';
+import FieldItem from './FieldItem';
+
+// TODO: Replace with real updated at data.
+const FAKE_DATA = [
+  null,
+  moment().subtract(1, 'years'),
+  moment().subtract(30, 'days'),
+  moment().subtract(3, 'months'),
+  moment().subtract(3, 'months'),
+  null,
+  moment().subtract(3, 'months'),
+  null,
+];
 
 function LocationHeader() {
   return (
@@ -22,50 +34,45 @@ function LocationHeader() {
   );
 }
 
+function LoadingView() {
+  return (
+    <div className="d-flex flex-column">
+      <NavBar title="Location Info" />
+      <LoadingLabel />
+    </div>
+  );
+}
+
 class LocationInfo extends Component {
-  constructor(props) {
-    super(props);
-
-    this.dummyLastUpdatedValues = [
-      null,
-      moment().subtract(1, 'years'),
-      moment().subtract(30, 'days'),
-      moment().subtract(3, 'months'),
-      moment().subtract(3, 'months'),
-      null,
-      moment().subtract(3, 'months'),
-      null,
-    ];
-
-    if (!props.locationData) {
-      props.getLocation(props.match.params.locationId);
+  componentWillMount() {
+    if (!this.props.locationData) {
+      this.props.getLocation(this.props.match.params.locationId);
     }
   }
 
   render() {
+    if (!this.props.locationData) {
+      return <LoadingView />;
+    }
+
+    const { locationData: { id: locationId } } = this.props;
+
     return (
       <div className="d-flex flex-column">
         <NavBar title="Location Info" />
-        {!this.props.locationData ? (
-          <LoadingLabel />
-        ) : (
-          [
-            <ProgressBar step={0} steps={routes.length} />,
-            <LocationHeader />,
-            routes.map((route, i) => (
-              <LocationField
-                key={route[0]}
-                locationId={this.props.locationData.id}
-                updatedAt={this.dummyLastUpdatedValues[i]}
-                title={route[2]}
-                navigateToLocation={route[0]}
-              />
-            )),
-            <Button fluid primary onClick={() => console.log('Clicked done')}>
-              Done
-            </Button>,
-          ]
-        )}
+        <ProgressBar step={0} steps={routes.length} />
+        <LocationHeader />
+        {routes.map((route, i) => (
+          <FieldItem
+            key={route[0]}
+            title={route[2]}
+            linkTo={`${route[0]}/${locationId}`}
+            updatedAt={FAKE_DATA[i]}
+          />
+        ))}
+        <Button fluid primary onClick={() => console.log('Clicked done')}>
+          Done
+        </Button>
       </div>
     );
   }
