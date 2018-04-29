@@ -50,6 +50,10 @@ class LocationInfo extends Component {
     }
   }
 
+  onNext = () => {
+    console.log('Clicked done'); // eslint-disable-line no-console
+  };
+
   render() {
     if (!this.props.locationData) {
       return <LoadingView />;
@@ -70,7 +74,7 @@ class LocationInfo extends Component {
             updatedAt={FAKE_DATA[i]}
           />
         ))}
-        <Button fluid primary onClick={() => console.log('Clicked done')}>
+        <Button fluid primary onClick={this.onNext}>
           Done
         </Button>
       </div>

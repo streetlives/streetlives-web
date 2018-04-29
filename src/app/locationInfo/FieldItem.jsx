@@ -6,9 +6,11 @@ import Icon from '../../components/icon';
 
 import UpdatedBadge from './UpdatedBadge';
 
+import './FieldItem.css';
+
 function FieldItem({ title, updatedAt, linkTo }) {
   return (
-    <Link className="border-top border-bottom" to={linkTo}>
+    <Link className="FieldItem border-top border-bottom" to={linkTo}>
       <div className="container p-4 text-left">
         <div className="row d-flex justify-content-between align-items-center">
           <div className="d-flex flex-column">

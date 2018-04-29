@@ -1,0 +1,8 @@
+a.FieldItem {
+  text-decoration: none;
+  color: inherit;
+}
+a.FieldItem:hover {
+  text-decoration: none;
+  color: inherit;
+}
