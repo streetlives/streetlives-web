@@ -1,18 +1,21 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import Icon from '../../../components/icon';
 
-function ListItem({ title, progress, onClick }) {
+import './ListItem.css';
+
+function ListItem({ service }) {
   return (
-    <div className="ListItem py-4 border-top border-bottom" style={{ cursor: 'pointer' }}>
+    <Link to={service.id} className="ListItem d-block py-4 border-top border-bottom">
       <div className="container d-flex justify-content-between align-items-center">
         <div>
-          <h5 className="font-weight-normal m-0">{title}</h5>
-          <span className="text-secondary">{progress}% completed</span>
+          <h5 className="font-weight-normal m-0">{service.name}</h5>
+          <span className="text-secondary">{service.progress || 0}% completed</span>
         </div>
         <Icon name="chevron-right" size="lg" />
       </div>
-    </div>
+    </Link>
   );
 }
 

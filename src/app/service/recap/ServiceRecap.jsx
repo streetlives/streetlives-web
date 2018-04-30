@@ -18,20 +18,6 @@ class ServicesRecap extends Component {
 
   onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
 
-  getServiceItems = (category) => {
-    const { services } = this.state;
-
-    return Object.keys(services[category]).map((id) => {
-      const service = services[category][id];
-
-      return service.selected ? (
-        <ListItem key={id} title={service.name} progress={service.progress || 0} />
-      ) : (
-        undefined
-      );
-    });
-  };
-
   render() {
     const { locationServices = [] } = this.props;
     return (
@@ -46,9 +32,7 @@ class ServicesRecap extends Component {
           </div>
 
           <SectionHeader title="All Services" icon="home" />
-          {locationServices.map(service => (
-            <ListItem key={service.id} title={service.name} progress={service.progress || 0} />
-          ))}
+          {locationServices.map(service => <ListItem key={service.id} service={service} />)}
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
           <Button fluid primary onClick={this.onNext}>
