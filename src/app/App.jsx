@@ -14,9 +14,10 @@ import awsExports from './aws-exports';
 
 import withTracker from './withTracker';
 import MapView from './mapView/MapView';
-import Recap from './recap/Recap';
+import LocationRecap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
+import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 
 import './App.css';
@@ -31,9 +32,18 @@ function App({ authState }) {
         <ConnectedRouter history={history}>
           <Switch>
             <Route exact path="/" component={withTracker(MapView)} />
-            <Route path="/recap/:locationId" component={withTracker(Recap)} />
-            <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
-            <Route path="/questions/:id/:locationId" component={withTracker(LocationForm)} />
+            <Route exact path="/location/:locationId" component={withTracker(LocationInfo)} />
+            <Route
+              exact
+              path="/location/:locationId/recap"
+              component={withTracker(LocationRecap)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/questions/:questionId"
+              component={withTracker(LocationForm)}
+            />
+            <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>
       </div>

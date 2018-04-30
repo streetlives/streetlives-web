@@ -16,7 +16,7 @@ class LocationForm extends Component {
     this.routeComponents = routes.map(route => (
       <Route
         key={route[0]}
-        path={`${route[0]}/:locationId`}
+        path={`/location/:locationId/${route[0]}`}
         render={(routeProps) => {
           const RouteComponent = route[1];
           return <RouteComponent {...routeProps} onFieldVerified={this.onNext} />;
@@ -26,15 +26,20 @@ class LocationForm extends Component {
   }
 
   onBack() {
-    this.props.history.push(`${routes[this.getCurrentIndex() - 1][0]}/${this.props.match.params.locationId}`);
+    const { locationId } = this.props.match.params;
+    const prevRoute = routes[this.getCurrentIndex() - 1];
+    this.props.history.push(`/location/${locationId}/${prevRoute[0]}`);
   }
 
   onNext() {
-    this.props.history.push(`${routes[this.getCurrentIndex() + 1][0]}/${this.props.match.params.locationId}`);
+    const { locationId } = this.props.match.params;
+    const nextRoute = routes[this.getCurrentIndex() + 1];
+    this.props.history.push(`/location/${locationId}/${nextRoute[0]}`);
   }
 
   getCurrentIndex() {
-    return routes.map(route => route[0].split('/').pop()).indexOf(this.props.match.params.id);
+    const { questionId } = this.props.match.params;
+    return routes.map(route => route[0].split('/').pop()).indexOf(questionId);
   }
 
   render() {

@@ -15,7 +15,8 @@ class LocationField extends Component {
   }
 
   navigateToFieldForm() {
-    this.props.history.push(`${this.props.navigateToLocation}/${this.props.locationId}`);
+    const { locationId, navigateToLocation } = this.props;
+    this.props.history.push(`/location/${locationId}/${navigateToLocation}`);
   }
 
   render() {
