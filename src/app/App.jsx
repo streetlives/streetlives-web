@@ -17,7 +17,9 @@ import MapView from './mapView/MapView';
 import LocationRecap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
-import ServiceContainer from './services/ServiceContainer';
+import ServiceCategories from './service/categories/ServiceCategories';
+import ServiceDetails from './service/details/ServiceDetails';
+import ServiceRecap from './service/recap/ServiceRecap';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 
@@ -44,7 +46,21 @@ function App({ authState }) {
               path="/location/:locationId/questions/:questionId"
               component={withTracker(LocationForm)}
             />
-            <Route path="/services" component={withTracker(ServiceContainer)} />
+            <Route
+              exact
+              path="/location/:locationId/services/"
+              component={withTracker(ServiceCategories)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/recap"
+              component={withTracker(ServiceRecap)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/:serviceId/"
+              component={withTracker(ServiceDetails)}
+            />
             <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>

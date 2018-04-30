@@ -7,15 +7,37 @@ import Button from '../../../components/button';
 
 import NavBar from '../../NavBar';
 
+const FAKE_DATA = {
+  shelter: {
+    1: { name: 'Community shelter' },
+  },
+  food: {
+    1: { name: 'Soup Kitchen' },
+    2: { name: 'Mobile Soup Kitchen' },
+    3: { name: 'Food Panty' },
+    4: { name: 'Brown Bag Lunch' },
+  },
+  other: {
+    1: { name: 'Project ID' },
+  },
+};
+
 class ServiceCategories extends Component {
-  state = { active: -1 };
+  state = { active: -1, services: FAKE_DATA };
+
+  onNext = () => console.log('Next clicked'); // eslint-disable-line no-console
 
   onToggleOpen = value =>
     this.setState(({ active }) => ({ active: active !== value ? value : -1 }));
 
+  onSelectService = (service, id) => {
+    const { services } = this.state;
+    services[service][id].selected = !services[service][id].selected;
+    this.setState({ services });
+  };
+
   render() {
-    const { active } = this.state;
-    const { services } = this.props;
+    const { active, services } = this.state;
 
     return (
       <div className="text-left">
@@ -36,7 +58,7 @@ class ServiceCategories extends Component {
                 {Object.keys(services.shelter).map(id => (
                   <Selector.Option
                     key={id}
-                    onClick={() => this.props.onSelectService('shelter', id)}
+                    onClick={() => this.onSelectService('shelter', id)}
                     active={services.shelter[id].selected}
                   >
                     {services.shelter[id].name}
@@ -57,7 +79,7 @@ class ServiceCategories extends Component {
                 {Object.keys(services.food).map(id => (
                   <Selector.Option
                     key={id}
-                    onClick={() => this.props.onSelectService('food', id)}
+                    onClick={() => this.onSelectService('food', id)}
                     active={services.food[id].selected}
                   >
                     {services.food[id].name}
@@ -78,7 +100,7 @@ class ServiceCategories extends Component {
                 {Object.keys(services.other).map(id => (
                   <Selector.Option
                     key={id}
-                    onClick={() => this.props.onSelectService('other', id)}
+                    onClick={() => this.onSelectService('other', id)}
                     active={services.other[id].selected}
                   >
                     {services.other[id].name}

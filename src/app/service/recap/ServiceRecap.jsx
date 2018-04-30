@@ -7,11 +7,28 @@ import SectionHeader from '../../../components/sectionHeader';
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
 
+const FAKE_DATA = {
+  shelter: {
+    1: { name: 'Community shelter', selected: true },
+  },
+  food: {
+    1: { name: 'Soup Kitchen', selected: true },
+    2: { name: 'Mobile Soup Kitchen', selected: true },
+    3: { name: 'Food Panty', selected: true },
+    4: { name: 'Brown Bag Lunch' },
+  },
+  other: {
+    1: { name: 'Project ID', selected: true },
+  },
+};
+
 class ServicesRecap extends Component {
+  state = { services: FAKE_DATA };
+
   onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
 
   getServiceItems = (category) => {
-    const { services } = this.props;
+    const { services } = this.state;
 
     return Object.keys(services[category]).map((id) => {
       const service = services[category][id];
