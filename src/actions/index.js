@@ -3,6 +3,7 @@ import * as api from '../services/api';
 
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
+export const SELECT_CATEGORIES_ACTION = 'SELECT_CATEGORIES_ACTION';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
@@ -31,6 +32,13 @@ export const getTaxonomy = () => (dispatch) => {
         payload: data,
       }))
     .catch(e => console.error('error', e));
+};
+
+export const selectCategories = (locationId, params) => (dispatch) => {
+  dispatch({
+    type: SELECT_CATEGORIES_ACTION,
+    payload: params,
+  });
 };
 
 export const updateLocation = (locationId, params) => (dispatch) => {

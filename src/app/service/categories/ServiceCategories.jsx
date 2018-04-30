@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getTaxonomy } from '../../../actions';
+import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
 import Selector from '../../../components/selector';
@@ -27,7 +27,6 @@ class ServiceCategories extends Component {
       this.props.getTaxonomy();
     }
   }
-  onNext = () => console.log('Next clicked'); // eslint-disable-line no-console
 
   onToggleOpen = value =>
     this.setState(({ active }) => ({ active: active !== value ? value : -1 }));
@@ -36,6 +35,14 @@ class ServiceCategories extends Component {
     const { selected } = this.state;
     const selection = selected[category.id];
     this.setState({ selected: { ...selected, [category.id]: !selection } });
+  };
+
+  onSubmit = () => {
+    const { selected } = this.state;
+    const { locationId } = this.props.match.params;
+    const locationServices = this.props.taxonomy.filter(service => selected[service.id]);
+    this.props.selectCategories(locationId, locationServices);
+    this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
   render() {
@@ -77,7 +84,7 @@ class ServiceCategories extends Component {
           </Accordion>
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
-          <Button fluid primary onClick={this.onNext}>
+          <Button fluid primary onClick={this.onSubmit}>
             Next
           </Button>
         </div>
@@ -91,7 +98,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getTaxonomy: bindActionCreators(getTaxonomy, dispatch),
+  getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
+  selectCategories: bindActionCreators(actions.selectCategories, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceCategories);

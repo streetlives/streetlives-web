@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Button from '../../../components/button';
 import Header from '../../../components/header';
@@ -7,23 +8,13 @@ import SectionHeader from '../../../components/sectionHeader';
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
 
-const FAKE_DATA = {
-  shelter: {
-    1: { name: 'Community shelter', selected: true },
-  },
-  food: {
-    1: { name: 'Soup Kitchen', selected: true },
-    2: { name: 'Mobile Soup Kitchen', selected: true },
-    3: { name: 'Food Panty', selected: true },
-    4: { name: 'Brown Bag Lunch' },
-  },
-  other: {
-    1: { name: 'Project ID', selected: true },
-  },
-};
-
 class ServicesRecap extends Component {
-  state = { services: FAKE_DATA };
+  componentWillMount() {
+    if (!this.props.locationServices) {
+      const { locationId } = this.props.match.params;
+      this.props.history.push(`/location/${locationId}/services`);
+    }
+  }
 
   onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
 
@@ -42,6 +33,7 @@ class ServicesRecap extends Component {
   };
 
   render() {
+    const { locationServices = [] } = this.props;
     return (
       <div className="text-left">
         <NavBar title="Services recap" />
@@ -53,14 +45,10 @@ class ServicesRecap extends Component {
             </Header>
           </div>
 
-          <SectionHeader title="Shelter" icon="home" />
-          {this.getServiceItems('shelter')}
-
-          <SectionHeader title="Food" icon="cutlery" />
-          {this.getServiceItems('food')}
-
-          <SectionHeader title="Other Services" icon="ellipsis-h" />
-          {this.getServiceItems('other')}
+          <SectionHeader title="All Services" icon="home" />
+          {locationServices.map(service => (
+            <ListItem key={service.id} title={service.name} progress={service.progress || 0} />
+          ))}
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
           <Button fluid primary onClick={this.onNext}>
@@ -72,4 +60,8 @@ class ServicesRecap extends Component {
   }
 }
 
-export default ServicesRecap;
+const mapStateToProps = state => ({
+  locationServices: state.db.locationServices,
+});
+
+export default connect(mapStateToProps)(ServicesRecap);
