@@ -51,7 +51,7 @@ class LocationInfo extends Component {
   }
 
   onNext = () => {
-    console.log('Clicked done'); // eslint-disable-line no-console
+    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
   };
 
   render() {
