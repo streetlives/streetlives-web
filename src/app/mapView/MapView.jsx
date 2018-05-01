@@ -54,6 +54,25 @@ export default class MapView extends Component {
   render() {
     return (
       <div className="Map">
+        <ul className="suggestions"
+          style={{
+            position: 'absolute',
+            top: '2.75em',
+            background: 'white',
+            listStyle: 'none',
+            paddingLeft: 0, 
+            zIndex: 1,
+            left: '.5em',
+            right: '.5em',
+            textAlign: 'left',
+            transition: 'max-height .5s',
+            maxHeight: '100px',
+            overflow: 'hidden'
+          }}>
+          <li>Foo</li>
+          <li>Bar</li>
+          <li>Bat</li>
+        </ul>
         <div
           style={{
             backgroundColor: '#323232',
