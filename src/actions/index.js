@@ -15,10 +15,10 @@ export const getLocation = locationId => (dispatch) => {
     .getLocation({
       id: locationId,
     })
-    .then(locationData =>
+    .then(locationResponse =>
       dispatch({
         type: GET_LOCATION_RESPONSE,
-        payload: locationData,
+        payload: locationResponse.data,
       }))
     .catch(e => console.error('error', e));
 };
