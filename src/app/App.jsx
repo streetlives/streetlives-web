@@ -22,13 +22,14 @@ import ServiceDetails from './service/details/ServiceDetails';
 import ServiceRecap from './service/recap/ServiceRecap';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
+import config from '../config';
 
 import './App.css';
 
 Amplify.configure(awsExports);
 
 function App({ authState }) {
-  if (authState !== 'signedIn') return null;
+  if (!config.disableAuth && authState !== 'signedIn') return null;
   return (
     <Provider store={store}>
       <div className="App">
@@ -43,7 +44,7 @@ function App({ authState }) {
             />
             <Route
               exact
-              path="/location/:locationId/questions/:questionId"
+              path="/location/:locationId/questions/:questionId/:thanks?"
               component={withTracker(LocationForm)}
             />
             <Route
@@ -61,7 +62,6 @@ function App({ authState }) {
               path="/location/:locationId/services/:serviceId/"
               component={withTracker(ServiceDetails)}
             />
-            <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>
       </div>
@@ -88,4 +88,6 @@ const auth = () => (
   </Authenticator>
 );
 
-export default auth;
+const mainComponent = config.disableAuth ? App : auth;
+
+export default mainComponent;

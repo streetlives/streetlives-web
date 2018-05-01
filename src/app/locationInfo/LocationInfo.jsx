@@ -59,8 +59,6 @@ class LocationInfo extends Component {
       return <LoadingView />;
     }
 
-    const { locationData: { id: locationId } } = this.props;
-
     return (
       <div className="d-flex flex-column">
         <NavBar title="Location Info" />
