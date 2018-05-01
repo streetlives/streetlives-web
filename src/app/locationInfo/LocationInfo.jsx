@@ -70,7 +70,7 @@ class LocationInfo extends Component {
           <FieldItem
             key={route[0]}
             title={route[2]}
-            linkTo={`${route[0]}/${locationId}`}
+            linkTo={`${this.props.location.pathname}/${route[0]}`}
             updatedAt={FAKE_DATA[i]}
           />
         ))}
