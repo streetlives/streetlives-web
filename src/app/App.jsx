@@ -62,6 +62,7 @@ function App({ authState }) {
               path="/location/:locationId/services/:serviceId/"
               component={withTracker(ServiceDetails)}
             />
+            <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>
       </div>

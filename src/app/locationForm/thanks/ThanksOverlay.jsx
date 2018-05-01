@@ -13,7 +13,7 @@ class ThanksOverlay extends Component {
           The community can now trust this information, because you've checked that it's good!
         </p>
         <div style={{ margin: '3em' }} />
-        <Button primary fluid onClick={ () => window.alert('TODO') }> 
+        <Button primary fluid onClick={ () => this.props.history.push(`/location/${this.props.match.params.locationId}/services`) }> 
           GO TO NEXT SECTION
         </Button>
         <div style={{ margin: '.5em' }} />
