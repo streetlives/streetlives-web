@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Marker, InfoWindow } from 'react-google-maps';
+import { withRouter } from 'react-router-dom';
 import './LocationMarker.css';
 import Button from '../button';
-import { withRouter } from 'react-router-dom';
 
 class LocationMarker extends Component {
   constructor(props) {
@@ -29,16 +29,24 @@ class LocationMarker extends Component {
 
   renderPhone(phone) {
     const phoneLink = `tel:${phone.number}`;
-    return <a href={phoneLink} key={phone.id}>{phone.number}</a>;
+    return (
+      <a href={phoneLink} key={phone.id}>
+        {phone.number}
+      </a>
+    );
   }
 
   renderUrl(url) {
     const linkUrl = url.indexOf('//') > -1 ? url : `http://${url}`;
-    return <a href={linkUrl} target="_blank">{url}</a>;
+    return (
+      <a href={linkUrl} target="_blank">
+        {url}
+      </a>
+    );
   }
 
   handleYesClick() {
-    this.props.history.push(`/recap/${this.props.mapLocation.id}`);
+    this.props.history.push(`/location/${this.props.mapLocation.id}/recap`);
   }
 
   render() {
@@ -54,41 +62,46 @@ class LocationMarker extends Component {
     };
 
     return (
-      <Marker
-        key={mapLocation.id}
-        position={position}
-        onClick={this.onToggleInfo}
-      >
-        {isOpen && <InfoWindow 
-          options={{
-            maxWidth:window.innerWidth - 100
-          }}
-          onCloseClick={this.onToggleInfo}>
-          <div style={{ textAlign: 'left', maxHeight: window.innerHeight - 200, overflowY: 'auto'  }}>
-            <div>This location is:</div>
-            <br />
-            <div className="locationInfo" style={{ textAlign: 'center' }}>
-              <div className="locationInfoHeader">
-                <div>{organization.name}</div>
-                {mapLocation.name && <div>{mapLocation.name}</div>}
+      <Marker key={mapLocation.id} position={position} onClick={this.onToggleInfo}>
+        {isOpen && (
+          <InfoWindow 
+            options={{
+              maxWidth:window.innerWidth - 100
+            }}
+            onCloseClick={this.onToggleInfo}
+            >
+            <div 
+              style={{ 
+                textAlign: 'left',
+                maxHeight: window.innerHeight - 200, 
+                overflowY: 'auto'  
+              }}>
+              <div>This location is:</div>
+              <br />
+              <div className="locationInfo" style={{  textAlign: 'center' }}>
+                <div className="locationInfoHeader">
+                  <div>{organization.name}</div>
+                  {mapLocation.name && <div>{mapLocation.name}</div>}
+                </div>
+                <div>{physicalAddresses.map(this.renderAddress)}</div>
+                <div>{organization.url && this.renderUrl(organization.url)}</div>
+                <div>{phones.map(this.renderPhone)}</div>
               </div>
-              <div>{physicalAddresses.map(this.renderAddress)}</div>
-              <div>{organization.url && this.renderUrl(organization.url)}</div>
-              <div>{phones.map(this.renderPhone)}</div>
+              <br />
+              <div>
+                Would you like to review, add, or edit<br /> information about this location?
+              </div>
+              <br />
+              <Button primary fluid onClick={this.handleYesClick}>
+                <span>YES</span>
+              </Button>
+              <div style={{ margin: '.5em' }} />
+              <Button primary basic fluid onClick={this.onToggleInfo}>
+                <span>NO THANKS</span>
+              </Button>
             </div>
-            <br />
-            <div>Would you like to review, add, or edit<br /> information about this location?</div>
-            <br />
-            <Button primary fluid onClick={this.handleYesClick}>
-              <span>YES</span>
-            </Button>
-            <div style={{ margin: '.5em' }} />
-            <Button primary basic fluid onClick={this.onToggleInfo}>
-              <span>NO THANKS</span>
-            </Button>
-          </div>
-
-        </InfoWindow>}
+          </InfoWindow>
+        )}
       </Marker>
     );
   }

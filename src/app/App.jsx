@@ -14,9 +14,13 @@ import awsExports from './aws-exports';
 
 import withTracker from './withTracker';
 import MapView from './mapView/MapView';
-import Recap from './recap/Recap';
+import LocationRecap from './recap/Recap';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
+import ServiceCategories from './service/categories/ServiceCategories';
+import ServiceDetails from './service/details/ServiceDetails';
+import ServiceRecap from './service/recap/ServiceRecap';
+import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 import config from '../config';
 
@@ -32,9 +36,33 @@ function App({ authState }) {
         <ConnectedRouter history={history}>
           <Switch>
             <Route exact path="/" component={withTracker(MapView)} />
-            <Route path="/recap/:locationId" component={withTracker(Recap)} />
-            <Route path="/location/:locationId" component={withTracker(LocationInfo)} />
-            <Route path="/questions/:id/:locationId" component={withTracker(LocationForm)} />
+            <Route exact path="/location/:locationId" component={withTracker(LocationInfo)} />
+            <Route
+              exact
+              path="/location/:locationId/recap"
+              component={withTracker(LocationRecap)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/questions/:questionId/:thanks?"
+              component={withTracker(LocationForm)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/"
+              component={withTracker(ServiceCategories)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/recap"
+              component={withTracker(ServiceRecap)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/:serviceId/"
+              component={withTracker(ServiceDetails)}
+            />
+            <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>
       </div>

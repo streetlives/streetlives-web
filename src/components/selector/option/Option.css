@@ -2,6 +2,7 @@
 @value primaryColor, borderGray, darkerGray from "../../../colors.css";
 
 .Option {
+  background: white;
   border: 1px solid borderGray;
   box-sizing: border-box;
   box-shadow: cardShadow;

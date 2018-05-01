@@ -46,7 +46,6 @@ class Form extends Component {
   onCancel() {
     this.setState({ isEditing: false });
   }
-
   render() {
     if (!this.props.locationData) return <LoadingLabel />;
 

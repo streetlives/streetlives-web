@@ -4,8 +4,7 @@ import './Selector.css';
 
 import Option from './option/Option';
 
-function Selector() {
-  const { fluid, children } = this.props;
+function Selector({ fluid, children }) {
   const classNames = cx('Selector', {
     'Selector-fluid': fluid,
   });

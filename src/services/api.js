@@ -14,10 +14,7 @@ const requestWithAuth = (cb) => {
 }
 
 export const getLocations = ({
-  latitude,
-  longitude,
-  radius,
-  searchString,
+  latitude, longitude, radius, searchString,
 }) => {
   return requestWithAuth( idJwtToken => {
     return axios
@@ -55,7 +52,7 @@ const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
   return requestWithAuth( idJwtToken => {
     //construct the path
     const pathComponents = [config.baseApi, pathPrefix, id];
-    if(pathSuffix) pathComponents.push(pathSuffix)
+    if (pathSuffix) pathComponents.push(pathSuffix);
     const url = pathComponents.join('/');
 
     return axios.request({
@@ -69,6 +66,25 @@ const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
   });
 }
 
-export const updateLocation = updateResource.bind(this, { pathPrefix: 'locations', method: 'patch' });
+export const getTaxonomy = () => {
+  return requestWithAuth( idJwtToken => {
+    return axios.request({
+      url: `${config.baseApi}/taxonomy`,
+      method: 'get',
+      headers: {
+        Authorization: idJwtToken,
+      },
+    });
+  });
+}
+
+export const updateLocation = updateResource.bind(this, {
+  pathPrefix: 'locations',
+  method: 'patch',
+});
 export const updatePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'patch' });
-export const createPhone = updateResource.bind(this, { pathPrefix: 'locations', method: 'post', pathSuffix: 'phones' });
+export const createPhone = updateResource.bind(this, {
+  pathPrefix: 'locations',
+  method: 'post',
+  pathSuffix: 'phones',
+});
