@@ -33,8 +33,8 @@ export default class MapView extends Component {
     });
   };
 
-  onBoundsChanged = ({radius}) => {
-    this.setState({ radius }, () => {
+  onBoundsChanged = ({center, radius}) => {
+    this.setState({ center: {lat: center.lat(), lng: center.lng()} , radius }, () => {
       this.fetchLocations();
     });
   }
@@ -102,7 +102,6 @@ export default class MapView extends Component {
             }}
             defaultZoom={defaultZoom}
             defaultCenter={defaultCenter}
-            center={this.state.center}
             onBoundsChanged={this.onBoundsChanged}
           />
         </div>

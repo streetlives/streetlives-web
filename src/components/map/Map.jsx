@@ -31,7 +31,7 @@ const Map = compose(
         onMapMounted: (ref) => {
           mapRef = ref;
         },
-        onBoundsChanged: debounce(() => {
+        onBoundsChanged: () => {
           const bounds = mapRef.getBounds()
           const center = mapRef.getCenter()
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
@@ -41,7 +41,7 @@ const Map = compose(
             }
           )
           this.props.onBoundsChanged({bounds, center, radius});
-        }, onBoundsChangedDebouncePeriod)
+        }
       });
     },
   }),
