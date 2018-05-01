@@ -19,8 +19,14 @@ const LoadingView = () => (
   </div>
 );
 
+const iconNames = {
+  Food: 'cutlery',
+  Shelter: 'home',
+  Other: 'ellipsis-h',
+};
+
 class ServiceCategories extends Component {
-  state = { active: 0, selected: {} };
+  state = { active: -1, selected: {} };
 
   componentWillMount() {
     if (!this.props.taxonomy) {
@@ -61,26 +67,32 @@ class ServiceCategories extends Component {
             <Header>What programs and services are available at this location?</Header>
           </div>
           <Accordion>
-            <Accordion.Item
-              active={active === 0}
-              onClick={() => this.onToggleOpen(0)}
-              title="All Services"
-              icon="home"
-            />
-            <Accordion.Content active={active === 0}>
-              <Selector fluid>
-                {taxonomy.map(category => (
-                  <Selector.Option
-                    key={category.id}
-                    onClick={() => this.onSelect(category)}
-                    active={selected[category.id]}
-                  >
-                    {category.name}
-                  </Selector.Option>
-                ))}
-                <Selector.Option align="center">+ Add another shelter service</Selector.Option>
-              </Selector>
-            </Accordion.Content>
+            {taxonomy.map((category, i) => (
+              <div key={category.id}>
+                <Accordion.Item
+                  active={active === i}
+                  onClick={() => this.onToggleOpen(i)}
+                  title={category.name}
+                  icon={iconNames[category.name]}
+                />
+                <Accordion.Content active={active === i}>
+                  <Selector fluid>
+                    {category.children.map(service => (
+                      <Selector.Option
+                        key={service.id}
+                        onClick={() => this.onSelect(service)}
+                        active={selected[service.id]}
+                      >
+                        {service.name}
+                      </Selector.Option>
+                    ))}
+                    <Selector.Option align="center">
+                      + Add another {category.name} service
+                    </Selector.Option>
+                  </Selector>
+                </Accordion.Content>
+              </div>
+            ))}
           </Accordion>
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
