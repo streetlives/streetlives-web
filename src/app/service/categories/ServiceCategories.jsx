@@ -46,7 +46,9 @@ class ServiceCategories extends Component {
   onSubmit = () => {
     const { selected } = this.state;
     const { locationId } = this.props.match.params;
-    const locationServices = this.props.taxonomy.filter(service => selected[service.id]);
+    const locationServices = this.props.taxonomy
+      .reduce((flat, key) => [...flat, ...key.children], [])
+      .filter(service => selected[service.id]);
     this.props.selectCategories(locationId, locationServices);
     this.props.history.push(`/location/${locationId}/services/recap`);
   };
@@ -87,7 +89,7 @@ class ServiceCategories extends Component {
                       </Selector.Option>
                     ))}
                     <Selector.Option align="center">
-                      + Add another {category.name} service
+                      + Add another {category.name.toLowerCase()} service
                     </Selector.Option>
                   </Selector>
                 </Accordion.Content>
