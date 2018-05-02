@@ -20,6 +20,7 @@ import LocationForm from './locationForm/LocationForm';
 import ServiceCategories from './service/categories/ServiceCategories';
 import ServiceDetails from './service/details/ServiceDetails';
 import ServiceRecap from './service/recap/ServiceRecap';
+import ServiceFormRoutes from './serviceForm/routes';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 
@@ -61,6 +62,7 @@ function App({ authState }) {
               path="/location/:locationId/services/:serviceId/"
               component={withTracker(ServiceDetails)}
             />
+            <ServiceFormRoutes />
             <Route path="*" component={withTracker(NotFound)} />
           </Switch>
         </ConnectedRouter>

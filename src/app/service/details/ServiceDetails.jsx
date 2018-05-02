@@ -8,18 +8,7 @@ import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
 
-// TODO: Connect with real service data
-const FAKE_DATA = {
-  description: 'Service description',
-  alt_name: 'Alternative name',
-  audience: 'Who does it serve?',
-  age: 'Ages served',
-  hours: 'Opening hours',
-  languages: 'Languages spoken',
-  payment: 'Cost and payment method',
-  other_eligibility: 'Other eligibility criteria',
-  other_info: 'Other information',
-};
+import { SERVICE_FIELDS } from '../../serviceForm/routes';
 
 function ServiceHeader({ children }) {
   return (
@@ -35,6 +24,7 @@ class ServiceDetails extends Component {
   onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
 
   render() {
+    const { locationId, serviceId } = this.props.match.params;
     return (
       <div className="text-left d-flex flex-column">
         <NavBar title="Service Details" />
@@ -42,11 +32,12 @@ class ServiceDetails extends Component {
           <ProgressBar step={1} steps={10} />
         </div>
         <ServiceHeader>Check all the Soup Kitchen details</ServiceHeader>
-        {Object.keys(FAKE_DATA).map(i => (
+
+        {SERVICE_FIELDS.map((field, i) => (
           <FieldItem
-            key={i}
-            title={FAKE_DATA[i]}
-            linkTo="/"
+            key={i} // eslint-disable-line react/no-array-index-key
+            title={field.title}
+            linkTo={`/location/${locationId}/services/${serviceId}${field.route}`}
             updatedAt={moment().subtract(2, 'months')}
           />
         ))}
