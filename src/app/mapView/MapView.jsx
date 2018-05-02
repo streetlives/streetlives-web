@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import debounce from 'lodash/debounce';
 import { 
   getLocations, 
   getOrganizations, 
@@ -12,15 +11,10 @@ const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultZoom = 14;
 const minZoom = 11;
 
-const geolocationTimeout = 5000;
-const fetchLocationsDebouncePeriod = 500;
-
 export default class MapView extends Component {
   state = {
-    searchString: '',
     center: defaultCenter,
-    suggestions: [],
-    openLocationId: null
+    suggestions: []
   };
 
   onSearchChanged = event => {
@@ -59,9 +53,9 @@ export default class MapView extends Component {
           center: {
             lat: coords[1],
             lng: coords[0]  
-          },
-          openLocationId: firstLoc.id
+          }
         });
+        this.map.onToggleMarkerInfo(firstLoc.id);
       })
       .catch(e => console.error('error', e));
   }
@@ -83,13 +77,6 @@ export default class MapView extends Component {
   };
 
   render() {
-    const { searchString, suggestions } = this.state;
-    const inputProps = {
-      placeholder: 'Type the address, or drop a pin',
-      value : searchString,
-      onChange: this.onSearchChanged
-    };
-
     return (
       <div className="Map">
         <ul className="suggestions"
@@ -151,6 +138,7 @@ export default class MapView extends Component {
         </div>
         <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
           <Map
+            ref={ m => this.map = m}
             locations={this.state && this.state.locations}
             options={{ 
               minZoom, 
@@ -171,7 +159,6 @@ export default class MapView extends Component {
             defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
             center={this.state.center}
-            outsideOpenLocationId={this.state.openLocationId}
           />
         </div>
       </div>

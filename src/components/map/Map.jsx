@@ -1,35 +1,20 @@
-import React from 'react';
-import { compose, withProps, withStateHandlers, lifecycle } from 'recompose';
+import React, { Component } from 'react';
+import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
 import LocationMarker from './LocationMarker';
 import config from '../../config';
 import debounce from 'lodash/debounce';
 
 const onBoundsChangedDebouncePeriod = 500;
-const Map = compose(
+const MyMap = compose(
   withProps({
     googleMapURL: config.googleMaps,
     loadingElement: <div style={{ height: '100%' }} />,
     containerElement: <div style={{ height: '100%' }} />,
     mapElement: <div style={{ height: '100%' }} />,
   }),
-  withStateHandlers(
-    () => ({
-      openLocationId: null,
-    }),
-    {
-      onToggleMarkerInfo: ({ openLocationId }) => toggledLocationId => ({
-        openLocationId: openLocationId === toggledLocationId ? null : toggledLocationId,
-      }),
-    },
-  ),
   lifecycle({
-
-    componentWillReceiveProps(props) {
-      if(props.outsideOpenLocationId) this.setState({openLocationId: props.outsideOpenLocationId})
-    },
-
-    componentWillMount() {
+    componentWillMount(){
       let mapRef;
 
       this.setState({
@@ -39,6 +24,7 @@ const Map = compose(
         onBoundsChanged: debounce(() => {
           const bounds = mapRef.getBounds()
           const center = mapRef.getCenter()
+          if(!bounds || !center) return;
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
             center,
             {
@@ -48,12 +34,11 @@ const Map = compose(
           this.props.onBoundsChanged({bounds, center, radius});
         }, onBoundsChangedDebouncePeriod)
       });
-    },
+    }
   }),
   withScriptjs,
   withGoogleMap,
 )(props => (
-  console.log(props.openLocationId) || 
   <GoogleMap {...props} ref={props.onMapMounted}>
     {props.locations &&
       props.locations.map(location => (
@@ -66,5 +51,30 @@ const Map = compose(
       ))}
   </GoogleMap>
 ));
+
+class Map extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      openLocationId: null
+    };
+    this.onToggleMarkerInfo = this.onToggleMarkerInfo.bind(this);
+  }
+
+  onToggleMarkerInfo(toggledLocationId){
+    this.setState({
+      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
+    });
+  }
+
+  render(){
+    return <MyMap 
+      {...this.props}
+      openLocationId={this.state.openLocationId}
+      onToggleMarkerInfo={this.onToggleMarkerInfo}
+      onBoundsChanged={this.props.onBoundsChanged}
+      />
+  }
+}
 
 export default Map;
