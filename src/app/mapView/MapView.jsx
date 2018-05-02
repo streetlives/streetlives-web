@@ -19,7 +19,8 @@ export default class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
-    suggestions : []
+    suggestions: [],
+    openLocationId: null
   };
 
   onSearchChanged = event => {
@@ -45,18 +46,21 @@ export default class MapView extends Component {
       .catch(e => console.error('error', e));
   };
 
-  handleSuggestionClick = (orgId) => {
-    getOrganizationLocations(orgId)  
+  handleSuggestionClick = (organization) => {
+    getOrganizationLocations(organization.id)  
       .then(locations => { 
         if(!locations.length) return;
-        const coords = locations[0].position.coordinates;     //TODO: focus all
+        locations = locations.map( loc => ({...loc, Organization : organization}))   //add orgranization to locations
+        const firstLoc = locations[0];
+        const coords = firstLoc.position.coordinates;     //TODO: focus all
         this.setState({ 
           locations, 
           suggestions: [], 
           center: {
             lat: coords[1],
             lng: coords[0]  
-          }
+          },
+          openLocationId: firstLoc.id
         });
       })
       .catch(e => console.error('error', e));
@@ -104,15 +108,15 @@ export default class MapView extends Component {
             overflow: 'scroll'
           }}>
           {
-            this.state.suggestions && this.state.suggestions.map( (suggestion, i) => (
+            this.state.suggestions && this.state.suggestions.map( (organization, i) => (
               <li 
-                onClick={() => this.handleSuggestionClick(suggestion.id)}
-                key={suggestion.id} 
+                onClick={() => this.handleSuggestionClick(organization)}
+                key={organization.id} 
                 style={{
                   borderTop: i === 0 ? '1px solid black' : undefined,
                   borderBottom:'1px solid black'
                 }}>
-                  {suggestion.name}
+                  {organization.name}
               </li>
             ))
           }
@@ -167,6 +171,7 @@ export default class MapView extends Component {
             defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
             center={this.state.center}
+            outsideOpenLocationId={this.state.openLocationId}
           />
         </div>
       </div>

@@ -24,6 +24,11 @@ const Map = compose(
     },
   ),
   lifecycle({
+
+    componentWillReceiveProps(props) {
+      if(props.outsideOpenLocationId) this.setState({openLocationId: props.outsideOpenLocationId})
+    },
+
     componentWillMount() {
       let mapRef;
 
@@ -48,6 +53,7 @@ const Map = compose(
   withScriptjs,
   withGoogleMap,
 )(props => (
+  console.log(props.openLocationId) || 
   <GoogleMap {...props} ref={props.onMapMounted}>
     {props.locations &&
       props.locations.map(location => (
