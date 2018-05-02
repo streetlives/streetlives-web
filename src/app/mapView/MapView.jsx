@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
-import { getLocations } from '../../services/api';
+import { getLocations, getOrganizations } from '../../services/api';
 import Map from '../../components/map';
 /* eslint-env es6 */
 
@@ -16,21 +16,16 @@ export default class MapView extends Component {
     searchString: '',
     center: defaultCenter,
     radius: null,
+    suggestions : []
   };
 
-  componentWillMount() {
-    this.fetchLocations();
-  }
-
-  componentDidMount() {
-    if (!navigator || !navigator.geolocation) {
-      return;
-    }
-  }
   onSearchChanged = event => {
-    this.setState({ searchString: event.target.value }, () => {
-      //this.fetchLocations();
-    });
+    const searchString = event.target.value;
+    if(searchString){ 
+      this.onSuggestionsFetchRequested({searchString});
+    } else {
+      this.onSuggestionsClearRequested();
+    }
   };
 
   onBoundsChanged = ({center, radius}) => {
@@ -39,19 +34,40 @@ export default class MapView extends Component {
     });
   }
 
+  onSuggestionsFetchRequested = ({ searchString, reason }) => {
+    getOrganizations(searchString)
+      .then(organizations => { 
+          console.log('organizations ', organizations );
+          this.setState({ suggestions : organizations })
+      })
+      .catch(e => console.error('error', e));
+  };
+
+  onSuggestionsClearRequested = () => {
+    this.setState({
+      suggestions: []
+    });
+  };
+
   fetchLocations = () => {
     if(!this.state.radius) return;
     getLocations({
       latitude: this.state.center.lat,
       longitude: this.state.center.lng,
-      radius: Math.floor(this.state.radius),
-      searchString: this.state.searchString,
+      radius: Math.floor(this.state.radius)
     })
-      .then(locations => this.setState({ locations }))
+      .then(locations => this.setState({ locations }))    //TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
   };
 
   render() {
+    const { searchString, suggestions } = this.state;
+    const inputProps = {
+      placeholder: 'Type the address, or drop a pin',
+      value : searchString,
+      onChange: this.onSearchChanged
+    };
+
     return (
       <div className="Map">
         <ul className="suggestions"
@@ -65,13 +81,22 @@ export default class MapView extends Component {
             left: '.5em',
             right: '.5em',
             textAlign: 'left',
-            transition: 'max-height .5s',
-            maxHeight: '100px',
-            overflow: 'hidden'
+            transition: 'max-height 1s',
+            maxHeight: this.state.suggestions.length ? `${window.innerHeight-50}px` : '0px',
+            overflow: 'scroll'
           }}>
-          <li>Foo</li>
-          <li>Bar</li>
-          <li>Bat</li>
+          {
+            this.state.suggestions && this.state.suggestions.map( (suggestion, i) => (
+              <li 
+                key={suggestion.id} 
+                style={{
+                  borderTop: i === 0 ? '1px solid black' : undefined,
+                  borderBottom:'1px solid black'
+                }}>
+                  {suggestion.name}
+              </li>
+            ))
+          }
         </ul>
         <div
           style={{

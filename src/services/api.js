@@ -88,3 +88,17 @@ export const createPhone = updateResource.bind(this, {
   method: 'post',
   pathSuffix: 'phones',
 });
+
+export const getOrganizations = ( searchString ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations?searchString=${searchString}`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}
