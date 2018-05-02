@@ -7,6 +7,7 @@ import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
 import Selector from '../../../components/selector';
 import Button from '../../../components/button';
+import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 
@@ -18,12 +19,6 @@ const LoadingView = () => (
     </p>
   </div>
 );
-
-const iconNames = {
-  Food: 'cutlery',
-  Shelter: 'home',
-  Other: 'ellipsis-h',
-};
 
 class ServiceCategories extends Component {
   state = { active: -1, selected: {} };
@@ -72,20 +67,20 @@ class ServiceCategories extends Component {
             {taxonomy.map((category, i) => (
               <div key={category.id}>
                 <Accordion.Item
-                  active={active === i}
-                  onClick={() => this.onToggleOpen(i)}
+                  active={active === category.id}
+                  onClick={() => this.onToggleOpen(category.id)}
                   title={category.name}
-                  icon={iconNames[category.name]}
+                  icon={getCategoryIcon(category.name)}
                 />
-                <Accordion.Content active={active === i}>
+                <Accordion.Content active={active === category.id}>
                   <Selector fluid>
-                    {category.children.map(service => (
+                    {category.children.map(subcategory => (
                       <Selector.Option
-                        key={service.id}
-                        onClick={() => this.onSelect(service)}
-                        active={selected[service.id]}
+                        key={subcategory.id}
+                        onClick={() => this.onSelect(subcategory)}
+                        active={selected[subcategory.id]}
                       >
-                        {service.name}
+                        {subcategory.name}
                       </Selector.Option>
                     ))}
                     <Selector.Option align="center">

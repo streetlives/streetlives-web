@@ -4,15 +4,10 @@ import { connect } from 'react-redux';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
+import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
-
-const iconNames = {
-  Food: 'cutlery',
-  Shelter: 'home',
-  Other: 'ellipsis-h',
-};
 
 class ServicesRecap extends Component {
   componentWillMount() {
@@ -39,7 +34,7 @@ class ServicesRecap extends Component {
 
           {taxonomy.map(category => (
             <div key={category.id}>
-              <SectionHeader title={category.name} icon={iconNames[category.name]} />
+              <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
               {locationServices
                 .filter(service => service.parent_id === category.id)
                 .map(service => <ListItem key={service.id} service={service} />)}
