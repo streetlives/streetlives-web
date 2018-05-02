@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
-import { getLocations, getOrganizations } from '../../services/api';
+import { 
+  getLocations, 
+  getOrganizations, 
+  getOrganizationLocations  
+} from '../../services/api';
 import Map from '../../components/map';
 /* eslint-env es6 */
 
@@ -15,7 +19,6 @@ export default class MapView extends Component {
   state = {
     searchString: '',
     center: defaultCenter,
-    radius: null,
     suggestions : []
   };
 
@@ -29,19 +32,35 @@ export default class MapView extends Component {
   };
 
   onBoundsChanged = ({center, radius}) => {
-    this.setState({ center: {lat: center.lat(), lng: center.lng()} , radius }, () => {
-      this.fetchLocations();
-    });
+    if(center.lat() === this.state.center.lat && 
+        center.lng() === this.state.center.lng) return;
+    this.fetchLocations(center, radius);
   }
 
   onSuggestionsFetchRequested = ({ searchString, reason }) => {
     getOrganizations(searchString)
       .then(organizations => { 
-          console.log('organizations ', organizations );
           this.setState({ suggestions : organizations })
       })
       .catch(e => console.error('error', e));
   };
+
+  handleSuggestionClick = (orgId) => {
+    getOrganizationLocations(orgId)  
+      .then(locations => { 
+        if(!locations.length) return;
+        const coords = locations[0].position.coordinates;     //TODO: focus all
+        this.setState({ 
+          locations, 
+          suggestions: [], 
+          center: {
+            lat: coords[1],
+            lng: coords[0]  
+          }
+        });
+      })
+      .catch(e => console.error('error', e));
+  }
 
   onSuggestionsClearRequested = () => {
     this.setState({
@@ -49,12 +68,11 @@ export default class MapView extends Component {
     });
   };
 
-  fetchLocations = () => {
-    if(!this.state.radius) return;
+  fetchLocations = (center, radius) => {
     getLocations({
-      latitude: this.state.center.lat,
-      longitude: this.state.center.lng,
-      radius: Math.floor(this.state.radius)
+      latitude: center.lat(),
+      longitude: center.lng(),
+      radius: Math.floor(radius)
     })
       .then(locations => this.setState({ locations }))    //TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
@@ -88,6 +106,7 @@ export default class MapView extends Component {
           {
             this.state.suggestions && this.state.suggestions.map( (suggestion, i) => (
               <li 
+                onClick={() => this.handleSuggestionClick(suggestion.id)}
                 key={suggestion.id} 
                 style={{
                   borderTop: i === 0 ? '1px solid black' : undefined,
@@ -147,6 +166,7 @@ export default class MapView extends Component {
             defaultZoom={defaultZoom}
             defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
+            center={this.state.center}
           />
         </div>
       </div>

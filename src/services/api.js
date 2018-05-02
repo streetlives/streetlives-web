@@ -102,3 +102,18 @@ export const getOrganizations = ( searchString ) => {
       .then(result => result.data);
   });
 }
+
+
+export const getOrganizationLocations = ( organizationId ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations/${organizationId}/locations`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}
