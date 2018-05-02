@@ -29,15 +29,13 @@ export const getLocation = ({ id }) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
-    return axios
-      .request({
-        url: `${config.baseApi}/locations/${id}`,
-        method: 'get',
-        headers: {
-          Authorization: idJwtToken,
-        },
-      })
-      .then(result => result.data);
+    return axios.request({
+      url: `${config.baseApi}/locations/${id}`,
+      method: 'get',
+      headers: {
+        Authorization: idJwtToken,
+      },
+    });
   });
 
 const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>

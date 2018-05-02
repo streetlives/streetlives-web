@@ -59,8 +59,6 @@ class LocationInfo extends Component {
       return <LoadingView />;
     }
 
-    const { locationData: { id: locationId } } = this.props;
-
     return (
       <div className="d-flex flex-column">
         <NavBar title="Location Info" />
@@ -70,7 +68,7 @@ class LocationInfo extends Component {
           <FieldItem
             key={route[0]}
             title={route[2]}
-            linkTo={`${this.props.location.pathname}/${route[0]}`}
+            linkTo={`${this.props.location.pathname}${route[0]}`}
             updatedAt={FAKE_DATA[i]}
           />
         ))}
