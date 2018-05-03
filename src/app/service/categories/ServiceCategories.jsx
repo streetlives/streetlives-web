@@ -74,7 +74,7 @@ class ServiceCategories extends Component {
                 />
                 <Accordion.Content active={active === category.id}>
                   <Selector fluid>
-                    {category.children.map(subcategory => (
+                    {category.children && category.children.map(subcategory => (
                       <Selector.Option
                         key={subcategory.id}
                         onClick={() => this.onSelect(subcategory)}
