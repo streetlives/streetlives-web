@@ -3,9 +3,7 @@ import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
 import LocationMarker from './LocationMarker';
 import config from '../../config';
-import debounce from 'lodash/debounce';
 
-const onBoundsChangedDebouncePeriod = 500;
 const MyMap = compose(
   withProps({
     googleMapURL: config.googleMaps,
@@ -21,7 +19,7 @@ const MyMap = compose(
         onMapMounted: (ref) => {
           mapRef = ref;
         },
-        onBoundsChanged: debounce(() => {
+        onBoundsChanged: () => {
           const bounds = mapRef.getBounds()
           const center = mapRef.getCenter()
           if(!bounds || !center) return;
@@ -32,7 +30,7 @@ const MyMap = compose(
             }
           )
           this.props.onBoundsChanged({bounds, center, radius});
-        }, onBoundsChangedDebouncePeriod)
+        }
       });
     }
   }),

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import debounce from 'lodash/debounce';
 import { 
   getLocations, 
   getOrganizations, 
@@ -11,6 +12,8 @@ const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultZoom = 14;
 const minZoom = 11;
 const geolocationTimeout = 5000;
+const onBoundsChangedDebouncePeriod = 500;
+const onSearchChangedPeriod = 100;
 export default class MapView extends Component {
   state = {
     center: defaultCenter,
@@ -37,20 +40,20 @@ export default class MapView extends Component {
     );
   }
 
-  onSearchChanged = event => {
-    const searchString = event.target.value;
+
+  onSearchChanged = debounce( (searchString) => {
     if(searchString){ 
       this.onSuggestionsFetchRequested({searchString});
     } else {
       this.onSuggestionsClearRequested();
     }
-  };
+  }, onSearchChangedPeriod);
 
-  onBoundsChanged = ({center, radius}) => {
+  onBoundsChanged = debounce(({center, radius}) => {
     if(center.lat() === this.state.center.lat && 
         center.lng() === this.state.center.lng) return;
     this.fetchLocations(center, radius);
-  }
+  }, onBoundsChangedDebouncePeriod);
 
   onSuggestionsFetchRequested = ({ searchString, reason }) => {
     getOrganizations(searchString)
@@ -147,7 +150,7 @@ export default class MapView extends Component {
               </span>
             </div>
             <input
-              onChange={this.onSearchChanged}
+              onChange={(event) => this.onSearchChanged(event.target.value)}
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
               className="form-control"
