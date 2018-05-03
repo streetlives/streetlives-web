@@ -70,6 +70,19 @@ export const getTaxonomy = () =>
     });
   });
 
+export const getLanguages = () =>
+  Amplify.Auth.currentAuthenticatedUser().then((user) => {
+    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
+
+    return axios.request({
+      url: `${config.baseApi}/languages`,
+      method: 'get',
+      headers: {
+        Authorization: jwtToken,
+      },
+    });
+  });
+
 export const updateLocation = updateResource.bind(this, {
   pathPrefix: 'locations',
   method: 'patch',
