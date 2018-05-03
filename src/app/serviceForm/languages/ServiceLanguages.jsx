@@ -15,7 +15,7 @@ class ServiceLanguages extends Component {
     fetched: [],
     languages: [],
     selected: {},
-    isAdding: false,
+    isAdding: true,
   };
 
   componentWillMount() {
@@ -35,7 +35,7 @@ class ServiceLanguages extends Component {
   onAddLanguage = (option) => {
     this.setState(({ languages, selected }) => ({
       languages: [...languages, option],
-      selected: { ...selected, [option.id]: !selected[option.id] },
+      selected: { ...selected, [option.id]: true },
       isAdding: false,
     }));
   };

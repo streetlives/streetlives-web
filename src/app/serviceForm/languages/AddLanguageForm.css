@@ -1,3 +1,5 @@
+@value primaryColor from "../../../colors.css";
+
 .AddLanguageForm input {
   border: 1px solid black;
   border-radius: 2px;
@@ -13,4 +15,29 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.AddLanguageForm .list-group {
+  overflow-y: scroll;
+  height: 60vh;
+}
+
+.AddLanguageForm .list-header {
+  color: #828282;
+  background: #f8f8fc;
+  font-size: 12px;
+}
+
+.AddLanguageForm .list-group-item {
+  background: #f8f8fc;
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.AddLanguageForm .list-group-item:hover {
+  background: #e0e0e0;
+}
+
+.AddLanguageForm .list-group-item:active {
+  background: primaryColor;
 }
