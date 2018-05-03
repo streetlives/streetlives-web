@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import moment from 'moment';
 
+import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 
@@ -25,21 +28,66 @@ function ServiceHeader({ children }) {
   );
 }
 
+const LoadingView = () => (
+  <div className="d-flex flex-column">
+    <NavBar title="Services Details" />
+    <p>
+      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
+    </p>
+  </div>
+);
+
 class ServiceDetails extends Component {
+  state = { service: {} };
+
+  componentWillMount() {
+    const { location } = this.props;
+    if (location) {
+      const service = this.getServiceById(location);
+      this.setState({ service });
+    } else {
+      const { locationId } = this.props.match.params;
+      this.props.getLocation(locationId);
+    }
+  }
+
+  componentWillReceiveProps(nextProps, prevState) {
+    if (nextProps.location !== this.props.location) {
+      const service = this.getServiceById(nextProps.location);
+      this.setState({ service });
+    }
+  }
+
   onGoToDocs = () => {
     const { locationId, serviceId } = this.props.match.params;
     this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
   };
 
+  getServiceById = (location) => {
+    const { serviceId } = this.props.match.params;
+    try {
+      return location.Services.filter(service => service.id === serviceId)[0];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      return console.error("This service doesn't exist for this location");
+    }
+  };
+
   render() {
     const { locationId, serviceId } = this.props.match.params;
+    const { service } = this.state;
+
+    if (Object.keys(service).length === 0) {
+      return <LoadingView />;
+    }
+
     return (
       <div className="text-left d-flex flex-column">
         <NavBar title="Service Details" />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
-        <ServiceHeader>Check all the Soup Kitchen details</ServiceHeader>
+        <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
         {SERVICE_FIELDS.map(field => (
           <FieldItem
@@ -56,5 +104,12 @@ class ServiceDetails extends Component {
     );
   }
 }
+const mapStateToProps = (state, ownProps) => ({
+  location: state.db[ownProps.match.params.locationId],
+});
 
-export default ServiceDetails;
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getLocation: bindActionCreators(actions.getLocation, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ServiceDetails);
