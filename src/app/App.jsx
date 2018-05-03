@@ -21,6 +21,8 @@ import ServiceCategories from './service/categories/ServiceCategories';
 import ServiceDetails from './service/details/ServiceDetails';
 import ServiceRecap from './service/recap/ServiceRecap';
 import ServiceFormContainer from './serviceForm/ServiceFormContainer';
+import DocsFormContainer from './documents/DocsFormContainer';
+import DocumentDetails from './documents/details/DocumentDetails';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 
@@ -64,8 +66,18 @@ function App({ authState }) {
             />
             <Route
               exact
+              path="/location/:locationId/services/:serviceId/documents"
+              component={withTracker(DocumentDetails)}
+            />
+            <Route
+              exact
               path="/location/:locationId/services/:serviceId/:fieldName"
               component={withTracker(ServiceFormContainer)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/:serviceId/documents/:fieldName"
+              component={withTracker(DocsFormContainer)}
             />
             <Route path="*" component={withTracker(NotFound)} />
           </Switch>

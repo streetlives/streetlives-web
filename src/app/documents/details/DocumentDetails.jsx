@@ -8,12 +8,15 @@ import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
 
-import { SERVICE_FIELDS } from '../../serviceForm/routes';
+import { DOCUMENT_FIELDS } from '../routes';
 
 // TODO: update fields to have updated value
-const FAKE_UPDATED_AT = moment().subtract(2, 'months');
+const FAKE_UPDATED_AT = moment().subtract(5, 'months');
 
-function ServiceHeader({ children }) {
+const getDocsUrl = (locationId, serviceId) =>
+  `/location/${locationId}/services/${serviceId}/documents`;
+
+function DocsHeader({ children }) {
   return (
     <div className="container px-4 py-4 text-left">
       <div className="row">
@@ -23,33 +26,33 @@ function ServiceHeader({ children }) {
   );
 }
 
-class ServiceDetails extends Component {
+class DocumentDetails extends Component {
   onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
     return (
       <div className="text-left d-flex flex-column">
-        <NavBar title="Service Details" />
+        <NavBar title="Docs required" />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
-        <ServiceHeader>Check all the Soup Kitchen details</ServiceHeader>
+        <DocsHeader>Add information about documentation required</DocsHeader>
 
-        {SERVICE_FIELDS.map(field => (
+        {DOCUMENT_FIELDS.map(field => (
           <FieldItem
             key={field.title}
             title={field.title}
-            linkTo={`/location/${locationId}/services/${serviceId}${field.route}`}
+            linkTo={`${getDocsUrl(locationId, serviceId)}${field.route}`}
             updatedAt={FAKE_UPDATED_AT}
           />
         ))}
         <Button fluid primary onClick={this.onNext}>
-          Service info completed
+          Done
         </Button>
       </div>
     );
   }
 }
 
-export default ServiceDetails;
+export default DocumentDetails;
