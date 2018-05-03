@@ -5,7 +5,7 @@ import Header from '../../../components/header';
 
 function FormView(props) {
   return (
-    <div style={{width:'100%'}}>
+    <div className="w-100">
       <div style={{ fontSize: '13px' }} className="font-weight-bold mt-2">
         {props.topText}
       </div>
@@ -23,4 +23,3 @@ FormView.propTypes = {
 };
 
 export default FormView;
-

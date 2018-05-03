@@ -51,8 +51,8 @@ class FormEdit extends Component {
 
 FormEdit.propTypes = {
   value: PropTypes.string,
-  headerText : PropTypes.string.isRequired,
-  placeholderText : PropTypes.string.isRequired,
+  headerText: PropTypes.string.isRequired,
+  placeholderText: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired
@@ -62,4 +62,3 @@ FormEdit.defaultProps = {
 };
 
 export default FormEdit;
-
