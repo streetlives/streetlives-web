@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -11,18 +10,6 @@ import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
 import LoadingLabel from '../locationForm/common/LoadingLabel';
 import FieldItem from './FieldItem';
-
-// TODO: Replace with real updated at data.
-const FAKE_DATA = [
-  null,
-  moment().subtract(1, 'years'),
-  moment().subtract(30, 'days'),
-  moment().subtract(3, 'months'),
-  moment().subtract(3, 'months'),
-  null,
-  moment().subtract(3, 'months'),
-  null,
-];
 
 function LocationHeader() {
   return (
@@ -64,14 +51,27 @@ class LocationInfo extends Component {
         <NavBar title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
-        {routes.map((route, i) => (
-          <FieldItem
-            key={route[0]}
-            title={route[2]}
-            linkTo={`${this.props.location.pathname}/${route[0]}`}
-            updatedAt={FAKE_DATA[i]}
-          />
-        ))}
+        {
+          routes.map((route, i) => {
+            const fieldName = route[3];
+            const subFields = this.props.locationData.metadata[fieldName];
+            let lastDateEdited;
+            if(subFields){
+              const dates = subFields.map( subField => (
+                new Date(subField.last_action_date)
+              ))
+              lastDateEdited = Math.max.apply(this, dates);
+            }else{
+              lastDateEdited = null;
+            }
+            return <FieldItem
+              key={route[0]}
+              title={route[2]}
+              linkTo={`${this.props.location.pathname}/${route[0]}`}
+              updatedAt={lastDateEdited}
+            />
+          })
+        }
         <Button fluid primary onClick={this.onNext}>
           Done
         </Button>
