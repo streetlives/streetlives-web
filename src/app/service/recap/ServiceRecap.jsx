@@ -20,6 +20,7 @@ const LoadingView = () => (
     </p>
   </div>
 );
+
 class ServicesRecap extends Component {
   state = { services: [] };
 

@@ -36,7 +36,7 @@ class ServiceFormContainer extends Component {
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
-            <ServiceFormRoutes />
+            <ServiceFormRoutes onNext={this.onNext} />
           </div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
