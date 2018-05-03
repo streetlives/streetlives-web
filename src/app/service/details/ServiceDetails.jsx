@@ -13,6 +13,8 @@ import { SERVICE_FIELDS } from '../../serviceForm/routes';
 // TODO: update fields to have updated value
 const FAKE_UPDATED_AT = moment().subtract(2, 'months');
 
+const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
+
 function ServiceHeader({ children }) {
   return (
     <div className="container px-4 py-4 text-left">
@@ -24,7 +26,10 @@ function ServiceHeader({ children }) {
 }
 
 class ServiceDetails extends Component {
-  onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
+  onGoToDocs = () => {
+    const { locationId, serviceId } = this.props.match.params;
+    this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
+  };
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
@@ -40,12 +45,12 @@ class ServiceDetails extends Component {
           <FieldItem
             key={field.title}
             title={field.title}
-            linkTo={`/location/${locationId}/services/${serviceId}${field.route}`}
+            linkTo={`${getServiceUrl(locationId, serviceId)}${field.route}`}
             updatedAt={FAKE_UPDATED_AT}
           />
         ))}
-        <Button fluid primary onClick={this.onNext}>
-          Service info completed
+        <Button fluid primary onClick={this.onGoToDocs}>
+          Go to docs required
         </Button>
       </div>
     );
