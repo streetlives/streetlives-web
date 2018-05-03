@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
@@ -21,11 +22,33 @@ const LoadingView = () => (
 );
 
 class ServiceCategories extends Component {
-  state = { active: -1, selected: {} };
+  state = {
+    active: -1,
+    selected: {},
+    currentCategories: {},
+    isLoading: false,
+  };
 
   componentWillMount() {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
+    }
+    if (!this.props.location) {
+      const { locationId } = this.props.match.params;
+      this.props.getLocation(locationId);
+    }
+  }
+
+  componentWillReceiveProps(nextProps, prevState) {
+    if (nextProps.location !== this.props.location) {
+      const { Services } = nextProps.location;
+      let currentCategories = {};
+      Services.forEach((service) => {
+        service.Taxonomies.forEach((category) => {
+          currentCategories = { ...currentCategories, [category.id]: category };
+        });
+      });
+      this.setState({ currentCategories });
     }
   }
 
@@ -38,21 +61,34 @@ class ServiceCategories extends Component {
     this.setState({ selected: { ...selected, [category.id]: !selection } });
   };
 
-  onSubmit = () => {
-    const { selected } = this.state;
+  onGoToRecap = () => {
     const { locationId } = this.props.match.params;
-    const locationServices = this.props.taxonomy
-      .reduce((flat, key) => [...flat, ...key.children], [])
-      .filter(service => selected[service.id]);
-    this.props.selectCategories(locationId, locationServices);
     this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
-  render() {
-    const { active, selected } = this.state;
-    const { taxonomy } = this.props;
+  onSubmit = () => {
+    const { selected } = this.state;
+    const { locationId } = this.props.match.params;
+    this.setState({ isLoading: true });
+    const locationTaxonomies = this.props.taxonomy
+      .reduce((flat, key) => [...flat, ...key.children], [])
+      .filter(taxonomy => selected[taxonomy.id]);
 
-    if (!taxonomy) {
+    api
+      .createServices(locationId, locationTaxonomies)
+      .then(() => this.onGoToRecap())
+      .catch(error => console.log('error', error)); // eslint-disable-line no-console
+  };
+
+  getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
+
+  render() {
+    const {
+      active, selected, currentCategories, isLoading,
+    } = this.state;
+    const { taxonomy = [], location } = this.props;
+
+    if (!taxonomy || !location || isLoading) {
       return <LoadingView />;
     }
 
@@ -74,13 +110,14 @@ class ServiceCategories extends Component {
                 />
                 <Accordion.Content active={active === category.id}>
                   <Selector fluid>
-                    {category.children.map(subcategory => (
+                    {category.children.map(item => (
                       <Selector.Option
-                        key={subcategory.id}
-                        onClick={() => this.onSelect(subcategory)}
-                        active={selected[subcategory.id]}
+                        key={item.id}
+                        onClick={() => this.onSelect(item)}
+                        active={selected[item.id] || currentCategories[item.id]}
+                        disabled={currentCategories[item.id]}
                       >
-                        {subcategory.name}
+                        {item.name}
                       </Selector.Option>
                     ))}
                     <Selector.Option align="center">
@@ -102,13 +139,14 @@ class ServiceCategories extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state, ownProps) => ({
+  location: state.db[ownProps.match.params.locationId],
   taxonomy: state.db.taxonomy,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+  getLocation: bindActionCreators(actions.getLocation, dispatch),
   getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
-  selectCategories: bindActionCreators(actions.selectCategories, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceCategories);
