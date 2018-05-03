@@ -9,7 +9,7 @@ import {
   CREATE_PHONE_SUCCESS,
 } from '../actions';
 
-export const dbReducer = (state = {}, action) => {
+export const locationsReducer = (state = {}, action) => {
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
@@ -94,4 +94,4 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones) {
   };
 }
 
-export const selectLocationData = (state, locationId) => state.db[locationId];
+export const selectLocationData = (state, locationId) => state.locations[locationId];

@@ -6,6 +6,8 @@ export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const SELECT_CATEGORIES_ACTION = 'SELECT_CATEGORIES_ACTION';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
+export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
+export const ROLLBACK_UPDATE_ORGANIZATION = 'ROLLBACK_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
@@ -128,6 +130,36 @@ export const createPhone = (locationId, phoneId, params) => (dispatch) => {
       console.error('error', e);
       dispatch({
         type: ROLLBACK_UPDATE_LOCATION,
+        payload: {
+          id: locationId,
+        },
+      });
+    });
+};
+
+
+export const updateOrganization = (locationId, params) => (dispatch) => {
+  // optimistically update the data store
+  dispatch({
+    type: OPTIMISTIC_UPDATE_ORGANIZATION,
+    payload: {
+      id: locationId,
+      params,
+    },
+  });
+  api
+    .updateLocation({
+      id: locationId,
+      params,
+    })
+    .then((locationData) => {
+      // do nothing, because save succeeded
+    })
+    .catch((e) => {
+      // roll back
+      console.error('error', e);
+      dispatch({
+        type: ROLLBACK_UPDATE_ORGANIZATION,
         payload: {
           id: locationId,
         },

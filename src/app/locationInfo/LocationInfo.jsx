@@ -81,7 +81,7 @@ class LocationInfo extends Component {
 }
 
 export function mapStateToProps(state, ownProps) {
-  const locationData = state.db[ownProps.match.params.locationId];
+  const locationData = state.locations[ownProps.match.params.locationId];
 
   const organizationName =
     locationData && locationData.Organization && locationData.Organization.name;

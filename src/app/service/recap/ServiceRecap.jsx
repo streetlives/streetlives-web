@@ -45,7 +45,7 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = state => ({
-  locationServices: state.db.locationServices,
+  locationServices: state.locations.locationServices,       //TODO: refactor this so that taxonomy is in its own top-level prop
 });
 
 export default connect(mapStateToProps)(ServicesRecap);
