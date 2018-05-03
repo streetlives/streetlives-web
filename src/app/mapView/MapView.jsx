@@ -10,12 +10,32 @@ import Map from '../../components/map';
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultZoom = 14;
 const minZoom = 11;
-
+const geolocationTimeout = 5000;
 export default class MapView extends Component {
   state = {
     center: defaultCenter,
     suggestions: []
   };
+
+  componentDidMount() {
+    if (!navigator || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      userPosition => {
+        const { coords } = userPosition;
+        this.setState({
+          center : {
+            lat: coords.latitude,
+            lng: coords.longitude,
+          }
+        });
+      },
+      e => console.error('Failed to get current position', e),
+      { timeout: geolocationTimeout },
+    );
+  }
 
   onSearchChanged = event => {
     const searchString = event.target.value;
