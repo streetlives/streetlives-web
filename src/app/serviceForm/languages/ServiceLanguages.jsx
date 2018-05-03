@@ -15,7 +15,7 @@ class ServiceLanguages extends Component {
     fetched: [],
     languages: [],
     selected: {},
-    isAdding: true,
+    isAdding: false,
   };
 
   componentWillMount() {
