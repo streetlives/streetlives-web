@@ -95,16 +95,31 @@ export const createServices = (locationId, locationTaxonomies) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
-    const requests = locationTaxonomies.map(taxonomy => axios.request({
-      url: `${config.baseApi}/services`,
-      method: 'post',
-      data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
+    const requests = locationTaxonomies.map(taxonomy =>
+      axios.request({
+        url: `${config.baseApi}/services`,
+        method: 'post',
+        data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
+        headers: {
+          Authorization: jwtToken,
+        },
+      }));
+
+    return axios.all(requests);
+  });
+
+export const updateService = (serviceId, params) =>
+  Amplify.Auth.currentAuthenticatedUser().then((user) => {
+    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
+
+    return axios.request({
+      url: `${config.baseApi}/services/${serviceId}`,
+      method: 'patch',
+      data: params,
       headers: {
         Authorization: jwtToken,
       },
-    }));
-
-    return axios.all(requests);
+    });
   });
 
 export const updateLocation = updateResource.bind(this, {
