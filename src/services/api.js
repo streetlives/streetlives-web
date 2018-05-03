@@ -66,18 +66,17 @@ const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
   });
 }
 
-export const getTaxonomy = () =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+export const getTaxonomy = () => {
+  return requestWithAuth( idJwtToken => {
     return axios.request({
       url: `${config.baseApi}/taxonomy`,
       method: 'get',
       headers: {
-        Authorization: jwtToken,
+        Authorization: idJwtToken,
       },
     });
   });
+}
 
 export const updateLocation = updateResource.bind(this, {
   pathPrefix: 'locations',
@@ -89,3 +88,32 @@ export const createPhone = updateResource.bind(this, {
   method: 'post',
   pathSuffix: 'phones',
 });
+
+export const getOrganizations = ( searchString ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations?searchString=${searchString}`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}
+
+
+export const getOrganizationLocations = ( organizationId ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations/${organizationId}/locations`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}

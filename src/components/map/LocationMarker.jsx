@@ -37,7 +37,7 @@ class LocationMarker extends Component {
   }
 
   renderUrl(url) {
-    const linkUrl = url.includes('//') ? url : `http://${url}`;
+    const linkUrl = url.indexOf('//') > -1 ? url : `http://${url}`;
     return (
       <a href={linkUrl} target="_blank">
         {url}
