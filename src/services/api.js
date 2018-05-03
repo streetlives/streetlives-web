@@ -2,12 +2,21 @@ import axios from 'axios';
 import Amplify from 'aws-amplify';
 import config from '../config';
 
+const requestWithAuth = (cb) => {
+  if(config.disableAuth){
+    return cb(null);
+  }else{
+    return Amplify.Auth.currentAuthenticatedUser().then((user) => {
+      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+      return cb(idJwtToken);
+    });
+  }
+}
+
 export const getLocations = ({
   latitude, longitude, radius, searchString,
-}) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+}) => {
+  return requestWithAuth( idJwtToken => {
     return axios
       .request({
         url: `${config.baseApi}/locations`,
@@ -24,25 +33,24 @@ export const getLocations = ({
       })
       .then(result => result.data);
   });
+}
 
-export const getLocation = ({ id }) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+export const getLocation = ({ id }) => {
+  return requestWithAuth( idJwtToken => {
     return axios.request({
       url: `${config.baseApi}/locations/${id}`,
       method: 'get',
       headers: {
         Authorization: idJwtToken,
       },
-    });
+    })
+    .then(result => result.data);
   });
+}
 
-const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
-    // construct the path
+const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
+  return requestWithAuth( idJwtToken => {
+    //construct the path
     const pathComponents = [config.baseApi, pathPrefix, id];
     if (pathSuffix) pathComponents.push(pathSuffix);
     const url = pathComponents.join('/');
@@ -56,19 +64,19 @@ const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
       },
     });
   });
+}
 
-export const getTaxonomy = () =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+export const getTaxonomy = () => {
+  return requestWithAuth( idJwtToken => {
     return axios.request({
       url: `${config.baseApi}/taxonomy`,
       method: 'get',
       headers: {
-        Authorization: jwtToken,
+        Authorization: idJwtToken,
       },
     });
   });
+}
 
 export const updateLocation = updateResource.bind(this, {
   pathPrefix: 'locations',
@@ -80,3 +88,32 @@ export const createPhone = updateResource.bind(this, {
   method: 'post',
   pathSuffix: 'phones',
 });
+
+export const getOrganizations = ( searchString ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations?searchString=${searchString}`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}
+
+
+export const getOrganizationLocations = ( organizationId ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
+      .request({
+        url: `${config.baseApi}/organizations/${organizationId}/locations`,
+        method: 'get',
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data);
+  });
+}

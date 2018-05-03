@@ -37,7 +37,7 @@ class LocationMarker extends Component {
   }
 
   renderUrl(url) {
-    const linkUrl = url.includes('//') ? url : `http://${url}`;
+    const linkUrl = url.indexOf('//') > -1 ? url : `http://${url}`;
     return (
       <a href={linkUrl} target="_blank">
         {url}
@@ -64,11 +64,21 @@ class LocationMarker extends Component {
     return (
       <Marker key={mapLocation.id} position={position} onClick={this.onToggleInfo}>
         {isOpen && (
-          <InfoWindow onCloseClick={this.onToggleInfo}>
-            <div style={{ textAlign: 'left' }}>
+          <InfoWindow 
+            options={{
+              maxWidth:window.innerWidth - 100
+            }}
+            onCloseClick={this.onToggleInfo}
+            >
+            <div 
+              style={{ 
+                textAlign: 'left',
+                maxHeight: window.innerHeight - 200, 
+                overflowY: 'auto'  
+              }}>
               <div>This location is:</div>
               <br />
-              <div className="locationInfo" style={{ textAlign: 'center' }}>
+              <div className="locationInfo" style={{  textAlign: 'center' }}>
                 <div className="locationInfoHeader">
                   <div>{organization.name}</div>
                   {mapLocation.name && <div>{mapLocation.name}</div>}

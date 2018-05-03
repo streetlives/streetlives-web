@@ -33,6 +33,9 @@ class FormEdit extends Component {
         />
         <Button onClick={this.onSubmit} primary className="mt-3">
           OK
+        </Button>&nbsp;
+        <Button onClick={this.props.onCancel} basic primary className="mt-3">
+          CANCEL
         </Button>
       </div>
     );
@@ -45,6 +48,7 @@ FormEdit.propTypes = {
   placeholderText : PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired
 };
 FormEdit.defaultProps = {
   value: '',

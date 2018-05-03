@@ -1,42 +1,38 @@
-import React from 'react';
-import { compose, withProps, withStateHandlers, lifecycle } from 'recompose';
+import React, { Component } from 'react';
+import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
 import LocationMarker from './LocationMarker';
 import config from '../../config';
 
-const Map = compose(
+const MyMap = compose(
   withProps({
     googleMapURL: config.googleMaps,
     loadingElement: <div style={{ height: '100%' }} />,
     containerElement: <div style={{ height: '100%' }} />,
     mapElement: <div style={{ height: '100%' }} />,
   }),
-  withStateHandlers(
-    () => ({
-      openLocationId: null,
-    }),
-    {
-      onToggleMarkerInfo: ({ openLocationId }) => toggledLocationId => ({
-        openLocationId: openLocationId === toggledLocationId ? null : toggledLocationId,
-      }),
-    },
-  ),
   lifecycle({
-    componentWillMount() {
+    componentWillMount(){
       let mapRef;
 
       this.setState({
         onMapMounted: (ref) => {
           mapRef = ref;
         },
-        onCenterChanged: () => {
-          const center = mapRef.getCenter();
-          if (this.props.onCenterChanged) {
-            this.props.onCenterChanged({ lat: center.lat(), lng: center.lng() });
-          }
-        },
+        onBoundsChanged: () => {
+          const bounds = mapRef.getBounds()
+          const center = mapRef.getCenter()
+          if(!bounds || !center) return;
+          const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
+            center,
+            {
+              lat: () => bounds.f.b, lng: () => bounds.b.b
+            }
+          )
+          this.props.onBoundsChanged({bounds, center, radius});
+        }
       });
-    },
+    }
   }),
   withScriptjs,
   withGoogleMap,
@@ -53,5 +49,30 @@ const Map = compose(
       ))}
   </GoogleMap>
 ));
+
+class Map extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      openLocationId: null
+    };
+    this.onToggleMarkerInfo = this.onToggleMarkerInfo.bind(this);
+  }
+
+  onToggleMarkerInfo(toggledLocationId){
+    this.setState({
+      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
+    });
+  }
+
+  render(){
+    return <MyMap 
+      {...this.props}
+      openLocationId={this.state.openLocationId}
+      onToggleMarkerInfo={this.onToggleMarkerInfo}
+      onBoundsChanged={this.props.onBoundsChanged}
+      />
+  }
+}
 
 export default Map;
