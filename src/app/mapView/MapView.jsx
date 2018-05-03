@@ -50,8 +50,6 @@ export default class MapView extends Component {
   }, onSearchChangedPeriod);
 
   onBoundsChanged = debounce(({center, radius}) => {
-    if(center.lat() === this.state.center.lat && 
-        center.lng() === this.state.center.lng) return;
     this.fetchLocations(center, radius);
   }, onBoundsChangedDebouncePeriod);
 
