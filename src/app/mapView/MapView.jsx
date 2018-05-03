@@ -67,11 +67,11 @@ export default class MapView extends Component {
     getOrganizationLocations(organization.id)  
       .then(locations => { 
         if(!locations.length) return;
-        locations = locations.map( loc => ({...loc, Organization : organization}))   //add orgranization to locations
-        const firstLoc = locations[0];
+        const locationsWithOrganization = locations.map( loc => ({...loc, Organization : organization}))   //add orgranization to locations
+        const firstLoc = locationsWithOrganization[0];
         const coords = firstLoc.position.coordinates;     //TODO: focus all
         this.setState({ 
-          locations, 
+          locationsWithOrganization, 
           suggestions: [], 
           center: {
             lat: coords[1],
