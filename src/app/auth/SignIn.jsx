@@ -58,7 +58,7 @@ export default class StreetlivesSignIn extends SignIn {
           <Col>
             <label className="w-100">Password</label>
             <Input
-              tabIndex={1}
+              tabIndex={2}
               fluid
               placeholder="Enter your password"
               key="password"

@@ -7,23 +7,36 @@ function NavBar({ title, history }) {
     <div style={{ backgroundColor: '#333333' }} className="text-white">
       <div className="container">
         <div className="row d-flex justify-content-between align-items-center p-2">
-          <a
-            style={{ fontSize: '14px' }}
-            className="font-weight-light"
-            onClick={() => history.goBack()}
-          >
-            Back
-          </a>
-          <span style={{ fontSize: '18px' }} className="font-weight-bold m-0">
-            {title}
-          </span>
-          <a
-            style={{ fontSize: '14px' }}
-            className="font-weight-light"
-            onClick={() => history.push('/')}
-          >
-            <i className="fa fa-close" />
-          </a>
+          <div style={{width:'100%',height:'100%',textAlign:'center', position:'relative'}}>
+      
+            <a
+              style={{ 
+                fontSize: '14px',
+                position: 'absolute',
+                left: 0,
+                top: '.25em'
+              }}
+              className="font-weight-light"
+              onClick={() => history.goBack()}
+            >
+              &lt;Back
+            </a>
+            <span style={{ fontSize: '18px' }} className="font-weight-bold m-0">
+              {title}
+            </span>
+            <a
+              style={{ 
+                fontSize: '14px',
+                position: 'absolute',
+                right: 0,
+                top: '.25em'
+              }}
+              className="font-weight-light"
+              onClick={() => history.push('/')}
+            >
+              <i className="fa fa-close" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
