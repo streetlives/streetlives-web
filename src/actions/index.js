@@ -34,13 +34,15 @@ export const getTaxonomy = () => (dispatch) => {
     .catch(e => console.error('error', e));
 };
 
-export const updateLocation = (locationId, params) => (dispatch) => {
+export const updateLocation = (locationId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_LOCATION,
     payload: {
       id: locationId,
       params,
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -63,7 +65,13 @@ export const updateLocation = (locationId, params) => (dispatch) => {
     });
 };
 
-export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
+export const updatePhone = (
+  locationId,
+  phoneId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_PHONE,
@@ -71,6 +79,8 @@ export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
       locationId,
       phoneId,
       params,
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -93,13 +103,21 @@ export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
     });
 };
 
-export const createPhone = (locationId, phoneId, params) => (dispatch) => {
+export const createPhone = (
+  locationId,
+  phoneId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_CREATE_PHONE,
     payload: {
       locationId,
       params,
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -128,8 +146,13 @@ export const createPhone = (locationId, phoneId, params) => (dispatch) => {
     });
 };
 
-
-export const updateOrganization = (locationId, organizationId, params) => (dispatch) => {
+export const updateOrganization = (
+  locationId,
+  organizationId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_ORGANIZATION,
@@ -137,6 +160,8 @@ export const updateOrganization = (locationId, organizationId, params) => (dispa
       locationId,
       organizationId,
       params,
+      metaDataSection,
+      fieldName,
     },
   });
   api
