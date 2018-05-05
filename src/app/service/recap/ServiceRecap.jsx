@@ -23,7 +23,9 @@ class ServicesRecap extends Component {
     const { taxonomy, locationServices = [] } = this.props;
     return (
       <div className="text-left">
-        <NavBar title="Services recap" />
+        <NavBar 
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
+          title="Services recap" />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>

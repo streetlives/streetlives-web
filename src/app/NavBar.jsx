@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
-function NavBar({ title, history }) {
+function NavBar({ title, history, backButtonTarget }) {
   return (
     <div style={{ backgroundColor: '#333333' }} className="text-white">
       <div className="container">
@@ -17,7 +17,7 @@ function NavBar({ title, history }) {
                 top: '.25em'
               }}
               className="font-weight-light"
-              onClick={() => history.goBack()}
+              onClick={() => history.push(backButtonTarget)}
             >
               &lt;Back
             </a>

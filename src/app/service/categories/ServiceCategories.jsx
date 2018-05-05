@@ -11,9 +11,11 @@ import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 
-const LoadingView = () => (
+const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
-    <NavBar title="Services info" />
+    <NavBar 
+      backButtonTarget={`/location/${locationId}`}
+      title="Services info" />
     <p>
       <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
     </p>
@@ -53,12 +55,14 @@ class ServiceCategories extends Component {
     const { taxonomy } = this.props;
 
     if (!taxonomy) {
-      return <LoadingView />;
+      return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="text-left">
-        <NavBar title="Services info" />
+        <NavBar
+           backButtonTarget={`/location/${this.props.match.params.locationId}`}
+           title="Services info" />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>What programs and services are available at this location?</Header>
