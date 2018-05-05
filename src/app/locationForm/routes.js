@@ -10,12 +10,12 @@ import OrganizationDescription from './description/OrganizationDescription';
 const routes = [
   // TODO: re-enable when support is added to db
   //  ["questions/entrance-picture", LocationImage, "Entrance picture", true],
-  ['questions/location-address', LocationAddress, 'Address', 'address'],
-  ['questions/organization-name', OrganizationName, 'Organization name'],
-  ['questions/location-name', LocationName, 'Location name', 'location'],
-  ['questions/location-description', OrganizationDescription, 'Location description', 'description'],
-  ['questions/phone-number', LocationNumber, 'Phone number'],
-  ['questions/website', LocationWebsite, 'Website'],
+  ['questions/location-address', LocationAddress, 'Address', 'address', 'address_1'],
+  ['questions/organization-name', OrganizationName, 'Organization name', 'organization', 'name'],
+  ['questions/location-name', LocationName, 'Location name', 'location', 'name'],
+  ['questions/location-description', OrganizationDescription, 'Organization description', 'organization', 'description'],
+  ['questions/phone-number', LocationNumber, 'Phone number', 'location', 'phones'],
+  ['questions/website', LocationWebsite, 'Website','organization','url'],
   // TODO: re-enable when support is added to db
   //  ["questions/additional-info", AdditionalInfo, "Additional info"]
 ];

@@ -57,17 +57,16 @@ class LocationInfo extends Component {
         <LocationHeader />
         {
           routes.map((route, i) => {
-            const fieldName = route[3];
-            const subFields = this.props.locationData.metadata[fieldName];
-            let lastDateEdited;
-            if(subFields){
-              const dates = subFields.map( subField => (
-                new Date(subField.last_action_date)
-              ))
-              lastDateEdited = Math.max.apply(this, dates);
-            }else{
-              lastDateEdited = null;
-            }
+            const prop1 = route[3];
+            const prop2 = route[4];
+            let lastDateEdited = null;
+            if(prop1 && prop2){
+              const subFields = this.props.locationData.metadata[prop1];
+              const field = subFields.find( field => field.field_name === prop2 );
+              if(field){
+                lastDateEdited = field.last_action_date;
+              }
+            } 
             return <FieldItem
               key={route[0]}
               title={route[2]}
