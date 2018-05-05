@@ -55,6 +55,7 @@ class Form extends Component {
           onSubmit={this.onSubmit}
           onCancel={this.onCancel}
           updateValue={this.props.updateValue}
+          id={this.props.id}
           />;
     }
 
@@ -73,7 +74,8 @@ Form.propTypes = {
   locationData: PropTypes.object,
   getLocation: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
-  onFieldVerified: PropTypes.func
+  onFieldVerified: PropTypes.func,
+  id: PropTypes.string
 };
 
 export default Form;

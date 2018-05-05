@@ -101,6 +101,10 @@ export const createPhone = updateResource.bind(this, {
   method: 'post',
   pathSuffix: 'phones',
 });
+export const updateOrganization = updateResource.bind(this, {
+  pathPrefix: 'organizations',
+  method: 'patch',
+});
 
 export const getOrganizations = ( searchString ) => {
   return requestWithAuth( idJwtToken => {

@@ -7,9 +7,10 @@ import {
   OPTIMISTIC_UPDATE_PHONE,
   OPTIMISTIC_CREATE_PHONE,
   CREATE_PHONE_SUCCESS,
+  OPTIMISTIC_UPDATE_ORGANIZATION,
 } from '../actions';
 
-export const dbReducer = (state = {}, action) => {
+export const locationsReducer = (state = {}, action) => {
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
@@ -20,6 +21,23 @@ export const dbReducer = (state = {}, action) => {
       return action.payload ? { ...state, taxonomy: [...action.payload] } : state;
     case SELECT_CATEGORIES_ACTION:
       return { ...state, locationServices: [...action.payload] };
+    case OPTIMISTIC_UPDATE_ORGANIZATION:
+      if (action.payload) {
+        const location = state[action.payload.locationId];
+        const organization = location.Organization;
+        return {
+          ...state,
+          [`last/${action.payload.locationId}`]: state[action.payload.locationId],
+          [action.payload.locationId]: {
+            ...state[action.payload.locationId],
+            Organization : {
+              ...organization,
+              ...action.payload.params
+            }
+          },
+        };
+      }
+      break;
     case OPTIMISTIC_UPDATE_LOCATION:
       if (action.payload) {
         return {
@@ -94,4 +112,4 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones) {
   };
 }
 
-export const selectLocationData = (state, locationId) => state.db[locationId];
+export const selectLocationData = (state, locationId) => state.locations[locationId];
