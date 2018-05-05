@@ -1,7 +1,6 @@
 import {
   GET_LOCATION_RESPONSE,
   GET_TAXONOMY_RESPONSE,
-  SELECT_CATEGORIES_ACTION,
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
   OPTIMISTIC_UPDATE_PHONE,
@@ -11,7 +10,7 @@ import {
 } from '../actions';
 
 export const locationsReducer = (state = {}, action) => {
-  const dateString = (new Date()).toISOString();
+  const dateString = new Date().toISOString();
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
@@ -20,11 +19,11 @@ export const locationsReducer = (state = {}, action) => {
       break;
     case GET_TAXONOMY_RESPONSE:
       return action.payload ? { ...state, taxonomy: [...action.payload] } : state;
-    case SELECT_CATEGORIES_ACTION:
-      return { ...state, locationServices: [...action.payload] };
     case OPTIMISTIC_UPDATE_ORGANIZATION:
       if (action.payload) {
-        const { metaDataSection, fieldName, locationId, params } = action.payload;
+        const {
+          metaDataSection, fieldName, locationId, params,
+        } = action.payload;
         const location = state[locationId];
         const organization = location.Organization;
         return {
@@ -32,18 +31,20 @@ export const locationsReducer = (state = {}, action) => {
           [`last/${locationId}`]: state[locationId],
           [locationId]: {
             ...state[locationId],
-            Organization : {
+            Organization: {
               ...organization,
-              ...params
+              ...params,
             },
-            metadata : constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
+            metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
           },
         };
       }
       break;
     case OPTIMISTIC_UPDATE_LOCATION:
       if (action.payload) {
-        const { id, params, metaDataSection, fieldName } = action.payload;
+        const {
+          id, params, metaDataSection, fieldName,
+        } = action.payload;
         const location = state[id];
         return {
           ...state,
@@ -51,7 +52,7 @@ export const locationsReducer = (state = {}, action) => {
           [id]: {
             ...location,
             ...params,
-            metadata : constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
+            metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
           },
         };
       }
@@ -115,20 +116,20 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones, location, 
     [locationId]: {
       ...state[locationId],
       Phones: newPhones,
-      metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
+      metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
     },
   };
 }
 
-function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString){
+function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
   const metadata = location.metadata;
   const subFields = metadata[metaDataSection];
   const newField = { field_name: fieldName, last_action_date: dateString };
-  const newSubFields = subFields.map(field => field.field_name === fieldName ? newField : field );
+  const newSubFields = subFields.map(field => (field.field_name === fieldName ? newField : field));
 
   return {
     ...metadata,
-    [metaDataSection] : newSubFields
+    [metaDataSection]: newSubFields,
   };
 }
 

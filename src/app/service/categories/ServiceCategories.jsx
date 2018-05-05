@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getLocation, getTaxonomy, getCurrentCategories } from '../selectors';
+import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
@@ -13,9 +15,7 @@ import NavBar from '../../NavBar';
 
 const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
-    <NavBar 
-      backButtonTarget={`/location/${locationId}`}
-      title="Services info" />
+    <NavBar backButtonTarget={`/location/${locationId}`} title="Services info" />
     <p>
       <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
     </p>
@@ -23,11 +23,19 @@ const LoadingView = ({ locationId }) => (
 );
 
 class ServiceCategories extends Component {
-  state = { active: -1, selected: {} };
+  state = {
+    active: -1,
+    selected: {},
+    isLoading: false,
+  };
 
   componentWillMount() {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
+    }
+    if (Object.keys(this.props.location).length === 0) {
+      const { locationId } = this.props.match.params;
+      this.props.getLocation(locationId);
     }
   }
 
@@ -40,29 +48,41 @@ class ServiceCategories extends Component {
     this.setState({ selected: { ...selected, [category.id]: !selection } });
   };
 
-  onSubmit = () => {
-    const { selected } = this.state;
+  onGoToRecap = () => {
     const { locationId } = this.props.match.params;
-    const locationServices = this.props.taxonomy
-      .reduce((flat, key) => [...flat, ...key.children], [])
-      .filter(service => selected[service.id]);
-    this.props.selectCategories(locationId, locationServices);
     this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
-  render() {
-    const { active, selected } = this.state;
-    const { taxonomy } = this.props;
+  onSubmit = () => {
+    const { selected } = this.state;
+    const { locationId } = this.props.match.params;
+    this.setState({ isLoading: true });
+    const locationTaxonomies = this.props.taxonomy
+      .reduce((flat, key) => [...flat, ...key.children], [])
+      .filter(taxonomy => selected[taxonomy.id]);
 
-    if (!taxonomy) {
+    api
+      .createServices(locationId, locationTaxonomies)
+      .then(() => this.onGoToRecap())
+      .catch(error => console.log('error', error)); // eslint-disable-line no-console
+  };
+
+  getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
+
+  render() {
+    const { active, selected, isLoading } = this.state;
+    const { taxonomy = [], location, currentCategories } = this.props;
+
+    if (!taxonomy || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="text-left">
         <NavBar
-           backButtonTarget={`/location/${this.props.match.params.locationId}`}
-           title="Services info" />
+          backButtonTarget={`/location/${this.props.match.params.locationId}`}
+          title="Services info"
+        />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>What programs and services are available at this location?</Header>
@@ -78,15 +98,17 @@ class ServiceCategories extends Component {
                 />
                 <Accordion.Content active={active === category.id}>
                   <Selector fluid>
-                    {category.children && category.children.map(subcategory => (
-                      <Selector.Option
-                        key={subcategory.id}
-                        onClick={() => this.onSelect(subcategory)}
-                        active={selected[subcategory.id]}
-                      >
-                        {subcategory.name}
-                      </Selector.Option>
-                    ))}
+                    {category.children &&
+                      category.children.map(item => (
+                        <Selector.Option
+                          key={item.id}
+                          onClick={() => this.onSelect(item)}
+                          active={selected[item.id] || currentCategories[item.id]}
+                          disabled={currentCategories[item.id]}
+                        >
+                          {item.name}
+                        </Selector.Option>
+                      ))}
                     <Selector.Option align="center">
                       + Add another {category.name.toLowerCase()} service
                     </Selector.Option>
@@ -106,13 +128,15 @@ class ServiceCategories extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  taxonomy: state.locations.taxonomy,   //TODO: refactor this so that taxonomy is in its own top-level prop
+const mapStateToProps = (state, ownProps) => ({
+  location: getLocation(state, ownProps),
+  taxonomy: getTaxonomy(state, ownProps),
+  currentCategories: getCurrentCategories(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+  getLocation: bindActionCreators(actions.getLocation, dispatch),
   getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
-  selectCategories: bindActionCreators(actions.selectCategories, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceCategories);

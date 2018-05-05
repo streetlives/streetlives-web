@@ -11,6 +11,8 @@ import { getLocation } from '../../actions';
 import LoadingLabel from '../locationForm/common/LoadingLabel';
 import FieldItem from './FieldItem';
 
+const getServicesUrl = locationId => `/location/${locationId}/services`;
+
 function LocationHeader() {
   return (
     <div className="container px-4 py-4 text-left">
@@ -24,11 +26,31 @@ function LocationHeader() {
 function LoadingView({ locationId }) {
   return (
     <div className="d-flex flex-column">
-      <NavBar 
-        backButtonTarget={`/location/${locationId}`}
-        title="Location Info" />
+      <NavBar backButtonTarget={`/location/${locationId}`} title="Location Info" />
       <LoadingLabel />
     </div>
+  );
+}
+
+function ListItem({ pathname, route, location }) {
+  const {
+    urlFragment, label, metaDataSection, fieldName,
+  } = route;
+  let lastDateEdited = null;
+  if (metaDataSection && fieldName) {
+    const subFields = location.metadata[metaDataSection];
+    const field = subFields.find(el => el.field_name === fieldName);
+    if (field) {
+      lastDateEdited = field.last_action_date;
+    }
+  }
+  return (
+    <FieldItem
+      key={urlFragment}
+      title={label}
+      linkTo={`${pathname}/${urlFragment}`}
+      updatedAt={lastDateEdited}
+    />
   );
 }
 
@@ -39,46 +61,30 @@ class LocationInfo extends Component {
     }
   }
 
-  onNext = () => {
-    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
+  onGoToServices = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`${getServicesUrl(locationId)}`);
   };
 
   render() {
     if (!this.props.locationData) {
-      return <LoadingView locationId={this.props.match.params.locationId}/>;
+      return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="d-flex flex-column">
-        <NavBar 
-          backButtonTarget={`${this.props.location.pathname}/recap`}
-          title="Location Info" />
+        <NavBar backButtonTarget={`${this.props.location.pathname}/recap`} title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
-        {
-          routes.map(({
-              urlFragment,
-              label,
-              metaDataSection,
-              fieldName,
-            }, i) => {
-            let lastDateEdited = null;
-            if(metaDataSection && fieldName){
-              const subFields = this.props.locationData.metadata[metaDataSection];
-              const field = subFields.find( field => field.field_name === fieldName );
-              if(field){
-                lastDateEdited = field.last_action_date;
-              }
-            } 
-            return <FieldItem
-              key={urlFragment}
-              title={label}
-              linkTo={`${this.props.location.pathname}/${urlFragment}`}
-              updatedAt={lastDateEdited}
-            />
-          })
-        }
-        <Button fluid primary onClick={this.onNext}>
+        {routes.map((route, i) => (
+          <ListItem
+            key={route.urlFragment}
+            route={route}
+            pathname={this.props.location.pathname}
+            location={this.props.locationData}
+          />
+        ))}
+        <Button fluid primary onClick={this.onGoToServices}>
           Done
         </Button>
       </div>

@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getLocation, getTaxonomy } from '../selectors';
+import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
@@ -9,23 +12,52 @@ import getCategoryIcon from '../util/getCategoryIcon';
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
 
+const LoadingView = () => (
+  <div className="d-flex flex-column">
+    <NavBar title="Services recap" />
+    <p>
+      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
+    </p>
+  </div>
+);
 class ServicesRecap extends Component {
+  state = { services: [] };
+
   componentWillMount() {
-    if (!this.props.locationServices) {
-      const { locationId } = this.props.match.params;
-      this.props.history.push(`/location/${locationId}/services`);
+    const { locationId } = this.props.match.params;
+    this.props.getLocation(locationId);
+
+    if (!this.props.taxonomy) {
+      this.props.getTaxonomy();
+    }
+  }
+
+  componentWillReceiveProps(nextProps, prevState) {
+    if (nextProps.location !== this.props.location) {
+      const services = nextProps.location.Services.map(service => ({
+        ...service,
+        parent_id: service.Taxonomies[0].parent_id,
+      }));
+      this.setState({ services });
     }
   }
 
   onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
 
   render() {
-    const { taxonomy, locationServices = [] } = this.props;
+    const { taxonomy = [] } = this.props;
+    const { services = [] } = this.state;
+
+    if (!taxonomy || !services) {
+      return <LoadingView />;
+    }
+
     return (
       <div className="text-left">
-        <NavBar 
+        <NavBar
           backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
-          title="Services recap" />
+          title="Services recap"
+        />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>
@@ -37,7 +69,7 @@ class ServicesRecap extends Component {
           {taxonomy.map(category => (
             <div key={category.id}>
               <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
-              {locationServices
+              {services
                 .filter(service => service.parent_id === category.id)
                 .map(service => <ListItem key={service.id} service={service} />)}
             </div>
@@ -53,9 +85,14 @@ class ServicesRecap extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  taxonomy: state.db.taxonomy,
-  locationServices: state.locations.locationServices,       //TODO: refactor this so that taxonomy is in its own top-level prop
+const mapStateToProps = (state, ownProps) => ({
+  location: getLocation(state, ownProps),
+  taxonomy: getTaxonomy(state, ownProps),
 });
 
-export default connect(mapStateToProps)(ServicesRecap);
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getLocation: bindActionCreators(actions.getLocation, dispatch),
+  getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ServicesRecap);

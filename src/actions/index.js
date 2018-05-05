@@ -3,7 +3,6 @@ import * as api from '../services/api';
 
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
-export const SELECT_CATEGORIES_ACTION = 'SELECT_CATEGORIES_ACTION';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
@@ -35,13 +34,6 @@ export const getTaxonomy = () => (dispatch) => {
     .catch(e => console.error('error', e));
 };
 
-export const selectCategories = (locationId, params) => (dispatch) => {
-  dispatch({
-    type: SELECT_CATEGORIES_ACTION,
-    payload: params,
-  });
-};
-
 export const updateLocation = (locationId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
   dispatch({
@@ -49,8 +41,8 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     payload: {
       id: locationId,
       params,
-      metaDataSection, 
-      fieldName
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -73,7 +65,13 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
-export const updatePhone = (locationId, phoneId, params, metaDataSection, fieldName) => (dispatch) => {
+export const updatePhone = (
+  locationId,
+  phoneId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_PHONE,
@@ -81,8 +79,8 @@ export const updatePhone = (locationId, phoneId, params, metaDataSection, fieldN
       locationId,
       phoneId,
       params,
-      metaDataSection, 
-      fieldName
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -105,15 +103,21 @@ export const updatePhone = (locationId, phoneId, params, metaDataSection, fieldN
     });
 };
 
-export const createPhone = (locationId, phoneId, params, metaDataSection, fieldName) => (dispatch) => {
+export const createPhone = (
+  locationId,
+  phoneId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_CREATE_PHONE,
     payload: {
       locationId,
       params,
-      metaDataSection, 
-      fieldName
+      metaDataSection,
+      fieldName,
     },
   });
   api
@@ -142,8 +146,13 @@ export const createPhone = (locationId, phoneId, params, metaDataSection, fieldN
     });
 };
 
-
-export const updateOrganization = (locationId, organizationId, params, metaDataSection, fieldName) => (dispatch) => {
+export const updateOrganization = (
+  locationId,
+  organizationId,
+  params,
+  metaDataSection,
+  fieldName,
+) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_ORGANIZATION,
@@ -151,8 +160,8 @@ export const updateOrganization = (locationId, organizationId, params, metaDataS
       locationId,
       organizationId,
       params,
-      metaDataSection, 
-      fieldName
+      metaDataSection,
+      fieldName,
     },
   });
   api
