@@ -8,14 +8,15 @@ import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
 
-import { SERVICE_FIELDS } from '../../serviceForm/routes';
+import { DOCUMENT_FIELDS } from '../routes';
 
 // TODO: update fields to have updated value
-const FAKE_UPDATED_AT = moment().subtract(2, 'months');
+const FAKE_UPDATED_AT = moment().subtract(5, 'months');
 
-const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
+const getDocsUrl = (locationId, serviceId) =>
+  `/location/${locationId}/services/${serviceId}/documents`;
 
-function ServiceHeader({ children }) {
+function DocsHeader({ children }) {
   return (
     <div className="container px-4 py-4 text-left">
       <div className="row">
@@ -25,38 +26,35 @@ function ServiceHeader({ children }) {
   );
 }
 
-class ServiceDetails extends Component {
-  onGoToDocs = () => {
-    const { locationId, serviceId } = this.props.match.params;
-    this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
-  };
+class DocumentDetails extends Component {
+  onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
     return (
       <div className="text-left d-flex flex-column">
         <NavBar 
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
-          title="Service Details" />
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}`}
+          title="Docs required" />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
-        <ServiceHeader>Check all the Soup Kitchen details</ServiceHeader>
+        <DocsHeader>Add information about documentation required</DocsHeader>
 
-        {SERVICE_FIELDS.map(field => (
+        {DOCUMENT_FIELDS.map(field => (
           <FieldItem
             key={field.title}
             title={field.title}
-            linkTo={`${getServiceUrl(locationId, serviceId)}${field.route}`}
+            linkTo={`${getDocsUrl(locationId, serviceId)}${field.route}`}
             updatedAt={FAKE_UPDATED_AT}
           />
         ))}
-        <Button fluid primary onClick={this.onGoToDocs}>
-          Go to docs required
+        <Button fluid primary onClick={this.onNext}>
+          Done
         </Button>
       </div>
     );
   }
 }
 
-export default ServiceDetails;
+export default DocumentDetails;

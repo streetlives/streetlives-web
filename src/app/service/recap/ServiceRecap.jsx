@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
+import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
@@ -19,10 +20,12 @@ class ServicesRecap extends Component {
   onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
 
   render() {
-    const { locationServices = [] } = this.props;
+    const { taxonomy, locationServices = [] } = this.props;
     return (
       <div className="text-left">
-        <NavBar title="Services recap" />
+        <NavBar 
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
+          title="Services recap" />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>
@@ -31,8 +34,14 @@ class ServicesRecap extends Component {
             </Header>
           </div>
 
-          <SectionHeader title="All Services" icon="home" />
-          {locationServices.map(service => <ListItem key={service.id} service={service} />)}
+          {taxonomy.map(category => (
+            <div key={category.id}>
+              <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
+              {locationServices
+                .filter(service => service.parent_id === category.id)
+                .map(service => <ListItem key={service.id} service={service} />)}
+            </div>
+          ))}
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
           <Button fluid primary onClick={this.onNext}>
@@ -45,6 +54,7 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = state => ({
+  taxonomy: state.db.taxonomy,
   locationServices: state.locations.locationServices,       //TODO: refactor this so that taxonomy is in its own top-level prop
 });
 

@@ -31,6 +31,10 @@ class Input extends Component {
       size,
       pattern,
       required,
+      autoFocus,
+      tabIndex,
+      autoCorrect,
+      autoCapitalize,
     } = this.props;
 
     const classNames = cx('Input', {
@@ -53,6 +57,10 @@ class Input extends Component {
         size={size}
         pattern={pattern}
         required={required}
+        autoFocus={autoFocus}
+        tabIndex={tabIndex}
+        autoCorrect={autoCorrect}
+        autoCapitalize={autoCapitalize}
       />
     );
   }

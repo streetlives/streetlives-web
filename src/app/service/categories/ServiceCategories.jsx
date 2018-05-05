@@ -7,12 +7,15 @@ import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
 import Selector from '../../../components/selector';
 import Button from '../../../components/button';
+import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 
-const LoadingView = () => (
+const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
-    <NavBar title="Services info" />
+    <NavBar 
+      backButtonTarget={`/location/${locationId}`}
+      title="Services info" />
     <p>
       <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
     </p>
@@ -20,7 +23,7 @@ const LoadingView = () => (
 );
 
 class ServiceCategories extends Component {
-  state = { active: 0, selected: {} };
+  state = { active: -1, selected: {} };
 
   componentWillMount() {
     if (!this.props.taxonomy) {
@@ -40,7 +43,9 @@ class ServiceCategories extends Component {
   onSubmit = () => {
     const { selected } = this.state;
     const { locationId } = this.props.match.params;
-    const locationServices = this.props.taxonomy.filter(service => selected[service.id]);
+    const locationServices = this.props.taxonomy
+      .reduce((flat, key) => [...flat, ...key.children], [])
+      .filter(service => selected[service.id]);
     this.props.selectCategories(locationId, locationServices);
     this.props.history.push(`/location/${locationId}/services/recap`);
   };
@@ -50,37 +55,45 @@ class ServiceCategories extends Component {
     const { taxonomy } = this.props;
 
     if (!taxonomy) {
-      return <LoadingView />;
+      return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="text-left">
-        <NavBar title="Services info" />
+        <NavBar
+           backButtonTarget={`/location/${this.props.match.params.locationId}`}
+           title="Services info" />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>What programs and services are available at this location?</Header>
           </div>
           <Accordion>
-            <Accordion.Item
-              active={active === 0}
-              onClick={() => this.onToggleOpen(0)}
-              title="All Services"
-              icon="home"
-            />
-            <Accordion.Content active={active === 0}>
-              <Selector fluid>
-                {taxonomy.map(category => (
-                  <Selector.Option
-                    key={category.id}
-                    onClick={() => this.onSelect(category)}
-                    active={selected[category.id]}
-                  >
-                    {category.name}
-                  </Selector.Option>
-                ))}
-                <Selector.Option align="center">+ Add another shelter service</Selector.Option>
-              </Selector>
-            </Accordion.Content>
+            {taxonomy.map((category, i) => (
+              <div key={category.id}>
+                <Accordion.Item
+                  active={active === category.id}
+                  onClick={() => this.onToggleOpen(category.id)}
+                  title={category.name}
+                  icon={getCategoryIcon(category.name)}
+                />
+                <Accordion.Content active={active === category.id}>
+                  <Selector fluid>
+                    {category.children && category.children.map(subcategory => (
+                      <Selector.Option
+                        key={subcategory.id}
+                        onClick={() => this.onSelect(subcategory)}
+                        active={selected[subcategory.id]}
+                      >
+                        {subcategory.name}
+                      </Selector.Option>
+                    ))}
+                    <Selector.Option align="center">
+                      + Add another {category.name.toLowerCase()} service
+                    </Selector.Option>
+                  </Selector>
+                </Accordion.Content>
+              </div>
+            ))}
           </Accordion>
         </div>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
