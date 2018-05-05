@@ -43,7 +43,8 @@ class Form extends Component {
     this.setState({ isEditing: false }, this.props.onFieldVerified);
   }
 
-  onCancel() {
+  onCancel(e) {
+    e.preventDefault();
     this.setState({ isEditing: false });
   }
   render() {
@@ -51,6 +52,8 @@ class Form extends Component {
 
     if (this.state.isEditing) {
       return <this.props.editComponent
+          onInputFocus={this.props.onInputFocus}
+          onInputBlur={this.props.onInputBlur}
           value={this.props.value}
           onSubmit={this.onSubmit}
           onCancel={this.onCancel}

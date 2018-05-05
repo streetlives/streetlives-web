@@ -13,13 +13,19 @@ class LocationForm extends Component {
 
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
+    this.onInputFocus = this.onInputFocus.bind(this);
+    this.onInputBlur = this.onInputBlur.bind(this);
 
     this.routeComponents = routes.map(({urlFragment, RouteComponent}) => (
       <Route
         key={urlFragment}
         path={`/location/:locationId/${urlFragment}/:thanks?`}
         render={(routeProps) => {
-          return <RouteComponent {...routeProps} onFieldVerified={this.onNext} />;
+          return <RouteComponent 
+            {...routeProps} 
+            onInputFocus={this.onInputFocus}
+            onInputBlur={this.onInputBlur}
+            onFieldVerified={this.onNext} />;
         }}
       />
     ));
@@ -29,6 +35,7 @@ class LocationForm extends Component {
     const { locationId } = this.props.match.params;
     const { urlFragment } = routes[this.getCurrentIndex() - 1];
     this.props.history.push(`/location/${locationId}/${urlFragment}`);
+    this.onInputBlur();
   }
 
   onNext() {
@@ -41,6 +48,15 @@ class LocationForm extends Component {
       const { [this.getCurrentIndex() + 1] : { urlFragment } } = routes;
       this.props.history.push(`/location/${locationId}/${urlFragment}`);
     }
+    this.onInputBlur();
+  }
+
+  onInputFocus(){
+    this.setState({inputFocused : true});
+  }
+
+  onInputBlur(){
+    this.setState({inputFocused : false});
   }
 
   getCurrentIndex() {
@@ -73,7 +89,13 @@ class LocationForm extends Component {
           <div className="container">
             <div className="row px-4">{this.routeComponents}</div>
           </div>
-          <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
+          <div 
+            className="position-absolute" 
+            style={{ 
+             right: 0,
+             bottom: 12,
+             display: this.state && this.state.inputFocused ? 'none' : 'block' 
+            }}>
             <div className="container">
               <div className="row px-4">
                 <Button onClick={this.onBack} compact disabled={index === 0}>
