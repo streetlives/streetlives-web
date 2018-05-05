@@ -36,7 +36,7 @@ class ServicesRecap extends Component {
     if (nextProps.location !== this.props.location) {
       const services = nextProps.location.Services.map(service => ({
         ...service,
-        parent_id: service.Taxonomies[0].parent_id,
+        parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
       }));
       this.setState({ services });
     }
