@@ -123,17 +123,12 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones, location, 
 function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString){
   const metadata = location.metadata;
   const subFields = metadata[metaDataSection];
-  const fieldIndex = subFields.findIndex( field => field.field_name === fieldName );
+  const newField = { field_name: fieldName, last_action_date: dateString };
+  const newSubFields = subFields.map(field => field.field_name === fieldName ? newField : field );
+
   return {
     ...metadata,
-    [metaDataSection] : [
-      ...subFields.slice(0, fieldIndex),
-      {
-        field_name : fieldName,
-        last_action_date : dateString 
-      },
-      ...subFields.slice(fieldIndex+1)
-    ]
+    [metaDataSection] : newSubFields
   };
 }
 
