@@ -97,10 +97,10 @@ class LocationForm extends Component {
             <div className="row px-4">{this.routeComponents}</div>
           </div>
           <div 
-            className="position-absolute" 
             style={{ 
              right: 0,
              bottom: 12,
+             position:'fixed',
              display: this.state && this.state.inputFocused ? 'none' : 'block' 
             }}>
             <div className="container">

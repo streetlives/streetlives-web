@@ -42,7 +42,7 @@ class DocsFormContainer extends Component {
             <DocumentFormRoutes />
           </div>
         </div>
-        <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
+        <div style={{ right: 0, bottom: 12, position:'fixed' }}>
           <div className="container">
             <div className="row px-4">
               <Button onClick={this.onBack} compact disabled={index === 0}>
