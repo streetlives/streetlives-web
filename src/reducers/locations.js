@@ -45,7 +45,6 @@ export const locationsReducer = (state = {}, action) => {
       if (action.payload) {
         const { id, params, metaDataSection, fieldName } = action.payload;
         const location = state[id];
-        console.log('state[id]',state, id, location);
         return {
           ...state,
           [`last/${id}`]: location,
