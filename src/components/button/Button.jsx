@@ -14,6 +14,7 @@ function Button({
   secondary,
   fluid,
   disabled = undefined,
+  color = undefined,
 }) {
   const classNames = cx('Button', className, {
     'Button-primary': primary,
@@ -25,7 +26,7 @@ function Button({
   });
 
   return (
-    <button onClick={onClick} className={classNames} disabled={disabled}>
+    <button onClick={onClick} className={classNames} disabled={disabled} style={{ color: color}}>
       {children}
     </button>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { selectLocationData } from '../../../reducers';
-import { updateLocation } from '../../../actions';
+import { updateOrganization } from '../../../actions';
 import { getLocation } from '../../../actions';
 import Form from '../common/Form';
 import FormEdit from '../common/FormEdit';
@@ -35,14 +35,16 @@ const mapStateToProps = (state, ownProps) => {
   return {
     value: locationData && 
               locationData.Organization && 
-              locationData.Organization.url ? 
-              locationData.Organization.url : null,
-    locationData 
+              locationData.Organization.url,
+    locationData,
+    id : locationData && 
+          locationData.Organization &&
+          locationData.Organization.id
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: newWebsite => dispatch(updateLocation(ownProps.match.params.locationId, { Organization : {url : newWebsite}})),
+  updateValue: (newWebsite, organizationId) => dispatch(updateOrganization(ownProps.match.params.locationId, organizationId, {url : newWebsite})),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },

@@ -4,7 +4,8 @@ import Button from '../../../components/button';
 
 function ConfirmationOptions(props) {
   return (
-    <div>
+    <div style={{width:'100%', paddingTop:'1em'}}>
+      <div> Is this information correct? </div>
       <div>
         <Button onClick={props.onConfirm} primary fluid className="mt-2">
           YES

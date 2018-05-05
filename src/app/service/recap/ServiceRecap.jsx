@@ -53,7 +53,10 @@ class ServicesRecap extends Component {
 
     return (
       <div className="text-left">
-        <NavBar title="Services recap" />
+        <NavBar
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
+          title="Services recap"
+        />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>
@@ -84,6 +87,8 @@ class ServicesRecap extends Component {
 const mapStateToProps = (state, ownProps) => ({
   taxonomy: state.db.taxonomy,
   location: state.db[ownProps.match.params.locationId],
+  // TODO: refactor this so that taxonomy is in its own top-level prop
+  locationServices: state.locations.locationServices,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

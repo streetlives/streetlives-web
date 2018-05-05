@@ -33,7 +33,9 @@ class DocsFormContainer extends Component {
 
     return (
       <div className="text-left">
-        <NavBar title={currentRoute.title} />
+        <NavBar 
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}/documents`}
+          title={currentRoute.title} />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">

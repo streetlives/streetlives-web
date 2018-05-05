@@ -12,9 +12,9 @@ import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 
-const LoadingView = () => (
+const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
-    <NavBar title="Services info" />
+    <NavBar backButtonTarget={`/location/${locationId}`} title="Services info" />
     <p>
       <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
     </p>
@@ -89,12 +89,15 @@ class ServiceCategories extends Component {
     const { taxonomy = [], location } = this.props;
 
     if (!taxonomy || !location || isLoading) {
-      return <LoadingView />;
+      return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="text-left">
-        <NavBar title="Services info" />
+        <NavBar
+          backButtonTarget={`/location/${this.props.match.params.locationId}`}
+          title="Services info"
+        />
         <div className="mb-5">
           <div className="py-5 px-3 container">
             <Header>What programs and services are available at this location?</Header>
@@ -110,16 +113,17 @@ class ServiceCategories extends Component {
                 />
                 <Accordion.Content active={active === category.id}>
                   <Selector fluid>
-                    {category.children.map(item => (
-                      <Selector.Option
-                        key={item.id}
-                        onClick={() => this.onSelect(item)}
-                        active={selected[item.id] || currentCategories[item.id]}
-                        disabled={currentCategories[item.id]}
-                      >
-                        {item.name}
-                      </Selector.Option>
-                    ))}
+                    {category.children &&
+                      category.children.map(item => (
+                        <Selector.Option
+                          key={item.id}
+                          onClick={() => this.onSelect(item)}
+                          active={selected[item.id] || currentCategories[item.id]}
+                          disabled={currentCategories[item.id]}
+                        >
+                          {item.name}
+                        </Selector.Option>
+                      ))}
                     <Selector.Option align="center">
                       + Add another {category.name.toLowerCase()} service
                     </Selector.Option>
@@ -141,7 +145,8 @@ class ServiceCategories extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   location: state.db[ownProps.match.params.locationId],
-  taxonomy: state.db.taxonomy,
+  // TODO: refactor this so that taxonomy is in its own top-level prop
+  taxonomy: state.locations.taxonomy,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

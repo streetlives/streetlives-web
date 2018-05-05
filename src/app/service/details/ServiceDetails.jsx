@@ -83,7 +83,9 @@ class ServiceDetails extends Component {
 
     return (
       <div className="text-left d-flex flex-column">
-        <NavBar title="Service Details" />
+        <NavBar 
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
+          title="Service Details" />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>

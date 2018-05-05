@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -11,18 +10,6 @@ import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
 import LoadingLabel from '../locationForm/common/LoadingLabel';
 import FieldItem from './FieldItem';
-
-// TODO: Replace with real updated at data.
-const FAKE_DATA = [
-  null,
-  moment().subtract(1, 'years'),
-  moment().subtract(30, 'days'),
-  moment().subtract(3, 'months'),
-  moment().subtract(3, 'months'),
-  null,
-  moment().subtract(3, 'months'),
-  null,
-];
 
 const getServicesUrl = locationId => `/location/${locationId}/services`;
 
@@ -36,10 +23,10 @@ function LocationHeader() {
   );
 }
 
-function LoadingView() {
+function LoadingView({ locationId }) {
   return (
     <div className="d-flex flex-column">
-      <NavBar title="Location Info" />
+      <NavBar backButtonTarget={`/location/${locationId}`} title="Location Info" />
       <LoadingLabel />
     </div>
   );
@@ -59,22 +46,34 @@ class LocationInfo extends Component {
 
   render() {
     if (!this.props.locationData) {
-      return <LoadingView />;
+      return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
     return (
       <div className="d-flex flex-column">
-        <NavBar title="Location Info" />
+        <NavBar backButtonTarget={`${this.props.location.pathname}/recap`} title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
-        {routes.map((route, i) => (
-          <FieldItem
-            key={route[0]}
-            title={route[2]}
-            linkTo={`${this.props.location.pathname}${route[0]}`}
-            updatedAt={FAKE_DATA[i]}
-          />
-        ))}
+        {routes.map(({
+ urlFragment, label, metaDataSection, fieldName,
+}, i) => {
+          let lastDateEdited = null;
+          if (metaDataSection && fieldName) {
+            const subFields = this.props.locationData.metadata[metaDataSection];
+            const field = subFields.find(field => field.field_name === fieldName);
+            if (field) {
+              lastDateEdited = field.last_action_date;
+            }
+          }
+          return (
+            <FieldItem
+              key={urlFragment}
+              title={label}
+              linkTo={`${this.props.location.pathname}/${urlFragment}`}
+              updatedAt={lastDateEdited}
+            />
+          );
+        })}
         <Button fluid primary onClick={this.onGoToServices}>
           Done
         </Button>
@@ -84,7 +83,7 @@ class LocationInfo extends Component {
 }
 
 export function mapStateToProps(state, ownProps) {
-  const locationData = state.db[ownProps.match.params.locationId];
+  const locationData = state.locations[ownProps.match.params.locationId];
 
   const organizationName =
     locationData && locationData.Organization && locationData.Organization.name;

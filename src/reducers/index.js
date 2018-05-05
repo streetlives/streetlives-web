@@ -1,9 +1,9 @@
-import { dbReducer } from './db';
+import { locationsReducer } from './locations';
 
-export { selectLocationData } from './db';
+export { selectLocationData } from './locations';
 
 export const rootReducerObj = {
-  db: dbReducer,
+  locations: locationsReducer,
 };
 
 export default rootReducerObj;

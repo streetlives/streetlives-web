@@ -1,28 +1,24 @@
 import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
-import { getLocations } from '../../services/api';
+import { 
+  getLocations, 
+  getOrganizations, 
+  getOrganizationLocations  
+} from '../../services/api';
 import Map from '../../components/map';
 /* eslint-env es6 */
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
-const defaultRadius = 10000;
-
 const defaultZoom = 14;
 const minZoom = 11;
-
 const geolocationTimeout = 5000;
-const fetchLocationsDebouncePeriod = 500;
+const onBoundsChangedDebouncePeriod = 500;
 
 export default class MapView extends Component {
   state = {
-    searchString: '',
     center: defaultCenter,
-    radius: defaultRadius,
+    suggestions: []
   };
-
-  componentWillMount() {
-    this.fetchLocations();
-  }
 
   componentDidMount() {
     if (!navigator || !navigator.geolocation) {
@@ -32,41 +28,119 @@ export default class MapView extends Component {
     navigator.geolocation.getCurrentPosition(
       userPosition => {
         const { coords } = userPosition;
-        this.onCenterChanged({
-          lat: coords.latitude,
-          lng: coords.longitude,
+        this.setState({
+          center : {
+            lat: coords.latitude,
+            lng: coords.longitude,
+          }
         });
       },
       e => console.error('Failed to get current position', e),
       { timeout: geolocationTimeout },
     );
+
+    this.mapWrapper.addEventListener('touchstart', () => {
+      this.searchInput.blur();
+    }, true);
+
+    this.inputGroup.addEventListener('touchstart', () => {
+      this.searchInput.focus();
+    }, true);
+
   }
-  onSearchChanged = event => {
-    this.setState({ searchString: event.target.value }, () => {
-      this.fetchLocations();
-    });
+
+
+  onSearchChanged = (searchString) => {
+    if(searchString){ 
+      this.onSuggestionsFetchRequested({searchString});
+    } else {
+      this.onSuggestionsClearRequested();
+    }
   };
 
-  onCenterChanged = center => {
-    this.setState({ center }, () => {
-      this.fetchLocations();
-    });
-  };
+  onBoundsChanged = debounce(({center, radius}) => {
+    this.fetchLocations(center, radius);
+  }, onBoundsChangedDebouncePeriod);
 
-  fetchLocations = debounce(() => {
-    getLocations({
-      latitude: this.state.center.lat,
-      longitude: this.state.center.lng,
-      radius: this.state.radius,
-      searchString: this.state.searchString,
-    })
-      .then(locations => this.setState({ locations }))
+  onSuggestionsFetchRequested = ({ searchString, reason }) => {
+    getOrganizations(searchString)
+      .then(organizations => { 
+          this.setState({ suggestions : organizations })
+      })
       .catch(e => console.error('error', e));
-  }, fetchLocationsDebouncePeriod);
+  };
+
+  handleSuggestionClick = (organization) => {
+    getOrganizationLocations(organization.id)  
+      .then(locations => { 
+        if(!locations.length) return;
+        const locationsWithOrganization = locations.map( loc => ({...loc, Organization : organization}))   //add orgranization to locations
+        const firstLoc = locationsWithOrganization[0];
+        const coords = firstLoc.position.coordinates;     //TODO: focus all
+        this.searchInput.value = '';
+        this.setState({ 
+          locationsWithOrganization, 
+          suggestions: [], 
+          center: {
+            lat: coords[1],
+            lng: coords[0]  
+          }
+        });
+        this.map.onToggleMarkerInfo(firstLoc.id);
+      })
+      .catch(e => console.error('error', e));
+  }
+
+  onSuggestionsClearRequested = () => {
+    this.setState({
+      suggestions: []
+    });
+  };
+
+  fetchLocations = (center, radius) => {
+    getLocations({
+      latitude: center.lat(),
+      longitude: center.lng(),
+      radius: Math.floor(radius)
+    })
+      .then(locations => this.setState({ locations }))    //TODO: we can save these in the redux store
+      .catch(e => console.error('error', e));
+  };
 
   render() {
     return (
       <div className="Map">
+        <ul className="suggestions"
+          style={{
+            position: 'absolute',
+            top: '2.75em',
+            background: 'white',
+            listStyle: 'none',
+            paddingLeft: 0, 
+            zIndex: 1,
+            left: '.5em',
+            right: '.5em',
+            textAlign: 'left',
+            transition: 'max-height 1s',
+            maxHeight: this.state.suggestions.length ? `${window.innerHeight-50}px` : '0px',
+            overflow: 'scroll'
+          }}>
+          {
+            this.state.suggestions && this.state.suggestions.map( (organization, i) => (
+              <li 
+                onClick={() => this.handleSuggestionClick(organization)}
+                key={organization.id} 
+                style={{
+                  borderLeft: '1px solid black',
+                  borderRight: '1px solid black',
+                  borderTop: i === 0 ? '1px solid black' : undefined,
+                  borderBottom:'1px solid black'
+                }}>
+                  {organization.name}
+              </li>
+            ))
+          }
+        </ul>
         <div
           style={{
             backgroundColor: '#323232',
@@ -76,7 +150,7 @@ export default class MapView extends Component {
             right: 0,
           }}
         >
-          <div className="input-group" style={{ padding: '.5em' }}>
+          <div ref={e => this.inputGroup = e} className="input-group" style={{ padding: '.5em' }}>
             <div className="input-group-prepend">
               <span
                 style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
@@ -86,7 +160,8 @@ export default class MapView extends Component {
               </span>
             </div>
             <input
-              onChange={this.onSearchChanged}
+              ref={ input => this.searchInput = input }
+              onChange={(event) => this.onSearchChanged(event.target.value)}
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
               className="form-control"
@@ -95,14 +170,31 @@ export default class MapView extends Component {
             />
           </div>
         </div>
-        <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
+        <div 
+          ref={e => this.mapWrapper = e}
+          style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
           <Map
+            ref={ m => this.map = m}
             locations={this.state && this.state.locations}
-            options={{ minZoom, disableDefaultUI: true }}
+            options={{ 
+              minZoom, 
+              disableDefaultUI: true, 
+              gestureHandling: 'greedy',
+              clickableIcons: false,
+              styles:[
+                  {
+                      featureType: "poi",
+                      elementType: "labels",
+                      stylers: [
+                            { visibility: "off" }
+                      ]
+                  }
+              ]
+            }}
             defaultZoom={defaultZoom}
             defaultCenter={defaultCenter}
+            onBoundsChanged={this.onBoundsChanged}
             center={this.state.center}
-            onCenterChanged={this.onCenterChanged}
           />
         </div>
       </div>
