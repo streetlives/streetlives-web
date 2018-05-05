@@ -34,10 +34,12 @@ function LocationHeader() {
   );
 }
 
-function LoadingView() {
+function LoadingView({ locationId }) {
   return (
     <div className="d-flex flex-column">
-      <NavBar title="Location Info" />
+      <NavBar 
+        backButtonTarget={`/location/${locationId}`}
+        title="Location Info" />
       <LoadingLabel />
     </div>
   );
@@ -56,12 +58,14 @@ class LocationInfo extends Component {
 
   render() {
     if (!this.props.locationData) {
-      return <LoadingView />;
+      return <LoadingView locationId={this.props.match.params.locationId}/>;
     }
 
     return (
       <div className="d-flex flex-column">
-        <NavBar title="Location Info" />
+        <NavBar 
+          backButtonTarget={`${this.props.location.pathname}/recap`}
+          title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
         {routes.map((route, i) => (

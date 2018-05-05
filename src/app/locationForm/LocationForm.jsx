@@ -65,7 +65,9 @@ class LocationForm extends Component {
                  <feGaussianBlur stdDeviation="4"/>
              </filter>
           </svg>
-          <NavBar title={currentRoute[2]} />
+          <NavBar 
+            backButtonTarget={`/location/${this.props.match.params.locationId}`}
+            title={currentRoute[2]} />
           <ProgressBar step={index} steps={routes.length} />
           <div className="container">
             <div className="row px-4">{this.routeComponents}</div>

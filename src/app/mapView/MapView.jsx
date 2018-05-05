@@ -13,7 +13,7 @@ const defaultZoom = 14;
 const minZoom = 11;
 const geolocationTimeout = 5000;
 const onBoundsChangedDebouncePeriod = 500;
-const onSearchChangedPeriod = 100;
+
 export default class MapView extends Component {
   state = {
     center: defaultCenter,
@@ -38,16 +38,25 @@ export default class MapView extends Component {
       e => console.error('Failed to get current position', e),
       { timeout: geolocationTimeout },
     );
+
+    this.mapWrapper.addEventListener('touchstart', () => {
+      this.searchInput.blur();
+    }, true);
+
+    this.inputGroup.addEventListener('touchstart', () => {
+      this.searchInput.focus();
+    }, true);
+
   }
 
 
-  onSearchChanged = debounce( (searchString) => {
+  onSearchChanged = (searchString) => {
     if(searchString){ 
       this.onSuggestionsFetchRequested({searchString});
     } else {
       this.onSuggestionsClearRequested();
     }
-  }, onSearchChangedPeriod);
+  };
 
   onBoundsChanged = debounce(({center, radius}) => {
     this.fetchLocations(center, radius);
@@ -68,6 +77,7 @@ export default class MapView extends Component {
         const locationsWithOrganization = locations.map( loc => ({...loc, Organization : organization}))   //add orgranization to locations
         const firstLoc = locationsWithOrganization[0];
         const coords = firstLoc.position.coordinates;     //TODO: focus all
+        this.searchInput.value = '';
         this.setState({ 
           locationsWithOrganization, 
           suggestions: [], 
@@ -121,6 +131,8 @@ export default class MapView extends Component {
                 onClick={() => this.handleSuggestionClick(organization)}
                 key={organization.id} 
                 style={{
+                  borderLeft: '1px solid black',
+                  borderRight: '1px solid black',
                   borderTop: i === 0 ? '1px solid black' : undefined,
                   borderBottom:'1px solid black'
                 }}>
@@ -138,7 +150,7 @@ export default class MapView extends Component {
             right: 0,
           }}
         >
-          <div className="input-group" style={{ padding: '.5em' }}>
+          <div ref={e => this.inputGroup = e} className="input-group" style={{ padding: '.5em' }}>
             <div className="input-group-prepend">
               <span
                 style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
@@ -148,6 +160,7 @@ export default class MapView extends Component {
               </span>
             </div>
             <input
+              ref={ input => this.searchInput = input }
               onChange={(event) => this.onSearchChanged(event.target.value)}
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
@@ -157,7 +170,9 @@ export default class MapView extends Component {
             />
           </div>
         </div>
-        <div style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
+        <div 
+          ref={e => this.mapWrapper = e}
+          style={{ position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0 }}>
           <Map
             ref={ m => this.map = m}
             locations={this.state && this.state.locations}

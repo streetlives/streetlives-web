@@ -29,6 +29,10 @@ import config from '../config';
 
 import './App.css';
 
+history.listen((location, action) => {
+  window.scrollTo(0, 0)
+});
+
 Amplify.configure(awsExports);
 
 function App({ authState }) {

@@ -1,11 +1,21 @@
 import React from 'react';
 import { SignIn } from 'aws-amplify-react';
 import Input from '../../components/input';
-import Button from '../../components/button';
 import './SignIn.css';
-import { Grid, Row, Col } from '../../components/layout/bootstrap';
+import { Row, Col } from '../../components/layout/bootstrap';
 
 export default class StreetlivesSignIn extends SignIn {
+
+  constructor(props){
+    super(props);
+    this.doSignIn = this.doSignIn.bind(this);
+  }
+
+  doSignIn(e){
+    e.preventDefault();
+    this.signIn();
+  }
+
   showComponent(theme) {
     const { hide } = this.props;
     if (hide && hide.includes(SignIn)) {
@@ -13,7 +23,7 @@ export default class StreetlivesSignIn extends SignIn {
     }
 
     return (
-      <Grid>
+      <form className="container-fluid" onSubmit={this.doSignIn}>
         <Row>
           <Col customClasses="sign-in-header">
             <div>
@@ -32,10 +42,14 @@ export default class StreetlivesSignIn extends SignIn {
           <Col>
             <label className="w-100">Username or Phone Number</label>
             <Input
+              autoFocus
+              tabIndex={1}
               fluid
               placeholder="Enter your username or phone number"
               key="username"
               name="username"
+              autoCorrect="off" 
+              autoCapitalize="none"
               onChange={this.handleInputChange}
             />
           </Col>
@@ -44,6 +58,7 @@ export default class StreetlivesSignIn extends SignIn {
           <Col>
             <label className="w-100">Password</label>
             <Input
+              tabIndex={2}
               fluid
               placeholder="Enter your password"
               key="password"
@@ -55,9 +70,7 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <Button primary onClick={this.signIn}>
-              <span>Login</span>
-            </Button>
+            <input type="submit" className="Button Button-primary mt-3" value="Login" />
           </Col>
         </Row>
         <Row>
@@ -65,12 +78,7 @@ export default class StreetlivesSignIn extends SignIn {
             <a onClick={() => this.changeState('forgotPassword')}>Forgot password? Click here</a>
           </Col>
         </Row>
-        <Row>
-          <Col>
-            <a onClick={() => this.changeState('signUp')}>Don't have an account? Click here</a>
-          </Col>
-        </Row>
-      </Grid>
+      </form>
     );
   }
 }
