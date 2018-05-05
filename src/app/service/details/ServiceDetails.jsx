@@ -83,9 +83,10 @@ class ServiceDetails extends Component {
 
     return (
       <div className="text-left d-flex flex-column">
-        <NavBar 
+        <NavBar
           backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
-          title="Service Details" />
+          title="Service Details"
+        />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
@@ -107,7 +108,7 @@ class ServiceDetails extends Component {
   }
 }
 const mapStateToProps = (state, ownProps) => ({
-  location: state.db[ownProps.match.params.locationId],
+  location: state.locations[ownProps.match.params.locationId],
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
