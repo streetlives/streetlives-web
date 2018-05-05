@@ -32,13 +32,13 @@ function LoadingView({ locationId }) {
   );
 }
 
-function ListItem({ pathname, route }) {
+function ListItem({ pathname, route, location }) {
   const {
     urlFragment, label, metaDataSection, fieldName,
   } = route;
   let lastDateEdited = null;
   if (metaDataSection && fieldName) {
-    const subFields = this.props.locationData.metadata[metaDataSection];
+    const subFields = location.metadata[metaDataSection];
     const field = subFields.find(el => el.field_name === fieldName);
     if (field) {
       lastDateEdited = field.last_action_date;
@@ -77,7 +77,12 @@ class LocationInfo extends Component {
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
         {routes.map((route, i) => (
-          <ListItem key={route.urlFragment} route={route} pathname={this.props.location.pathname} />
+          <ListItem
+            key={route.urlFragment}
+            route={route}
+            pathname={this.props.location.pathname}
+            location={this.props.locationData}
+          />
         ))}
         <Button fluid primary onClick={this.onGoToServices}>
           Done
