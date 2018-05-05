@@ -56,21 +56,24 @@ class LocationInfo extends Component {
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
         {
-          routes.map((route, i) => {
-            const prop1 = route[3];
-            const prop2 = route[4];
+          routes.map(({
+              urlFragment,
+              label,
+              metaDataSection,
+              fieldName,
+            }, i) => {
             let lastDateEdited = null;
-            if(prop1 && prop2){
-              const subFields = this.props.locationData.metadata[prop1];
-              const field = subFields.find( field => field.field_name === prop2 );
+            if(metaDataSection && fieldName){
+              const subFields = this.props.locationData.metadata[metaDataSection];
+              const field = subFields.find( field => field.field_name === fieldName );
               if(field){
                 lastDateEdited = field.last_action_date;
               }
             } 
             return <FieldItem
-              key={route[0]}
-              title={route[2]}
-              linkTo={`${this.props.location.pathname}/${route[0]}`}
+              key={urlFragment}
+              title={label}
+              linkTo={`${this.props.location.pathname}/${urlFragment}`}
               updatedAt={lastDateEdited}
             />
           })
