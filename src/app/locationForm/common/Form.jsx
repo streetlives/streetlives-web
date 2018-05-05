@@ -32,6 +32,10 @@ class Form extends Component {
   }
 
   onConfirm() {
+    this.props.updateValue(
+      this.props.value,
+      this.props.id
+    );
     this.setState({ isEditing: false }, this.props.onFieldVerified);
   }
 

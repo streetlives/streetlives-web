@@ -44,10 +44,10 @@ class LocationNumberEdit extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    this.props.updateValue(this.props.value && this.props.value.id, {
+    this.props.updateValue({
       number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
       extension: this.state.extension,
-    });
+    }, this.props.id);
     this.props.onSubmit();
   }
 
@@ -132,16 +132,17 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     value: phone,
+    id: phone.id,
     locationData,
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (phoneId, newLocationNumberAndExtension) =>
+  updateValue: ({number, extension}, phoneId) =>
     dispatch((phoneId ? updatePhone : createPhone)(
       ownProps.match.params.locationId,
       phoneId,
-      newLocationNumberAndExtension,
+      { number, extension },
     )),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
