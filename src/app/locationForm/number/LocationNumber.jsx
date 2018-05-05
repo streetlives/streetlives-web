@@ -42,11 +42,17 @@ class LocationNumberEdit extends Component {
     this.setState({ [key]: value });
   }
 
-  onSubmit() {
-    this.props.updateValue(this.props.value && this.props.value.id, {
-      number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
-      extension: this.state.extension,
-    });
+  onSubmit(e) {
+    e.preventDefault();
+    this.props.updateValue(
+      {
+        number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
+        extension: this.state.extension,
+      }, 
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName
+    );
     this.props.onSubmit();
   }
 
@@ -55,6 +61,8 @@ class LocationNumberEdit extends Component {
       <form ref={e => (this.form = e)} className="container" onSubmit={this.onSubmit}>
         <Header>What&apos;s this location&apos;s phone number?</Header>
         (<Input
+          onFocus={this.props.onInputFocus}
+          onBlur={this.props.onInputBlur}
           customValidationMessage="Area code must contain three digits"
           type="tel"
           value={this.state.areaCode}
@@ -64,6 +72,8 @@ class LocationNumberEdit extends Component {
           required
         />)&nbsp;-&nbsp;
         <Input
+          onFocus={this.props.onInputFocus}
+          onBlur={this.props.onInputBlur}
           customValidationMessage="Enter first three digits for phone number"
           type="tel"
           value={this.state.firstThree}
@@ -73,6 +83,8 @@ class LocationNumberEdit extends Component {
           required
         />&nbsp;-&nbsp;
         <Input
+          onFocus={this.props.onInputFocus}
+          onBlur={this.props.onInputBlur}
           customValidationMessage="Enter last four digits for phone number"
           type="tel"
           value={this.state.lastFour}
@@ -82,6 +94,8 @@ class LocationNumberEdit extends Component {
           size="4"
         />&nbsp;ext.&nbsp;
         <Input
+          onFocus={this.props.onInputFocus}
+          onBlur={this.props.onInputBlur}
           type="tel"
           size="4"
           value={this.state.extension}
@@ -123,17 +137,21 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     value: phone,
+    id: phone.id,
     locationData,
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (phoneId, newLocationNumberAndExtension) =>
+  updateValue: ({number, extension}, phoneId, metaDataSection, fieldName) => (
     dispatch((phoneId ? updatePhone : createPhone)(
       ownProps.match.params.locationId,
       phoneId,
-      newLocationNumberAndExtension,
-    )),
+      { number, extension },
+      metaDataSection, 
+      fieldName
+    ))
+  ),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },

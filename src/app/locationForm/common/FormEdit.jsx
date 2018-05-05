@@ -17,7 +17,12 @@ class FormEdit extends Component {
   }
 
   onSubmit() {
-    this.props.updateValue(this.state.value);
+    this.props.updateValue(
+      this.state.value, 
+      this.props.id, 
+      this.props.metaDataSection,
+      this.props.fieldName
+    );
     this.props.onSubmit();
   }
 
@@ -29,6 +34,8 @@ class FormEdit extends Component {
           fluid
           placeholder={this.props.placeholderText}
           defaultValue={this.props.value}
+          onFocus={this.props.onInputFocus}
+          onBlur={this.props.onInputBlur}
           onChange={this.onChange}
         />
         <Button onClick={this.onSubmit} primary className="mt-3">

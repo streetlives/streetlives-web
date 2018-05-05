@@ -5,6 +5,7 @@ export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
+export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
@@ -33,13 +34,15 @@ export const getTaxonomy = () => (dispatch) => {
     .catch(e => console.error('error', e));
 };
 
-export const updateLocation = (locationId, params) => (dispatch) => {
+export const updateLocation = (locationId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_LOCATION,
     payload: {
       id: locationId,
       params,
+      metaDataSection, 
+      fieldName
     },
   });
   api
@@ -62,7 +65,7 @@ export const updateLocation = (locationId, params) => (dispatch) => {
     });
 };
 
-export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
+export const updatePhone = (locationId, phoneId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_UPDATE_PHONE,
@@ -70,6 +73,8 @@ export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
       locationId,
       phoneId,
       params,
+      metaDataSection, 
+      fieldName
     },
   });
   api
@@ -92,13 +97,15 @@ export const updatePhone = (locationId, phoneId, params) => (dispatch) => {
     });
 };
 
-export const createPhone = (locationId, phoneId, params) => (dispatch) => {
+export const createPhone = (locationId, phoneId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
   dispatch({
     type: OPTIMISTIC_CREATE_PHONE,
     payload: {
       locationId,
       params,
+      metaDataSection, 
+      fieldName
     },
   });
   api
@@ -114,6 +121,39 @@ export const createPhone = (locationId, phoneId, params) => (dispatch) => {
           params: response.data,
         },
       });
+    })
+    .catch((e) => {
+      // roll back
+      console.error('error', e);
+      dispatch({
+        type: ROLLBACK_UPDATE_LOCATION,
+        payload: {
+          id: locationId,
+        },
+      });
+    });
+};
+
+
+export const updateOrganization = (locationId, organizationId, params, metaDataSection, fieldName) => (dispatch) => {
+  // optimistically update the data store
+  dispatch({
+    type: OPTIMISTIC_UPDATE_ORGANIZATION,
+    payload: {
+      locationId,
+      organizationId,
+      params,
+      metaDataSection, 
+      fieldName
+    },
+  });
+  api
+    .updateOrganization({
+      id: organizationId,
+      params,
+    })
+    .then((locationData) => {
+      // do nothing, because save succeeded
     })
     .catch((e) => {
       // roll back

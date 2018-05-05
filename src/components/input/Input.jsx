@@ -35,6 +35,8 @@ class Input extends Component {
       tabIndex,
       autoCorrect,
       autoCapitalize,
+      onFocus,
+      onBlur
     } = this.props;
 
     const classNames = cx('Input', {
@@ -61,6 +63,8 @@ class Input extends Component {
         tabIndex={tabIndex}
         autoCorrect={autoCorrect}
         autoCapitalize={autoCapitalize}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
     );
   }
