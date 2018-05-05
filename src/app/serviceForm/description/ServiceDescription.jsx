@@ -3,9 +3,9 @@ import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getService } from '../../service/selectors';
 import * as actions from '../../../actions';
 import * as api from '../../../services/api';
-import getServiceById from '../utils/getServiceById';
 import FormView from '../../locationForm/common/FormView';
 import FormEdit from '../../locationForm/common/FormEdit';
 
@@ -13,7 +13,7 @@ class ServiceDescription extends Component {
   state = { value: '', isEditing: true };
 
   componentWillMount() {
-    if (!this.props.service) {
+    if (Object.keys(this.props.service).length === 0) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
     } else {
@@ -44,7 +44,7 @@ class ServiceDescription extends Component {
 
   render() {
     const { value } = this.state;
-    const { service = {} } = this.props;
+    const { service } = this.props;
 
     if (this.state.isEditing) {
       return (
@@ -69,11 +69,9 @@ class ServiceDescription extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const { locationId, serviceId } = ownProps.match.params;
-  const location = state.db[locationId];
-  return { service: getServiceById(location, serviceId) };
-};
+const mapStateToProps = (state, ownProps) => ({
+  service: getService(state, ownProps),
+});
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: bindActionCreators(actions.getLocation, dispatch),
