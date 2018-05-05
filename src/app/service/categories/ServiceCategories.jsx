@@ -144,8 +144,8 @@ class ServiceCategories extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  location: state.db[ownProps.match.params.locationId],
-  taxonomy: state.db.taxonomy,
+  location: state.locations[ownProps.match.params.locationId],
+  taxonomy: state.locations.taxonomy,   //TODO: refactor this so that taxonomy is in its own top-level prop
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

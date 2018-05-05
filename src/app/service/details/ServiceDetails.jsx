@@ -107,7 +107,7 @@ class ServiceDetails extends Component {
   }
 }
 const mapStateToProps = (state, ownProps) => ({
-  location: state.db[ownProps.match.params.locationId],
+  location: state.locations[ownProps.match.params.locationId],
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

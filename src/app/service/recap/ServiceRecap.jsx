@@ -35,7 +35,7 @@ class ServicesRecap extends Component {
     if (nextProps.location !== this.props.location) {
       const services = nextProps.location.Services.map(service => ({
         ...service,
-        parent_id: service.Taxonomies[0].parent_id,
+        parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
       }));
       this.setState({ services });
     }
@@ -84,8 +84,8 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  taxonomy: state.db.taxonomy,
-  location: state.db[ownProps.match.params.locationId],
+  taxonomy: state.locations.taxonomy,
+  location: state.locations[ownProps.match.params.locationId],
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
