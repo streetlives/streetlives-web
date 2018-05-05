@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getLocation, getTaxonomy } from '../selectors';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
@@ -85,10 +86,8 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  taxonomy: state.locations.taxonomy,
-  location: state.locations[ownProps.match.params.locationId],
-  // TODO: refactor this so that taxonomy is in its own top-level prop
-  locationServices: state.locations.locationServices,
+  location: getLocation(state, ownProps),
+  taxonomy: getTaxonomy(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

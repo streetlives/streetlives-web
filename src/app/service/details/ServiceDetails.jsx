@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
+import { getService } from '../selectors';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
@@ -38,23 +39,10 @@ const LoadingView = () => (
 );
 
 class ServiceDetails extends Component {
-  state = { service: {} };
-
   componentWillMount() {
-    const { location } = this.props;
-    if (location) {
-      const service = this.getServiceById(location);
-      this.setState({ service });
-    } else {
+    if (Object.keys(this.props.service).length === 0) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
-    }
-  }
-
-  componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.location !== this.props.location) {
-      const service = this.getServiceById(nextProps.location);
-      this.setState({ service });
     }
   }
 
@@ -63,19 +51,9 @@ class ServiceDetails extends Component {
     this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
   };
 
-  getServiceById = (location) => {
-    const { serviceId } = this.props.match.params;
-    try {
-      return location.Services.filter(service => service.id === serviceId)[0];
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      return console.error("This service doesn't exist for this location");
-    }
-  };
-
   render() {
+    const { service } = this.props;
     const { locationId, serviceId } = this.props.match.params;
-    const { service } = this.state;
 
     if (Object.keys(service).length === 0) {
       return <LoadingView />;
@@ -107,8 +85,9 @@ class ServiceDetails extends Component {
     );
   }
 }
+
 const mapStateToProps = (state, ownProps) => ({
-  location: state.locations[ownProps.match.params.locationId],
+  service: getService(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

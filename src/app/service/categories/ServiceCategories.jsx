@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getLocation, getTaxonomy, getCurrentCategories } from '../selectors';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -25,7 +26,6 @@ class ServiceCategories extends Component {
   state = {
     active: -1,
     selected: {},
-    currentCategories: {},
     isLoading: false,
   };
 
@@ -33,22 +33,9 @@ class ServiceCategories extends Component {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
     }
-    if (!this.props.location) {
+    if (Object.keys(this.props.location).length === 0) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
-    }
-  }
-
-  componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.location !== this.props.location) {
-      const { Services } = nextProps.location;
-      let currentCategories = {};
-      Services.forEach((service) => {
-        service.Taxonomies.forEach((category) => {
-          currentCategories = { ...currentCategories, [category.id]: category };
-        });
-      });
-      this.setState({ currentCategories });
     }
   }
 
@@ -83,10 +70,8 @@ class ServiceCategories extends Component {
   getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
 
   render() {
-    const {
-      active, selected, currentCategories, isLoading,
-    } = this.state;
-    const { taxonomy = [], location } = this.props;
+    const { active, selected, isLoading } = this.state;
+    const { taxonomy = [], location, currentCategories } = this.props;
 
     if (!taxonomy || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
@@ -144,9 +129,9 @@ class ServiceCategories extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  location: state.locations[ownProps.match.params.locationId],
-  // TODO: refactor this so that taxonomy is in its own top-level prop
-  taxonomy: state.locations.taxonomy,
+  location: getLocation(state, ownProps),
+  taxonomy: getTaxonomy(state, ownProps),
+  currentCategories: getCurrentCategories(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
