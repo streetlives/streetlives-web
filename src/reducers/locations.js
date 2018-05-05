@@ -11,6 +11,7 @@ import {
 } from '../actions';
 
 export const locationsReducer = (state = {}, action) => {
+  const dateString = (new Date()).toISOString();
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
@@ -23,29 +24,35 @@ export const locationsReducer = (state = {}, action) => {
       return { ...state, locationServices: [...action.payload] };
     case OPTIMISTIC_UPDATE_ORGANIZATION:
       if (action.payload) {
-        const location = state[action.payload.locationId];
+        const { metaDataSection, fieldName, locationId, params } = action.payload;
+        const location = state[locationId];
         const organization = location.Organization;
         return {
           ...state,
-          [`last/${action.payload.locationId}`]: state[action.payload.locationId],
-          [action.payload.locationId]: {
-            ...state[action.payload.locationId],
+          [`last/${locationId}`]: state[locationId],
+          [locationId]: {
+            ...state[locationId],
             Organization : {
               ...organization,
-              ...action.payload.params
-            }
+              ...params
+            },
+            metadata : constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
           },
         };
       }
       break;
     case OPTIMISTIC_UPDATE_LOCATION:
       if (action.payload) {
+        const { id, params, metaDataSection, fieldName } = action.payload;
+        const location = state[id];
+        console.log('state[id]',state, id, location);
         return {
           ...state,
-          [`last/${action.payload.id}`]: state[action.payload.id],
-          [action.payload.id]: {
-            ...state[action.payload.id],
-            ...action.payload.params,
+          [`last/${id}`]: location,
+          [id]: {
+            ...location,
+            ...params,
+            metadata : constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
           },
         };
       }
@@ -68,7 +75,7 @@ export const locationsReducer = (state = {}, action) => {
         { ...phone, ...action.payload.params },
         ...location.Phones.slice(idx + 1),
       ];
-      return constructNewStateWithUpdatedPhones(state, action, newPhones);
+      return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
     case OPTIMISTIC_CREATE_PHONE: {
       const location = state[action.payload.locationId];
@@ -78,7 +85,7 @@ export const locationsReducer = (state = {}, action) => {
       } else {
         newPhones = location.Phones.concat(action.payload.params);
       }
-      return constructNewStateWithUpdatedPhones(state, action, newPhones);
+      return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
     case CREATE_PHONE_SUCCESS: {
       const location = state[action.payload.locationId];
@@ -92,7 +99,7 @@ export const locationsReducer = (state = {}, action) => {
         { ...phone, ...action.payload.params },
         ...location.Phones.slice(idx + 1),
       ];
-      return constructNewStateWithUpdatedPhones(state, action, newPhones);
+      return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
     default:
       return state;
@@ -101,14 +108,33 @@ export const locationsReducer = (state = {}, action) => {
   return state;
 };
 
-function constructNewStateWithUpdatedPhones(state, action, newPhones) {
+function constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString) {
+  const { metaDataSection, fieldName, locationId } = action.payload;
   return {
     ...state,
-    [`last/${action.payload.locationId}`]: state[action.payload.locationId],
-    [action.payload.locationId]: {
-      ...state[action.payload.locationId],
+    [`last/${locationId}`]: state[locationId],
+    [locationId]: {
+      ...state[locationId],
       Phones: newPhones,
+      metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString)
     },
+  };
+}
+
+function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString){
+  const metadata = location.metadata;
+  const subFields = metadata[metaDataSection];
+  const fieldIndex = subFields.findIndex( field => field.field_name === fieldName );
+  return {
+    ...metadata,
+    [metaDataSection] : [
+      ...subFields.slice(0, fieldIndex),
+      {
+        field_name : fieldName,
+        last_action_date : dateString 
+      },
+      ...subFields.slice(fieldIndex+1)
+    ]
   };
 }
 

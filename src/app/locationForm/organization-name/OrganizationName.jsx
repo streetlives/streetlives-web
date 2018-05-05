@@ -45,7 +45,17 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (newOrganizationName, organizationId) => dispatch(updateOrganization(ownProps.match.params.locationId, organizationId, {name : newOrganizationName})),
+  updateValue: (newOrganizationName, organizationId, metaDataSection, fieldName) => (
+    dispatch(
+      updateOrganization(
+        ownProps.match.params.locationId, 
+        organizationId, 
+        { name : newOrganizationName },
+        metaDataSection, 
+        fieldName
+      )
+    )
+  ),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },

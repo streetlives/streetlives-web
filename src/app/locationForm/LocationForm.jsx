@@ -16,13 +16,20 @@ class LocationForm extends Component {
     this.onInputFocus = this.onInputFocus.bind(this);
     this.onInputBlur = this.onInputBlur.bind(this);
 
-    this.routeComponents = routes.map(({urlFragment, RouteComponent}) => (
+    this.routeComponents = routes.map(({
+        urlFragment, 
+        RouteComponent,
+        metaDataSection,
+        fieldName,
+      }) => (
       <Route
         key={urlFragment}
         path={`/location/:locationId/${urlFragment}/:thanks?`}
         render={(routeProps) => {
           return <RouteComponent 
             {...routeProps} 
+            metaDataSection={metaDataSection}
+            fieldName={fieldName}
             onInputFocus={this.onInputFocus}
             onInputBlur={this.onInputBlur}
             onFieldVerified={this.onNext} />;

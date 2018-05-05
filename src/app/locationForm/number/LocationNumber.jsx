@@ -44,10 +44,15 @@ class LocationNumberEdit extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    this.props.updateValue({
-      number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
-      extension: this.state.extension,
-    }, this.props.id);
+    this.props.updateValue(
+      {
+        number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
+        extension: this.state.extension,
+      }, 
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName
+    );
     this.props.onSubmit();
   }
 
@@ -138,12 +143,15 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: ({number, extension}, phoneId) =>
+  updateValue: ({number, extension}, phoneId, metaDataSection, fieldName) => (
     dispatch((phoneId ? updatePhone : createPhone)(
       ownProps.match.params.locationId,
       phoneId,
       { number, extension },
-    )),
+      metaDataSection, 
+      fieldName
+    ))
+  ),
   getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },

@@ -17,7 +17,12 @@ class FormEdit extends Component {
   }
 
   onSubmit() {
-    this.props.updateValue(this.state.value, this.props.id);
+    this.props.updateValue(
+      this.state.value, 
+      this.props.id, 
+      this.props.metaDataSection,
+      this.props.fieldName
+    );
     this.props.onSubmit();
   }
 

@@ -34,7 +34,9 @@ class Form extends Component {
   onConfirm() {
     this.props.updateValue(
       this.props.value,
-      this.props.id
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName
     );
     this.setState({ isEditing: false }, this.props.onFieldVerified);
   }
@@ -62,6 +64,8 @@ class Form extends Component {
           onSubmit={this.onSubmit}
           onCancel={this.onCancel}
           updateValue={this.props.updateValue}
+          metaDataSection={this.props.metaDataSection}
+          fieldName={this.props.fieldName}
           id={this.props.id}
           />;
     }
@@ -82,7 +86,11 @@ Form.propTypes = {
   getLocation: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
   onFieldVerified: PropTypes.func,
-  id: PropTypes.string
+  id: PropTypes.string,
+  onInputFocus: PropTypes.func,
+  onInputBlur: PropTypes.func,
+  metaDataSection: PropTypes.string,
+  fieldName: PropTypes.string,
 };
 
 export default Form;
