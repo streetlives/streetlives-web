@@ -1,7 +1,6 @@
 import {
   GET_LOCATION_RESPONSE,
   GET_TAXONOMY_RESPONSE,
-  SELECT_CATEGORIES_ACTION,
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
   OPTIMISTIC_UPDATE_PHONE,
@@ -18,8 +17,6 @@ export const dbReducer = (state = {}, action) => {
       break;
     case GET_TAXONOMY_RESPONSE:
       return action.payload ? { ...state, taxonomy: [...action.payload] } : state;
-    case SELECT_CATEGORIES_ACTION:
-      return { ...state, locationServices: [...action.payload] };
     case OPTIMISTIC_UPDATE_LOCATION:
       if (action.payload) {
         return {

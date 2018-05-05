@@ -24,6 +24,8 @@ const FAKE_DATA = [
   null,
 ];
 
+const getServicesUrl = locationId => `/location/${locationId}/services`;
+
 function LocationHeader() {
   return (
     <div className="container px-4 py-4 text-left">
@@ -52,8 +54,9 @@ class LocationInfo extends Component {
     }
   }
 
-  onNext = () => {
-    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
+  onGoToServices = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`${getServicesUrl(locationId)}`);
   };
 
   render() {
@@ -76,7 +79,7 @@ class LocationInfo extends Component {
             updatedAt={FAKE_DATA[i]}
           />
         ))}
-        <Button fluid primary onClick={this.onNext}>
+        <Button fluid primary onClick={this.onGoToServices}>
           Done
         </Button>
       </div>
