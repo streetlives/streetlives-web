@@ -78,12 +78,18 @@ class ServiceOpeningHours extends Component {
   }
   
   removeHour = (hour) => {
-    const idx = this.state.data.hours.indexOf(hour);
+    const { data : {hours}, weekdaysOpen} = this.state;
+    const idx = hours.indexOf(hour);
+    const thisDayshours = hours.filter( time => time.weekday === hour.weekday )
     this.setState({
+      weekdaysOpen: {
+        ...weekdaysOpen,
+        [DAYS.indexOf(hour.weekday)]: (thisDayshours.length - 1) > 0
+      },
       data : {
         hours : [
-          ...this.state.data.hours.slice(0, idx),
-          ...this.state.data.hours.slice(idx + 1),
+          ...hours.slice(0, idx),
+          ...hours.slice(idx + 1),
         ]
       }
     })
