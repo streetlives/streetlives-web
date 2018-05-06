@@ -10,7 +10,7 @@ export default class OpeningHoursEditForm extends Component{
   }
 
   render(){
-    const {active, onSubmit, onCancel, startTabIndex} = this.props;
+    const {active, onSubmit, onCancel, startTabIndex, defaultValue} = this.props;
     return  <form 
       onSubmit={(e) => onSubmit(e, this.state)}
       style={{
@@ -26,11 +26,23 @@ export default class OpeningHoursEditForm extends Component{
           <tbody>
             <tr>
               <td style={{paddingRight: '1em'}}>From:</td>
-              <td><Input type="time" tabIndex={startTabIndex + 1} onChange={this.onChange.bind(this, 'opensAt')}/></td>
+              <td>
+                <Input 
+                  defaultValue={defaultValue && defaultValue.opensAt}
+                  type="time" 
+                  tabIndex={startTabIndex + 1} 
+                  onChange={this.onChange.bind(this, 'opensAt')}/>
+              </td>
             </tr>
             <tr>
               <td>To:</td>
-              <td><Input type="time" tabIndex={startTabIndex + 2} onChange={this.onChange.bind(this, 'closesAt')}/></td>
+              <td>
+                <Input  
+                  defaultValue={defaultValue && defaultValue.closesAt}
+                  type="time" 
+                  tabIndex={startTabIndex + 2} 
+                  onChange={this.onChange.bind(this, 'closesAt')}/>
+              </td>
             </tr>
           </tbody>
         </table> 

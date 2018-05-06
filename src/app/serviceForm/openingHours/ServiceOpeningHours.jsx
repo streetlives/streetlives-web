@@ -118,6 +118,7 @@ class ServiceOpeningHours extends Component {
                       startTabIndex={i*10}
                       key={`editForm-${day}`}
                       active={weekdays[i]} 
+                      defaultValue={hours[0]}
                       onSubmit={this.onSubmit.bind(this, day)}
                       onCancel={() => this.onWeekday(i)}/>
                   ]
