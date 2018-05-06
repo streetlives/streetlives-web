@@ -29,6 +29,23 @@ class ServiceOpeningHours extends Component {
     this.setState({ weekdays: { ...weekdays, [index]: !value } });
   };
 
+  onSubmit = (weekday, e, formState) => {
+    const {opensAt, closesAt} = formState;
+    const {hours} = this.state;
+    e.preventDefault();
+    this.setState({ 
+      ...hours,
+      hours: [ 
+      {
+        weekday,
+        opensAt, 
+        closesAt
+      }
+    ]}, () => {
+      console.log('state', this.state);
+    });
+  }
+
   render() {
     const { active, weekdays } = this.state;
     return (
@@ -55,10 +72,19 @@ class ServiceOpeningHours extends Component {
               {
                 DAYS.map( (day, i) => (
                   [
-                    <Selector.Option disablePadding={weekdays[i]} active={weekdays[i]} onClick={() => this.onWeekday(i)}>
+                    <Selector.Option 
+                      key={`selector-${day}`}
+                      disablePadding={weekdays[i]} 
+                      active={weekdays[i]} 
+                      onClick={() => this.onWeekday(i)}>
                       {day}
                     </Selector.Option>,
-                    <OpeningHoursEditForm active={weekdays[i]} />
+                    <OpeningHoursEditForm 
+                      startTabIndex={i*10}
+                      key={`editForm-${day}`}
+                      active={weekdays[i]} 
+                      onSubmit={this.onSubmit.bind(this, day)}
+                      onCancel={() => this.onWeekday(i)}/>
                   ]
                 ))
               }
