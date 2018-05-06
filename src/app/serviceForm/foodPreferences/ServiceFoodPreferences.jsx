@@ -3,35 +3,38 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
+import { getService, getServiceFoodPreferences, getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
-import { Form, FormView } from '../../../components/form';
+import { Form, FormEdit, FormView } from '../../../components/form';
 
-import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+const EditComponent = compose(withProps({
+  headerText: 'What food preferences are available?',
+  placeholderText: 'e.g. Halal, Hindu, Kosher',
+}))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({
-  topText: 'OPENING HOURS',
+  topText: 'FOOD PREFERENCES',
 }))(props => <FormView {...props} />);
 
 const FormComponent = compose(withProps({
   ViewComponent,
-  EditComponent: ServiceOpeningHoursEdit,
+  EditComponent,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
-  value: getServiceOpeningHours(state, ownProps),
+  value: getServiceFoodPreferences(state, ownProps),
   id: getServiceId(ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (hours, serviceId, metaDataSection, fieldName) =>
+  updateValue: (whoDoesItServe, serviceId, metaDataSection, fieldName) =>
     dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { hours },
+      params: { whoDoesItServe },
       metaDataSection,
       fieldName,
     })),
