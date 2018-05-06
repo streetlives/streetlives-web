@@ -61,7 +61,6 @@ class ServiceOpeningHours extends Component {
   };
 
   onChange = (field, hour, newValue) => {
-    console.log('onChange weekday, field, hour', field, hour);
     const idx = this.state.data.hours.indexOf(hour);
     this.setState({
       data : {
