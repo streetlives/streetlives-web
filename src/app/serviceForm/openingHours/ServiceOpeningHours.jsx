@@ -4,6 +4,17 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Selector from '../../../components/selector';
 import Input from '../../../components/input';
+import OpeningHoursEditForm from './OpeningHoursEditForm';
+
+const DAYS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday'
+];
 
 const inputPlaceholder =
   'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
@@ -41,27 +52,16 @@ class ServiceOpeningHours extends Component {
           <div>
             <p>Select the days and times this service is available</p>
             <Selector fluid>
-              <Selector.Option active={weekdays[0]} onClick={() => this.onWeekday(0)}>
-                Monday
-              </Selector.Option>
-              <Selector.Option active={weekdays[1]} onClick={() => this.onWeekday(1)}>
-                Tuesday
-              </Selector.Option>
-              <Selector.Option active={weekdays[2]} onClick={() => this.onWeekday(2)}>
-                Wednesday
-              </Selector.Option>
-              <Selector.Option active={weekdays[3]} onClick={() => this.onWeekday(3)}>
-                Thursday
-              </Selector.Option>
-              <Selector.Option active={weekdays[4]} onClick={() => this.onWeekday(4)}>
-                Friday
-              </Selector.Option>
-              <Selector.Option active={weekdays[5]} onClick={() => this.onWeekday(5)}>
-                Saturday
-              </Selector.Option>
-              <Selector.Option active={weekdays[6]} onClick={() => this.onWeekday(6)}>
-                Sunday
-              </Selector.Option>
+              {
+                DAYS.map( (day, i) => (
+                  [
+                    <Selector.Option disablePadding={weekdays[i]} active={weekdays[i]} onClick={() => this.onWeekday(i)}>
+                      {day}
+                    </Selector.Option>,
+                    <OpeningHoursEditForm active={weekdays[i]} />
+                  ]
+                ))
+              }
             </Selector>
           </div>
         )}
