@@ -25,24 +25,15 @@ export default class OpeningHoursEditForm extends Component{
         <table> 
           <tbody>
             <tr>
-              <td style={{paddingRight: '1em'}}>From</td>
+              <td style={{paddingRight: '1em'}}>From:</td>
               <td><Input type="time" tabIndex={startTabIndex + 1} onChange={this.onChange.bind(this, 'opensAt')}/></td>
             </tr>
             <tr>
-              <td>To</td>
+              <td>To:</td>
               <td><Input type="time" tabIndex={startTabIndex + 2} onChange={this.onChange.bind(this, 'closesAt')}/></td>
             </tr>
           </tbody>
         </table> 
-      </div>
-      <div style={{width:'100%'}}>
-        <input 
-          className="Button Button-primary Button-half"
-          value="DONE" 
-          type="submit" /> 
-        <Button basic primary half onClick={onCancel}> 
-          CANCEL
-        </Button>
       </div>
     </form>;
   }

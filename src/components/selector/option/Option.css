@@ -11,6 +11,7 @@
   cursor: pointer;
   padding: 10px;
   width: fit-content;
+  position: relative;
 }
 
 .Option.Option-active {

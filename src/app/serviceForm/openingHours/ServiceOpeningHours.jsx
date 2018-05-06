@@ -5,6 +5,27 @@ import Button from '../../../components/button';
 import Selector from '../../../components/selector';
 import Input from '../../../components/input';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
+import moment from 'moment';
+
+const FAKE_DATA = {
+  hours : [
+    {
+      weekday : 'Monday',
+      opensAt: '08:00',
+      closesAt: '11:00'
+    },
+    {
+      weekday : 'Monday',
+      opensAt: '12:00',
+      closesAt: '13:00'
+    },
+    {
+      weekday : 'Tuesday',
+      opensAt: '17:00',
+      closesAt: '20:00'
+    }
+  ]
+};
 
 const DAYS = [
   'Monday',
@@ -46,6 +67,11 @@ class ServiceOpeningHours extends Component {
     });
   }
 
+  formatTime(time){
+    const m = moment(time,'hh:mm')
+    return m.minutes() ? m.format('h:mmA') : m.format('hA');
+  }
+
   render() {
     const { active, weekdays } = this.state;
     return (
@@ -70,14 +96,23 @@ class ServiceOpeningHours extends Component {
             <p>Select the days and times this service is available</p>
             <Selector fluid>
               {
-                DAYS.map( (day, i) => (
-                  [
+                DAYS.map( (day, i) => {
+                  const hours = FAKE_DATA.hours.filter( time => time.weekday === day )
+                  return [
                     <Selector.Option 
                       key={`selector-${day}`}
                       disablePadding={weekdays[i]} 
-                      active={weekdays[i]} 
+                      active={!!hours.length} 
                       onClick={() => this.onWeekday(i)}>
-                      {day}
+                      <div>{day}</div>
+                      <div style={{fontSize: '.8em'}}>
+                        {
+                          hours 
+                            .sort( (a,b) => a.opensAt < b.openAt )
+                            .map( time => `${this.formatTime(time.opensAt)} to ${this.formatTime(time.closesAt)}` )
+                            .join(' | ')
+                        }
+                      </div>
                     </Selector.Option>,
                     <OpeningHoursEditForm 
                       startTabIndex={i*10}
@@ -86,7 +121,7 @@ class ServiceOpeningHours extends Component {
                       onSubmit={this.onSubmit.bind(this, day)}
                       onCancel={() => this.onWeekday(i)}/>
                   ]
-                ))
+                })
               }
             </Selector>
           </div>
