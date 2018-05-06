@@ -40,40 +40,79 @@ const DAYS = [
 const inputPlaceholder =
   'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
 class ServiceOpeningHours extends Component {
-  state = { active: -1, weekdays: {} };
+
+  constructor(props){
+    super(props);
+
+    this.onChange = this.onChange.bind(this);
+    this.state = { 
+      active: -1, 
+      weekdaysOpen: {},
+      data: FAKE_DATA
+    };
+  }
 
   onSelect = active => this.setState({ active });
 
   onWeekday = (index) => {
-    const { weekdays } = this.state;
-    const value = weekdays[index];
-    this.setState({ weekdays: { ...weekdays, [index]: !value } });
+    const { weekdaysOpen } = this.state;
+    const value = weekdaysOpen[index];
+    this.setState({ weekdaysOpen: { ...weekdaysOpen, [index]: !value } });
   };
 
-  onSubmit = (weekday, e, formState) => {
-    const {opensAt, closesAt} = formState;
-    const {hours} = this.state;
-    e.preventDefault();
-    this.setState({ 
-      ...hours,
-      hours: [ 
-      {
-        weekday,
-        opensAt, 
-        closesAt
+  onChange = (field, hour, newValue) => {
+    console.log('onChange weekday, field, hour', field, hour);
+    const idx = this.state.data.hours.indexOf(hour);
+    this.setState({
+      data : {
+        hours : [
+          ...this.state.data.hours.slice(0, idx),
+          {
+            ...this.state.data.hours[idx],
+            [field] : newValue
+          },
+          ...this.state.data.hours.slice(idx + 1),
+        ]
       }
-    ]}, () => {
-      console.log('state', this.state);
-    });
+    })
+  }
+  
+  removeHour = (hour) => {
+    const idx = this.state.data.hours.indexOf(hour);
+    this.setState({
+      data : {
+        hours : [
+          ...this.state.data.hours.slice(0, idx),
+          ...this.state.data.hours.slice(idx + 1),
+        ]
+      }
+    })
+  }
+
+  addHour = (day) => {
+    this.setState({
+      data : {
+        hours : [
+          ...this.state.data.hours,
+          { 
+            weekday: day,
+            opensAt: null,
+            closesAt: null
+          }
+        ]
+      }
+    })
   }
 
   formatTime(time){
     const m = moment(time,'hh:mm')
-    return m.minutes() ? m.format('h:mmA') : m.format('hA');
+    return !m.isValid() ? 
+            '' : 
+            (m.minutes() ? m.format('h:mmA') : m.format('hA'));
   }
 
   render() {
-    const { active, weekdays } = this.state;
+    const { active, weekdaysOpen } = this.state;
     return (
       <div className="w-100">
         <Header className="mb-3">When is this service available?</Header>
@@ -97,11 +136,11 @@ class ServiceOpeningHours extends Component {
             <Selector fluid>
               {
                 DAYS.map( (day, i) => {
-                  const hours = FAKE_DATA.hours.filter( time => time.weekday === day )
+                  const hours = this.state.data.hours.filter( time => time.weekday === day )
                   return [
                     <Selector.Option 
                       key={`selector-${day}`}
-                      disablePadding={weekdays[i]} 
+                      disablePadding={weekdaysOpen[i]} 
                       active={!!hours.length} 
                       onClick={() => this.onWeekday(i)}>
                       <div>{day}</div>
@@ -115,12 +154,15 @@ class ServiceOpeningHours extends Component {
                       </div>
                     </Selector.Option>,
                     <OpeningHoursEditForm 
-                      startTabIndex={i*10}
+                      startTabIndex={i}
                       key={`editForm-${day}`}
-                      active={weekdays[i]} 
-                      defaultValue={hours[0]}
-                      onSubmit={this.onSubmit.bind(this, day)}
-                      onCancel={() => this.onWeekday(i)}/>
+                      active={weekdaysOpen[i]} 
+                      hours={hours}
+                      onFromChange={this.onChange}
+                      onToChange={this.onChange}
+                      removeHour={this.removeHour.bind(this)}
+                      addHour={() => this.addHour(day)}
+                      />
                   ]
                 })
               }

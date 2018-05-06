@@ -5,19 +5,36 @@ import Button from '../../../components/button';
 
 export default class OpeningHoursEditForm extends Component{
 
-  onChange(field, e){
-    this.setState({[field]: e.target.value})
-  }
-
   render(){
-    const {active, onSubmit, onCancel, startTabIndex, defaultValue} = this.props;
-    return  <form 
-      onSubmit={(e) => onSubmit(e, this.state)}
+    const {active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour} = this.props;
+    return hours.map( (hour, i) => <form 
       style={{
         backgroundColor:'#f0f0f0', 
-        marginBottom:'10px', 
-        display: active ? 'block' : 'none' 
+        marginBottom:'1.5em', 
+        marginTop:'1.5em', 
+        display: active ? 'block' : 'none',
+        border: '1px solid #ccc',
+        position: 'relative'
       }}>
+      <i 
+        onClick={() => removeHour(hour)}
+        style={{
+          position: 'absolute',
+          top: '-1em',
+          display: 'block',
+          right: '-1em',
+          color: 'yellow',
+          backgroundColor: 'black',
+          padding: '.5em',
+          borderRadius: '1em',
+          border: '1px solid yellow',
+          boxShadow: '1px 2px 1px 0 rgba(0,0,0,.25)',
+          width: '2em',
+          height: '2em',
+          textAlign: 'center',
+          cursor: 'pointer',
+        }}
+        className="fa fa-trash"></i>
       <div 
         style={{
           padding: '.5em', 
@@ -28,25 +45,37 @@ export default class OpeningHoursEditForm extends Component{
               <td style={{paddingRight: '1em'}}>From:</td>
               <td>
                 <Input 
-                  defaultValue={defaultValue && defaultValue.opensAt}
+                  value={hour && hour.opensAt}
                   type="time" 
-                  tabIndex={startTabIndex + 1} 
-                  onChange={this.onChange.bind(this, 'opensAt')}/>
+                  tabIndex={startTabIndex*100 + i*10 + 1} 
+                  onChange={(e) => onFromChange('opensAt', hour, e.target.value)}/>
               </td>
             </tr>
             <tr>
               <td>To:</td>
               <td>
                 <Input  
-                  defaultValue={defaultValue && defaultValue.closesAt}
+                  value={hour && hour.closesAt}
                   type="time" 
-                  tabIndex={startTabIndex + 2} 
-                  onChange={this.onChange.bind(this, 'closesAt')}/>
+                  tabIndex={startTabIndex*100 + i*10 + 2} 
+                  onChange={(e) => onToChange('closesAt', hour, e.target.value)}/>
               </td>
             </tr>
           </tbody>
         </table> 
       </div>
-    </form>;
+      {
+        i === (hours.length - 1) &&
+        <div 
+          onClick={addHour}
+          style={{
+            textAlign:'center',
+            backgroundColor:'white',
+            borderTop: '1px solid #ccc',
+            cursor: 'pointer',
+            padding:'.25em'
+          }}>+&nbsp;Add more hours</div>
+      }
+    </form>);
   }
 }
