@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation, getTaxonomy, getCurrentCategories } from '../selectors';
+import { getLocation } from '../../../selectors/location';
+import { getTaxonomy, getCurrentCategories } from '../../../selectors/taxonomy';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';

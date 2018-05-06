@@ -1,8 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-import withTracker from '../withTracker';
-
 import ServiceDescription from './description/ServiceDescription';
 import ServiceAgesServed from './agesServed/ServiceAgesServed';
 import ServiceAudience from './audience/ServiceAudience';
@@ -27,12 +25,13 @@ export const SERVICE_FIELDS = [
   { title: 'Other information', route: '/other-info', component: ServiceOtherInfo },
 ];
 
-export default function ServiceRoutes() {
+export default function ServiceRoutes({ onNext }) {
   return SERVICE_FIELDS.map(field => (
     <Route
       key={field.title}
       path={`${baseRoute}${field.route}`}
-      component={withTracker(field.component)}
+      onFieldVerified={onNext}
+      render={props => <field.component {...props} onFieldVerified={onNext} />}
     />
   ));
 }

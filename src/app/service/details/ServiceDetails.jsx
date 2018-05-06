@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
-import { getService } from '../selectors';
+import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';

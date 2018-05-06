@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation, getTaxonomy } from '../selectors';
+import { getLocation } from '../../../selectors/location';
+import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
