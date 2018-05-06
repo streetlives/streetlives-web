@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ConfirmationOptions from './ConfirmationOptions';
-import Header from '../../../components/header';
+import Header from '../header';
 
 function FormView(props) {
   return (
