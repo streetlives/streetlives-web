@@ -11,6 +11,7 @@ import Button from '../../../components/button';
 import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
+import LoadingLabel from '../../../components/form/LoadingLabel';
 
 import { SERVICE_FIELDS } from '../../serviceForm/routes';
 
@@ -32,9 +33,7 @@ function ServiceHeader({ children }) {
 const LoadingView = () => (
   <div className="d-flex flex-column">
     <NavBar title="Services Details" />
-    <p>
-      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
-    </p>
+    <LoadingLabel>Loading service data...</LoadingLabel>
   </div>
 );
 
@@ -56,7 +55,7 @@ class ServiceDetails extends Component {
     const { locationId, serviceId } = this.props.match.params;
 
     if (Object.keys(service).length === 0) {
-      return <LoadingView />;
+      return <LoadingView/>;
     }
 
     return (
