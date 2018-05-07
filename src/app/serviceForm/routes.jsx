@@ -15,51 +15,65 @@ export const SERVICE_FIELDS = [
   { 
     label: 'Service description', 
     route: '/description', 
-    component: ServiceDescription,
+    RouteComponent: ServiceDescription,
     metaDataSection: 'service',
     fieldName: 'description',
   },
   { 
     label: 'Alternative name', 
     route: '/alt-name', 
-    component: ServiceAlternativeName,
+    RouteComponent: ServiceAlternativeName,
     metaDataSection: 'service',
     fieldName: 'name',
   },
   { 
     label: 'Who does it serve?', 
     route: '/audience', 
-    component: ServiceFoodPreferences 
+    RouteComponent: ServiceFoodPreferences 
   },
   { 
     label: 'Ages served', 
     route: '/ages-served', 
-    component: ServiceAgesServed 
+    RouteComponent: ServiceAgesServed 
   },
   { 
     label: 'Opening hours', 
     route: '/opening-hours', 
-    component: ServiceOpeningHours 
+    RouteComponent: ServiceOpeningHours 
   },
   { 
     label: 'Languages spoken', 
     route: '/languages', 
-    component: ServiceLanguages 
+    RouteComponent: ServiceLanguages 
   },
   { 
     label: 'Other information', 
     route: '/other-info', 
-    component: ServiceOtherInfo 
+    RouteComponent: ServiceOtherInfo 
   },
 ];
 
 export default function ServiceRoutes({ onNext }) {
-  return SERVICE_FIELDS.map(field => (
+  return SERVICE_FIELDS.map(({
+      RouteComponent, 
+      label,
+      route,
+      metaDataSection,
+      fieldName,
+    }) => (
     <Route
-      key={field.label}
-      path={`${baseRoute}${field.route}`}
+      key={label}
+      path={`${baseRoute}${route}`}
       onFieldVerified={onNext}
-      render={props => <field.component {...props} onFieldVerified={onNext} />}
+      render={ props => <RouteComponent 
+        {...props} 
+        metaDataSection={metaDataSection}
+        fieldName={fieldName}
+        onInputFocus={() => {}} //TODO
+        onInputBlur={() => {}}
+        onFieldVerified={onNext} 
+        />
+      }
     />
   ));
 }

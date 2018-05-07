@@ -7,6 +7,7 @@ import {
   OPTIMISTIC_CREATE_PHONE,
   CREATE_PHONE_SUCCESS,
   OPTIMISTIC_UPDATE_ORGANIZATION,
+  OPTIMISTIC_UPDATE_SERVICE,
 } from '../actions';
 
 export const locationsReducer = (state = {}, action) => {
@@ -19,6 +20,33 @@ export const locationsReducer = (state = {}, action) => {
       break;
     case GET_TAXONOMY_RESPONSE:
       return action.payload ? { ...state, taxonomy: [...action.payload] } : state;
+    case OPTIMISTIC_UPDATE_SERVICE:
+      if (action.payload) {
+        const {
+          metaDataSection, fieldName, locationId, params, serviceId
+        } = action.payload;
+        const location = state[locationId];
+        const Services = location.Services;
+        const serviceIdx = Services.findIndex( service => service.id === serviceId);
+        const service = location.Services[serviceIdx];
+        return {
+          ...state,
+          [`last/${locationId}`]: location,
+          [locationId]: {
+            ...location,
+            Services: [
+              ...Services.slice(0, serviceIdx),
+              {
+                ...service,
+                ...params,
+                metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
+              },
+              ...Services.slice(serviceIdx + 1)
+            ]
+          },
+        };
+      }
+      break;
     case OPTIMISTIC_UPDATE_ORGANIZATION:
       if (action.payload) {
         const {
