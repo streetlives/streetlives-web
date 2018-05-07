@@ -39,13 +39,11 @@ class DocsFormContainer extends Component {
 
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
-    console.log('fieldName', fieldName);
     return routes.map(({ route }) => route.split('/').pop()).indexOf(fieldName);
   };
 
   render() {
     const index = this.getCurrentIndex();
-    console.log('index', index);
     const currentRoute = routes[index];
 
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
