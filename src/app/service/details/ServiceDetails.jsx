@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import moment from 'moment';
 
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
@@ -33,10 +32,10 @@ const LoadingView = () => (
     <LoadingLabel>Loading service data...</LoadingLabel>
   </div>
 );
-function ListItem({ pathname, route, location, service }) {
-  const {
-    label, metaDataSection, fieldName,
-  } = route;
+function ListItem({
+  pathname, route, location, service,
+}) {
+  const { label, metaDataSection, fieldName } = route;
   const locationId = location.id;
   const serviceId = service.id;
   let lastDateEdited = null;
@@ -53,7 +52,7 @@ function ListItem({ pathname, route, location, service }) {
       title={label}
       linkTo={`${getServiceUrl(locationId, serviceId)}${route.route}`}
       updatedAt={lastDateEdited}
-      />
+    />
   );
 }
 
@@ -72,11 +71,9 @@ class ServiceDetails extends Component {
 
   render() {
     const { service } = this.props;
-    const { locationId, serviceId } = this.props.match.params;
 
-    if (!this.props.locationData || 
-        Object.keys(service).length === 0) {
-      return <LoadingView/>;
+    if (!this.props.locationData || Object.keys(service).length === 0) {
+      return <LoadingView />;
     }
 
     return (
@@ -109,7 +106,7 @@ class ServiceDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationData: state.locations[ownProps.match.params.locationId]
+  locationData: state.locations[ownProps.match.params.locationId],
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

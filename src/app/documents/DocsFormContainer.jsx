@@ -6,6 +6,7 @@ import Icon from '../../components/icon';
 import DocumentFormRoutes, { DOCUMENT_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
+import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
 
 const getDocsUrl = (locationId, serviceId) =>
   `/location/${locationId}/services/${serviceId}/documents`;
@@ -16,26 +17,47 @@ class DocsFormContainer extends Component {
     const prevRoute = routes[this.getCurrentIndex() - 1];
     this.props.history.push(`${getDocsUrl(locationId, serviceId)}${prevRoute.route}`);
   };
+
   onNext = () => {
     const { locationId, serviceId } = this.props.match.params;
-    const nextRoute = routes[this.getCurrentIndex() + 1];
-    this.props.history.push(`${getDocsUrl(locationId, serviceId)}${nextRoute.route}`);
+    const idx = this.getCurrentIndex();
+    if (idx === routes.length - 1) {
+      this.props.history.push(`${this.props.location.pathname}/thanks`);
+    } else {
+      const nextRoute = routes[this.getCurrentIndex() + 1];
+      this.props.history.push(`${getDocsUrl(locationId, serviceId)}${nextRoute.route}`);
+    }
+  };
+
+  onNextSection = () => {
+    this.props.history.push('/');
+  };
+  onBackSection = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
+    console.log('fieldName', fieldName);
     return routes.map(({ route }) => route.split('/').pop()).indexOf(fieldName);
   };
 
   render() {
     const index = this.getCurrentIndex();
+    console.log('index', index);
     const currentRoute = routes[index];
+
+    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     return (
       <div className="text-left">
-        <NavBar 
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}/documents`}
-          title={currentRoute.title} />
+        <NavBar
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
+            this.props.match.params.serviceId
+          }/documents`}
+          title={currentRoute.label}
+        />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
@@ -54,6 +76,9 @@ class DocsFormContainer extends Component {
             </div>
           </div>
         </div>
+        {showThanks && (
+          <ThanksOverlay onBackSection={this.onBackSection} onNextSection={this.onNextSection} />
+        )}
       </div>
     );
   }

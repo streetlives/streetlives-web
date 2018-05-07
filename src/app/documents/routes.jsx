@@ -10,16 +10,16 @@ import DocsCertTime from './certTime/DocsCertTime';
 const baseRoute = '/location/:locationId/services/:serviceId/documents';
 
 export const DOCUMENT_FIELDS = [
-  { title: 'Proofs required', route: '/proofs-required', component: DocsProofs },
-  { title: 'Recertification time', route: '/recertification-time', component: DocsCertTime },
-  { title: 'Grace period', route: '/grace-period', component: DocsGracePeriod },
-  { title: 'Other information', route: '/other-info', component: DocsOtherInfo },
+  { label: 'Proofs required', route: '/proofs-required', component: DocsProofs },
+  { label: 'Recertification time', route: '/recertification-time', component: DocsCertTime },
+  { label: 'Grace period', route: '/grace-period', component: DocsGracePeriod },
+  { label: 'Other information', route: '/other-info', component: DocsOtherInfo },
 ];
 
 export default function DocumentRoutes() {
   return DOCUMENT_FIELDS.map(field => (
     <Route
-      key={field.title}
+      key={field.label}
       path={`${baseRoute}${field.route}`}
       component={withTracker(field.component)}
     />

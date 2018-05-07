@@ -12,68 +12,70 @@ import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
 const baseRoute = '/location/:locationId/services/:serviceId';
 
 export const SERVICE_FIELDS = [
-  { 
-    label: 'Service description', 
-    route: '/description', 
+  {
+    label: 'Service description',
+    route: '/description',
     RouteComponent: ServiceDescription,
     metaDataSection: 'service',
     fieldName: 'description',
   },
-  { 
-    label: 'Alternative name', 
-    route: '/alt-name', 
+  {
+    label: 'Alternative name',
+    route: '/alt-name',
     RouteComponent: ServiceAlternativeName,
     metaDataSection: 'service',
     fieldName: 'name',
   },
-  { 
-    label: 'Who does it serve?', 
-    route: '/audience', 
-    RouteComponent: ServiceFoodPreferences 
+  {
+    label: 'Who does it serve?',
+    route: '/audience',
+    metaDataSection: 'service',
+    RouteComponent: ServiceFoodPreferences,
   },
-  { 
-    label: 'Ages served', 
-    route: '/ages-served', 
-    RouteComponent: ServiceAgesServed 
+  {
+    label: 'Ages served',
+    route: '/ages-served',
+    metaDataSection: 'service',
+    RouteComponent: ServiceAgesServed,
   },
-  { 
-    label: 'Opening hours', 
-    route: '/opening-hours', 
-    RouteComponent: ServiceOpeningHours 
+  {
+    label: 'Opening hours',
+    route: '/opening-hours',
+    metaDataSection: 'service',
+    RouteComponent: ServiceOpeningHours,
   },
-  { 
-    label: 'Languages spoken', 
-    route: '/languages', 
-    RouteComponent: ServiceLanguages 
+  {
+    label: 'Languages spoken',
+    route: '/languages',
+    metaDataSection: 'service',
+    RouteComponent: ServiceLanguages,
   },
-  { 
-    label: 'Other information', 
-    route: '/other-info', 
-    RouteComponent: ServiceOtherInfo 
+  {
+    label: 'Other information',
+    route: '/other-info',
+    metaDataSection: 'service',
+    RouteComponent: ServiceOtherInfo,
   },
 ];
 
 export default function ServiceRoutes({ onNext }) {
   return SERVICE_FIELDS.map(({
-      RouteComponent, 
-      label,
-      route,
-      metaDataSection,
-      fieldName,
-    }) => (
+    RouteComponent, label, route, metaDataSection, fieldName,
+  }) => (
     <Route
       key={label}
       path={`${baseRoute}${route}`}
       onFieldVerified={onNext}
-      render={ props => <RouteComponent 
-        {...props} 
-        metaDataSection={metaDataSection}
-        fieldName={fieldName}
-        onInputFocus={() => {}} //TODO
-        onInputBlur={() => {}}
-        onFieldVerified={onNext} 
+      render={props => (
+        <RouteComponent
+          {...props}
+          metaDataSection={metaDataSection}
+          fieldName={fieldName}
+          onInputFocus={() => {}} // TODO
+          onInputBlur={() => {}}
+          onFieldVerified={onNext}
         />
-      }
+      )}
     />
   ));
 }

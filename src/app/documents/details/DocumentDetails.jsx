@@ -33,9 +33,12 @@ class DocumentDetails extends Component {
     const { locationId, serviceId } = this.props.match.params;
     return (
       <div className="text-left d-flex flex-column">
-        <NavBar 
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}`}
-          title="Docs required" />
+        <NavBar
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
+            this.props.match.params.serviceId
+          }`}
+          title="Docs required"
+        />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
@@ -43,8 +46,8 @@ class DocumentDetails extends Component {
 
         {DOCUMENT_FIELDS.map(field => (
           <FieldItem
-            key={field.title}
-            title={field.title}
+            key={field.label}
+            title={field.label}
             linkTo={`${getDocsUrl(locationId, serviceId)}${field.route}`}
             updatedAt={FAKE_UPDATED_AT}
           />

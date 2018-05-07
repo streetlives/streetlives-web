@@ -6,6 +6,7 @@ import Icon from '../../components/icon';
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
+import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
 
 class ServiceFormContainer extends Component {
   onBack = () => {
@@ -16,8 +17,23 @@ class ServiceFormContainer extends Component {
 
   onNext = () => {
     const { locationId, serviceId } = this.props.match.params;
-    const nextRoute = routes[this.getCurrentIndex() + 1];
-    this.props.history.push(`/location/${locationId}/services/${serviceId}${nextRoute.route}`);
+    const idx = this.getCurrentIndex();
+    if (idx === routes.length - 1) {
+      this.props.history.push(`${this.props.location.pathname}/thanks`);
+    } else {
+      const nextRoute = routes[this.getCurrentIndex() + 1];
+      this.props.history.push(`/location/${locationId}/services/${serviceId}${nextRoute.route}`);
+    }
+  };
+
+  onNextSection = () => {
+    const { locationId, serviceId } = this.props.match.params;
+    this.props.history.push(`/location/${locationId}/services/${serviceId}/documents`);
+  };
+
+  onBackSection = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
   getCurrentIndex = () => {
@@ -28,6 +44,8 @@ class ServiceFormContainer extends Component {
   render() {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
+
+    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     return (
       <div className="text-left">
@@ -55,6 +73,9 @@ class ServiceFormContainer extends Component {
             </div>
           </div>
         </div>
+        {showThanks && (
+          <ThanksOverlay onBackSection={this.onBackSection} onNextSection={this.onNextSection} />
+        )}
       </div>
     );
   }

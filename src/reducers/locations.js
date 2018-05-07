@@ -23,11 +23,11 @@ export const locationsReducer = (state = {}, action) => {
     case OPTIMISTIC_UPDATE_SERVICE:
       if (action.payload) {
         const {
-          metaDataSection, fieldName, locationId, params, serviceId
+          metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
         const location = state[locationId];
         const Services = location.Services;
-        const serviceIdx = Services.findIndex( service => service.id === serviceId);
+        const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
         return {
           ...state,
@@ -41,8 +41,8 @@ export const locationsReducer = (state = {}, action) => {
                 ...params,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
               },
-              ...Services.slice(serviceIdx + 1)
-            ]
+              ...Services.slice(serviceIdx + 1),
+            ],
           },
         };
       }
@@ -154,13 +154,10 @@ function constructUpdatedMetadata(location, metaDataSection, fieldName, dateStri
   const subFields = metadata[metaDataSection];
   const newField = { field_name: fieldName, last_action_date: dateString };
   const fieldIndex = subFields.findIndex(field => field.field_name === fieldName);
-  const newSubFields = fieldIndex > -1 ? 
-     [
-       ...subFields.slice(0, fieldIndex),
-       newField,
-       ...subFields.slice(fieldIndex+1)
-     ] :
-     subFields.concat(newField);
+  const newSubFields =
+    fieldIndex > -1
+      ? [...subFields.slice(0, fieldIndex), newField, ...subFields.slice(fieldIndex + 1)]
+      : subFields.concat(newField);
 
   return {
     ...metadata,
