@@ -15,9 +15,6 @@ import LoadingLabel from '../../../components/form/LoadingLabel';
 
 import { SERVICE_FIELDS } from '../../serviceForm/routes';
 
-// TODO: update fields to have updated value
-const FAKE_UPDATED_AT = moment().subtract(2, 'months');
-
 const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
 
 function ServiceHeader({ children }) {
@@ -36,6 +33,29 @@ const LoadingView = () => (
     <LoadingLabel>Loading service data...</LoadingLabel>
   </div>
 );
+function ListItem({ pathname, route, location, service }) {
+  const {
+    label, metaDataSection, fieldName,
+  } = route;
+  const locationId = location.id;
+  const serviceId = service.id;
+  let lastDateEdited = null;
+  if (metaDataSection && fieldName) {
+    const subFields = service.metadata[metaDataSection];
+    const field = subFields.find(el => el.field_name === fieldName);
+    if (field) {
+      lastDateEdited = field.last_action_date;
+    }
+  }
+  return (
+    <FieldItem
+      key={label}
+      title={label}
+      linkTo={`${getServiceUrl(locationId, serviceId)}${route.route}`}
+      updatedAt={lastDateEdited}
+      />
+  );
+}
 
 class ServiceDetails extends Component {
   componentWillMount() {
@@ -54,7 +74,8 @@ class ServiceDetails extends Component {
     const { service } = this.props;
     const { locationId, serviceId } = this.props.match.params;
 
-    if (Object.keys(service).length === 0) {
+    if (!this.props.locationData || 
+        Object.keys(service).length === 0) {
       return <LoadingView/>;
     }
 
@@ -70,11 +91,12 @@ class ServiceDetails extends Component {
         <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
         {SERVICE_FIELDS.map(field => (
-          <FieldItem
-            key={field.title}
-            title={field.title}
-            linkTo={`${getServiceUrl(locationId, serviceId)}${field.route}`}
-            updatedAt={FAKE_UPDATED_AT}
+          <ListItem
+            key={field.route}
+            route={field}
+            pathname={this.props.location.pathname}
+            location={this.props.locationData}
+            service={service}
           />
         ))}
         <Button fluid primary onClick={this.onGoToDocs}>
@@ -87,6 +109,7 @@ class ServiceDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
+  locationData: state.locations[ownProps.match.params.locationId]
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

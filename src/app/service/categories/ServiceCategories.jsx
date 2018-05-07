@@ -59,7 +59,7 @@ class ServiceCategories extends Component {
     const { locationId } = this.props.match.params;
     this.setState({ isLoading: true });
     const locationTaxonomies = this.props.taxonomy
-      .reduce((flat, key) => [...flat, ...key.children], [])
+      .reduce((flat, key) => [...flat, ...(key.children || [])], [])
       .filter(taxonomy => selected[taxonomy.id]);
 
     api
