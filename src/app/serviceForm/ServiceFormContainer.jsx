@@ -35,7 +35,7 @@ class ServiceFormContainer extends Component {
           backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
             this.props.match.params.serviceId
           }`}
-          title={currentRoute.title}
+          title={currentRoute.label}
         />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
