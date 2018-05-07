@@ -8,7 +8,7 @@ import Header from '../../components/header';
 import Button from '../../components/button';
 import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
-import LoadingLabel from '../locationForm/common/LoadingLabel';
+import LoadingLabel from '../../components/form/LoadingLabel';
 import FieldItem from './FieldItem';
 
 const getServicesUrl = locationId => `/location/${locationId}/services`;
