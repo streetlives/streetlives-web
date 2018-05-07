@@ -125,7 +125,14 @@ function constructUpdatedMetadata(location, metaDataSection, fieldName, dateStri
   const metadata = location.metadata;
   const subFields = metadata[metaDataSection];
   const newField = { field_name: fieldName, last_action_date: dateString };
-  const newSubFields = subFields.map(field => (field.field_name === fieldName ? newField : field));
+  const fieldIndex = subFields.findIndex(field => field.field_name === fieldName);
+  const newSubFields = fieldIndex > -1 ? 
+     [
+       ...subFields.slice(0, fieldIndex),
+       newField,
+       ...subFields.slice(fieldIndex+1)
+     ] :
+     subFields.concat(newField);
 
   return {
     ...metadata,
