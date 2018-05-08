@@ -13,50 +13,55 @@ const baseRoute = '/location/:locationId/services/:serviceId';
 export const SERVICE_FIELDS = [
   {
     label: 'Service description',
-    route: '/description',
+    urlFragment: '/description',
     RouteComponent: ServiceDescription,
     metaDataSection: 'service',
     fieldName: 'description',
   },
   {
     label: 'Who does it serve?',
-    route: '/audience',
+    urlFragment: '/who-does-it-serve',
     metaDataSection: 'service',
     RouteComponent: ServiceFoodPreferences,
+    fieldName: 'whoDoesItServe',
   },
   {
     label: 'Ages served',
-    route: '/ages-served',
+    urlFragment: '/ages-served',
     metaDataSection: 'service',
     RouteComponent: ServiceAgesServed,
+    fieldName: 'agesServed',
   },
   {
     label: 'Opening hours',
-    route: '/opening-hours',
+    urlFragment: '/opening-hours',
     metaDataSection: 'service',
     RouteComponent: ServiceOpeningHours,
+    fieldName: 'hours',
   },
   {
     label: 'Languages spoken',
-    route: '/languages',
+    urlFragment: '/languages',
     metaDataSection: 'service',
     RouteComponent: ServiceLanguages,
+    fieldName: 'languageIds',
   },
   {
     label: 'Other information',
-    route: '/other-info',
+    urlFragment: '/other-info',
     metaDataSection: 'service',
     RouteComponent: ServiceOtherInfo,
+    fieldName: 'additionalInfo',
   },
 ];
 
 export default function ServiceRoutes({ onNext }) {
   return SERVICE_FIELDS.map(({
-    RouteComponent, label, route, metaDataSection, fieldName,
+    RouteComponent, label, urlFragment, metaDataSection, fieldName,
   }) => (
     <Route
       key={label}
-      path={`${baseRoute}${route}`}
+      path={`${baseRoute}${urlFragment}`}
       onFieldVerified={onNext}
       render={props => (
         <RouteComponent
@@ -67,7 +72,7 @@ export default function ServiceRoutes({ onNext }) {
           onInputBlur={() => {}}
           onFieldVerified={onNext}
         />
-      )}
+        )}
     />
   ));
 }

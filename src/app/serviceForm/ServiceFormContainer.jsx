@@ -9,11 +9,13 @@ import ProgressBar from '../locationInfo/ProgressBar';
 import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
 import NotFound from '../notFound/NotFound';
 
+const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
+
 class ServiceFormContainer extends Component {
   onBack = () => {
     const { locationId, serviceId } = this.props.match.params;
     const prevRoute = routes[this.getCurrentIndex() - 1];
-    this.props.history.push(`/location/${locationId}/services/${serviceId}${prevRoute.route}`);
+    this.props.history.push(`${getServiceUrl(locationId, serviceId)}${prevRoute.urlFragment}`);
   };
 
   onNext = () => {
@@ -23,13 +25,13 @@ class ServiceFormContainer extends Component {
       this.props.history.push(`${this.props.location.pathname}/thanks`);
     } else {
       const nextRoute = routes[this.getCurrentIndex() + 1];
-      this.props.history.push(`/location/${locationId}/services/${serviceId}${nextRoute.route}`);
+      this.props.history.push(`${getServiceUrl(locationId, serviceId)}${nextRoute.urlFragment}`);
     }
   };
 
   onNextSection = () => {
     const { locationId, serviceId } = this.props.match.params;
-    this.props.history.push(`/location/${locationId}/services/${serviceId}/documents`);
+    this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
   };
 
   onBackSection = () => {
@@ -39,12 +41,13 @@ class ServiceFormContainer extends Component {
 
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
-    return routes.map(({ route }) => route.split('/').pop()).indexOf(fieldName);
+    return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(fieldName);
   };
 
   render() {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
+    const { locationId, serviceId } = this.props.match.params;
 
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
@@ -55,9 +58,7 @@ class ServiceFormContainer extends Component {
     return (
       <div className="text-left">
         <NavBar
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
-            this.props.match.params.serviceId
-          }`}
+          backButtonTarget={getServiceUrl(locationId, serviceId)}
           title={currentRoute.label}
         />
         <ProgressBar step={index + 1} steps={routes.length} />

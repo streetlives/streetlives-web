@@ -35,13 +35,17 @@ const LoadingView = () => (
 function ListItem({
   pathname, route, location, service,
 }) {
-  const { label, metaDataSection, fieldName } = route;
+  const {
+    label, metaDataSection, fieldName, urlFragment,
+  } = route;
+  console.log('service', service, fieldName);
   const locationId = location.id;
   const serviceId = service.id;
   let lastDateEdited = null;
   if (metaDataSection && fieldName) {
     const subFields = service.metadata[metaDataSection];
     const field = subFields.find(el => el.field_name === fieldName);
+    console.log('field', field);
     if (field) {
       lastDateEdited = field.last_action_date;
     }
@@ -50,7 +54,7 @@ function ListItem({
     <FieldItem
       key={label}
       title={label}
-      linkTo={`${getServiceUrl(locationId, serviceId)}${route.route}`}
+      linkTo={`${getServiceUrl(locationId, serviceId)}${urlFragment}`}
       updatedAt={lastDateEdited}
     />
   );
@@ -89,7 +93,7 @@ class ServiceDetails extends Component {
 
         {SERVICE_FIELDS.map(field => (
           <ListItem
-            key={field.route}
+            key={field.urlFragment}
             route={field}
             pathname={this.props.location.pathname}
             location={this.props.locationData}
