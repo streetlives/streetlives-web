@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-import withTracker from '../withTracker';
 import DocsProofs from './proofs/DocsProofs';
 import DocsOtherInfo from './otherInfo/DocsOtherInfo';
 import DocsGracePeriod from './gracePeriod/DocsGracePeriod';
@@ -12,36 +11,52 @@ const baseRoute = '/location/:locationId/services/:serviceId/documents';
 export const DOCUMENT_FIELDS = [
   {
     label: 'Proofs required',
-    route: '/proofs-required',
-    component: DocsProofs,
+    urlFragment: '/proofs-required',
+    RouteComponent: DocsProofs,
     metaDataSection: 'documents',
+    fieldName: 'proofs',
   },
   {
     label: 'Recertification time',
-    route: '/recertification-time',
-    component: DocsCertTime,
+    urlFragment: '/recertification-time',
+    RouteComponent: DocsCertTime,
     metaDataSection: 'documents',
+    fieldName: 'certTime',
   },
   {
     label: 'Grace period',
-    route: '/grace-period',
-    component: DocsGracePeriod,
+    urlFragment: '/grace-period',
+    RouteComponent: DocsGracePeriod,
     metaDataSection: 'documents',
+    fieldName: 'gracePeriod',
   },
   {
     label: 'Other information',
-    route: '/other-info',
-    component: DocsOtherInfo,
+    urlFragment: '/other-info',
+    RouteComponent: DocsOtherInfo,
     metaDataSection: 'documents',
+    fieldName: 'additionalInfo',
   },
 ];
 
-export default function DocumentRoutes() {
-  return DOCUMENT_FIELDS.map(field => (
+export default function DocumentRoutes({ onNext }) {
+  return DOCUMENT_FIELDS.map(({
+    RouteComponent, label, urlFragment, metaDataSection, fieldName,
+  }) => (
     <Route
-      key={field.label}
-      path={`${baseRoute}${field.route}`}
-      component={withTracker(field.component)}
+      key={label}
+      path={`${baseRoute}${urlFragment}`}
+      onFieldVerified={onNext}
+      render={props => (
+        <RouteComponent
+          {...props}
+          metaDataSection={metaDataSection}
+          fieldName={fieldName}
+          onInputFocus={() => {}}
+          onInputBlur={() => {}}
+          onFieldVerified={onNext}
+        />
+        )}
     />
   ));
 }

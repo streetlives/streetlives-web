@@ -16,7 +16,7 @@ class DocsFormContainer extends Component {
   onBack = () => {
     const { locationId, serviceId } = this.props.match.params;
     const prevRoute = routes[this.getCurrentIndex() - 1];
-    this.props.history.push(`${getDocsUrl(locationId, serviceId)}${prevRoute.route}`);
+    this.props.history.push(`${getDocsUrl(locationId, serviceId)}${prevRoute.urlFragment}`);
   };
 
   onNext = () => {
@@ -26,7 +26,7 @@ class DocsFormContainer extends Component {
       this.props.history.push(`${this.props.location.pathname}/thanks`);
     } else {
       const nextRoute = routes[this.getCurrentIndex() + 1];
-      this.props.history.push(`${getDocsUrl(locationId, serviceId)}${nextRoute.route}`);
+      this.props.history.push(`${getDocsUrl(locationId, serviceId)}${nextRoute.urlFragment}`);
     }
   };
 
@@ -40,10 +40,11 @@ class DocsFormContainer extends Component {
 
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
-    return routes.map(({ route }) => route.split('/').pop()).indexOf(fieldName);
+    return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(fieldName);
   };
 
   render() {
+    const { locationId, serviceId } = this.props.match.params;
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
 
@@ -55,16 +56,11 @@ class DocsFormContainer extends Component {
 
     return (
       <div className="text-left">
-        <NavBar
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
-            this.props.match.params.serviceId
-          }/documents`}
-          title={currentRoute.label}
-        />
+        <NavBar backButtonTarget={getDocsUrl(locationId, serviceId)} title={currentRoute.label} />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
-            <DocumentFormRoutes />
+            <DocumentFormRoutes onNext={this.onNext} />
           </div>
         </div>
         <div className="position-absolute" style={{ right: 0, bottom: 12 }}>

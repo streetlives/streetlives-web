@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { getLocation } from '../../../selectors/location';
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -32,32 +33,17 @@ const LoadingView = () => (
     <LoadingLabel>Loading service data...</LoadingLabel>
   </div>
 );
-function ListItem({
-  pathname, route, location, service,
-}) {
-  const {
-    label, metaDataSection, fieldName, urlFragment,
-  } = route;
-  console.log('service', service, fieldName);
-  const locationId = location.id;
-  const serviceId = service.id;
-  let lastDateEdited = null;
-  if (metaDataSection && fieldName) {
-    const subFields = service.metadata[metaDataSection];
-    const field = subFields.find(el => el.field_name === fieldName);
-    console.log('field', field);
-    if (field) {
-      lastDateEdited = field.last_action_date;
-    }
-  }
-  return (
-    <FieldItem
-      key={label}
-      title={label}
-      linkTo={`${getServiceUrl(locationId, serviceId)}${urlFragment}`}
-      updatedAt={lastDateEdited}
-    />
-  );
+
+function getUpdatedAt(service, metaDataSection, fieldName) {
+  const subFields = service.metadata[metaDataSection];
+  const field = subFields.find(el => el.field_name === fieldName);
+  return field ? field.last_action_date : null;
+}
+
+function ListItem({ route, linkTo, service }) {
+  const { label, metaDataSection, fieldName } = route;
+  const updatedAt = getUpdatedAt(service, metaDataSection, fieldName);
+  return <FieldItem key={label} title={label} linkTo={linkTo} updatedAt={updatedAt} />;
 }
 
 class ServiceDetails extends Component {
@@ -74,9 +60,10 @@ class ServiceDetails extends Component {
   };
 
   render() {
-    const { service } = this.props;
+    const { service, locationData } = this.props;
+    const { locationId, serviceId } = this.props.match.params;
 
-    if (!this.props.locationData || Object.keys(service).length === 0) {
+    if (Object.keys(locationData).length === 0 || Object.keys(service).length === 0) {
       return <LoadingView />;
     }
 
@@ -93,10 +80,9 @@ class ServiceDetails extends Component {
 
         {SERVICE_FIELDS.map(field => (
           <ListItem
-            key={field.urlFragment}
+            key={field.label}
             route={field}
-            pathname={this.props.location.pathname}
-            location={this.props.locationData}
+            linkTo={`${getServiceUrl(locationId, serviceId)}${field.urlFragment}`}
             service={service}
           />
         ))}
@@ -110,7 +96,7 @@ class ServiceDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationData: state.locations[ownProps.match.params.locationId],
+  locationData: getLocation(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
