@@ -40,6 +40,16 @@ class ServiceLanguages extends Component {
     }));
   };
 
+  onSubmit = () => {
+    this.props.updateValue(
+      this.state.value,
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName,
+    );
+    this.props.onSubmit();
+  };
+
   render() {
     const { languages, selected, isAdding } = this.state;
 
@@ -71,9 +81,9 @@ class ServiceLanguages extends Component {
           </Selector.Option>
         </Selector>
         <Button
-          onClick={() => {}}
+          onClick={this.onSubmit}
           primary
-          disabled={Object.keys(languages).length === 0}
+          disabled={Object.keys(selected).length === 0}
           className="mt-3"
         >
           OK

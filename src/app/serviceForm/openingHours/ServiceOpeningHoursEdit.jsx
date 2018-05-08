@@ -18,6 +18,16 @@ class ServiceOpeningHours extends Component {
     this.setState({ weekdays: { ...weekdays, [index]: !value } });
   };
 
+  onSubmit = () => {
+    this.props.updateValue(
+      this.state.value,
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName,
+    );
+    this.props.onSubmit();
+  };
+
   render() {
     const { active, weekdays } = this.state;
     return (
@@ -65,7 +75,7 @@ class ServiceOpeningHours extends Component {
             </Selector>
           </div>
         )}
-        <Button onClick={() => {}} primary disabled={active === -1} className="mt-3">
+        <Button onClick={this.onSubmit} primary disabled={active === -1} className="mt-3">
           OK
         </Button>
       </div>
