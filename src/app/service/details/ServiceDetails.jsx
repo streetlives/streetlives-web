@@ -43,7 +43,7 @@ function getUpdatedAt(service, metaDataSection, fieldName) {
 function ListItem({ route, linkTo, service }) {
   const { label, metaDataSection, fieldName } = route;
   const updatedAt = getUpdatedAt(service, metaDataSection, fieldName);
-  return <FieldItem key={label} title={label} linkTo={linkTo} updatedAt={updatedAt} />;
+  return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
 }
 
 class ServiceDetails extends Component {
