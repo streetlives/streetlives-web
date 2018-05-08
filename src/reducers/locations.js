@@ -158,6 +158,7 @@ function constructUpdatedMetadata(location, metaDataSection, fieldName, dateStri
     fieldIndex > -1
       ? [...subFields.slice(0, fieldIndex), newField, ...subFields.slice(fieldIndex + 1)]
       : subFields.concat(newField);
+  subFields.concat(newField);
 
   return {
     ...metadata,

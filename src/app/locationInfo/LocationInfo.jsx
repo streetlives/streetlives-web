@@ -32,28 +32,6 @@ function LoadingView({ locationId }) {
   );
 }
 
-function ListItem({ pathname, route, location }) {
-  const {
-    urlFragment, label, metaDataSection, fieldName,
-  } = route;
-  let lastDateEdited = null;
-  if (metaDataSection && fieldName) {
-    const subFields = location.metadata[metaDataSection];
-    const field = subFields.find(el => el.field_name === fieldName);
-    if (field) {
-      lastDateEdited = field.last_action_date;
-    }
-  }
-  return (
-    <FieldItem
-      key={urlFragment}
-      title={label}
-      linkTo={`${pathname}/${urlFragment}`}
-      updatedAt={lastDateEdited}
-    />
-  );
-}
-
 class LocationInfo extends Component {
   componentWillMount() {
     if (!this.props.locationData) {
@@ -76,14 +54,29 @@ class LocationInfo extends Component {
         <NavBar backButtonTarget={`${this.props.location.pathname}/recap`} title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
-        {routes.map((route, i) => (
-          <ListItem
-            key={route.urlFragment}
-            route={route}
-            pathname={this.props.location.pathname}
-            location={this.props.locationData}
-          />
-        ))}
+        {
+          routes.map(({
+              urlFragment,
+              label,
+              metaDataSection,
+              fieldName,
+            }, i) => {
+            let lastDateEdited = null;
+            if(metaDataSection && fieldName){
+              const subFields = this.props.locationData.metadata[metaDataSection];
+              const field = subFields.find( field => field.field_name === fieldName );
+              if(field){
+                lastDateEdited = field.last_action_date;
+              }
+            } 
+            return <FieldItem
+              key={urlFragment}
+              title={label}
+              linkTo={`${this.props.location.pathname}/${urlFragment}`}
+              updatedAt={lastDateEdited}
+            />
+          })
+        }
         <Button fluid primary onClick={this.onGoToServices}>
           Done
         </Button>
