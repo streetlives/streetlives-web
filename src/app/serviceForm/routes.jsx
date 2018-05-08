@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 import ServiceDescription from './description/ServiceDescription';
 import ServiceAgesServed from './agesServed/ServiceAgesServed';
 import ServiceFoodPreferences from './foodPreferences/ServiceFoodPreferences';
-import ServiceAlternativeName from './alternativeName/ServiceAlternativeName';
 import ServiceLanguages from './languages/ServiceLanguages';
 import ServiceOpeningHours from './openingHours/ServiceOpeningHours';
 import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
@@ -18,13 +17,6 @@ export const SERVICE_FIELDS = [
     RouteComponent: ServiceDescription,
     metaDataSection: 'service',
     fieldName: 'description',
-  },
-  {
-    label: 'Alternative name',
-    route: '/alt-name',
-    RouteComponent: ServiceAlternativeName,
-    metaDataSection: 'service',
-    fieldName: 'name',
   },
   {
     label: 'Who does it serve?',
