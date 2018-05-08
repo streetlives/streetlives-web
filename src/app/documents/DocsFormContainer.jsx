@@ -7,6 +7,7 @@ import DocumentFormRoutes, { DOCUMENT_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
 import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
+import NotFound from '../notFound/NotFound';
 
 const getDocsUrl = (locationId, serviceId) =>
   `/location/${locationId}/services/${serviceId}/documents`;
@@ -47,6 +48,10 @@ class DocsFormContainer extends Component {
     const currentRoute = routes[index];
 
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
+
+    if (!currentRoute) {
+      return <NotFound />;
+    }
 
     return (
       <div className="text-left">

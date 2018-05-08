@@ -7,6 +7,7 @@ import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
 import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
+import NotFound from '../notFound/NotFound';
 
 class ServiceFormContainer extends Component {
   onBack = () => {
@@ -46,6 +47,10 @@ class ServiceFormContainer extends Component {
     const currentRoute = routes[index];
 
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
+
+    if (!currentRoute) {
+      return <NotFound />;
+    }
 
     return (
       <div className="text-left">
