@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ConfirmationOptions from './ConfirmationOptions';
-import Header from '../../../components/header';
+import Header from '../header';
 
 function FormView(props) {
   return (
-    <div style={{width:'100%'}}>
+    <div className="w-100">
       <div style={{ fontSize: '13px' }} className="font-weight-bold mt-2">
         {props.topText}
       </div>
@@ -23,4 +23,3 @@ FormView.propTypes = {
 };
 
 export default FormView;
-

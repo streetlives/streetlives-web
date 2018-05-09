@@ -6,37 +6,74 @@ import Icon from '../../components/icon';
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
+import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
+import NotFound from '../notFound/NotFound';
+
+const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
 
 class ServiceFormContainer extends Component {
+
+  constructor(props){
+    super(props);
+    this.onNext = this.onNext.bind(this);
+    this.onBack = this.onBack.bind(this);
+    this.onBackSection = this.onBackSection.bind(this);
+    this.onNextSection = this.onNextSection.bind(this);
+  }
+
   onBack = () => {
     const { locationId, serviceId } = this.props.match.params;
     const prevRoute = routes[this.getCurrentIndex() - 1];
-    this.props.history.push(`/location/${locationId}/services/${serviceId}${prevRoute.route}`);
+    this.props.history.push(`${getServiceUrl(locationId, serviceId)}${prevRoute.urlFragment}`);
   };
+
   onNext = () => {
     const { locationId, serviceId } = this.props.match.params;
-    const nextRoute = routes[this.getCurrentIndex() + 1];
-    this.props.history.push(`/location/${locationId}/services/${serviceId}${nextRoute.route}`);
+    const idx = this.getCurrentIndex();
+    if (idx === routes.length - 1) {
+      this.props.history.push(`${this.props.location.pathname}/thanks`);
+    } else {
+      const nextRoute = routes[this.getCurrentIndex() + 1];
+      this.props.history.push(`${getServiceUrl(locationId, serviceId)}${nextRoute.urlFragment}`);
+    }
+  };
+
+  onNextSection = () => {
+    const { locationId, serviceId } = this.props.match.params;
+    this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
+  };
+
+  onBackSection = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
-    return routes.map(({ route }) => route.split('/').pop()).indexOf(fieldName);
+    return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(fieldName);
   };
 
   render() {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
+    const { locationId, serviceId } = this.props.match.params;
+
+    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
+
+    if (!currentRoute) {
+      return <NotFound />;
+    }
 
     return (
       <div className="text-left">
-        <NavBar 
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}`}
-          title={currentRoute.title} />
+        <NavBar
+          backButtonTarget={getServiceUrl(locationId, serviceId)}
+          title={currentRoute.label}
+        />
         <ProgressBar step={index + 1} steps={routes.length} />
         <div className="container">
           <div className="row px-4">
-            <ServiceFormRoutes />
+            <ServiceFormRoutes onNext={this.onNext} />
           </div>
         </div>
         <div style={{ right: 0, bottom: 12, position:'fixed' }}>
@@ -51,6 +88,9 @@ class ServiceFormContainer extends Component {
             </div>
           </div>
         </div>
+        {showThanks && (
+          <ThanksOverlay onBackSection={this.onBackSection} onNextSection={this.onNextSection} />
+        )}
       </div>
     );
   }

@@ -1,60 +1,46 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { selectLocationData } from '../../../reducers';
-import { updateLocation } from '../../../actions';
-import { getLocation } from '../../../actions';
-import Form from '../common/Form';
-import FormEdit from '../common/FormEdit';
-import FormView from '../common/FormView';
 import { compose, withProps } from 'recompose';
+import { selectLocationData } from '../../../reducers';
+import { updateLocation, getLocation } from '../../../actions';
+import { Form, FormEdit, FormView } from '../../../components/form';
 
-const LocationAddressEdit = compose(
-  withProps({
-    headerText : 'What\'s this location\'s address?',
-    placeholderText : 'Enter the address of the location',
-  })
-)(props => <FormEdit {...props} />)
+const EditComponent = compose(withProps({
+  headerText: "What's this location's address?",
+  placeholderText: 'Enter the address of the location',
+}))(props => <FormEdit {...props} />);
 
-const LocationAddressView = compose(
-  withProps({
-    topText : 'LOCATION ADDRESS',
-  })
-)(props => <FormView {...props} />)
+const ViewComponent = compose(withProps({
+  topText: 'LOCATION ADDRESS',
+}))(props => <FormView {...props} />);
 
-const LocationAddress = compose(
-  withProps({
-    viewComponent: LocationAddressView,
-    editComponent: LocationAddressEdit
-  })
-)(props => <Form {...props} />)
+const LocationAddress = compose(withProps({
+  ViewComponent,
+  EditComponent,
+}))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const locationId = ownProps.match.params.locationId;
+  const { locationId } = ownProps.match.params;
   const locationData = selectLocationData(state, locationId);
 
   return {
-    value: locationData && 
-              locationData.address && 
-              locationData.address && 
-              locationData.address.street ? 
-              locationData.address.street : null,
-    locationData 
+    value:
+      locationData && locationData.address && locationData.address && locationData.address.street
+        ? locationData.address.street
+        : null,
+    resourceData: locationData,
   };
 };
 
-      
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (newAddress, _, metaDataSection, fieldName) => (
-    dispatch(
-      updateLocation(
-        ownProps.match.params.locationId, 
-        { address: { street : newAddress } },
-        metaDataSection, 
-        fieldName
-      )
-    )
-  ),
-  getLocation: (locationId) => {
+  updateValue: (newAddress, _, metaDataSection, fieldName) =>
+    dispatch(updateLocation(
+      ownProps.match.params.locationId,
+      { address: { street: newAddress } },
+      metaDataSection,
+      fieldName,
+    )),
+  fetchResourceData: (locationId) => {
     dispatch(getLocation(locationId));
   },
 });

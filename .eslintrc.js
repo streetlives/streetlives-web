@@ -15,6 +15,7 @@ module.exports = {
     'no-multiple-empty-lines': [2, { max: 1, maxBOF: 1, maxEOF: 1 }],
     'no-unused-vars': [2, { args: 'none' }],
     'react/prop-types': 0,
+    'react/require-default-props': 0,
     'jsx-a11y/anchor-is-valid': [
       'error',
       {

@@ -4,7 +4,9 @@ import * as api from '../services/api';
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
+export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
+export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
@@ -182,4 +184,58 @@ export const updateOrganization = (
         },
       });
     });
+};
+
+export const updateService = ({
+  locationId,
+  serviceId,
+  params,
+  metaDataSection,
+  fieldName,
+}) => (dispatch) => {
+  dispatch({
+    type: OPTIMISTIC_UPDATE_SERVICE,
+    payload: {
+      locationId,
+      serviceId,
+      params,
+      metaDataSection,
+      fieldName,
+    },
+  });
+  api.updateService({ id: serviceId, params }).catch((e) => {
+    console.error('error', e);
+    dispatch({
+      type: ROLLBACK_UPDATE_SERVICE,
+      payload: { id: locationId },
+    });
+  });
+};
+
+export const updateLanguages = ({
+  locationId,
+  serviceId,
+  languages,
+  metaDataSection,
+  fieldName,
+}) => (dispatch) => {
+  const languageIds = languages.map(el => el.id);
+  dispatch({
+    type: OPTIMISTIC_UPDATE_SERVICE,
+    payload: {
+      locationId,
+      serviceId,
+      params: { languages },
+      metaDataSection,
+      fieldName,
+    },
+  });
+
+  api.updateService({ id: serviceId, params: { languageIds } }).catch((e) => {
+    console.error('error', e);
+    dispatch({
+      type: ROLLBACK_UPDATE_SERVICE,
+      payload: { id: locationId },
+    });
+  });
 };

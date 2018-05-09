@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation, getTaxonomy } from '../selectors';
+import { getLocation } from '../../../selectors/location';
+import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
@@ -20,6 +21,7 @@ const LoadingView = () => (
     </p>
   </div>
 );
+
 class ServicesRecap extends Component {
   state = { services: [] };
 
@@ -33,11 +35,13 @@ class ServicesRecap extends Component {
   }
 
   componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.location !== this.props.location) {
-      const services = nextProps.location.Services.map(service => ({
-        ...service,
-        parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
-      }));
+    if (nextProps.location && nextProps.location !== this.props.location) {
+      const services =
+        nextProps.location.Services &&
+        nextProps.location.Services.map(service => ({
+          ...service,
+          parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
+        }));
       this.setState({ services });
     }
   }

@@ -1,43 +1,32 @@
+/* eslint-disable max-len */
 import React from 'react';
 import { connect } from 'react-redux';
+import { compose, withProps } from 'recompose';
 import { selectLocationData } from '../../../reducers';
-import { updateLocation } from '../../../actions';
+import { updateLocation, getLocation } from '../../../actions';
+import { Form } from '../../../components/form';
 import LocationNameView from './LocationNameView';
 import LocationNameEdit from './LocationNameEdit';
-import { getLocation } from '../../../actions';
-import Form from '../common/Form';
-import { compose, withProps } from 'recompose';
 
-const LocationName = compose(
-  withProps({
-    viewComponent: LocationNameView,
-    editComponent: LocationNameEdit
-  })
-)(props => <Form {...props} />)
-
+const LocationName = compose(withProps({
+  ViewComponent: LocationNameView,
+  EditComponent: LocationNameEdit,
+}))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const locationId = ownProps.match.params.locationId;
+  const { locationId } = ownProps.match.params;
   const locationData = selectLocationData(state, locationId);
 
   return {
+    resourceData: locationData,
     value: locationData ? locationData.name : null,
-    locationData 
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (name, _, metaDataSection, fieldName) => (
-    dispatch(
-      updateLocation(
-        ownProps.match.params.locationId, 
-        { name },
-        metaDataSection, 
-        fieldName
-      )
-    )
-  ),
-  getLocation: (locationId) => {
+  updateValue: (name, _, metaDataSection, fieldName) =>
+    dispatch(updateLocation(ownProps.match.params.locationId, { name }, metaDataSection, fieldName)),
+  fetchResourceData: (locationId) => {
     dispatch(getLocation(locationId));
   },
 });

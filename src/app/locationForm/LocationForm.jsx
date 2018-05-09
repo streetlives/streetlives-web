@@ -15,9 +15,11 @@ class LocationForm extends Component {
     this.onNext = this.onNext.bind(this);
     this.onInputFocus = this.onInputFocus.bind(this);
     this.onInputBlur = this.onInputBlur.bind(this);
+    this.onNextSection = this.onNextSection.bind(this);
+    this.onBackSection = this.onBackSection.bind(this);
 
     this.routeComponents = routes.map(({
-        urlFragment, 
+        urlFragment,
         RouteComponent,
         metaDataSection,
         fieldName,
@@ -26,8 +28,8 @@ class LocationForm extends Component {
         key={urlFragment}
         path={`/location/:locationId/${urlFragment}/:thanks?`}
         render={(routeProps) => {
-          return <RouteComponent 
-            {...routeProps} 
+          return <RouteComponent
+            {...routeProps}
             metaDataSection={metaDataSection}
             fieldName={fieldName}
             onInputFocus={this.onInputFocus}
@@ -70,6 +72,15 @@ class LocationForm extends Component {
     const { questionId } = this.props.match.params;
     return routes.map(({urlFragment}) => urlFragment.split('/').pop()).indexOf(questionId);
   }
+
+  onNextSection() {
+    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
+  }
+
+  onBackSection() {
+    this.props.history.push(`/location/${this.props.match.params.locationId}`);
+  }
+
   render() {
     const { locationId } = this.props.match.params;
     const index = this.getCurrentIndex();
@@ -79,17 +90,17 @@ class LocationForm extends Component {
     return (
       <div className="text-left">
         <div style={{
-            filter : thanks && 'url(#blur)', 
+            filter : thanks && 'url(#blur)',
             overflow : thanks && 'hidden',
-            width:'100%', 
-            height:'100%' 
+            width:'100%',
+            height:'100%'
           }}>
           <svg style={{display:'none'}}>
              <filter id="blur">
                  <feGaussianBlur stdDeviation="4"/>
              </filter>
           </svg>
-          <NavBar 
+          <NavBar
             backButtonTarget={`/location/${locationId}`}
             title={currentRoute.label} />
           <ProgressBar step={index} steps={routes.length} />
@@ -115,9 +126,12 @@ class LocationForm extends Component {
             </div>
           </div>
         </div>
-        {
-           thanks && <ThanksOverlay />
-        }
+        {thanks && (
+          <ThanksOverlay
+            onNextSection={this.onNextSection}
+            onBackSection={this.onBackSection}
+          />
+        )}
       </div>
     );
   }

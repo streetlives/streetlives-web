@@ -30,7 +30,7 @@ import config from '../config';
 import './App.css';
 
 history.listen((location, action) => {
-  window.scrollTo(0, 0)
+  window.scrollTo(0, 0);
 });
 
 Amplify.configure(awsExports);
@@ -82,6 +82,16 @@ function App({ authState }) {
             <Route
               exact
               path="/location/:locationId/services/:serviceId/documents/:fieldName"
+              component={withTracker(DocsFormContainer)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/:serviceId/:fieldName/:thanks?"
+              component={withTracker(ServiceFormContainer)}
+            />
+            <Route
+              exact
+              path="/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?"
               component={withTracker(DocsFormContainer)}
             />
             <Route path="*" component={withTracker(NotFound)} />

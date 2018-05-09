@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col } from '../../../components/layout/bootstrap';
 import Input from '../../../components/input';
-import Button from '../../../components/button';
 
 export default class OpeningHoursEditForm extends Component{
 
