@@ -26,29 +26,34 @@ class ServiceOpeningHours extends Component {
   onSelect = active => this.setState({ active });
 
   onWeekday = (index) => {
-    const { weekdaysOpen } = this.state;
+    const { weekdaysOpen, hours } = this.state;
     const value = weekdaysOpen[index];
+    const dayString = DAYS[index];
+
+    const hoursForDay = hours.find(row => row.weekday === dayString);
+    if(!value && (!hoursForDay || !hoursForDay.length)){
+      this.addHour(dayString); //add a row to the clicked weekday, if he is empty
+    }
+
     this.setState({ weekdaysOpen: { ...weekdaysOpen, [index]: !value } });
   };
 
   onChange = (field, hour, newValue) => {
     const idx = this.state.hours.indexOf(hour);
     this.setState({
-      data : {
-        hours : [
-          ...this.state.hours.slice(0, idx),
-          {
-            ...this.state.hours[idx],
-            [field] : newValue
-          },
-          ...this.state.hours.slice(idx + 1),
-        ]
-      }
+      hours : [
+        ...this.state.hours.slice(0, idx),
+        {
+          ...this.state.hours[idx],
+          [field] : newValue
+        },
+        ...this.state.hours.slice(idx + 1),
+      ]
     })
   }
   
   removeHour = (hour) => {
-    const { data : {hours}, weekdaysOpen} = this.state;
+    const { hours, weekdaysOpen} = this.state;
     const idx = hours.indexOf(hour);
     const thisDayshours = hours.filter( time => time.weekday === hour.weekday )
     this.setState({
@@ -56,12 +61,10 @@ class ServiceOpeningHours extends Component {
         ...weekdaysOpen,
         [DAYS.indexOf(hour.weekday)]: (thisDayshours.length - 1) > 0
       },
-      data : {
-        hours : [
-          ...hours.slice(0, idx),
-          ...hours.slice(idx + 1),
-        ]
-      }
+      hours : [
+        ...hours.slice(0, idx),
+        ...hours.slice(idx + 1),
+      ]
     })
   }
 
@@ -75,16 +78,14 @@ class ServiceOpeningHours extends Component {
 
   addHour = (day) => {
     this.setState({
-      data : {
-        hours : [
-          ...this.state.hours,
-          { 
-            weekday: day,
-            opensAt: null,
-            closesAt: null
-          }
-        ]
-      }
+      hours : [
+        ...this.state.hours,
+        { 
+          weekday: day,
+          opensAt: null,
+          closesAt: null
+        }
+      ]
     })
   }
 

@@ -4,12 +4,6 @@ import './OpeningHoursEditForm.css';
 
 export default class OpeningHoursEditForm extends Component{
 
-  componentWillReceiveProps(newProps){
-    if(newProps.active && !newProps.hours.length){
-      this.props.addHour(); 
-    }
-  }
-
   render(){
     const {active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour} = this.props;
     return hours.map( (hour, i) => <form 
