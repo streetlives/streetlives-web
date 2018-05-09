@@ -32,7 +32,7 @@ class ThanksOverlay extends Component {
           GO TO NEXT SECTION
         </Button>
         <div style={{ margin: '.5em' }} />
-        <Button primary basic fluid color="white" onClick={this.props.onBackSection}>
+        <Button primary basic fluid onClick={this.props.onBackSection}>
           BACK TO LOCATION INFO
         </Button>
       </div>
