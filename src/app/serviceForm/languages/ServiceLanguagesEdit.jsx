@@ -16,7 +16,7 @@ class ServiceLanguages extends Component {
 
     const selected = {};
     props.value.forEach((language) => {
-      selected[language.id] = true;
+      selected[language.id] = language;
     });
 
     this.state = {
@@ -37,21 +37,26 @@ class ServiceLanguages extends Component {
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   }
 
-  onSelect = (id) => {
-    this.setState(({ selected }) => ({ selected: { ...selected, [id]: !selected[id] } }));
+  onSelect = (language) => {
+    this.setState(({ selected }) => ({
+      selected: { ...selected, [language.id]: !selected[language.id] ? language : false },
+    }));
   };
 
   onAddLanguage = (option) => {
     this.setState(({ languages, selected }) => ({
       languages: [...languages, option],
-      selected: { ...selected, [option.id]: true },
+      selected: { ...selected, [option.id]: option },
       isAdding: false,
     }));
   };
 
   onSubmit = () => {
     const { selected } = this.state;
-    const newValues = Object.keys(selected).filter(el => selected[el]);
+    const newValues = Object.keys(selected)
+      .filter(el => selected[el])
+      .map(el => selected[el]);
+
     this.props.updateValue(
       newValues,
       this.props.id,
@@ -82,7 +87,7 @@ class ServiceLanguages extends Component {
             <Selector.Option
               key={option.id}
               active={selected[option.id]}
-              onClick={() => this.onSelect(option.id)}
+              onClick={() => this.onSelect(option)}
             >
               {option.name}
             </Selector.Option>
