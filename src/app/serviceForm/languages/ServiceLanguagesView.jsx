@@ -13,7 +13,11 @@ function ServiceLanguagesView(props) {
         LANGUAGES
       </div>
       <ul className="list-group my-4 border" style={styles}>
-        {props.value.map(language => <li className="list-group-item border-0">{language.name}</li>)}
+        {props.value.map(language => (
+          <li key={language.id} className="list-group-item border-0">
+            {language.name}
+          </li>
+        ))}
       </ul>
       <ConfirmationOptions onConfirm={props.onConfirm} onEdit={props.onEdit} />
     </div>

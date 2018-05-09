@@ -83,7 +83,7 @@ class Form extends Component {
 Form.propTypes = {
   ViewComponent: PropTypes.func.isRequired,
   EditComponent: PropTypes.func.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
   resourceData: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   fetchResourceData: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
