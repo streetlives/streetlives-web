@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 
 import { getLocation } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
@@ -9,6 +10,7 @@ import Button from '../../../components/button';
 import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
 import getCategoryIcon from '../util/getCategoryIcon';
+import ThanksOverlay, { overlayStyles } from '../../locationForm/thanks/ThanksOverlay';
 
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
@@ -21,6 +23,10 @@ const LoadingView = () => (
     </p>
   </div>
 );
+
+const thanksHeader = 'Great work!';
+const thanksContent =
+  'Thank you on behalf of all the people who use social services and community programs in NYC!';
 
 class ServicesRecap extends Component {
   state = { services: [] };
@@ -35,10 +41,10 @@ class ServicesRecap extends Component {
   }
 
   componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.location && nextProps.location !== this.props.location) {
+    if (nextProps.locationData && nextProps.locationData !== this.props.locationData) {
       const services =
-        nextProps.location.Services &&
-        nextProps.location.Services.map(service => ({
+        nextProps.locationData.Services &&
+        nextProps.locationData.Services.map(service => ({
           ...service,
           parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
         }));
@@ -46,7 +52,15 @@ class ServicesRecap extends Component {
     }
   }
 
-  onNext = () => console.log('Clicked Next'); // eslint-disable-line no-console
+  onNext = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`/location/${locationId}/services/recap/thanks`);
+  };
+
+  onNextSection = () => this.props.history.push('/');
+
+  onBackSection = () =>
+    this.props.history.push(`/location/${this.props.match.params.locationId}/services/recap`);
 
   render() {
     const { taxonomy = [] } = this.props;
@@ -56,41 +70,58 @@ class ServicesRecap extends Component {
       return <LoadingView />;
     }
 
+    console.log('props', this.props);
+    // const showThanks = true;
+    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
+
     return (
       <div className="text-left">
-        <NavBar
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
-          title="Services recap"
-        />
-        <div className="mb-5">
-          <div className="py-5 px-3 container">
-            <Header>
-              Please fill in all the information available for each of the services at this
-              location:
-            </Header>
-          </div>
-
-          {taxonomy.map(category => (
-            <div key={category.id}>
-              <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
-              {services
-                .filter(service => service.parent_id === category.id)
-                .map(service => <ListItem key={service.id} service={service} />)}
+        <div style={overlayStyles(showThanks)}>
+          <ThanksOverlay.GaussianBlur />
+          <NavBar
+            backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
+            title="Services recap"
+          />
+          <div className="mb-5">
+            <div className="py-5 px-3 container">
+              <Header>
+                Please fill in all the information available for each of the services at this
+                location:
+              </Header>
             </div>
-          ))}
+
+            {taxonomy.map(category => (
+              <div key={category.id}>
+                <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
+                {services
+                  .filter(service => service.parent_id === category.id)
+                  .map(service => <ListItem key={service.id} service={service} />)}
+              </div>
+            ))}
+          </div>
+          <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
+            <Button fluid primary onClick={this.onNext}>
+              DONE
+            </Button>
+          </div>
         </div>
-        <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
-          <Button fluid primary onClick={this.onNext}>
-            Next
-          </Button>
-        </div>
+        {showThanks && (
+          <ThanksOverlay
+            header={thanksHeader}
+            content={thanksContent}
+            nextLabel="BACK TO THE MAP"
+            backLabel="KEEP EDITING"
+            onNextSection={this.onNextSection}
+            onBackSection={this.onBackSection}
+          />
+        )}
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  location: getLocation(state, ownProps),
+  locationData: getLocation(state, ownProps),
   taxonomy: getTaxonomy(state, ownProps),
 });
 
@@ -99,4 +130,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ServicesRecap);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ServicesRecap));

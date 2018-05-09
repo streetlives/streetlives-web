@@ -6,7 +6,6 @@ import Icon from '../../components/icon';
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
 import ProgressBar from '../locationInfo/ProgressBar';
-import ThanksOverlay from '../locationForm/thanks/ThanksOverlay';
 import NotFound from '../notFound/NotFound';
 
 const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
@@ -17,8 +16,6 @@ class ServiceFormContainer extends Component {
     super(props);
     this.onNext = this.onNext.bind(this);
     this.onBack = this.onBack.bind(this);
-    this.onBackSection = this.onBackSection.bind(this);
-    this.onNextSection = this.onNextSection.bind(this);
   }
 
   onBack = () => {
@@ -31,21 +28,11 @@ class ServiceFormContainer extends Component {
     const { locationId, serviceId } = this.props.match.params;
     const idx = this.getCurrentIndex();
     if (idx === routes.length - 1) {
-      this.props.history.push(`${this.props.location.pathname}/thanks`);
+      this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
     } else {
       const nextRoute = routes[this.getCurrentIndex() + 1];
       this.props.history.push(`${getServiceUrl(locationId, serviceId)}${nextRoute.urlFragment}`);
     }
-  };
-
-  onNextSection = () => {
-    const { locationId, serviceId } = this.props.match.params;
-    this.props.history.push(`${getServiceUrl(locationId, serviceId)}/documents`);
-  };
-
-  onBackSection = () => {
-    const { locationId } = this.props.match.params;
-    this.props.history.push(`/location/${locationId}/services/recap`);
   };
 
   getCurrentIndex = () => {
@@ -57,8 +44,6 @@ class ServiceFormContainer extends Component {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
     const { locationId, serviceId } = this.props.match.params;
-
-    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     if (!currentRoute) {
       return <NotFound />;
@@ -88,9 +73,6 @@ class ServiceFormContainer extends Component {
             </div>
           </div>
         </div>
-        {showThanks && (
-          <ThanksOverlay onBackSection={this.onBackSection} onNextSection={this.onNextSection} />
-        )}
       </div>
     );
   }
