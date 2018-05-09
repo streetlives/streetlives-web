@@ -24,11 +24,11 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (languageIds, serviceId, metaDataSection, fieldName) =>
-    dispatch(actions.updateService({
+  updateValue: (languages, serviceId, metaDataSection, fieldName) =>
+    dispatch(actions.updateLanguages({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { languageIds },
+      languages,
       metaDataSection,
       fieldName,
     })),

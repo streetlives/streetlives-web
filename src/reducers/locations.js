@@ -26,9 +26,10 @@ export const locationsReducer = (state = {}, action) => {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
         const location = state[locationId];
-        const Services = location.Services;
+        const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
+        const { Languages } = service;
         return {
           ...state,
           [`last/${locationId}`]: location,
@@ -40,6 +41,7 @@ export const locationsReducer = (state = {}, action) => {
                 ...service,
                 ...params,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
+                Languages: params.languages || Languages,
               },
               ...Services.slice(serviceIdx + 1),
             ],
