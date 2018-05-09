@@ -13,6 +13,7 @@ export default class OpeningHoursEditForm extends Component{
   render(){
     const {active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour} = this.props;
     return hours.map( (hour, i) => <form 
+      key={i}
       style={{
         display: active ? 'block' : 'none'
       }}
@@ -30,7 +31,7 @@ export default class OpeningHoursEditForm extends Component{
               <td style={{paddingRight: '1em'}}>From:</td>
               <td>
                 <Input 
-                  value={hour && hour.opensAt}
+                  value={(hour && hour.opensAt) || '12:00'}
                   type="time" 
                   tabIndex={startTabIndex*100 + i*10 + 1} 
                   onChange={(e) => onFromChange('opensAt', hour, e.target.value)}/>
@@ -40,7 +41,7 @@ export default class OpeningHoursEditForm extends Component{
               <td>To:</td>
               <td>
                 <Input  
-                  value={hour && hour.closesAt}
+                  value={(hour && hour.closesAt) || '12:00'}
                   type="time" 
                   tabIndex={startTabIndex*100 + i*10 + 2} 
                   onChange={(e) => onToChange('closesAt', hour, e.target.value)}/>
