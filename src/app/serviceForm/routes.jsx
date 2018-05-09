@@ -23,14 +23,14 @@ export const SERVICE_FIELDS = [
     urlFragment: '/who-does-it-serve',
     metaDataSection: 'service',
     RouteComponent: ServiceWhoDoesItServe,
-    fieldName: 'whoDoesItServe',
+    fieldName: 'who_does_it_serve',
   },
   {
     label: 'Ages served',
     urlFragment: '/ages-served',
     metaDataSection: 'service',
     RouteComponent: ServiceAgesServed,
-    fieldName: 'agesServed',
+    fieldName: 'ages_served',
   },
   {
     label: 'Opening hours',
@@ -44,14 +44,14 @@ export const SERVICE_FIELDS = [
     urlFragment: '/languages',
     metaDataSection: 'service',
     RouteComponent: ServiceLanguages,
-    fieldName: 'languageIds',
+    fieldName: 'languages',
   },
   {
     label: 'Other information',
     urlFragment: '/other-info',
     metaDataSection: 'service',
     RouteComponent: ServiceOtherInfo,
-    fieldName: 'additionalInfo',
+    fieldName: 'additional_info',
   },
 ];
 

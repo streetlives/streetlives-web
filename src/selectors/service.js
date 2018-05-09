@@ -14,7 +14,7 @@ export const getService = (state, props) => {
 
 export const getServiceDescription = (state, props) => getService(state, props).description;
 
-export const getServiceNicknames = (state, props) => getService(state, props).nicknames;
+export const getServiceAgesServed = (state, props) => getService(state, props).ages_served;
 
 export const getServiceWhoDoesItServe = (state, props) =>
   getService(state, props).who_does_it_serve;
