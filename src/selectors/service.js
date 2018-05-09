@@ -16,7 +16,8 @@ export const getServiceDescription = (state, props) => getService(state, props).
 
 export const getServiceNicknames = (state, props) => getService(state, props).nicknames;
 
-export const getServiceFoodPreferences = (state, props) => getService(state, props).whoDoesItServe;
+export const getServiceWhoDoesItServe = (state, props) =>
+  getService(state, props).who_does_it_serve;
 
 export const getServiceLanguages = (state, props) => getService(state, props).languages;
 
@@ -34,4 +35,4 @@ export const getDocumentRecertificationTime = (state, props) =>
 export const getDocumentGracePeriod = (state, props) => getDocuments(state, props).gracePeriod;
 
 export const getDocumentAdditionalInfo = (state, props) =>
-  getDocuments(state, props).additionalInfo;
+  getDocuments(state, props).additional_info;
