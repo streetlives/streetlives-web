@@ -6,36 +6,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Selector from '../../../components/selector';
 import Input from '../../../components/input';
-
-const FAKE_DATA = {
-  hours : [
-    {
-      weekday : 'Monday',
-      opensAt: '08:00',
-      closesAt: '11:00'
-    },
-    {
-      weekday : 'Monday',
-      opensAt: '12:00',
-      closesAt: '13:00'
-    },
-    {
-      weekday : 'Tuesday',
-      opensAt: '17:00',
-      closesAt: '20:00'
-    }
-  ]
-};
-
-const DAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday'
-];
+import { DAYS } from '../../../constants';
 
 const inputPlaceholder =
   'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
@@ -48,7 +19,7 @@ class ServiceOpeningHours extends Component {
     this.state = { 
       active: -1, 
       weekdaysOpen: {},
-      data: FAKE_DATA
+      hours: props.value
     };
   }
 
@@ -61,16 +32,16 @@ class ServiceOpeningHours extends Component {
   };
 
   onChange = (field, hour, newValue) => {
-    const idx = this.state.data.hours.indexOf(hour);
+    const idx = this.state.hours.indexOf(hour);
     this.setState({
       data : {
         hours : [
-          ...this.state.data.hours.slice(0, idx),
+          ...this.state.hours.slice(0, idx),
           {
-            ...this.state.data.hours[idx],
+            ...this.state.hours[idx],
             [field] : newValue
           },
-          ...this.state.data.hours.slice(idx + 1),
+          ...this.state.hours.slice(idx + 1),
         ]
       }
     })
@@ -94,11 +65,19 @@ class ServiceOpeningHours extends Component {
     })
   }
 
+  componentWillReceiveProps(props){
+    if(props.value && props.value !== this.props.value){
+      this.setState({
+        hours: props.value
+      });
+    }
+  }
+
   addHour = (day) => {
     this.setState({
       data : {
         hours : [
-          ...this.state.data.hours,
+          ...this.state.hours,
           { 
             weekday: day,
             opensAt: null,
@@ -141,7 +120,7 @@ class ServiceOpeningHours extends Component {
             <Selector fluid>
               {
                 DAYS.map( (day, i) => {
-                  const hours = this.state.data.hours.filter( time => time.weekday === day )
+                  const hours = this.state.hours.filter( time => time.weekday === day )
                   return [
                     <Selector.Option 
                       key={`selector-${day}`}

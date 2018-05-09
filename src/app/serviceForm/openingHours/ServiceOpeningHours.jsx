@@ -5,14 +5,10 @@ import { compose, withProps } from 'recompose';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
 import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
 import * as actions from '../../../actions';
-import { Form, FormView } from '../../../components/form';
-
-const ViewComponent = compose(withProps({
-  topText: 'OPENING HOURS',
-}))(props => <FormView {...props} />);
+import { Form } from '../../../components/form';
 
 const FormComponent = compose(withProps({
-  ViewComponent,
+  ViewComponent: ServiceOpeningHoursEdit,
   EditComponent: ServiceOpeningHoursEdit,
 }))(props => <Form {...props} />);
 
