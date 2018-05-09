@@ -6,16 +6,13 @@ import { compose, withProps } from 'recompose';
 import { getService, getServiceLanguages, getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
-import { Form, FormView } from '../../../components/form';
+import { Form } from '../../../components/form';
 
 import ServiceLanguagesEdit from './ServiceLanguagesEdit';
-
-const ViewComponent = compose(withProps({
-  topText: 'LANGUAGES',
-}))(props => <FormView {...props} />);
+import ServiceLanguagesView from './ServiceLanguagesView';
 
 const FormComponent = compose(withProps({
-  ViewComponent,
+  ViewComponent: ServiceLanguagesView,
   EditComponent: ServiceLanguagesEdit,
 }))(props => <Form {...props} />);
 
@@ -27,11 +24,11 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (languageIds, serviceId, metaDataSection, fieldName) =>
-    dispatch(actions.updateService({
+  updateValue: (languages, serviceId, metaDataSection, fieldName) =>
+    dispatch(actions.updateLanguages({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { languageIds },
+      languages,
       metaDataSection,
       fieldName,
     })),

@@ -211,3 +211,31 @@ export const updateService = ({
     });
   });
 };
+
+export const updateLanguages = ({
+  locationId,
+  serviceId,
+  languages,
+  metaDataSection,
+  fieldName,
+}) => (dispatch) => {
+  const languageIds = languages.map(el => el.id);
+  dispatch({
+    type: OPTIMISTIC_UPDATE_SERVICE,
+    payload: {
+      locationId,
+      serviceId,
+      params: { languages },
+      metaDataSection,
+      fieldName,
+    },
+  });
+
+  api.updateService({ id: serviceId, params: { languageIds } }).catch((e) => {
+    console.error('error', e);
+    dispatch({
+      type: ROLLBACK_UPDATE_SERVICE,
+      payload: { id: locationId },
+    });
+  });
+};
