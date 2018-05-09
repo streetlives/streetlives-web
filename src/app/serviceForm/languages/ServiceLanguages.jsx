@@ -6,16 +6,13 @@ import { compose, withProps } from 'recompose';
 import { getService, getServiceLanguages, getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
-import { Form, FormView } from '../../../components/form';
+import { Form } from '../../../components/form';
 
 import ServiceLanguagesEdit from './ServiceLanguagesEdit';
-
-const ViewComponent = compose(withProps({
-  topText: 'LANGUAGES',
-}))(props => <FormView {...props} />);
+import ServiceLanguagesView from './ServiceLanguagesView';
 
 const FormComponent = compose(withProps({
-  ViewComponent,
+  ViewComponent: ServiceLanguagesView,
   EditComponent: ServiceLanguagesEdit,
 }))(props => <Form {...props} />);
 

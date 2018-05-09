@@ -11,12 +11,21 @@ import AddLanguageForm from './AddLanguageForm';
 const PRESET_LANGUAGES = ['en', 'es', 'ru', 'zh'];
 
 class ServiceLanguages extends Component {
-  state = {
-    fetched: [],
-    languages: [],
-    selected: {},
-    isAdding: false,
-  };
+  constructor(props) {
+    super(props);
+
+    const selected = {};
+    props.value.forEach((language) => {
+      selected[language.id] = true;
+    });
+
+    this.state = {
+      selected,
+      fetched: [],
+      languages: [],
+      isAdding: false,
+    };
+  }
 
   componentWillMount() {
     api
@@ -41,8 +50,10 @@ class ServiceLanguages extends Component {
   };
 
   onSubmit = () => {
+    const { selected } = this.state;
+    const newValues = Object.keys(selected).filter(el => selected[el]);
     this.props.updateValue(
-      this.state.value,
+      newValues,
       this.props.id,
       this.props.metaDataSection,
       this.props.fieldName,

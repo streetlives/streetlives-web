@@ -18,7 +18,7 @@ export const getServiceNicknames = (state, props) => getService(state, props).ni
 
 export const getServiceFoodPreferences = (state, props) => getService(state, props).whoDoesItServe;
 
-export const getServiceLanguages = (state, props) => getService(state, props).languages;
+export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 
 export const getServiceOpeningHours = (state, props) => getService(state, props).hours;
 
