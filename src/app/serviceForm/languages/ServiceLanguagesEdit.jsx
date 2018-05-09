@@ -11,12 +11,21 @@ import AddLanguageForm from './AddLanguageForm';
 const PRESET_LANGUAGES = ['en', 'es', 'ru', 'zh'];
 
 class ServiceLanguages extends Component {
-  state = {
-    fetched: [],
-    languages: [],
-    selected: {},
-    isAdding: false,
-  };
+  constructor(props) {
+    super(props);
+
+    const selected = {};
+    props.value.forEach((language) => {
+      selected[language.id] = language;
+    });
+
+    this.state = {
+      selected,
+      fetched: [],
+      languages: [],
+      isAdding: false,
+    };
+  }
 
   componentWillMount() {
     api
@@ -28,21 +37,28 @@ class ServiceLanguages extends Component {
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   }
 
-  onSelect = (id) => {
-    this.setState(({ selected }) => ({ selected: { ...selected, [id]: !selected[id] } }));
+  onSelect = (language) => {
+    this.setState(({ selected }) => ({
+      selected: { ...selected, [language.id]: !selected[language.id] ? language : false },
+    }));
   };
 
   onAddLanguage = (option) => {
     this.setState(({ languages, selected }) => ({
       languages: [...languages, option],
-      selected: { ...selected, [option.id]: true },
+      selected: { ...selected, [option.id]: option },
       isAdding: false,
     }));
   };
 
   onSubmit = () => {
+    const { selected } = this.state;
+    const newValues = Object.keys(selected)
+      .filter(el => selected[el])
+      .map(el => selected[el]);
+
     this.props.updateValue(
-      this.state.value,
+      newValues,
       this.props.id,
       this.props.metaDataSection,
       this.props.fieldName,
@@ -71,7 +87,7 @@ class ServiceLanguages extends Component {
             <Selector.Option
               key={option.id}
               active={selected[option.id]}
-              onClick={() => this.onSelect(option.id)}
+              onClick={() => this.onSelect(option)}
             >
               {option.name}
             </Selector.Option>

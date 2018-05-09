@@ -29,6 +29,7 @@ export const locationsReducer = (state = {}, action) => {
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
+        const { Languages } = service;
         return {
           ...state,
           [`last/${locationId}`]: location,
@@ -44,6 +45,7 @@ export const locationsReducer = (state = {}, action) => {
                 who_does_it_serve: params.whoDoesItServe || service.who_does_it_serve,
                 additional_info: params.additionalInfo || service.additional_info,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
+                Languages: params.languages || Languages,
               },
               ...Services.slice(serviceIdx + 1),
             ],

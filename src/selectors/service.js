@@ -19,7 +19,7 @@ export const getServiceAgesServed = (state, props) => getService(state, props).a
 export const getServiceWhoDoesItServe = (state, props) =>
   getService(state, props).who_does_it_serve;
 
-export const getServiceLanguages = (state, props) => getService(state, props).languages;
+export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 
 export const getServiceOpeningHours = (state, props) => getService(state, props).hours;
 
