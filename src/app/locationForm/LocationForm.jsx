@@ -15,6 +15,8 @@ class LocationForm extends Component {
     this.onNext = this.onNext.bind(this);
     this.onInputFocus = this.onInputFocus.bind(this);
     this.onInputBlur = this.onInputBlur.bind(this);
+    this.onNextSection = this.onNextSection.bind(this);
+    this.onBackSection = this.onBackSection.bind(this);
 
     this.routeComponents = routes.map(({
         urlFragment,
