@@ -11,11 +11,6 @@ import NotFound from '../notFound/NotFound';
 
 const getDocsUrl = (locationId, serviceId) =>
   `/location/${locationId}/services/${serviceId}/documents`;
-
-// const thanksHeader = 'Great work!';
-// const thanksContent =
-//   'Thank you on behalf of all the people who use social services and community programs in NYC!';
-
 const thanksHeader = 'Fantastic!';
 const thanksContent =
   "You're making it easier for people to get the help they need because of the work you're doing.";
