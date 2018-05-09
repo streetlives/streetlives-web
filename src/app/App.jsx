@@ -61,7 +61,7 @@ function App({ authState }) {
             />
             <Route
               exact
-              path="/location/:locationId/services/recap"
+              path="/location/:locationId/services/recap/:thanks?"
               component={withTracker(ServiceRecap)}
             />
             <Route
@@ -83,11 +83,6 @@ function App({ authState }) {
               exact
               path="/location/:locationId/services/:serviceId/documents/:fieldName"
               component={withTracker(DocsFormContainer)}
-            />
-            <Route
-              exact
-              path="/location/:locationId/services/:serviceId/:fieldName/:thanks?"
-              component={withTracker(ServiceFormContainer)}
             />
             <Route
               exact
