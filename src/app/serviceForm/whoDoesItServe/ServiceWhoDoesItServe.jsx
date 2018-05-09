@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getService, getServiceFoodPreferences, getServiceId } from '../../../selectors/service';
+import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
@@ -14,7 +14,7 @@ const EditComponent = compose(withProps({
 }))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({
-  topText: 'FOOD PREFERENCES',
+  topText: 'WHO DOES IT SERVE',
 }))(props => <FormView {...props} />);
 
 const FormComponent = compose(withProps({
@@ -24,7 +24,7 @@ const FormComponent = compose(withProps({
 
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
-  value: getServiceFoodPreferences(state, ownProps),
+  value: getServiceWhoDoesItServe(state, ownProps),
   id: getServiceId(ownProps),
 });
 

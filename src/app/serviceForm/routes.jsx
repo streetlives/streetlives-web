@@ -2,8 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 import ServiceDescription from './description/ServiceDescription';
-import ServiceAgesServed from './agesServed/ServiceAgesServed';
-import ServiceFoodPreferences from './foodPreferences/ServiceFoodPreferences';
+import ServiceWhoDoesItServe from './whoDoesItServe/ServiceWhoDoesItServe';
 import ServiceLanguages from './languages/ServiceLanguages';
 import ServiceOpeningHours from './openingHours/ServiceOpeningHours';
 import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
@@ -22,15 +21,8 @@ export const SERVICE_FIELDS = [
     label: 'Who does it serve?',
     urlFragment: '/who-does-it-serve',
     metaDataSection: 'service',
-    RouteComponent: ServiceFoodPreferences,
+    RouteComponent: ServiceWhoDoesItServe,
     fieldName: 'who_does_it_serve',
-  },
-  {
-    label: 'Ages served',
-    urlFragment: '/ages-served',
-    metaDataSection: 'service',
-    RouteComponent: ServiceAgesServed,
-    fieldName: 'ages_served',
   },
   {
     label: 'Opening hours',
