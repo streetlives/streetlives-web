@@ -157,18 +157,20 @@ class ServiceOpeningHours extends Component {
                             .join(' | ')
                         }
                       </div>
-                    </Selector.Option>,
-                    <OpeningHoursEditForm 
-                      startTabIndex={i}
-                      key={`editForm-${day}`}
-                      active={weekdaysOpen[i]} 
-                      hours={hours}
-                      onFromChange={this.onChange}
-                      onToChange={this.onChange}
-                      removeHour={this.removeHour.bind(this)}
-                      addHour={() => this.addHour(day)}
-                      />
-                  ]
+                    </Selector.Option>
+                  ].concat(
+                    hours && hours.length ? 
+                      <OpeningHoursEditForm 
+                        startTabIndex={i}
+                        key={`editForm-${day}`}
+                        active={weekdaysOpen[i]} 
+                        hours={hours}
+                        onFromChange={this.onChange}
+                        onToChange={this.onChange}
+                        removeHour={this.removeHour.bind(this)}
+                        addHour={() => this.addHour(day)}
+                        /> : []
+                  )
                 })
               }
             </Selector>

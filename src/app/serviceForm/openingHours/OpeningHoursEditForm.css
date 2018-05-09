@@ -1,0 +1,24 @@
+.OpeningHoursEditForm {
+  background-color:#f0f0f0; 
+  margin-bottom:1.5em; 
+  margin-top:1.5em; 
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.OpeningHoursEditForm > i {
+  position: absolute;
+  top: -1em;
+  display: block;
+  right: -1em;
+  color: yellow;
+  background-color: black;
+  padding: .5em;
+  border-radius: 1em;
+  border: 1px solid yellow;
+  box-shadow: 1px 2px 1px 0 rgba(0,0,0,.25);
+  width: 2em;
+  height: 2em;
+  text-align: center;
+  cursor: pointer;
+}
