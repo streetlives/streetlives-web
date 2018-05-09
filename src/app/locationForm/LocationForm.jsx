@@ -33,6 +33,17 @@ function LocationFormRoutes({ onNext, onInputBlur, onInputFocus }) {
 }
 
 class LocationForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onBack = this.onBack.bind(this);
+    this.onNext = this.onNext.bind(this);
+    this.onInputFocus = this.onInputFocus.bind(this);
+    this.onInputBlur = this.onInputBlur.bind(this);
+    this.onNextSection = this.onNextSection.bind(this);
+    this.onBackSection = this.onBackSection.bind(this);
+  }
+
   onBack = () => {
     const { locationId } = this.props.match.params;
     const { urlFragment } = routes[this.getCurrentIndex() - 1];

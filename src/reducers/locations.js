@@ -26,9 +26,10 @@ export const locationsReducer = (state = {}, action) => {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
         const location = state[locationId];
-        const Services = location.Services;
+        const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
+        const { Languages } = service;
         return {
           ...state,
           [`last/${locationId}`]: location,
@@ -39,7 +40,12 @@ export const locationsReducer = (state = {}, action) => {
               {
                 ...service,
                 ...params,
+                // API params mapped to data field names
+                ages_served: params.agesServed || service.ages_served,
+                who_does_it_serve: params.whoDoesItServe || service.who_does_it_serve,
+                additional_info: params.additionalInfo || service.additional_info,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
+                Languages: params.languages || Languages,
               },
               ...Services.slice(serviceIdx + 1),
             ],
@@ -151,7 +157,6 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones, location, 
 
 function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
   const { metadata } = location;
-  console.log(fieldName, location.metadata);
   const subFields = metadata[metaDataSection] || [];
   const newField = { field_name: fieldName, last_action_date: dateString };
   const fieldIndex = subFields ? subFields.findIndex(field => field.field_name === fieldName) : -1;

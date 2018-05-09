@@ -11,6 +11,13 @@ import NotFound from '../notFound/NotFound';
 const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
 
 class ServiceFormContainer extends Component {
+
+  constructor(props){
+    super(props);
+    this.onNext = this.onNext.bind(this);
+    this.onBack = this.onBack.bind(this);
+  }
+
   onBack = () => {
     const { locationId, serviceId } = this.props.match.params;
     const prevRoute = routes[this.getCurrentIndex() - 1];
