@@ -1,9 +1,11 @@
 import React from 'react';
+import FormView from '../common/FormView';
 import { compose, withProps } from 'recompose';
-import { FormView } from '../../../components/form';
 
-const LocationNameView = compose(withProps({
-  topText: 'LOCATION NAME (OPTIONAL)',
-}))(props => <FormView {...props} />);
+const LocationNameView = compose(
+  withProps({
+    topText : 'LOCATION NAME (OPTIONAL)',
+  })
+)(props => <FormView {...props} />)
 
 export default LocationNameView;

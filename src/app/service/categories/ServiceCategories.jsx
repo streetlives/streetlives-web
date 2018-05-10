@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation } from '../../../selectors/location';
-import { getTaxonomy, getCurrentCategories } from '../../../selectors/taxonomy';
+import { getLocation, getTaxonomy, getCurrentCategories } from '../selectors';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -59,7 +58,7 @@ class ServiceCategories extends Component {
     const { locationId } = this.props.match.params;
     this.setState({ isLoading: true });
     const locationTaxonomies = this.props.taxonomy
-      .reduce((flat, key) => [...flat, ...(key.children || [])], [])
+      .reduce((flat, key) => [...flat, ...key.children], [])
       .filter(taxonomy => selected[taxonomy.id]);
 
     api

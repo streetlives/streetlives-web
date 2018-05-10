@@ -1,38 +1,17 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import moment from 'moment';
 
-import { getLocation } from '../../../selectors/location';
-import { getService } from '../../../selectors/service';
-import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 
 import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
-import LoadingLabel from '../../../components/form/LoadingLabel';
 
 import { DOCUMENT_FIELDS } from '../routes';
 
-const LoadingView = () => (
-  <div className="d-flex flex-column">
-    <NavBar title="Docs required" />
-    <LoadingLabel>Loading documents data...</LoadingLabel>
-  </div>
-);
-
-function getUpdatedAt(service, metaDataSection, fieldName) {
-  const subFields = service.metadata[metaDataSection] || [];
-  const field = subFields.find(el => el.field_name === fieldName);
-  return field ? field.last_action_date : null;
-}
-
-function ListItem({ route, linkTo, service }) {
-  const { label, metaDataSection, fieldName } = route;
-  const updatedAt = getUpdatedAt(service, metaDataSection, fieldName);
-  return <FieldItem key={label} title={label} linkTo={linkTo} updatedAt={updatedAt} />;
-}
+// TODO: update fields to have updated value
+const FAKE_UPDATED_AT = moment().subtract(5, 'months');
 
 const getDocsUrl = (locationId, serviceId) =>
   `/location/${locationId}/services/${serviceId}/documents`;
@@ -48,46 +27,26 @@ function DocsHeader({ children }) {
 }
 
 class DocumentDetails extends Component {
-  componentWillMount() {
-    if (Object.keys(this.props.service).length === 0) {
-      const { locationId } = this.props.match.params;
-      this.props.getLocation(locationId);
-    }
-  }
-
-  onNext = () => {
-    const { locationId, serviceId } = this.props.match.params;
-    const route = DOCUMENT_FIELDS[DOCUMENT_FIELDS.length - 1];
-    this.props.history.push(`${getDocsUrl(locationId, serviceId)}${route.urlFragment}/thanks`);
-  };
+  onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
-    const { service } = this.props;
-
-    if (Object.keys(service).length === 0) {
-      return <LoadingView />;
-    }
-
     return (
       <div className="text-left d-flex flex-column">
-        <NavBar
-          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${
-            this.props.match.params.serviceId
-          }`}
-          title="Docs required"
-        />
+        <NavBar 
+          backButtonTarget={`/location/${this.props.match.params.locationId}/services/${this.props.match.params.serviceId}`}
+          title="Docs required" />
         <div className="mb-5">
           <ProgressBar step={1} steps={10} />
         </div>
         <DocsHeader>Add information about documentation required</DocsHeader>
 
         {DOCUMENT_FIELDS.map(field => (
-          <ListItem
-            key={field.label}
-            route={field}
-            linkTo={`${getDocsUrl(locationId, serviceId)}${field.urlFragment}`}
-            service={service}
+          <FieldItem
+            key={field.title}
+            title={field.title}
+            linkTo={`${getDocsUrl(locationId, serviceId)}${field.route}`}
+            updatedAt={FAKE_UPDATED_AT}
           />
         ))}
         <Button fluid primary onClick={this.onNext}>
@@ -98,13 +57,4 @@ class DocumentDetails extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  service: getService(state, ownProps),
-  locationData: getLocation(state, ownProps),
-});
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  getLocation: bindActionCreators(actions.getLocation, dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentDetails);
+export default DocumentDetails;

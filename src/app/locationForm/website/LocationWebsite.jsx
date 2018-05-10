@@ -1,45 +1,61 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { compose, withProps } from 'recompose';
 import { selectLocationData } from '../../../reducers';
-import { updateOrganization, getLocation } from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
+import { updateOrganization } from '../../../actions';
+import { getLocation } from '../../../actions';
+import Form from '../common/Form';
+import FormEdit from '../common/FormEdit';
+import FormView from '../common/FormView';
+import { compose, withProps } from 'recompose';
 
-const WebsiteEdit = compose(withProps({
-  headerText: "What is this organization's website?",
-  placeholderText: 'Enter a wesbite for this organization',
-}))(props => <FormEdit {...props} />);
+const WebsiteEdit = compose(
+  withProps({
+    headerText : 'What is this organization\'s website?',
+    placeholderText : 'Enter a wesbite for this organization',
+  })
+)(props => <FormEdit {...props} />)
 
-const WebsiteView = compose(withProps({
-  topText: 'ORGANIZATION WEBSITE',
-}))(props => <FormView {...props} />);
+const WebsiteView = compose(
+  withProps({
+    topText : 'ORGANIZATION WEBSITE',
+  })
+)(props => <FormView {...props} />)
 
-const Website = compose(withProps({
-  ViewComponent: WebsiteView,
-  EditComponent: WebsiteEdit,
-}))(props => <Form {...props} />);
+const Website = compose(
+  withProps({
+    viewComponent: WebsiteView,
+    editComponent: WebsiteEdit
+  })
+)(props => <Form {...props} />)
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.match.params;
+  const locationId = ownProps.match.params.locationId;
   const locationData = selectLocationData(state, locationId);
 
   return {
-    resourceData: locationData,
-    value: locationData && locationData.Organization && locationData.Organization.url,
-    id: locationData && locationData.Organization && locationData.Organization.id,
+    value: locationData && 
+              locationData.Organization && 
+              locationData.Organization.url,
+    locationData,
+    id : locationData && 
+          locationData.Organization &&
+          locationData.Organization.id
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (newWebsite, organizationId, metaDataSection, fieldName) =>
-    dispatch(updateOrganization(
-      ownProps.match.params.locationId,
-      organizationId,
-      { url: newWebsite },
-      metaDataSection,
-      fieldName,
-    )),
-  fetchResourceData: (locationId) => {
+  updateValue: (newWebsite, organizationId, metaDataSection, fieldName) => (
+    dispatch(
+      updateOrganization(
+        ownProps.match.params.locationId, 
+        organizationId, 
+        { url : newWebsite },
+        metaDataSection, 
+        fieldName
+      )
+    )
+  ),
+  getLocation: (locationId) => {
     dispatch(getLocation(locationId));
   },
 });

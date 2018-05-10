@@ -13,7 +13,6 @@ function Button({
   primary,
   secondary,
   fluid,
-  half,
   disabled = undefined,
   color = undefined,
 }) {
@@ -24,7 +23,6 @@ function Button({
     'Button-disabled': disabled,
     'Button-basic': basic,
     'Button-compact': compact,
-    'Button-half': half,
   });
 
   return (
@@ -42,7 +40,6 @@ Button.defaultProps = {
   fluid: false,
   className: '',
   compact: false,
-  half: false,
 };
 
 Button.propTypes = {
@@ -55,7 +52,6 @@ Button.propTypes = {
   secondary: PropTypes.bool,
   disabled: PropTypes.bool,
   fluid: PropTypes.bool,
-  half: PropTypes.bool,
 };
 
 export default Button;

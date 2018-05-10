@@ -36,15 +36,11 @@
 }
 
 .Button-basic {
-  background: white;
+  background: transparent;
   border-width: 3px;
   padding: 10px;
 }
 
 .Button-basic.Button-secondary {
   color: black;
-}
-
-.Button-half {
-  width:50%
 }

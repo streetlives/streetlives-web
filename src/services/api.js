@@ -3,20 +3,21 @@ import Amplify from 'aws-amplify';
 import config from '../config';
 
 const requestWithAuth = (cb) => {
-  if (config.disableAuth) {
+  if(config.disableAuth){
     return cb(null);
+  }else{
+    return Amplify.Auth.currentAuthenticatedUser().then((user) => {
+      const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
+      return cb(idJwtToken);
+    });
   }
-  return Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
-    return cb(idJwtToken);
-  });
-};
+}
 
 export const getLocations = ({
   latitude, longitude, radius, searchString,
-}) =>
-  requestWithAuth(idJwtToken =>
-    axios
+}) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
       .request({
         url: `${config.baseApi}/locations`,
         method: 'get',
@@ -30,23 +31,26 @@ export const getLocations = ({
           Authorization: idJwtToken,
         },
       })
-      .then(result => result.data));
+      .then(result => result.data);
+  });
+}
 
-export const getLocation = ({ id }) =>
-  requestWithAuth(idJwtToken =>
-    axios
-      .request({
-        url: `${config.baseApi}/locations/${id}`,
-        method: 'get',
-        headers: {
-          Authorization: idJwtToken,
-        },
-      })
-      .then(result => result.data));
+export const getLocation = ({ id }) => {
+  return requestWithAuth( idJwtToken => {
+    return axios.request({
+      url: `${config.baseApi}/locations/${id}`,
+      method: 'get',
+      headers: {
+        Authorization: idJwtToken,
+      },
+    })
+    .then(result => result.data);
+  });
+}
 
-const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
-  requestWithAuth((idJwtToken) => {
-    // construct the path
+const updateResource = ({pathPrefix, method, pathSuffix}, { id, params }) => {
+  return requestWithAuth( idJwtToken => {
+    //construct the path
     const pathComponents = [config.baseApi, pathPrefix, id];
     if (pathSuffix) pathComponents.push(pathSuffix);
     const url = pathComponents.join('/');
@@ -60,16 +64,19 @@ const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
       },
     });
   });
+}
 
-export const getTaxonomy = () =>
-  requestWithAuth(idJwtToken =>
-    axios.request({
+export const getTaxonomy = () => {
+  return requestWithAuth( idJwtToken => {
+    return axios.request({
       url: `${config.baseApi}/taxonomy`,
       method: 'get',
       headers: {
         Authorization: idJwtToken,
       },
-    }));
+    });
+  });
+}
 
 export const getLanguages = () =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
@@ -88,15 +95,14 @@ export const createServices = (locationId, locationTaxonomies) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
 
-    const requests = locationTaxonomies.map(taxonomy =>
-      axios.request({
-        url: `${config.baseApi}/services`,
-        method: 'post',
-        data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
-        headers: {
-          Authorization: jwtToken,
-        },
-      }));
+    const requests = locationTaxonomies.map(taxonomy => axios.request({
+      url: `${config.baseApi}/services`,
+      method: 'post',
+      data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
+      headers: {
+        Authorization: jwtToken,
+      },
+    }));
 
     return axios.all(requests);
   });
@@ -115,14 +121,10 @@ export const updateOrganization = updateResource.bind(this, {
   pathPrefix: 'organizations',
   method: 'patch',
 });
-export const updateService = updateResource.bind(this, {
-  pathPrefix: 'services',
-  method: 'patch',
-});
 
-export const getOrganizations = searchString =>
-  requestWithAuth(idJwtToken =>
-    axios
+export const getOrganizations = ( searchString ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
       .request({
         url: `${config.baseApi}/organizations?searchString=${searchString}`,
         method: 'get',
@@ -130,11 +132,14 @@ export const getOrganizations = searchString =>
           Authorization: idJwtToken,
         },
       })
-      .then(result => result.data));
+      .then(result => result.data);
+  });
+}
 
-export const getOrganizationLocations = organizationId =>
-  requestWithAuth(idJwtToken =>
-    axios
+
+export const getOrganizationLocations = ( organizationId ) => {
+  return requestWithAuth( idJwtToken => {
+    return axios
       .request({
         url: `${config.baseApi}/organizations/${organizationId}/locations`,
         method: 'get',
@@ -142,4 +147,6 @@ export const getOrganizationLocations = organizationId =>
           Authorization: idJwtToken,
         },
       })
-      .then(result => result.data));
+      .then(result => result.data);
+  });
+}

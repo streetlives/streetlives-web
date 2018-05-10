@@ -4,11 +4,11 @@ import Input from '../../../components/input';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 
-export default function ServiceDescription() {
+export default function ServicePayment() {
   return (
     <div>
-      <Header>How would you describe this service?</Header>
-      <Input fluid placeholder="e.g. Free Breakfast & Lunch, 2 helpings" />
+      <Header>Does this service cost anything or require payment?</Header>
+      <Input fluid placeholder="Payment requirements...." />
       <Button onClick={() => {}} primary className="mt-3">
         OK
       </Button>

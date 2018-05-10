@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Header from '../header';
-import Button from '../button';
-import Input from '../input';
+import Header from '../../../components/header';
+import Button from '../../../components/button';
+import Input from '../../../components/input';
 
 class FormEdit extends Component {
   constructor(props) {
@@ -18,10 +18,10 @@ class FormEdit extends Component {
 
   onSubmit() {
     this.props.updateValue(
-      this.state.value,
-      this.props.id,
+      this.state.value, 
+      this.props.id, 
       this.props.metaDataSection,
-      this.props.fieldName,
+      this.props.fieldName
     );
     this.props.onSubmit();
   }
@@ -51,14 +51,15 @@ class FormEdit extends Component {
 
 FormEdit.propTypes = {
   value: PropTypes.string,
-  headerText: PropTypes.string.isRequired,
-  placeholderText: PropTypes.string.isRequired,
+  headerText : PropTypes.string.isRequired,
+  placeholderText : PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired
 };
 FormEdit.defaultProps = {
   value: '',
 };
 
 export default FormEdit;
+

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
-import { getLocation } from '../../../selectors/location';
-import { getService } from '../../../selectors/service';
+import { getService } from '../selectors';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
@@ -11,9 +11,11 @@ import Button from '../../../components/button';
 import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
-import LoadingLabel from '../../../components/form/LoadingLabel';
 
 import { SERVICE_FIELDS } from '../../serviceForm/routes';
+
+// TODO: update fields to have updated value
+const FAKE_UPDATED_AT = moment().subtract(2, 'months');
 
 const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;
 
@@ -30,21 +32,11 @@ function ServiceHeader({ children }) {
 const LoadingView = () => (
   <div className="d-flex flex-column">
     <NavBar title="Services Details" />
-    <LoadingLabel>Loading service data...</LoadingLabel>
+    <p>
+      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
+    </p>
   </div>
 );
-
-function getUpdatedAt(service, metaDataSection, fieldName) {
-  const subFields = service.metadata[metaDataSection];
-  const field = subFields.find(el => el.field_name === fieldName);
-  return field ? field.last_action_date : null;
-}
-
-function ListItem({ route, linkTo, service }) {
-  const { label, metaDataSection, fieldName } = route;
-  const updatedAt = getUpdatedAt(service, metaDataSection, fieldName);
-  return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
-}
 
 class ServiceDetails extends Component {
   componentWillMount() {
@@ -60,10 +52,10 @@ class ServiceDetails extends Component {
   };
 
   render() {
-    const { service, locationData } = this.props;
+    const { service } = this.props;
     const { locationId, serviceId } = this.props.match.params;
 
-    if (Object.keys(locationData).length === 0 || Object.keys(service).length === 0) {
+    if (Object.keys(service).length === 0) {
       return <LoadingView />;
     }
 
@@ -74,16 +66,16 @@ class ServiceDetails extends Component {
           title="Service Details"
         />
         <div className="mb-5">
-          <ProgressBar step={0} steps={SERVICE_FIELDS.length} />
+          <ProgressBar step={1} steps={10} />
         </div>
         <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
         {SERVICE_FIELDS.map(field => (
-          <ListItem
-            key={field.label}
-            route={field}
-            linkTo={`${getServiceUrl(locationId, serviceId)}${field.urlFragment}`}
-            service={service}
+          <FieldItem
+            key={field.title}
+            title={field.title}
+            linkTo={`${getServiceUrl(locationId, serviceId)}${field.route}`}
+            updatedAt={FAKE_UPDATED_AT}
           />
         ))}
         <Button fluid primary onClick={this.onGoToDocs}>
@@ -96,7 +88,6 @@ class ServiceDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationData: getLocation(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
