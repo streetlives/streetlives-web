@@ -73,9 +73,7 @@ class ServiceDetails extends Component {
           backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
           title="Service Details"
         />
-        <div className="mb-5">
-          <ProgressBar step={0} steps={SERVICE_FIELDS.length} />
-        </div>
+        <ProgressBar step={0} steps={SERVICE_FIELDS.length} />
         <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
         {SERVICE_FIELDS.map(field => (
