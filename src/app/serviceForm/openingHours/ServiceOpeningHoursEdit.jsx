@@ -23,6 +23,15 @@ class ServiceOpeningHours extends Component {
     };
   }
 
+  updateValue = (e) => this.props.updateValue(
+    {
+      hours : this.state.hours
+    },
+    this.props.id,
+    this.props.metaDataSection,
+    this.props.fieldName,
+  );
+
   onSelect = active => this.setState({ active });
 
   onWeekday = (index) => {
@@ -30,7 +39,7 @@ class ServiceOpeningHours extends Component {
     const value = weekdaysOpen[index];
     const dayString = DAYS[index];
 
-    const hoursForDay = hours.find(row => row.weekday === dayString);
+    const hoursForDay = hours.filter(row => row.weekday === dayString);
     if(!value && (!hoursForDay || !hoursForDay.length)){
       this.addHour(dayString); //add a row to the clicked weekday, if he is empty
     }
@@ -156,7 +165,7 @@ class ServiceOpeningHours extends Component {
             </Selector>
           </div>
         )}
-        <Button onClick={() => {}} primary disabled={active === -1} className="mt-3">
+        <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
           OK
         </Button>
       </div>

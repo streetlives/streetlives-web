@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { hours },
+      params: hours,
       metaDataSection,
       fieldName,
     })),
