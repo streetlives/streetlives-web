@@ -22,3 +22,15 @@
   text-align: center;
   cursor: pointer;
 }
+
+.OpeningHoursEditForm > .table-container {
+  padding: .5em;
+}
+
+.OpeningHoursEditForm .AddMoreHoursBtn {
+  text-align:center;
+  background-color:white;
+  border-top: 1px solid #ccc;
+  cursor: pointer;
+  padding:.25em;
+}
