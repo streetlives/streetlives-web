@@ -70,7 +70,6 @@ class ServicesRecap extends Component {
       return <LoadingView />;
     }
 
-    console.log('props', this.props);
     // const showThanks = true;
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
