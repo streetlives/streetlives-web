@@ -15,10 +15,7 @@ export default class OpeningHoursEditForm extends Component{
       <i 
         onClick={() => removeHour(hour)}
         className="fa fa-trash"></i>
-      <div 
-        style={{
-          padding: '.5em', 
-        }}>
+      <div className="table-container">
         <table> 
           <tbody>
             <tr>
@@ -46,15 +43,8 @@ export default class OpeningHoursEditForm extends Component{
       </div>
       {
         i === (hours.length - 1) &&
-        <div 
-          onClick={addHour}
-          style={{
-            textAlign:'center',
-            backgroundColor:'white',
-            borderTop: '1px solid #ccc',
-            cursor: 'pointer',
-            padding:'.25em'
-          }}>+&nbsp;Add more hours</div>
+        <div className="AddMoreHoursBtn"
+          onClick={addHour}>+&nbsp;Add more hours</div>
       }
     </form>);
   }
