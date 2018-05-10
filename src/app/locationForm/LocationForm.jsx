@@ -97,7 +97,9 @@ class LocationForm extends Component {
           <ThanksOverlay.GaussianBlur />
           <NavBar backButtonTarget={`/location/${locationId}`} title={currentRoute.label} />
           <ProgressBar step={index} steps={routes.length} />
-          <div className="container">
+          <div 
+              style={{marginBottom: '5em'}}
+              className="container">
             <div className="row px-4">
               <LocationFormRoutes
                 onNext={this.onNext}
@@ -107,10 +109,10 @@ class LocationForm extends Component {
             </div>
           </div>
           <div
-            className="position-absolute"
             style={{
               right: 0,
               bottom: 12,
+              position:'fixed',
               display: this.state && this.state.inputFocused ? 'none' : 'block',
             }}
           >

@@ -10,8 +10,8 @@
   color: darkerGray;
   cursor: pointer;
   padding: 10px;
-  min-width: 250px;
   width: fit-content;
+  position: relative;
 }
 
 .Option.Option-active {
@@ -22,4 +22,7 @@
 }
 .Option.Option-disabled {
   opacity: 0.8;
+}
+.Option.Option-hide {
+  display:none !important;
 }
