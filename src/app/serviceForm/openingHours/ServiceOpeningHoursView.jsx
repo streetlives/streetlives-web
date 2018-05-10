@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ConfirmationOptions from './ConfirmationOptions';
-import Header from '../../../components/header';
+import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import ConfirmationOptions from '../../../components/form/ConfirmationOptions';
 
 function FormView(props) {
   return (
-    <div style={{width:'100%'}}>
-      <div style={{ fontSize: '13px' }} className="font-weight-bold mt-2">
+    <div className="w-100">
+      <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
         {props.topText}
       </div>
-      <Header>{props.value}</Header>
+      <ServiceOpeningHoursEdit viewMode={true} {...props} />
       <ConfirmationOptions onConfirm={props.onConfirm} onEdit={props.onEdit} />
     </div>
   );
@@ -17,7 +17,7 @@ function FormView(props) {
 
 FormView.propTypes = {
   topText: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.array.isRequired,
   onConfirm: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
 };

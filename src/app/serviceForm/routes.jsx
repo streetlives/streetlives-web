@@ -1,38 +1,70 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-import withTracker from '../withTracker';
-
 import ServiceDescription from './description/ServiceDescription';
-import ServiceAgesServed from './agesServed/ServiceAgesServed';
-import ServiceAudience from './audience/ServiceAudience';
-import ServiceAlternativeName from './alternativeName/ServiceAlternativeName';
-import ServiceEligibility from './eligibility/ServiceEligibility';
+import ServiceWhoDoesItServe from './whoDoesItServe/ServiceWhoDoesItServe';
 import ServiceLanguages from './languages/ServiceLanguages';
-import ServicePayment from './payment/ServicePayment';
 import ServiceOpeningHours from './openingHours/ServiceOpeningHours';
 import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
 
 const baseRoute = '/location/:locationId/services/:serviceId';
 
 export const SERVICE_FIELDS = [
-  { title: 'Service description', route: '/description', component: ServiceDescription },
-  { title: 'Alternative name', route: '/alt-name', component: ServiceAlternativeName },
-  { title: 'Who does it serve?', route: '/audience', component: ServiceAudience },
-  { title: 'Ages served', route: '/ages-served', component: ServiceAgesServed },
-  { title: 'Opening hours', route: '/opening-hours', component: ServiceOpeningHours },
-  { title: 'Languages spoken', route: '/languages', component: ServiceLanguages },
-  { title: 'Cost and payment method', route: '/payment', component: ServicePayment },
-  { title: 'Other eligibility criteria', route: '/eligibility', component: ServiceEligibility },
-  { title: 'Other information', route: '/other-info', component: ServiceOtherInfo },
+  {
+    label: 'Service description',
+    urlFragment: '/description',
+    RouteComponent: ServiceDescription,
+    metaDataSection: 'service',
+    fieldName: 'description',
+  },
+  {
+    label: 'Who does it serve?',
+    urlFragment: '/who-does-it-serve',
+    metaDataSection: 'service',
+    RouteComponent: ServiceWhoDoesItServe,
+    fieldName: 'who_does_it_serve',
+  },
+  {
+    label: 'Opening hours',
+    urlFragment: '/opening-hours',
+    metaDataSection: 'service',
+    RouteComponent: ServiceOpeningHours,
+    fieldName: 'hours',
+  },
+  {
+    label: 'Languages spoken',
+    urlFragment: '/languages',
+    metaDataSection: 'service',
+    RouteComponent: ServiceLanguages,
+    fieldName: 'languages',
+  },
+  {
+    label: 'Other information',
+    urlFragment: '/other-info',
+    metaDataSection: 'service',
+    RouteComponent: ServiceOtherInfo,
+    fieldName: 'additional_info',
+  },
 ];
 
-export default function ServiceRoutes() {
-  return SERVICE_FIELDS.map(field => (
+export default function ServiceRoutes({ onNext }) {
+  return SERVICE_FIELDS.map(({
+    RouteComponent, label, urlFragment, metaDataSection, fieldName,
+  }) => (
     <Route
-      key={field.title}
-      path={`${baseRoute}${field.route}`}
-      component={withTracker(field.component)}
+      key={label}
+      path={`${baseRoute}${urlFragment}`}
+      onFieldVerified={onNext}
+      render={props => (
+        <RouteComponent
+          {...props}
+          metaDataSection={metaDataSection}
+          fieldName={fieldName}
+          onInputFocus={() => {}} // TODO
+          onInputBlur={() => {}}
+          onFieldVerified={onNext}
+        />
+        )}
     />
   ));
 }

@@ -1,76 +1,42 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { compose, withProps } from 'recompose';
+import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import ServiceOpeningHoursView from './ServiceOpeningHoursView';
+import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
+import * as actions from '../../../actions';
+import { Form } from '../../../components/form';
 
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Selector from '../../../components/selector';
-import Input from '../../../components/input';
+const ViewComponent = compose(withProps({
+  topText: 'OPENING HOURS'
+}))(props => <ServiceOpeningHoursView {...props} />);
 
-const inputPlaceholder =
-  'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
-class ServiceOpeningHours extends Component {
-  state = { active: -1, weekdays: {} };
+const EditComponent = compose(withProps({
+  viewMode: false,
+}))(props => <ServiceOpeningHoursEdit {...props} />);
 
-  onSelect = active => this.setState({ active });
+const FormComponent = compose(withProps({
+  ViewComponent,
+  EditComponent,
+}))(props => <Form {...props} />);
 
-  onWeekday = (index) => {
-    const { weekdays } = this.state;
-    const value = weekdays[index];
-    this.setState({ weekdays: { ...weekdays, [index]: !value } });
-  };
+const mapStateToProps = (state, ownProps) => ({
+  resourceData: getService(state, ownProps),
+  value: getServiceOpeningHours(state, ownProps),
+  id: getServiceId(ownProps),
+});
 
-  render() {
-    const { active, weekdays } = this.state;
-    return (
-      <div className="w-100">
-        <Header className="mb-3">When is this service available?</Header>
-        <Selector fluid>
-          <Selector.Option active={active === 0} onClick={() => this.onSelect(0)}>
-            This service is 24/7
-          </Selector.Option>
-          <Selector.Option active={active === 1} onClick={() => this.onSelect(1)}>
-            This service is <strong>not</strong> 24/7
-          </Selector.Option>
-        </Selector>
-        {active === 0 && (
-          <div>
-            <p>Is there anything else you would like to add about their opening times?</p>
-            <Input fluid placeholder={inputPlaceholder} />
-          </div>
-        )}
-        {active === 1 && (
-          <div>
-            <p>Select the days and times this service is available</p>
-            <Selector fluid>
-              <Selector.Option active={weekdays[0]} onClick={() => this.onWeekday(0)}>
-                Monday
-              </Selector.Option>
-              <Selector.Option active={weekdays[1]} onClick={() => this.onWeekday(1)}>
-                Tuesday
-              </Selector.Option>
-              <Selector.Option active={weekdays[2]} onClick={() => this.onWeekday(2)}>
-                Wednesday
-              </Selector.Option>
-              <Selector.Option active={weekdays[3]} onClick={() => this.onWeekday(3)}>
-                Thursday
-              </Selector.Option>
-              <Selector.Option active={weekdays[4]} onClick={() => this.onWeekday(4)}>
-                Friday
-              </Selector.Option>
-              <Selector.Option active={weekdays[5]} onClick={() => this.onWeekday(5)}>
-                Saturday
-              </Selector.Option>
-              <Selector.Option active={weekdays[6]} onClick={() => this.onWeekday(6)}>
-                Sunday
-              </Selector.Option>
-            </Selector>
-          </div>
-        )}
-        <Button onClick={() => {}} primary disabled={active === -1} className="mt-3">
-          OK
-        </Button>
-      </div>
-    );
-  }
-}
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
+  updateValue: (hours, serviceId, metaDataSection, fieldName) =>
+    dispatch(actions.updateService({
+      locationId: ownProps.match.params.locationId,
+      serviceId,
+      params: { hours },
+      metaDataSection,
+      fieldName,
+    })),
+});
 
-export default ServiceOpeningHours;
+export default connect(mapStateToProps, mapDispatchToProps)(FormComponent);

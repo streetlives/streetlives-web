@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '../../../components/button';
+import Button from '../button';
 
 function ConfirmationOptions(props) {
   return (
-    <div style={{width:'100%', paddingTop:'1em'}}>
+    <div style={{ width: '100%', paddingTop: '1em' }}>
       <div> Is this information correct? </div>
       <div>
         <Button onClick={props.onConfirm} primary fluid className="mt-2">

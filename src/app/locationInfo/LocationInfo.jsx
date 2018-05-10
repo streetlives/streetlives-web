@@ -8,7 +8,7 @@ import Header from '../../components/header';
 import Button from '../../components/button';
 import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
-import LoadingLabel from '../locationForm/common/LoadingLabel';
+import LoadingLabel from '../../components/form/LoadingLabel';
 import FieldItem from './FieldItem';
 
 const getServicesUrl = locationId => `/location/${locationId}/services`;
@@ -32,6 +32,18 @@ function LoadingView({ locationId }) {
   );
 }
 
+function getUpdatedAt(location, metaDataSection, fieldName) {
+  const subFields = location.metadata[metaDataSection];
+  const field = subFields.find(el => el.field_name === fieldName);
+  return field ? field.last_action_date : null;
+}
+
+function ListItem({ route, linkTo, location }) {
+  const { label, metaDataSection, fieldName } = route;
+  const updatedAt = getUpdatedAt(location, metaDataSection, fieldName);
+  return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
+}
+
 class LocationInfo extends Component {
   componentWillMount() {
     if (!this.props.locationData) {
@@ -45,7 +57,9 @@ class LocationInfo extends Component {
   };
 
   render() {
-    if (!this.props.locationData) {
+    const { locationData } = this.props;
+
+    if (!locationData) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
@@ -54,29 +68,14 @@ class LocationInfo extends Component {
         <NavBar backButtonTarget={`${this.props.location.pathname}/recap`} title="Location Info" />
         <ProgressBar step={0} steps={routes.length} />
         <LocationHeader />
-        {
-          routes.map(({
-              urlFragment,
-              label,
-              metaDataSection,
-              fieldName,
-            }, i) => {
-            let lastDateEdited = null;
-            if(metaDataSection && fieldName){
-              const subFields = this.props.locationData.metadata[metaDataSection];
-              const field = subFields.find( field => field.field_name === fieldName );
-              if(field){
-                lastDateEdited = field.last_action_date;
-              }
-            } 
-            return <FieldItem
-              key={urlFragment}
-              title={label}
-              linkTo={`${this.props.location.pathname}/${urlFragment}`}
-              updatedAt={lastDateEdited}
-            />
-          })
-        }
+        {routes.map(field => (
+          <ListItem
+            key={field.label}
+            route={field}
+            linkTo={`${this.props.location.pathname}/${field.urlFragment}`}
+            location={locationData}
+          />
+        ))}
         <Button fluid primary onClick={this.onGoToServices}>
           Done
         </Button>

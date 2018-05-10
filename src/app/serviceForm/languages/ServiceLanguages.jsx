@@ -1,86 +1,37 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { compose, withProps } from 'recompose';
 
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Selector from '../../../components/selector';
-import Icon from '../../../components/icon';
-import * as api from '../../../services/api';
+import { getService, getServiceLanguages, getServiceId } from '../../../selectors/service';
 
-import AddLanguageForm from './AddLanguageForm';
+import * as actions from '../../../actions';
+import { Form } from '../../../components/form';
 
-const PRESET_LANGUAGES = ['en', 'es', 'ru', 'zh'];
+import ServiceLanguagesEdit from './ServiceLanguagesEdit';
+import ServiceLanguagesView from './ServiceLanguagesView';
 
-class ServiceLanguages extends Component {
-  state = {
-    fetched: [],
-    languages: [],
-    selected: {},
-    isAdding: false,
-  };
+const FormComponent = compose(withProps({
+  ViewComponent: ServiceLanguagesView,
+  EditComponent: ServiceLanguagesEdit,
+}))(props => <Form {...props} />);
 
-  componentWillMount() {
-    api
-      .getLanguages()
-      .then(({ data }) => {
-        const languages = data.filter(item => PRESET_LANGUAGES.indexOf(item.language) > -1);
-        this.setState({ fetched: data, languages });
-      })
-      .catch(error => console.log('error', error)); // eslint-disable-line no-console
-  }
+const mapStateToProps = (state, ownProps) => ({
+  resourceData: getService(state, ownProps),
+  value: getServiceLanguages(state, ownProps),
+  id: getServiceId(ownProps),
+});
 
-  onSelect = (id) => {
-    this.setState(({ selected }) => ({ selected: { ...selected, [id]: !selected[id] } }));
-  };
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
+  updateValue: (languages, serviceId, metaDataSection, fieldName) =>
+    dispatch(actions.updateLanguages({
+      locationId: ownProps.match.params.locationId,
+      serviceId,
+      languages,
+      metaDataSection,
+      fieldName,
+    })),
+});
 
-  onAddLanguage = (option) => {
-    this.setState(({ languages, selected }) => ({
-      languages: [...languages, option],
-      selected: { ...selected, [option.id]: true },
-      isAdding: false,
-    }));
-  };
-
-  render() {
-    const { languages, selected, isAdding } = this.state;
-
-    if (isAdding) {
-      return (
-        <AddLanguageForm
-          languages={this.state.fetched}
-          onSelect={this.onAddLanguage}
-          onDismiss={() => this.setState({ isAdding: false })}
-        />
-      );
-    }
-
-    return (
-      <div className="w-100">
-        <Header className="mb-3">What languages are available for this service?</Header>
-        <Selector fluid>
-          {languages.map(option => (
-            <Selector.Option
-              key={option.id}
-              active={selected[option.id]}
-              onClick={() => this.onSelect(option.id)}
-            >
-              {option.name}
-            </Selector.Option>
-          ))}
-          <Selector.Option align="center" onClick={() => this.setState({ isAdding: true })}>
-            <Icon name="plus" className="mr-2" />Add another language
-          </Selector.Option>
-        </Selector>
-        <Button
-          onClick={() => {}}
-          primary
-          disabled={Object.keys(languages).length === 0}
-          className="mt-3"
-        >
-          OK
-        </Button>
-      </div>
-    );
-  }
-}
-
-export default ServiceLanguages;
+export default connect(mapStateToProps, mapDispatchToProps)(FormComponent);
