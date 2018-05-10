@@ -55,7 +55,11 @@ class DocumentDetails extends Component {
     }
   }
 
-  onNext = () => console.log('Next clicked!'); // eslint-disable-line no-console
+  onNext = () => {
+    const { locationId, serviceId } = this.props.match.params;
+    const route = DOCUMENT_FIELDS[DOCUMENT_FIELDS.length - 1];
+    this.props.history.push(`${getDocsUrl(locationId, serviceId)}${route.urlFragment}/thanks`);
+  };
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
