@@ -147,12 +147,21 @@ class ServiceOpeningHours extends Component {
     const { active, weekdaysOpen } = this.state;
     return (
       <div className="w-100">
-        <Header className="mb-3">When is this service available?</Header>
+        {
+          !this.props.viewMode && 
+            <Header className="mb-3">When is this service available?</Header>
+        }
         <Selector fluid>
-          <Selector.Option active={active === 0} onClick={() => this.onSelect(IS_247_ACTIVE)}>
+          <Selector.Option 
+            hide={this.props.viewMode && active !== IS_247_ACTIVE} 
+            active={active === IS_247_ACTIVE} 
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_247_ACTIVE)}>
             This service is 24/7
           </Selector.Option>
-          <Selector.Option active={active === 1} onClick={() => this.onSelect(IS_NOT_247_ACTIVE)}>
+          <Selector.Option 
+            hide={this.props.viewMode} 
+            active={active === IS_NOT_247_ACTIVE} 
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_NOT_247_ACTIVE)}>
             This service is <strong>not</strong> 24/7
           </Selector.Option>
         </Selector>
@@ -164,7 +173,10 @@ class ServiceOpeningHours extends Component {
         )}
         {active === IS_NOT_247_ACTIVE && (
           <div>
-            <p>Select the days and times this service is available</p>
+            {
+              !this.props.viewMode &&
+                <p> Select the days and times this service is available </p>
+            }
             <Selector fluid>
               {
                 DAYS.map( (day, i) => {
@@ -174,7 +186,8 @@ class ServiceOpeningHours extends Component {
                       key={`selector-${day}`}
                       disablePadding={weekdaysOpen[i]} 
                       active={!!hours.length} 
-                      onClick={() => this.onWeekday(i)}>
+                      hide={this.props.viewMode && !hours.length} 
+                      onClick={this.props.viewMode ? undefined : () => this.onWeekday(i)}>
                       <div>{day}</div>
                       <div style={{fontSize: '.8em'}}>
                         {
@@ -196,6 +209,7 @@ class ServiceOpeningHours extends Component {
                         onToChange={this.onChange}
                         removeHour={this.removeHour.bind(this)}
                         addHour={() => this.addHour(day)}
+                        viewMode={this.props.viewMode}
                         /> : []
                   )
                 })
@@ -203,9 +217,12 @@ class ServiceOpeningHours extends Component {
             </Selector>
           </div>
         )}
-        <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
-          OK
-        </Button>
+        {
+          !this.props.viewMode &&
+            <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
+              OK
+            </Button>
+        }
       </div>
     );
   }

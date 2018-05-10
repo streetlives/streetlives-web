@@ -5,11 +5,12 @@ import Icon from '../../icon';
 import './Option.css';
 
 function Option({
-  active, align = 'left', children, onClick, disabled, disablePadding
+  active, align = 'left', children, onClick, disabled, disablePadding, hide
 }) {
   const classNames = cx('Option d-flex justify-content-between align-items-center', {
     'Option-active': active,
     'Option-disabled': disabled,
+    'Option-hide': hide,
     'text-left': align === 'left',
     'text-center': align === 'center',
     'disable-padding': disablePadding,

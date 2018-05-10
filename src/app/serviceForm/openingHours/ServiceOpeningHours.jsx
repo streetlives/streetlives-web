@@ -3,13 +3,22 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import ServiceOpeningHoursView from './ServiceOpeningHoursView';
 import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
 
+const ViewComponent = compose(withProps({
+  topText: 'OPENING HOURS'
+}))(props => <ServiceOpeningHoursView {...props} />);
+
+const EditComponent = compose(withProps({
+  viewMode: false,
+}))(props => <ServiceOpeningHoursEdit {...props} />);
+
 const FormComponent = compose(withProps({
-  ViewComponent: ServiceOpeningHoursEdit,
-  EditComponent: ServiceOpeningHoursEdit,
+  ViewComponent,
+  EditComponent,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({

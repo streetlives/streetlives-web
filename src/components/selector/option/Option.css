@@ -23,3 +23,6 @@
 .Option.Option-disabled {
   opacity: 0.8;
 }
+.Option.Option-hide {
+  display:none !important;
+}
