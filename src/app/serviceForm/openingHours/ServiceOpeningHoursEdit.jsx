@@ -51,9 +51,7 @@ class ServiceOpeningHours extends Component {
   }
 
   updateValue = (e) => this.props.updateValue(
-    {
-      hours : this.state.hours
-    },
+    this.state.hours,
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,
