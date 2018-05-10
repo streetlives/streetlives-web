@@ -93,7 +93,7 @@ class LocationForm extends Component {
             filter : thanks && 'url(#blur)',
             overflow : thanks && 'hidden',
             width:'100%',
-            height:'100%'
+            height:'100%',
           }}>
           <svg style={{display:'none'}}>
              <filter id="blur">
@@ -104,7 +104,9 @@ class LocationForm extends Component {
             backButtonTarget={`/location/${locationId}`}
             title={currentRoute.label} />
           <ProgressBar step={index} steps={routes.length} />
-          <div className="container">
+          <div 
+            style={{marginBottom: '5em'}}
+            className="container">
             <div className="row px-4">{this.routeComponents}</div>
           </div>
           <div 

@@ -22,7 +22,7 @@ export default class OpeningHoursEditForm extends Component{
               <td style={{paddingRight: '1em'}}>From:</td>
               <td>
                 <Input 
-                  value={(hour && hour.opensAt) || '12:00'}
+                  value={(hour && hour.opensAt) || '00:00'}
                   type="time" 
                   tabIndex={startTabIndex*100 + i*10 + 1} 
                   onChange={(e) => onFromChange('opensAt', hour, e.target.value)}/>

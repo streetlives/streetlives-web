@@ -143,6 +143,12 @@ class ServiceOpeningHours extends Component {
             (m.minutes() ? m.format('h:mmA') : m.format('hA'));
   }
 
+  formatHours(hours){
+    const s1 = this.formatTime(hours.opensAt);
+    const s2 = this.formatTime(hours.closesAt);
+    return s1 && s2 ? `${s1} to ${s2}` : '';
+  }
+
   render() {
     const { active, weekdaysOpen } = this.state;
     return (
@@ -193,7 +199,7 @@ class ServiceOpeningHours extends Component {
                         {
                           hours 
                             .sort( (a,b) => a.opensAt < b.openAt )
-                            .map( time => `${this.formatTime(time.opensAt)} to ${this.formatTime(time.closesAt)}` )
+                            .map( time => this.formatHours(time) )
                             .join(' | ')
                         }
                       </div>
@@ -219,9 +225,14 @@ class ServiceOpeningHours extends Component {
         )}
         {
           !this.props.viewMode &&
-            <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
-              OK
-            </Button>
+            <div>
+              <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
+                OK
+              </Button>&nbsp;
+              <Button onClick={this.props.onCancel} basic primary className="mt-3">
+                CANCEL
+              </Button>
+            </div>
         }
       </div>
     );
