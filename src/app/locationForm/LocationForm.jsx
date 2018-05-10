@@ -11,27 +11,6 @@ const thanksHeader = 'Thanks so much!';
 const thanksContent =
   "The community can now trust this information, because you've checked that it's good!";
 
-function LocationFormRoutes({ onNext, onInputBlur, onInputFocus }) {
-  return routes.map(({
-    urlFragment, RouteComponent, metaDataSection, fieldName,
-  }) => (
-    <Route
-      key={urlFragment}
-      path={`/location/:locationId/${urlFragment}/:thanks?`}
-      render={routeProps => (
-        <RouteComponent
-          {...routeProps}
-          metaDataSection={metaDataSection}
-          fieldName={fieldName}
-          onInputFocus={onInputFocus}
-          onInputBlur={onInputBlur}
-          onFieldVerified={onNext}
-        />
-      )}
-    />
-  ));
-}
-
 class LocationForm extends Component {
   constructor(props) {
     super(props);
@@ -42,19 +21,40 @@ class LocationForm extends Component {
     this.onInputBlur = this.onInputBlur.bind(this);
     this.onNextSection = this.onNextSection.bind(this);
     this.onBackSection = this.onBackSection.bind(this);
+
+    this.routeComponents = routes.map(({
+        urlFragment,
+        RouteComponent,
+        metaDataSection,
+        fieldName,
+      }) => (
+      <Route
+        key={urlFragment}
+        path={`/location/:locationId/${urlFragment}/:thanks?`}
+        render={(routeProps) => {
+          return <RouteComponent
+            {...routeProps}
+            metaDataSection={metaDataSection}
+            fieldName={fieldName}
+            onInputFocus={this.onInputFocus}
+            onInputBlur={this.onInputBlur}
+            onFieldVerified={this.onNext} />;
+        }}
+      />
+    ));
   }
 
-  onBack = () => {
+  onBack() {
     const { locationId } = this.props.match.params;
     const { urlFragment } = routes[this.getCurrentIndex() - 1];
     this.props.history.push(`/location/${locationId}/${urlFragment}`);
     this.onInputBlur();
-  };
+  }
 
-  onNext = () => {
+  onNext() {
     const { locationId } = this.props.match.params;
     const idx = this.getCurrentIndex();
-    if (routes.length - 1 === idx) {
+    if ((routes.length - 1) === idx) {
       // show the overlay
       this.props.history.push(`${this.props.location.pathname}/thanks`);
     } else {
@@ -62,28 +62,28 @@ class LocationForm extends Component {
       this.props.history.push(`/location/${locationId}/${urlFragment}`);
     }
     this.onInputBlur();
-  };
+  }
 
-  onInputFocus = () => {
+  onInputFocus(){
     this.setState({ inputFocused: true });
-  };
+  }
 
-  onInputBlur = () => {
+  onInputBlur(){
     this.setState({ inputFocused: false });
-  };
+  }
 
-  onNextSection = () => {
-    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
-  };
-
-  onBackSection = () => {
-    this.props.history.push(`/location/${this.props.match.params.locationId}`);
-  };
-
-  getCurrentIndex = () => {
+  getCurrentIndex() {
     const { questionId } = this.props.match.params;
     return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(questionId);
-  };
+  }
+  onNextSection() {
+    this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
+  }
+
+  onBackSection() {
+    this.props.history.push(`/location/${this.props.match.params.locationId}`);
+  }
+
 
   render() {
     const { locationId } = this.props.match.params;
@@ -101,11 +101,7 @@ class LocationForm extends Component {
               style={{marginBottom: '5em'}}
               className="container">
             <div className="row px-4">
-              <LocationFormRoutes
-                onNext={this.onNext}
-                onInputFocus={this.onInputFocus}
-                onInputBlur={this.onInputBlur}
-              />
+              {this.routeComponents}
             </div>
           </div>
           <div

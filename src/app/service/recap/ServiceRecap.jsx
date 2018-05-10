@@ -82,23 +82,21 @@ class ServicesRecap extends Component {
             backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
             title="Services recap"
           />
-          <div className="mb-5">
-            <div className="py-5 px-3 container">
-              <Header>
-                Please fill in all the information available for each of the services at this
-                location:
-              </Header>
-            </div>
-
-            {taxonomy.map(category => (
-              <div key={category.id}>
-                <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
-                {services
-                  .filter(service => service.parent_id === category.id)
-                  .map(service => <ListItem key={service.id} service={service} />)}
-              </div>
-            ))}
+          <div style={{marginBottom:'1em'}} className="px-3 container">
+            <Header>
+              Please fill in all the information available for each of the services at this
+              location:
+            </Header>
           </div>
+
+          {taxonomy.map(category => (
+            <div key={category.id}>
+              <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
+              {services
+                .filter(service => service.parent_id === category.id)
+                .map(service => <ListItem key={service.id} service={service} />)}
+            </div>
+          ))}
           <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
             <Button fluid primary onClick={this.onNext}>
               DONE

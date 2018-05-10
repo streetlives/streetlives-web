@@ -84,41 +84,39 @@ class ServiceCategories extends Component {
           backButtonTarget={`/location/${this.props.match.params.locationId}`}
           title="Services info"
         />
-        <div className="mb-5">
-          <div className="py-5 px-3 container">
-            <Header>What programs and services are available at this location?</Header>
-          </div>
-          <Accordion>
-            {taxonomy.map((category, i) => (
-              <div key={category.id}>
-                <Accordion.Item
-                  active={active === category.id}
-                  onClick={() => this.onToggleOpen(category.id)}
-                  title={category.name}
-                  icon={getCategoryIcon(category.name)}
-                />
-                <Accordion.Content active={active === category.id}>
-                  <Selector fluid>
-                    {category.children &&
-                      category.children.map(item => (
-                        <Selector.Option
-                          key={item.id}
-                          onClick={() => this.onSelect(item)}
-                          active={selected[item.id] || currentCategories[item.id]}
-                          disabled={currentCategories[item.id]}
-                        >
-                          {item.name}
-                        </Selector.Option>
-                      ))}
-                    <Selector.Option align="center">
-                      + Add another {category.name.toLowerCase()} service
-                    </Selector.Option>
-                  </Selector>
-                </Accordion.Content>
-              </div>
-            ))}
-          </Accordion>
+        <div style={{marginBottom:'1em'}} className="px-3 container">
+          <Header>What programs and services are available at this location?</Header>
         </div>
+        <Accordion>
+          {taxonomy.map((category, i) => (
+            <div key={category.id}>
+              <Accordion.Item
+                active={active === category.id}
+                onClick={() => this.onToggleOpen(category.id)}
+                title={category.name}
+                icon={getCategoryIcon(category.name)}
+              />
+              <Accordion.Content active={active === category.id}>
+                <Selector fluid>
+                  {category.children &&
+                    category.children.map(item => (
+                      <Selector.Option
+                        key={item.id}
+                        onClick={() => this.onSelect(item)}
+                        active={selected[item.id] || currentCategories[item.id]}
+                        disabled={currentCategories[item.id]}
+                      >
+                        {item.name}
+                      </Selector.Option>
+                    ))}
+                  <Selector.Option align="center">
+                    + Add another {category.name.toLowerCase()} service
+                  </Selector.Option>
+                </Selector>
+              </Accordion.Content>
+            </div>
+          ))}
+        </Accordion>
         <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
           <Button fluid primary onClick={this.onSubmit}>
             Next

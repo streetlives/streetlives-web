@@ -45,15 +45,3 @@ export const getServiceOpeningHours = (state, props) => (
 )
 
 export const getServiceAdditionalInfo = (state, props) => getService(state, props).additional_info;
-
-export const getDocuments = (state, props) => getService(state, props).documents || {};
-
-export const getDocumentProofs = (state, props) => getDocuments(state, props).proofs;
-
-export const getDocumentRecertificationTime = (state, props) =>
-  getDocuments(state, props).recertificationTime;
-
-export const getDocumentGracePeriod = (state, props) => getDocuments(state, props).gracePeriod;
-
-export const getDocumentAdditionalInfo = (state, props) =>
-  getDocuments(state, props).additional_info;
