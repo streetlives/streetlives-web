@@ -74,7 +74,7 @@ class ServiceDetails extends Component {
           title="Service Details"
         />
         <div className="mb-5">
-          <ProgressBar step={1} steps={10} />
+          <ProgressBar step={0} steps={SERVICE_FIELDS.length} />
         </div>
         <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
