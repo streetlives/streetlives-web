@@ -3,11 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import {
-  getService,
-  getDocumentRecertificationTime,
-  getServiceId,
-} from '../../../selectors/service';
+import { getDocuments, getDocumentRecertificationTime } from '../../../selectors/document';
+import { getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
@@ -27,7 +24,7 @@ const FormComponent = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
-  resourceData: getService(state, ownProps),
+  resourceData: getDocuments(state, ownProps),
   value: getDocumentRecertificationTime(state, ownProps),
   id: getServiceId(ownProps),
 });
