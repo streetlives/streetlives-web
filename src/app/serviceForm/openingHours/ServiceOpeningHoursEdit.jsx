@@ -8,6 +8,12 @@ import Selector from '../../../components/selector';
 import Input from '../../../components/input';
 import { DAYS } from '../../../constants';
 
+const NOTHING_ACTIVE = -1;
+const IS_247_ACTIVE = 0;
+const IS_NOT_247_ACTIVE = 1;
+const MIDNIGHT = '00:00';
+const ELEVEN_FIFTY_NINE = '23:59';
+
 const inputPlaceholder =
   'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
 class ServiceOpeningHours extends Component {
@@ -17,10 +23,31 @@ class ServiceOpeningHours extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.state = { 
-      active: -1, 
+      active: this.getActive(props.value), 
       weekdaysOpen: {},
       hours: props.value
     };
+  }
+
+  getActive(hours){
+    const is247 = DAYS.every( weekday => (
+      hours && 
+        hours.find( hour => (
+          hour.weekday === weekday && 
+          hour.opensAt === MIDNIGHT && 
+          hour.closesAt === ELEVEN_FIFTY_NINE  
+        )) 
+    ));
+
+    if(hours && hours.length){
+      if(is247){
+        return IS_247_ACTIVE;
+      }else {
+        return IS_NOT_247_ACTIVE;
+      }
+    }else{
+      return NOTHING_ACTIVE;
+    }
   }
 
   updateValue = (e) => this.props.updateValue(
@@ -32,7 +59,17 @@ class ServiceOpeningHours extends Component {
     this.props.fieldName,
   );
 
-  onSelect = active => this.setState({ active });
+  onSelect = active => {
+    const newState = { active };
+    if(active === IS_247_ACTIVE){
+      newState.hours = DAYS.map( weekday => ({
+        opensAt: MIDNIGHT,
+        closesAt: ELEVEN_FIFTY_NINE,
+        weekday
+      }))
+    }
+    this.setState(newState);
+  }
 
   onWeekday = (index) => {
     const { weekdaysOpen, hours } = this.state;
@@ -80,7 +117,8 @@ class ServiceOpeningHours extends Component {
   componentWillReceiveProps(props){
     if(props.value && props.value !== this.props.value){
       this.setState({
-        hours: props.value
+        hours: props.value,
+        active : this.getActive(props.value)
       });
     }
   }
@@ -111,20 +149,20 @@ class ServiceOpeningHours extends Component {
       <div className="w-100">
         <Header className="mb-3">When is this service available?</Header>
         <Selector fluid>
-          <Selector.Option active={active === 0} onClick={() => this.onSelect(0)}>
+          <Selector.Option active={active === 0} onClick={() => this.onSelect(IS_247_ACTIVE)}>
             This service is 24/7
           </Selector.Option>
-          <Selector.Option active={active === 1} onClick={() => this.onSelect(1)}>
+          <Selector.Option active={active === 1} onClick={() => this.onSelect(IS_NOT_247_ACTIVE)}>
             This service is <strong>not</strong> 24/7
           </Selector.Option>
         </Selector>
-        {active === 0 && (
+        {active === IS_247_ACTIVE && (
           <div>
             <p>Is there anything else you would like to add about their opening times?</p>
             <Input fluid placeholder={inputPlaceholder} />
           </div>
         )}
-        {active === 1 && (
+        {active === IS_NOT_247_ACTIVE && (
           <div>
             <p>Select the days and times this service is available</p>
             <Selector fluid>
