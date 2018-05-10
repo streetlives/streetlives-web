@@ -25,11 +25,21 @@ export const locationsReducer = (state = {}, action) => {
         const {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
+        const { documents = {} } = params;
         const location = state[locationId];
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
-        const { Languages } = service;
+        const { Languages, DocumentsInfo, RequiredDocuments } = service;
+
+        if (documents.proofs != null) {
+          // TODO: Update when form support multiple proofs
+          // eslint-disable-next-line prefer-destructuring
+          const proof = { ...RequiredDocuments[0], document: documents.proofs[0] };
+
+          RequiredDocuments[0] = proof;
+        }
+
         return {
           ...state,
           [`last/${locationId}`]: location,
@@ -46,6 +56,13 @@ export const locationsReducer = (state = {}, action) => {
                 additional_info: params.additionalInfo || service.additional_info,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
                 Languages: params.languages || Languages,
+                DocumentsInfo: {
+                  recertification_time:
+                    documents.recertificationTime || DocumentsInfo.recertification_time,
+                  grace_period: documents.gracePeriod || DocumentsInfo.grace_period,
+                  additional_info: documents.additionalInfo || DocumentsInfo.additional_info,
+                },
+                RequiredDocuments,
               },
               ...Services.slice(serviceIdx + 1),
             ],

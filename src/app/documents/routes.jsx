@@ -21,21 +21,21 @@ export const DOCUMENT_FIELDS = [
     urlFragment: '/recertification-time',
     RouteComponent: DocsCertTime,
     metaDataSection: 'documents',
-    fieldName: 'certTime',
+    fieldName: 'recertification_time',
   },
   {
     label: 'Grace period',
     urlFragment: '/grace-period',
     RouteComponent: DocsGracePeriod,
     metaDataSection: 'documents',
-    fieldName: 'gracePeriod',
+    fieldName: 'grace_period',
   },
   {
     label: 'Other information',
     urlFragment: '/other-info',
     RouteComponent: DocsOtherInfo,
     metaDataSection: 'documents',
-    fieldName: 'additionalInfo',
+    fieldName: 'additional_info',
   },
 ];
 

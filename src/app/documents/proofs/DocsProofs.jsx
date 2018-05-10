@@ -16,10 +16,7 @@ const EditComponent = compose(withProps({
 
 const ViewComponent = compose(withProps({
   topText: 'PROOFS REQUIRED',
-}))(props => (
-  // console.log('props', props);
-  <FormView {...props} />
-));
+}))(props => <FormView {...props} />);
 
 const FormComponent = compose(withProps({
   ViewComponent,
