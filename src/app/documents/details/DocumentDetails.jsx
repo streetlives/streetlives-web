@@ -77,9 +77,7 @@ class DocumentDetails extends Component {
           }`}
           title="Docs required"
         />
-        <div className="mb-5">
-          <ProgressBar step={1} steps={10} />
-        </div>
+        <ProgressBar step={0} steps={DOCUMENT_FIELDS.length} />
         <DocsHeader>Add information about documentation required</DocsHeader>
 
         {DOCUMENT_FIELDS.map(field => (

@@ -92,7 +92,7 @@ Form.propTypes = {
   ViewComponent: PropTypes.func.isRequired,
   EditComponent: PropTypes.func.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
-  resourceData: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  resourceData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   fetchResourceData: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
   onFieldVerified: PropTypes.func,

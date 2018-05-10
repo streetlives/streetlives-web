@@ -26,20 +26,30 @@ export const locationsReducer = (state = {}, action) => {
         const {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
+        const { documents = {} } = params;
         const location = state[locationId];
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
-        const { Languages, RegularSchedules } = service;
+        const {
+          Languages, DocumentsInfo, RequiredDocuments, RegularSchedules,
+        } = service;
+
+        if (documents.proofs != null) {
+          // TODO: Update when form support multiple proofs
+          // eslint-disable-next-line prefer-destructuring
+          const proof = { ...RequiredDocuments[0], document: documents.proofs[0] };
+
+          RequiredDocuments[0] = proof;
+        }
+
         let hours = null;
-        if(params.hours){
-          hours = params.hours.map( ({opensAt, closesAt, weekday}) => (
-            {
-              opens_at : `${opensAt}:00`,
-              closes_at : `${closesAt}:00`,
-              weekday : DAYS.indexOf(weekday) + 1
-            }
-          ));
+        if (params.hours) {
+          hours = params.hours.map(({ opensAt, closesAt, weekday }) => ({
+            opens_at: `${opensAt}:00`,
+            closes_at: `${closesAt}:00`,
+            weekday: DAYS.indexOf(weekday) + 1,
+          }));
         }
         return {
           ...state,
@@ -57,7 +67,14 @@ export const locationsReducer = (state = {}, action) => {
                 additional_info: params.additionalInfo || service.additional_info,
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
                 Languages: params.languages || Languages,
-                RegularSchedules: hours || RegularSchedules 
+                DocumentsInfo: {
+                  recertification_time:
+                    documents.recertificationTime || DocumentsInfo.recertification_time,
+                  grace_period: documents.gracePeriod || DocumentsInfo.grace_period,
+                  additional_info: documents.additionalInfo || DocumentsInfo.additional_info,
+                },
+                RequiredDocuments,
+                RegularSchedules: hours || RegularSchedules,
               },
               ...Services.slice(serviceIdx + 1),
             ],

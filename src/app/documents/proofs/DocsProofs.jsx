@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getService, getDocumentProofs, getServiceId } from '../../../selectors/service';
+import { getDocuments, getFirstProof } from '../../../selectors/document';
+import { getServiceId } from '../../../selectors/service';
 
 import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
@@ -23,18 +24,18 @@ const FormComponent = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
-  resourceData: getService(state, ownProps),
-  value: getDocumentProofs(state, ownProps),
+  resourceData: getDocuments(state, ownProps),
+  value: getFirstProof(state, ownProps),
   id: getServiceId(ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (proofs, serviceId, metaDataSection, fieldName) =>
+  updateValue: (value, serviceId, metaDataSection, fieldName) =>
     dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { documents: { proofs } },
+      params: { documents: { proofs: [value] } },
       metaDataSection,
       fieldName,
     })),
