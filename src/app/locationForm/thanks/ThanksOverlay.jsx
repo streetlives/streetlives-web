@@ -56,7 +56,7 @@ class ThanksOverlay extends Component {
             )}
             {backLabel && (
               <div className="mt-2">
-                <Button primary basic fluid color="white" onClick={this.props.onBackSection}>
+                <Button primary basic fluid onClick={this.props.onBackSection}>
                   {backLabel}
                 </Button>
               </div>

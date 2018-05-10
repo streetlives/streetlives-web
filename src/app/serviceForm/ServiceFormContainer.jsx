@@ -56,13 +56,16 @@ class ServiceFormContainer extends Component {
           title={currentRoute.label}
         />
         <ProgressBar step={index + 1} steps={routes.length} />
-        <div className="container">
+        <div 
+          style={{marginBottom: '5em'}}
+          className="container">
           <div className="row px-4">
             <ServiceFormRoutes onNext={this.onNext} />
           </div>
         </div>
-        <div className="position-absolute" style={{ right: 0, bottom: 12 }}>
-          <div className="container">
+        <div style={{ right: 0, bottom: 12, position:'fixed' }}>
+          <div 
+            className="container">
             <div className="row px-4">
               <Button onClick={this.onBack} compact disabled={index === 0}>
                 <Icon name="chevron-up" />

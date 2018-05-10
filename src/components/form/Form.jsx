@@ -54,9 +54,9 @@ class Form extends Component {
   };
 
   render() {
-    const { EditComponent, ViewComponent } = this.props;
+    const { EditComponent, ViewComponent, resourceData } = this.props;
 
-    if (!this.props.resourceData) return <LoadingLabel />;
+    if (!resourceData || Object.keys(resourceData).length === 0) return <LoadingLabel />;
 
     if (this.state.isEditing) {
       return (
@@ -75,7 +75,15 @@ class Form extends Component {
     }
 
     return (
-      <ViewComponent value={this.props.value} onConfirm={this.onConfirm} onEdit={this.onEdit} />
+      <ViewComponent 
+        value={this.props.value} 
+        onConfirm={this.onConfirm} 
+        onEdit={this.onEdit} 
+        updateValue={this.props.updateValue}
+        metaDataSection={this.props.metaDataSection}
+        fieldName={this.props.fieldName}
+        id={this.props.id}
+        />
     );
   }
 }

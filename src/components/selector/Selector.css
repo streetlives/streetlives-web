@@ -2,6 +2,10 @@
   margin-bottom: 10px;
 }
 
+.Selector > .Option.disable-padding {
+  margin-bottom: 0px;
+}
+
 .Selector.Selector-fluid > .Option {
   width: 100%;
 }

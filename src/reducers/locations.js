@@ -9,6 +9,7 @@ import {
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
 } from '../actions';
+import { DAYS } from '../constants';
 
 export const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();
@@ -30,7 +31,9 @@ export const locationsReducer = (state = {}, action) => {
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
-        const { Languages, DocumentsInfo, RequiredDocuments } = service;
+        const {
+          Languages, DocumentsInfo, RequiredDocuments, RegularSchedules,
+        } = service;
 
         if (documents.proofs != null) {
           // TODO: Update when form support multiple proofs
@@ -40,6 +43,14 @@ export const locationsReducer = (state = {}, action) => {
           RequiredDocuments[0] = proof;
         }
 
+        let hours = null;
+        if (params.hours) {
+          hours = params.hours.map(({ opensAt, closesAt, weekday }) => ({
+            opens_at: `${opensAt}:00`,
+            closes_at: `${closesAt}:00`,
+            weekday: DAYS.indexOf(weekday) + 1,
+          }));
+        }
         return {
           ...state,
           [`last/${locationId}`]: location,
@@ -63,6 +74,7 @@ export const locationsReducer = (state = {}, action) => {
                   additional_info: documents.additionalInfo || DocumentsInfo.additional_info,
                 },
                 RequiredDocuments,
+                RegularSchedules: hours || RegularSchedules,
               },
               ...Services.slice(serviceIdx + 1),
             ],
