@@ -117,11 +117,9 @@ class ServiceCategories extends Component {
             </div>
           ))}
         </Accordion>
-        <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
-          <Button fluid primary onClick={this.onSubmit}>
-            Next
-          </Button>
-        </div>
+        <Button fluid primary onClick={this.onSubmit}>
+          Next
+        </Button>
       </div>
     );
   }
