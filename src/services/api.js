@@ -84,6 +84,20 @@ export const getLanguages = () =>
     });
   });
 
+export const createService = (locationId, taxonomy, name) =>
+  Amplify.Auth.currentAuthenticatedUser().then((user) => {
+    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
+
+    return axios.request({
+      url: `${config.baseApi}/services`,
+      method: 'post',
+      data: { locationId, taxonomyId: taxonomy.id, name },
+      headers: {
+        Authorization: jwtToken,
+      },
+    });
+  });
+
 export const createServices = (locationId, locationTaxonomies) =>
   Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const jwtToken = user.signInUserSession.getIdToken().getJwtToken();

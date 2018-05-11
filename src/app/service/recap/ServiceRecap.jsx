@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { getLocation } from '../../../selectors/location';
-import { getTaxonomy } from '../../../selectors/taxonomy';
+import { getTaxonomyForLocation } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
@@ -35,7 +35,7 @@ class ServicesRecap extends Component {
     const { locationId } = this.props.match.params;
     this.props.getLocation(locationId);
 
-    if (!this.props.taxonomy) {
+    if (this.props.taxonomy.length === 0) {
       this.props.getTaxonomy();
     }
   }
@@ -46,7 +46,8 @@ class ServicesRecap extends Component {
         nextProps.locationData.Services &&
         nextProps.locationData.Services.map(service => ({
           ...service,
-          parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
+          parent_id:
+            (service.Taxonomies[0] && service.Taxonomies[0].parent_id) || service.Taxonomies[0].id,
         }));
       this.setState({ services });
     }
@@ -66,11 +67,10 @@ class ServicesRecap extends Component {
     const { taxonomy = [] } = this.props;
     const { services = [] } = this.state;
 
-    if (!taxonomy || !services) {
+    if (taxonomy.length === 0 || services.length === 0) {
       return <LoadingView />;
     }
 
-    // const showThanks = true;
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     return (
@@ -81,7 +81,7 @@ class ServicesRecap extends Component {
             backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
             title="Services recap"
           />
-          <div style={{marginBottom:'1em'}} className="px-3 container">
+          <div style={{ marginBottom: '1em' }} className="px-3 container">
             <Header>
               Please fill in all the information available for each of the services at this
               location:
@@ -119,7 +119,7 @@ class ServicesRecap extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   locationData: getLocation(state, ownProps),
-  taxonomy: getTaxonomy(state, ownProps),
+  taxonomy: getTaxonomyForLocation(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

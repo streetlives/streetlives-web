@@ -45,7 +45,7 @@
     "lint": "eslint .",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "publish": "aws s3 cp --recursive ./build s3://streetlives-web2/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
+    "publish": "aws s3 cp --recursive ./build s3://streetlives-web2/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers && aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.3.15",

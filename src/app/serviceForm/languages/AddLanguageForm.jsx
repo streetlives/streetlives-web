@@ -16,7 +16,7 @@ function ListItem({
 }
 
 class AddLanguageForm extends Component {
-  state = { query: '', open: false };
+  state = { query: '' };
 
   componentDidMount() {
     this.input.focus();
