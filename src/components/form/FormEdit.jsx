@@ -23,7 +23,7 @@ class FormEdit extends Component {
       this.props.metaDataSection,
       this.props.fieldName,
     );
-    this.props.onSubmit();
+    this.props.onSubmit(this.state.value);
   }
 
   render() {
