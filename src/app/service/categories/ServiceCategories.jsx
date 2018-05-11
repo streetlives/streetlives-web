@@ -34,6 +34,9 @@ class ServiceCategories extends Component {
   };
 
   componentWillMount() {
+    if (this.props.taxonomy.length === 0) {
+      this.props.getTaxonomy();
+    }
     if (Object.keys(this.props.location).length === 0) {
       const { locationId } = this.props.match.params;
       this.props.getTaxonomy();
