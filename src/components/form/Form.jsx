@@ -44,8 +44,8 @@ class Form extends Component {
     this.setState({ isEditing: true });
   };
 
-  onSubmit = () => {
-    this.setState({ isEditing: false });
+  onSubmit = (value) => {
+    this.setState({ isEditing: false },() => (!value &&  this.props.onFieldVerified()) );
   };
 
   onCancel = (e) => {
