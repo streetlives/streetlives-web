@@ -75,15 +75,15 @@ class Form extends Component {
     }
 
     return (
-      <ViewComponent 
-        value={this.props.value} 
-        onConfirm={this.onConfirm} 
-        onEdit={this.onEdit} 
+      <ViewComponent
+        value={this.props.value}
+        onConfirm={this.onConfirm}
+        onEdit={this.onEdit}
         updateValue={this.props.updateValue}
         metaDataSection={this.props.metaDataSection}
         fieldName={this.props.fieldName}
         id={this.props.id}
-        />
+      />
     );
   }
 }

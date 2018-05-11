@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { getLocation } from '../../../selectors/location';
-import { getTaxonomy, getCurrentCategories } from '../../../selectors/taxonomy';
+import { getCurrentCategories, getTaxonomyForLocation } from '../../../selectors/taxonomy';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -11,6 +11,7 @@ import Accordion from '../../../components/accordion';
 import Selector from '../../../components/selector';
 import Button from '../../../components/button';
 import getCategoryIcon from '../util/getCategoryIcon';
+import AddServiceForm from './AddServiceForm';
 
 import NavBar from '../../NavBar';
 
@@ -28,14 +29,14 @@ class ServiceCategories extends Component {
     active: -1,
     selected: {},
     isLoading: false,
+    isAdding: false,
+    selectedCategory: undefined,
   };
 
   componentWillMount() {
-    if (!this.props.taxonomy) {
-      this.props.getTaxonomy();
-    }
     if (Object.keys(this.props.location).length === 0) {
       const { locationId } = this.props.match.params;
+      this.props.getTaxonomy();
       this.props.getLocation(locationId);
     }
   }
@@ -68,14 +69,63 @@ class ServiceCategories extends Component {
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   };
 
-  getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
+  onAddService = category => this.setState({ isAdding: true, selectedCategory: category });
+
+  onAddSubmit = (category, name) => {
+    const { locationId } = this.props.match.params;
+
+    this.setState({ isAdding: false, selectedCategory: undefined }, () =>
+      this.createService(locationId, category, name));
+  };
+
+  onAddCancel = () => {
+    this.setState({ isAdding: false, selectedCategory: undefined });
+  };
+
+  createService = (locationId, category, name) => {
+    api
+      .createService(locationId, category, name)
+      .then(() => this.props.getLocation(locationId))
+      .catch(error => console.log('error', error)); // eslint-disable-line no-console
+  };
+
+  isActive = (itemId, parentId) =>
+    this.isSelectedCategory(itemId) ||
+    this.isCurrentCategory(itemId) ||
+    this.isAddedService(itemId, parentId);
+
+  isSelectedCategory = itemId => this.state.selected[itemId];
+
+  isCurrentCategory = itemId => this.props.currentCategories[itemId];
+
+  isAddedService = (itemId, parentId) =>
+    this.props.currentCategories[parentId] &&
+    this.props.currentCategories[parentId].find(el => el.id === itemId);
 
   render() {
-    const { active, selected, isLoading } = this.state;
-    const { taxonomy = [], location, currentCategories } = this.props;
+    const {
+      active, isLoading, isAdding, selectedCategory,
+    } = this.state;
+    const { taxonomy = [], location } = this.props;
 
     if (!taxonomy || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
+    }
+
+    if (isAdding) {
+      return (
+        <div className="text-left">
+          <NavBar
+            backButtonTarget={`/location/${this.props.match.params.locationId}`}
+            title="Services info"
+          />
+          <AddServiceForm
+            category={selectedCategory}
+            onSubmit={this.onAddSubmit}
+            onCancel={this.onAddCancel}
+          />
+        </div>
+      );
     }
 
     return (
@@ -84,7 +134,7 @@ class ServiceCategories extends Component {
           backButtonTarget={`/location/${this.props.match.params.locationId}`}
           title="Services info"
         />
-        <div style={{marginBottom:'1em'}} className="px-3 container">
+        <div style={{ marginBottom: '1em' }} className="px-3 container">
           <Header>What programs and services are available at this location?</Header>
         </div>
         <Accordion>
@@ -103,13 +153,16 @@ class ServiceCategories extends Component {
                       <Selector.Option
                         key={item.id}
                         onClick={() => this.onSelect(item)}
-                        active={selected[item.id] || currentCategories[item.id]}
-                        disabled={currentCategories[item.id]}
+                        active={this.isActive(item.id, category.id)}
+                        disabled={
+                          this.isCurrentCategory(item.id) ||
+                          this.isAddedService(item.id, category.id)
+                        }
                       >
                         {item.name}
                       </Selector.Option>
                     ))}
-                  <Selector.Option align="center">
+                  <Selector.Option onClick={() => this.onAddService(category)} align="center">
                     + Add another {category.name.toLowerCase()} service
                   </Selector.Option>
                 </Selector>
@@ -129,7 +182,7 @@ class ServiceCategories extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   location: getLocation(state, ownProps),
-  taxonomy: getTaxonomy(state, ownProps),
+  taxonomy: getTaxonomyForLocation(state, ownProps),
   currentCategories: getCurrentCategories(state, ownProps),
 });
 

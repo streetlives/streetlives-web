@@ -70,8 +70,6 @@ class ServicesRecap extends Component {
       return <LoadingView />;
     }
 
-    console.log('props', this.props);
-    // const showThanks = true;
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     return (
@@ -82,7 +80,7 @@ class ServicesRecap extends Component {
             backButtonTarget={`/location/${this.props.match.params.locationId}/services`}
             title="Services recap"
           />
-          <div style={{marginBottom:'1em'}} className="px-3 container">
+          <div style={{ marginBottom: '1em' }} className="px-3 container">
             <Header>
               Please fill in all the information available for each of the services at this
               location:
