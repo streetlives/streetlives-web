@@ -12,7 +12,7 @@ const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultZoom = 14;
 const minZoom = 11;
 const geolocationTimeout = 5000;
-const onBoundsChangedDebouncePeriod = 500;
+const debouncePeriod = 500;
 
 export default class MapView extends Component {
   state = {
@@ -58,15 +58,15 @@ export default class MapView extends Component {
 
   onBoundsChanged = debounce(({ center, radius }) => {
     this.fetchLocations(center, radius);
-  }, onBoundsChangedDebouncePeriod);
+  }, debouncePeriod);
 
-  onSuggestionsFetchRequested = ({ searchString, reason }) => {
+  onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
     getOrganizations(searchString)
       .then((organizations) => {
         this.setState({ suggestions: organizations });
       })
       .catch(e => console.error('error', e));
-  };
+  }, debouncePeriod);
 
   onSuggestionsClearRequested = () => {
     this.setState({
