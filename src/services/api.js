@@ -72,29 +72,23 @@ export const getTaxonomy = () =>
     }));
 
 export const getLanguages = () =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
-    return axios.request({
-      url: `${config.baseApi}/languages`,
-      method: 'get',
-      headers: {
-        Authorization: jwtToken,
-      },
-    });
-  });
+  requestWithAuth(idJwtToken => axios.request({
+    url: `${config.baseApi}/languages`,
+    method: 'get',
+    headers: {
+      Authorization: idJwtToken,
+    },
+  }));
 
 export const createServices = (locationId, locationTaxonomies) =>
-  Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const jwtToken = user.signInUserSession.getIdToken().getJwtToken();
-
+  requestWithAuth((idJwtToken) => {
     const requests = locationTaxonomies.map(taxonomy =>
       axios.request({
         url: `${config.baseApi}/services`,
         method: 'post',
         data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
         headers: {
-          Authorization: jwtToken,
+          Authorization: idJwtToken,
         },
       }));
 
