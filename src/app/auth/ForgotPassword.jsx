@@ -14,19 +14,20 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
             Forgotten password?<br />No worries.
           </h3>
           <p>
-            Enter the phone number you used to sign up to the Streetlives street team tool. We'll
+            Enter the phone number you used to sign up to the Streetlives street team tool. We’ll
             send an SMS with a reactivation code to the phone number you used to sign up.
           </p>
         </Col>
       </Row>,
       <Row key={2}>
         <Col>
-          <label className="w-100">Phone Number</label>
+          <label className="w-100" htmlFor="phone">Phone Number</label>
           <Input
             fluid
             placeholder="Enter your phone number"
-            key="username"
-            name="username"
+            id="phone"
+            key="phone"
+            name="phone"
             onChange={this.handleInputChange}
           />
         </Col>
@@ -50,10 +51,11 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
       </Row>,
       <Row key={2}>
         <Col>
-          <label className="w-100">Code</label>
+          <label className="w-100" htmlFor="code">Code</label>
           <Input
             fluid
             placeholder="Code"
+            id="code"
             key="code"
             name="code"
             onChange={this.handleInputChange}
@@ -62,11 +64,12 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
       </Row>,
       <Row key={3}>
         <Col>
-          <label className="w-100">New password</label>
+          <label className="w-100" htmlFor="password">New password</label>
           <Input
             fluid
             type="password"
             placeholder="New password"
+            id="password"
             key="password"
             name="password"
             onChange={this.handleInputChange}

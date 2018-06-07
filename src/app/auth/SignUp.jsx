@@ -27,10 +27,11 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username</label>
+            <label className="w-100" htmlFor="username">Username</label>
             <Input
               fluid
               placeholder="Enter your username"
+              id="username"
               key="username"
               name="username"
               onChange={this.handleInputChange}
@@ -39,10 +40,11 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Password</label>
+            <label className="w-100" htmlFor="password">Password</label>
             <Input
               fluid
               placeholder="Enter your password"
+              id="password"
               key="password"
               name="password"
               type="password"
@@ -52,10 +54,11 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Email</label>
+            <label className="w-100" htmlFor="email">Email</label>
             <Input
               fluid
               placeholder="Enter your email"
+              id="email"
               key="email"
               name="email"
               type="email"
@@ -65,10 +68,11 @@ export default class StreetlivesSignUp extends SignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Phone Number</label>
+            <label className="w-100" htmlFor="phone">Phone Number</label>
             <Input
               fluid
               placeholder="Enter your phone number"
+              id="phone"
               key="phone_number"
               name="phone_number"
               type="phone_number"

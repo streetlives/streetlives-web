@@ -5,7 +5,7 @@ import Icon from '../../icon';
 import './Option.css';
 
 function Option({
-  active, align = 'left', children, onClick, disabled, disablePadding, hide
+  active, align = 'left', children, onClick, disabled, disablePadding, hide,
 }) {
   const classNames = cx('Option d-flex justify-content-between align-items-center', {
     'Option-active': active,

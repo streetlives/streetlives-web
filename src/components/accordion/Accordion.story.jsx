@@ -3,12 +3,11 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 
 import Accordion from './Accordion';
-import Icon from '../icon';
 
 const DefaultExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Accordion</label>
-    <Accordion>
+    <label className="w-100 mt-4" htmlFor="accordion">Accordion</label>
+    <Accordion id="accordion">
       <Accordion.Item title="Shelter" icon="home" />
       <Accordion.Content>This is test content</Accordion.Content>
 

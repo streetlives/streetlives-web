@@ -1,4 +1,3 @@
-
 export const DAYS = [
   'Monday',
   'Tuesday',
@@ -6,5 +5,7 @@ export const DAYS = [
   'Thursday',
   'Friday',
   'Saturday',
-  'Sunday'
+  'Sunday',
 ];
+
+export default { DAYS };

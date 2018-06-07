@@ -7,8 +7,8 @@ import Button from './Button';
 
 const DefaultExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Button</label>
-    <Button onClick={action('clicked')}>Default</Button>
+    <label className="w-100 mt-4" htmlFor="defaultButton">Button</label>
+    <Button id="defaultButton" onClick={action('clicked')}>Default</Button>
   </div>
 );
 
@@ -56,16 +56,16 @@ const BasicExample = (
 
 const FluidExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Fluid</label>
-    <Button fluid>Fits to Container</Button>
+    <label className="w-100 mt-4" htmlFor="fluidButton">Fluid</label>
+    <Button fluid id="fluidButton">Fits to Container</Button>
 
-    <label className="w-100 mt-4">Fluid</label>
-    <Button fluid primary>
+    <label className="w-100 mt-4" htmlFor="primaryFluidButton">Fluid</label>
+    <Button fluid primary id="primaryFluidButton">
       Fits to Container
     </Button>
 
-    <label className="w-100 mt-4">Fluid</label>
-    <Button fluid secondary>
+    <label className="w-100 mt-4" htmlFor="secondaryFluidButton">Fluid</label>
+    <Button fluid secondary id="secondaryFluidButton">
       Fits to Container
     </Button>
   </div>

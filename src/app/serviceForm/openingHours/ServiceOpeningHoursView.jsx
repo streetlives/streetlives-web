@@ -9,7 +9,7 @@ function FormView(props) {
       <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
         {props.topText}
       </div>
-      <ServiceOpeningHoursEdit viewMode={true} {...props} />
+      <ServiceOpeningHoursEdit viewMode {...props} />
       <ConfirmationOptions onConfirm={props.onConfirm} onEdit={props.onEdit} />
     </div>
   );
@@ -17,10 +17,9 @@ function FormView(props) {
 
 FormView.propTypes = {
   topText: PropTypes.string.isRequired,
-  value: PropTypes.array.isRequired,
+  value: PropTypes.arrayOf(PropTypes.any).isRequired,
   onConfirm: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
 };
 
 export default FormView;
-

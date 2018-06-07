@@ -11,6 +11,35 @@ import {
 } from '../actions';
 import { DAYS } from '../constants';
 
+function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
+  const { metadata } = location;
+  const subFields = metadata[metaDataSection] || [];
+  const newField = { field_name: fieldName, last_action_date: dateString };
+  const fieldIndex = subFields ? subFields.findIndex(field => field.field_name === fieldName) : -1;
+  const newSubFields =
+    fieldIndex > -1
+      ? [...subFields.slice(0, fieldIndex), newField, ...subFields.slice(fieldIndex + 1)]
+      : subFields.concat(newField);
+
+  return {
+    ...metadata,
+    [metaDataSection]: newSubFields,
+  };
+}
+
+function constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString) {
+  const { metaDataSection, fieldName, locationId } = action.payload;
+  return {
+    ...state,
+    [`last/${locationId}`]: state[locationId],
+    [locationId]: {
+      ...state[locationId],
+      Phones: newPhones,
+      metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
+    },
+  };
+}
+
 export const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();
   switch (action.type) {
@@ -170,34 +199,5 @@ export const locationsReducer = (state = {}, action) => {
 
   return state;
 };
-
-function constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString) {
-  const { metaDataSection, fieldName, locationId } = action.payload;
-  return {
-    ...state,
-    [`last/${locationId}`]: state[locationId],
-    [locationId]: {
-      ...state[locationId],
-      Phones: newPhones,
-      metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
-    },
-  };
-}
-
-function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
-  const { metadata } = location;
-  const subFields = metadata[metaDataSection] || [];
-  const newField = { field_name: fieldName, last_action_date: dateString };
-  const fieldIndex = subFields ? subFields.findIndex(field => field.field_name === fieldName) : -1;
-  const newSubFields =
-    fieldIndex > -1
-      ? [...subFields.slice(0, fieldIndex), newField, ...subFields.slice(fieldIndex + 1)]
-      : subFields.concat(newField);
-
-  return {
-    ...metadata,
-    [metaDataSection]: newSubFields,
-  };
-}
 
 export const selectLocationData = (state, locationId) => state.locations[locationId];

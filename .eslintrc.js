@@ -23,5 +23,6 @@ module.exports = {
         specialLink: ['to'],
       },
     ],
+    'jsx-a11y/label-has-for': [2, { required: 'id' }],
   },
 };

@@ -12,7 +12,7 @@ const MyMap = compose(
     mapElement: <div style={{ height: '100%' }} />,
   }),
   lifecycle({
-    componentWillMount(){
+    componentWillMount() {
       let mapRef;
 
       this.setState({
@@ -20,19 +20,19 @@ const MyMap = compose(
           mapRef = ref;
         },
         onBoundsChanged: () => {
-          const bounds = mapRef.getBounds()
-          const center = mapRef.getCenter()
-          if(!bounds || !center) return;
+          const bounds = mapRef.getBounds();
+          const center = mapRef.getCenter();
+          if (!bounds || !center) return;
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
             center,
             {
-              lat: () => bounds.f.b, lng: () => bounds.b.b
-            }
-          )
-          this.props.onBoundsChanged({bounds, center, radius});
-        }
+              lat: () => bounds.f.b, lng: () => bounds.b.b,
+            },
+          );
+          this.props.onBoundsChanged({ bounds, center, radius });
+        },
       });
-    }
+    },
   }),
   withScriptjs,
   withGoogleMap,
@@ -51,27 +51,27 @@ const MyMap = compose(
 ));
 
 class Map extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
-      openLocationId: null
+      openLocationId: null,
     };
     this.onToggleMarkerInfo = this.onToggleMarkerInfo.bind(this);
   }
 
-  onToggleMarkerInfo(toggledLocationId){
+  onToggleMarkerInfo(toggledLocationId) {
     this.setState({
       openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
     });
   }
 
-  render(){
-    return <MyMap 
+  render() {
+    return (<MyMap
       {...this.props}
       openLocationId={this.state.openLocationId}
       onToggleMarkerInfo={this.onToggleMarkerInfo}
       onBoundsChanged={this.props.onBoundsChanged}
-      />
+    />);
   }
 }
 

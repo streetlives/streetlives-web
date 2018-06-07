@@ -23,23 +23,22 @@ class LocationForm extends Component {
     this.onBackSection = this.onBackSection.bind(this);
 
     this.routeComponents = routes.map(({
-        urlFragment,
-        RouteComponent,
-        metaDataSection,
-        fieldName,
-      }) => (
+      urlFragment,
+      RouteComponent,
+      metaDataSection,
+      fieldName,
+    }) => (
       <Route
         key={urlFragment}
         path={`/location/:locationId/${urlFragment}/:thanks?`}
-        render={(routeProps) => {
-          return <RouteComponent
-            {...routeProps}
-            metaDataSection={metaDataSection}
-            fieldName={fieldName}
-            onInputFocus={this.onInputFocus}
-            onInputBlur={this.onInputBlur}
-            onFieldVerified={this.onNext} />;
-        }}
+        render={routeProps => (<RouteComponent
+          {...routeProps}
+          metaDataSection={metaDataSection}
+          fieldName={fieldName}
+          onInputFocus={this.onInputFocus}
+          onInputBlur={this.onInputBlur}
+          onFieldVerified={this.onNext}
+        />)}
       />
     ));
   }
@@ -64,18 +63,14 @@ class LocationForm extends Component {
     this.onInputBlur();
   }
 
-  onInputFocus(){
+  onInputFocus() {
     this.setState({ inputFocused: true });
   }
 
-  onInputBlur(){
+  onInputBlur() {
     this.setState({ inputFocused: false });
   }
 
-  getCurrentIndex() {
-    const { questionId } = this.props.match.params;
-    return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(questionId);
-  }
   onNextSection() {
     this.props.history.push(`/location/${this.props.match.params.locationId}/services`);
   }
@@ -84,6 +79,10 @@ class LocationForm extends Component {
     this.props.history.push(`/location/${this.props.match.params.locationId}`);
   }
 
+  getCurrentIndex() {
+    const { questionId } = this.props.match.params;
+    return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(questionId);
+  }
 
   render() {
     const { locationId } = this.props.match.params;
@@ -97,9 +96,10 @@ class LocationForm extends Component {
           <ThanksOverlay.GaussianBlur />
           <NavBar backButtonTarget={`/location/${locationId}`} title={currentRoute.label} />
           <ProgressBar step={index} steps={routes.length} />
-          <div 
-              style={{marginBottom: '5em'}}
-              className="container">
+          <div
+            style={{ marginBottom: '5em' }}
+            className="container"
+          >
             <div className="row px-4">
               {this.routeComponents}
             </div>
@@ -108,7 +108,7 @@ class LocationForm extends Component {
             style={{
               right: 0,
               bottom: 12,
-              position:'fixed',
+              position: 'fixed',
               display: this.state && this.state.inputFocused ? 'none' : 'block',
             }}
           >

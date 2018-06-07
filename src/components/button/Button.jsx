@@ -28,7 +28,7 @@ function Button({
   });
 
   return (
-    <button onClick={onClick} className={classNames} disabled={disabled} style={{ color: color}}>
+    <button onClick={onClick} className={classNames} disabled={disabled} style={{ color }}>
       {children}
     </button>
   );

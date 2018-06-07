@@ -23,25 +23,26 @@ export const getServiceWhoDoesItServe = (state, props) =>
 export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 
 const timeParseRe = /(\d\d:\d\d):\d\d/;
-const parseTimeString = s => {
-  if(typeof s === 'string'){
+const parseTimeString = (s) => {
+  if (typeof s === 'string') {
     const m = s.match(timeParseRe);
-    if(m) {
+    if (m) {
       return m[1];
     }
   }
-  return null
+  return null;
 };
 
-
 export const getServiceOpeningHours = (state, props) => (
-  (getService(state, props).RegularSchedules || [] ).map(
-    ({ opens_at, closes_at, weekday}) => ({
-      opensAt: parseTimeString(opens_at),
-      closesAt: parseTimeString(closes_at),
-      weekday: DAYS[weekday - 1]
-    })
-  )
-)
+  (getService(state, props).RegularSchedules || []).map(({
+    opens_at: opensAt,
+    closes_at: closesAt,
+    weekday,
+  }) => ({
+    opensAt: parseTimeString(opensAt),
+    closesAt: parseTimeString(closesAt),
+    weekday: DAYS[weekday - 1],
+  }))
+);
 
 export const getServiceAdditionalInfo = (state, props) => getService(state, props).additional_info;

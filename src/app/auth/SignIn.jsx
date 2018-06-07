@@ -5,13 +5,12 @@ import './SignIn.css';
 import { Row, Col } from '../../components/layout/bootstrap';
 
 export default class StreetlivesSignIn extends SignIn {
-
-  constructor(props){
+  constructor(props) {
     super(props);
     this.doSignIn = this.doSignIn.bind(this);
   }
 
-  doSignIn(e){
+  doSignIn(e) {
     e.preventDefault();
     this.signIn();
   }
@@ -40,15 +39,16 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username or Phone Number</label>
+            <label className="w-100" htmlFor="username">Username or Phone Number</label>
             <Input
               autoFocus
-              tabIndex={1}
+              tabIndex={0}
               fluid
               placeholder="Enter your username or phone number"
+              id="username"
               key="username"
               name="username"
-              autoCorrect="off" 
+              autoCorrect="off"
               autoCapitalize="none"
               onChange={this.handleInputChange}
             />
@@ -56,11 +56,12 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Password</label>
+            <label className="w-100" htmlFor="password">Password</label>
             <Input
-              tabIndex={2}
+              tabIndex={0}
               fluid
               placeholder="Enter your password"
+              id="password"
               key="password"
               name="password"
               type="password"

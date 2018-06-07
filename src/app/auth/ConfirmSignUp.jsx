@@ -27,10 +27,11 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Username</label>
+            <label className="w-100" htmlFor="username">Username</label>
             <Input
               fluid
               placeholder="Enter your username"
+              id="username"
               key="username"
               name="username"
               onChange={this.handleInputChange}
@@ -39,10 +40,11 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         </Row>
         <Row>
           <Col>
-            <label className="w-100">Code</label>
+            <label className="w-100" htmlFor="code">Code</label>
             <Input
               fluid
               placeholder="Enter your code"
+              id="code"
               key="code"
               name="code"
               type="code"

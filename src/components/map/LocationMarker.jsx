@@ -4,6 +4,40 @@ import { withRouter } from 'react-router-dom';
 import './LocationMarker.css';
 import Button from '../button';
 
+function renderPhone(phone) {
+  const phoneLink = `tel:${phone.number}`;
+  return (
+    <a href={phoneLink} key={phone.id}>
+      {phone.number}
+    </a>
+  );
+}
+
+function renderUrl(url) {
+  const linkUrl = url.includes('//') ? url : `http://${url}`;
+  return (
+    <a href={linkUrl} target="_blank">
+      {url}
+    </a>
+  );
+}
+
+function renderAddress(address) {
+  const {
+    id,
+    address_1: address1,
+    city,
+    state_province: stateProvince,
+    postal_code: postalCode,
+  } = address;
+  return (
+    <div key={id}>
+      <div>{address1}</div>
+      <div>{`${city}, ${stateProvince} ${postalCode}`}</div>
+    </div>
+  );
+}
+
 class LocationMarker extends Component {
   constructor(props) {
     super(props);
@@ -13,36 +47,6 @@ class LocationMarker extends Component {
 
   onToggleInfo() {
     this.props.onToggleInfo(this.props.mapLocation.id);
-  }
-
-  renderAddress(address) {
-    const {
-      id, address_1, city, state_province, postal_code,
-    } = address;
-    return (
-      <div key={id}>
-        <div>{address_1}</div>
-        <div>{`${city}, ${state_province} ${postal_code}`}</div>
-      </div>
-    );
-  }
-
-  renderPhone(phone) {
-    const phoneLink = `tel:${phone.number}`;
-    return (
-      <a href={phoneLink} key={phone.id}>
-        {phone.number}
-      </a>
-    );
-  }
-
-  renderUrl(url) {
-    const linkUrl = url.includes('//') ? url : `http://${url}`;
-    return (
-      <a href={linkUrl} target="_blank">
-        {url}
-      </a>
-    );
   }
 
   handleYesClick() {
@@ -64,28 +68,29 @@ class LocationMarker extends Component {
     return (
       <Marker key={mapLocation.id} position={position} onClick={this.onToggleInfo}>
         {isOpen && (
-          <InfoWindow 
+          <InfoWindow
             options={{
-              maxWidth:window.innerWidth - 100
+              maxWidth: window.innerWidth - 100,
             }}
             onCloseClick={this.onToggleInfo}
-            >
-            <div 
-              style={{ 
+          >
+            <div
+              style={{
                 textAlign: 'left',
-                maxHeight: window.innerHeight - 200, 
-                overflowY: 'auto'  
-              }}>
+                maxHeight: window.innerHeight - 200,
+                overflowY: 'auto',
+              }}
+            >
               <div>This location is:</div>
               <br />
-              <div className="locationInfo" style={{  textAlign: 'center' }}>
+              <div className="locationInfo" style={{ textAlign: 'center' }}>
                 <div className="locationInfoHeader">
                   <div>{organization.name}</div>
                   {mapLocation.name && <div>{mapLocation.name}</div>}
                 </div>
-                <div>{physicalAddresses.map(this.renderAddress)}</div>
-                <div>{organization.url && this.renderUrl(organization.url)}</div>
-                <div>{phones.map(this.renderPhone)}</div>
+                <div>{physicalAddresses.map(renderAddress)}</div>
+                <div>{organization.url && renderUrl(organization.url)}</div>
+                <div>{phones.map(renderPhone)}</div>
               </div>
               <br />
               <div>

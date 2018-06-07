@@ -9,7 +9,7 @@ import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
 
 const ViewComponent = compose(withProps({
-  topText: 'OPENING HOURS'
+  topText: 'OPENING HOURS',
 }))(props => <ServiceOpeningHoursView {...props} />);
 
 const EditComponent = compose(withProps({

@@ -6,9 +6,10 @@ import NavBar from '../NavBar';
 function Recap({ history, match }) {
   return (
     <div className="d-flex flex-column">
-      <NavBar 
+      <NavBar
         backButtonTarget="/"
-        title="Recap" />
+        title="Recap"
+      />
       <div
         style={{
           backgroundColor: '#525252',
@@ -17,7 +18,7 @@ function Recap({ history, match }) {
           bottom: '2.6em',
           right: 0,
           left: 0,
-          overflowY: 'auto'
+          overflowY: 'auto',
         }}
         className="text-white text-left font-weight-light"
       >

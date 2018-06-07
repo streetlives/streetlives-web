@@ -7,14 +7,17 @@ function NavBar({ title, history, backButtonTarget }) {
     <div style={{ backgroundColor: '#333333' }} className="text-white">
       <div className="container">
         <div className="row d-flex justify-content-between align-items-center p-2">
-          <div style={{width:'100%',height:'100%',textAlign:'center', position:'relative'}}>
-      
+          <div style={{
+ width: '100%', height: '100%', textAlign: 'center', position: 'relative',
+}}
+          >
+
             <a
-              style={{ 
+              style={{
                 fontSize: '14px',
                 position: 'absolute',
                 left: 0,
-                top: '.25em'
+                top: '.25em',
               }}
               className="font-weight-light"
               onClick={() => history.push(backButtonTarget)}
@@ -25,11 +28,11 @@ function NavBar({ title, history, backButtonTarget }) {
               {title}
             </span>
             <a
-              style={{ 
+              style={{
                 fontSize: '14px',
                 position: 'absolute',
                 right: 0,
-                top: '.25em'
+                top: '.25em',
               }}
               className="font-weight-light"
               onClick={() => history.push('/')}

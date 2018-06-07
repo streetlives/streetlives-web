@@ -84,7 +84,7 @@ class ServiceCategories extends Component {
           backButtonTarget={`/location/${this.props.match.params.locationId}`}
           title="Services info"
         />
-        <div style={{marginBottom:'1em'}} className="px-3 container">
+        <div style={{ marginBottom: '1em' }} className="px-3 container">
           <Header>What programs and services are available at this location?</Header>
         </div>
         <Accordion>

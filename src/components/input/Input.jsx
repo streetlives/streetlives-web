@@ -36,7 +36,7 @@ class Input extends Component {
       autoCorrect,
       autoCapitalize,
       onFocus,
-      onBlur
+      onBlur,
     } = this.props;
 
     const classNames = cx('Input', {
