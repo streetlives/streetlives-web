@@ -10,7 +10,6 @@ import SignIn from './auth/SignIn';
 import SignUp from './auth/SignUp';
 import ConfirmSignUp from './auth/ConfirmSignUp';
 import ForgotPassword from './auth/ForgotPassword';
-import awsExports from './aws-exports';
 
 import withTracker from './withTracker';
 import MapView from './mapView/MapView';
@@ -33,7 +32,7 @@ history.listen((location, action) => {
   window.scrollTo(0, 0);
 });
 
-Amplify.configure(awsExports);
+Amplify.configure(config.aws);
 
 function App({ authState }) {
   if (!config.disableAuth && authState !== 'signedIn') return null;

@@ -52,7 +52,7 @@ Your app is ready to be deployed!
 
 Deploys the app to the S3 bucket currently used for production.
 
-Should only be done after first running `REACT_APP_API_URL="<API URL>" npm run build`, with "API URL" as the API Gateway URL exposing the Streetlives API in production.
+Make sure the environment variables are all set to the relevant values for the environment to which you're deploying.
 
 Also, the [AWS CLI](https://aws.amazon.com/cli/) must be set up for this script to run successfully.
 
