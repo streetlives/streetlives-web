@@ -7,6 +7,7 @@ import {
   getOrganizationLocations,
 } from '../../services/api';
 import Map from '../../components/map';
+import Dropdown from '../../components/dropdown';
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
 const defaultZoom = 14;
@@ -17,6 +18,7 @@ const debouncePeriod = 500;
 export default class MapView extends Component {
   state = {
     center: defaultCenter,
+    searchString: '',
     suggestions: [],
   };
 
@@ -49,11 +51,13 @@ export default class MapView extends Component {
   }
 
   onSearchChanged = (searchString) => {
-    if (searchString) {
-      this.onSuggestionsFetchRequested({ searchString });
-    } else {
-      this.onSuggestionsClearRequested();
-    }
+    this.setState({ searchString }, () => {
+      if (searchString) {
+        this.onSuggestionsFetchRequested({ searchString });
+      } else {
+        this.onSuggestionsClearRequested();
+      }
+    });
   };
 
   onBoundsChanged = debounce(({ center, radius }) => {
@@ -63,7 +67,13 @@ export default class MapView extends Component {
   onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
     getOrganizations(searchString)
       .then((organizations) => {
-        this.setState({ suggestions: organizations });
+        const searchStringAtTimeOfResponse = this.state.searchString;
+        const searchResponseStillValid =
+          searchStringAtTimeOfResponse && searchStringAtTimeOfResponse.indexOf(searchString) !== -1;
+
+        if (searchResponseStillValid) {
+          this.setState({ suggestions: organizations });
+        }
       })
       .catch(e => console.error('error', e));
   }, debouncePeriod);
@@ -110,40 +120,31 @@ export default class MapView extends Component {
   render() {
     return (
       <div className="Map">
-        <ul
+        <div
           className="suggestions"
           style={{
             position: 'absolute',
             top: '2.75em',
-            background: 'white',
-            listStyle: 'none',
             paddingLeft: 0,
             zIndex: 1,
             left: '.5em',
             right: '.5em',
             textAlign: 'left',
-            transition: 'max-height 1s',
-            maxHeight: this.state.suggestions.length ? `${window.innerHeight - 50}px` : '0px',
-            overflow: 'scroll',
+            transition: 'height 0.5s',
+            height: this.state.suggestions.length ? `${window.innerHeight - 50}px` : '0px',
+            overflow: 'hidden',
           }}
         >
           {
-            this.state.suggestions && this.state.suggestions.map((organization, i) => (
-              <li
-                onClick={() => this.handleSuggestionClick(organization)}
-                key={organization.id}
-                style={{
-                  borderLeft: '1px solid black',
-                  borderRight: '1px solid black',
-                  borderTop: i === 0 ? '1px solid black' : undefined,
-                  borderBottom: '1px solid black',
-                }}
-              >
-                {organization.name}
-              </li>
-            ))
+            this.state.suggestions && <Dropdown options={
+              this.state.suggestions.map(organization => ({
+                key: organization.id,
+                label: organization.name,
+                onClick: () => this.handleSuggestionClick(organization),
+              }))}
+            />
           }
-        </ul>
+        </div>
         <div
           style={{
             backgroundColor: '#323232',
