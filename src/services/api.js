@@ -95,6 +95,33 @@ export const createServices = (locationId, locationTaxonomies) =>
     return axios.all(requests);
   });
 
+export const createOrganization = name =>
+  requestWithAuth(idJwtToken => axios.request({
+    url: `${config.baseApi}/organizations`,
+    method: 'post',
+    data: { name },
+    headers: {
+      Authorization: idJwtToken,
+    },
+  }))
+    .then(result => result.data);
+
+export const createLocation = ({ organizationId, position, address }) =>
+  requestWithAuth(idJwtToken => axios.request({
+    url: `${config.baseApi}/locations`,
+    method: 'post',
+    data: {
+      organizationId,
+      address,
+      latitude: position.latitude,
+      longitude: position.longitude,
+    },
+    headers: {
+      Authorization: idJwtToken,
+    },
+  }))
+    .then(result => result.data);
+
 export const updateLocation = updateResource.bind(this, {
   pathPrefix: 'locations',
   method: 'patch',

@@ -23,7 +23,10 @@ class FormEdit extends Component {
       this.props.metaDataSection,
       this.props.fieldName,
     );
-    this.props.onSubmit(this.state.value);
+
+    if (this.props.onSubmit) {
+      this.props.onSubmit(this.state.value);
+    }
   }
 
   render() {
@@ -53,7 +56,7 @@ FormEdit.propTypes = {
   value: PropTypes.string,
   headerText: PropTypes.string.isRequired,
   placeholderText: PropTypes.string.isRequired,
-  onSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func,
   updateValue: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
