@@ -2,14 +2,23 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import NavBar from '../NavBar';
 import { FormEdit } from '../../components/form';
+import LoadingLabel from '../../components/form/LoadingLabel';
 import { selectNewLocationData } from '../../reducers/newLocation';
 import { doneCreatingNewLocation } from '../../actions';
 import * as api from '../../services/api';
+
+const LoadingView = () => (
+  <div className="d-flex flex-column">
+    <NavBar title="Add location" />
+    <LoadingLabel>Creating new location...</LoadingLabel>
+  </div>
+);
 
 class NewLocation extends Component {
   constructor(props) {
     super(props);
 
+    this.state = { isLoading: false };
     this.onCancel = this.onCancel.bind(this);
     this.createLocation = this.createLocation.bind(this);
   }
@@ -26,24 +35,34 @@ class NewLocation extends Component {
   }
 
   createLocation(organizationName) {
-    // TODO: Could use a loading indicator here.
-    api.createOrganization(organizationName)
-      .then(createdOrganization => api.createLocation({
-        organizationId: createdOrganization.id,
-        position: this.props.position,
-        address: this.props.address,
-      })
+    this.setState({ isLoading: true }, () => {
+      api.createOrganization(organizationName)
+        .then(createdOrganization => api.createLocation({
+          organizationId: createdOrganization.id,
+          position: this.props.position,
+          address: this.props.address,
+        }))
         .then((createdLocation) => {
+          this.setState({ isLoading: false });
           this.props.dispatch(doneCreatingNewLocation(createdLocation));
           this.props.history.push(`/location/${createdLocation.id}`);
         })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error creating new location', e);
-        }));
+          // eslint-disable-next-line no-alert
+          alert('An error occurred creating the new location.\n'
+            + 'Please make sure you\'re connected to the internet.');
+          this.setState({ isLoading: false });
+        });
+    });
   }
 
   render() {
+    if (this.state.isLoading) {
+      return <LoadingView />;
+    }
+
     return (
       <div className="text-left">
         <NavBar title="Add location" />
