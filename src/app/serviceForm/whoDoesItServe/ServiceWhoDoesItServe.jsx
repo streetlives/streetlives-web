@@ -9,8 +9,8 @@ import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
 
 const EditComponent = compose(withProps({
-  headerText: 'What food preferences are available?',
-  placeholderText: 'e.g. Halal, Hindu, Kosher',
+  headerText: 'What groups and ages are served?',
+  placeholderText: 'e.g. Youths ages 18-24, Veterans, Organization clients only',
 }))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({
