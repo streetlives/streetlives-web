@@ -133,17 +133,20 @@ export default class MapView extends Component {
             transition: 'height 0.5s',
             height: this.state.suggestions.length ? `${window.innerHeight - 50}px` : '0px',
             overflow: 'hidden',
+            pointerEvents: 'none',
           }}
         >
-          {
-            this.state.suggestions && <Dropdown options={
-              this.state.suggestions.map(organization => ({
-                key: organization.id,
-                label: organization.name,
-                onClick: () => this.handleSuggestionClick(organization),
-              }))}
-            />
-          }
+          <div style={{ pointerEvents: 'auto' }}>
+            {
+              this.state.suggestions && <Dropdown options={
+                this.state.suggestions.map(organization => ({
+                  key: organization.id,
+                  label: organization.name,
+                  onClick: () => this.handleSuggestionClick(organization),
+                }))}
+              />
+            }
+          </div>
         </div>
         <div
           style={{
