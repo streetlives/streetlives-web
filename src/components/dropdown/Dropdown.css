@@ -1,0 +1,20 @@
+@value primaryColor from "../../colors.css";
+
+.list-group {
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.list-group-item {
+  background: #f8f8fc;
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.list-group-item:hover {
+  background: #e0e0e0;
+}
+
+.list-group-item:active {
+  background: primaryColor;
+}

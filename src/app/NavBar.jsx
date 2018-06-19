@@ -12,18 +12,20 @@ function NavBar({ title, history, backButtonTarget }) {
 }}
           >
 
-            <a
-              style={{
-                fontSize: '14px',
-                position: 'absolute',
-                left: 0,
-                top: '.25em',
-              }}
-              className="font-weight-light"
-              onClick={() => history.push(backButtonTarget)}
-            >
-              &lt;Back
-            </a>
+            {backButtonTarget && (
+              <a
+                style={{
+                  fontSize: '14px',
+                  position: 'absolute',
+                  left: 0,
+                  top: '.25em',
+                }}
+                className="font-weight-light"
+                onClick={() => history.push(backButtonTarget)}
+              >
+                &lt;Back
+              </a>)
+            }
             <span style={{ fontSize: '18px' }} className="font-weight-bold m-0">
               {title}
             </span>

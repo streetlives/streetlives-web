@@ -11,6 +11,8 @@ export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
+export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
+export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
 
 export const getLocation = locationId => (dispatch) => {
   api
@@ -35,6 +37,19 @@ export const getTaxonomy = () => (dispatch) => {
       }))
     .catch(e => console.error('error', e));
 };
+
+export const startCreatingNewLocation = (position, address) => ({
+  type: START_CREATING_NEW_LOCATION,
+  payload: { position, address },
+});
+
+export const doneCreatingNewLocation = newLocation => ({
+  type: DONE_CREATING_NEW_LOCATION,
+  payload: {
+    wasCreatedSuccessfully: !!newLocation,
+    newLocation,
+  },
+});
 
 export const updateLocation = (locationId, params, metaDataSection, fieldName) => (dispatch) => {
   // optimistically update the data store
