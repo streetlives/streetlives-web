@@ -68,10 +68,10 @@ class ServiceCategories extends Component {
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   };
 
-  getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
+  getIsActive = id => this.state.selected[id] || this.props.currentCategories[id];
 
   render() {
-    const { active, selected, isLoading } = this.state;
+    const { active, isLoading } = this.state;
     const { taxonomy = [], location, currentCategories } = this.props;
 
     if (!taxonomy || !location || isLoading) {
@@ -91,7 +91,8 @@ class ServiceCategories extends Component {
           {taxonomy.map((category, i) => (
             <div key={category.id}>
               <Accordion.Item
-                active={active === category.id}
+                active={this.getIsActive(category.id)}
+                expanded={active === category.id}
                 onClick={() => this.onToggleOpen(category.id)}
                 title={category.name}
                 icon={getCategoryIcon(category.name)}
@@ -103,7 +104,7 @@ class ServiceCategories extends Component {
                       <Selector.Option
                         key={item.id}
                         onClick={() => this.onSelect(item)}
-                        active={selected[item.id] || currentCategories[item.id]}
+                        active={this.getIsActive(item.id)}
                         disabled={currentCategories[item.id]}
                       >
                         {item.name}

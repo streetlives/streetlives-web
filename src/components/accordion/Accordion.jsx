@@ -5,7 +5,7 @@ import Icon from '../icon';
 import './Accordion.css';
 
 function Item({
-  onClick, title, icon, active,
+  onClick, title, icon, active, expanded,
 }) {
   const classNames = cx('Item w-100', {
     'Item-active': active,
@@ -17,7 +17,7 @@ function Item({
           <Icon name={icon} size="lg" className="mr-3" />
           {title}
         </div>
-        {active ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
+        {expanded ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
       </div>
     </button>
   );
