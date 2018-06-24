@@ -3,7 +3,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { getLocation } from '../../../selectors/location';
-import { getTaxonomy, getCurrentCategories } from '../../../selectors/taxonomy';
+import { getTaxonomy } from '../../../selectors/taxonomy';
+import { getServices } from '../../../selectors/service';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -43,10 +44,10 @@ class ServiceCategories extends Component {
   onToggleOpen = value =>
     this.setState(({ active }) => ({ active: active !== value ? value : -1 }));
 
-  onSelect = (category) => {
+  onSelect = (subcategory) => {
     const { selected } = this.state;
-    const selection = selected[category.id];
-    this.setState({ selected: { ...selected, [category.id]: !selection } });
+    const currentSelection = selected[subcategory.id];
+    this.setState({ selected: { ...selected, [subcategory.id]: !currentSelection } });
   };
 
   onGoToRecap = () => {
@@ -68,13 +69,75 @@ class ServiceCategories extends Component {
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   };
 
-  getIsActive = id => this.state.selected[id] || this.props.currentCategories[id];
+  isSubcategoryActive = (subcategory) => {
+    const { id: subcategoryId, parent_id: categoryId } = subcategory;
+    const categoryData = this.props.servicesByCategory[categoryId];
+
+    if (categoryData.subcategories[subcategoryId].hasExistingService) {
+      return true;
+    }
+
+    return this.state.selected[subcategoryId];
+  };
+
+  isCategoryActive = (category) => {
+    const currentServices = this.props.servicesByCategory[category.id];
+    const { subcategories, otherServices } = currentServices;
+
+    if (otherServices.length) {
+      return true;
+    }
+
+    const activeSubcategories =
+      Object.keys(subcategories).filter(id => this.isSubcategoryActive(subcategories[id]));
+    if (activeSubcategories.length) {
+      return true;
+    }
+
+    return false;
+  };
+
+  renderSubcategory = subcategory => (
+    <Selector.Option
+      key={subcategory.id}
+      onClick={() => this.onSelect(subcategory)}
+      active={this.isSubcategoryActive(subcategory)}
+      disabled={subcategory.hasExistingService}
+    >
+      {subcategory.name}
+    </Selector.Option>
+  );
+
+  renderCategory = (category) => {
+    const { active } = this.state;
+
+    return (
+      <div key={category.id}>
+        <Accordion.Item
+          active={this.isCategoryActive(category)}
+          expanded={active === category.id}
+          onClick={() => this.onToggleOpen(category.id)}
+          title={category.name}
+          icon={getCategoryIcon(category.name)}
+        />
+        <Accordion.Content active={active === category.id}>
+          <Selector fluid>
+            {Object.keys(category.subcategories).map(id =>
+              this.renderSubcategory(category.subcategories[id]))}
+            <Selector.Option align="center">
+              + Add another {category.name.toLowerCase()} service
+            </Selector.Option>
+          </Selector>
+        </Accordion.Content>
+      </div>
+    );
+  };
 
   render() {
-    const { active, isLoading } = this.state;
-    const { taxonomy = [], location, currentCategories } = this.props;
+    const { isLoading } = this.state;
+    const { location, servicesByCategory } = this.props;
 
-    if (!taxonomy || !location || isLoading) {
+    if (!servicesByCategory || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
@@ -88,35 +151,7 @@ class ServiceCategories extends Component {
           <Header>What programs and services are available at this location?</Header>
         </div>
         <Accordion>
-          {taxonomy.map((category, i) => (
-            <div key={category.id}>
-              <Accordion.Item
-                active={this.getIsActive(category.id)}
-                expanded={active === category.id}
-                onClick={() => this.onToggleOpen(category.id)}
-                title={category.name}
-                icon={getCategoryIcon(category.name)}
-              />
-              <Accordion.Content active={active === category.id}>
-                <Selector fluid>
-                  {category.children &&
-                    category.children.map(item => (
-                      <Selector.Option
-                        key={item.id}
-                        onClick={() => this.onSelect(item)}
-                        active={this.getIsActive(item.id)}
-                        disabled={currentCategories[item.id]}
-                      >
-                        {item.name}
-                      </Selector.Option>
-                    ))}
-                  <Selector.Option align="center">
-                    + Add another {category.name.toLowerCase()} service
-                  </Selector.Option>
-                </Selector>
-              </Accordion.Content>
-            </div>
-          ))}
+          {Object.keys(servicesByCategory).map(id => this.renderCategory(servicesByCategory[id]))}
         </Accordion>
         <Button fluid primary onClick={this.onSubmit}>
           Next
@@ -126,10 +161,40 @@ class ServiceCategories extends Component {
   }
 }
 
+const getServicesByCategory = (state, props) => {
+  const taxonomy = getTaxonomy(state) || [];
+  const services = getServices(state, props) || [];
+
+  let allCategoriesWithServices = {};
+  services.forEach((service) => {
+    service.Taxonomies.forEach((category) => {
+      allCategoriesWithServices = { ...allCategoriesWithServices, [category.id]: true };
+    });
+  });
+
+  const servicesByCategory = {};
+  taxonomy.forEach((category) => {
+    const subcategories = {};
+    (category.children || []).forEach((subcategory) => {
+      subcategories[subcategory.id] = {
+        ...subcategory,
+        hasExistingService: allCategoriesWithServices[subcategory.id],
+      };
+    });
+
+    const otherServices =
+      services.filter(service => service.Taxonomies.indexOf(category.id) !== -1);
+
+    servicesByCategory[category.id] = { ...category, subcategories, otherServices };
+  });
+
+  return servicesByCategory;
+};
+
 const mapStateToProps = (state, ownProps) => ({
   location: getLocation(state, ownProps),
-  taxonomy: getTaxonomy(state, ownProps),
-  currentCategories: getCurrentCategories(state, ownProps),
+  taxonomy: getTaxonomy(state),
+  servicesByCategory: getServicesByCategory(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
