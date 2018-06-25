@@ -85,18 +85,26 @@ class ServiceCategory extends Component {
   );
 
   renderAddServiceFooter = (category) => {
-    const { isAddingNewService } = this.state;
+    const { isAddingNewService, newServiceName } = this.state;
 
     if (isAddingNewService) {
-      // TODO: Unuglify UI.
       return (
         <div>
           <Input
             fluid
             onChange={event => this.setState({ newServiceName: event.target.value })}
           />
-          <Button onClick={this.onDoneAddingOtherService}>Add</Button>
-          <Button onClick={this.onCancelAddingOtherService}>Cancel</Button>
+          <Button
+            onClick={this.onDoneAddingOtherService}
+            disabled={!newServiceName || !newServiceName.trim()}
+            primary
+            className="mt-3"
+          >
+            OK
+          </Button>&nbsp;
+          <Button onClick={this.onCancelAddingOtherService} basic primary className="mt-3">
+            CANCEL
+          </Button>
         </div>
       );
     }
