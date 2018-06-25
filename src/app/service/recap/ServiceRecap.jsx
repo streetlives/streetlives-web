@@ -44,10 +44,16 @@ class ServicesRecap extends Component {
     if (nextProps.locationData && nextProps.locationData !== this.props.locationData) {
       const services =
         nextProps.locationData.Services &&
-        nextProps.locationData.Services.map(service => ({
-          ...service,
-          parent_id: service.Taxonomies[0] && service.Taxonomies[0].parent_id,
-        }));
+        nextProps.locationData.Services.map((service) => {
+          const serviceTaxonomy = service.Taxonomies[0];
+          if (!serviceTaxonomy) {
+            return null;
+          }
+
+          const serviceRootCategory = serviceTaxonomy.parent_id || serviceTaxonomy.id;
+          return { ...service, categoryId: serviceRootCategory };
+        }).filter(service => service !== null);
+
       this.setState({ services });
     }
   }
@@ -70,7 +76,6 @@ class ServicesRecap extends Component {
       return <LoadingView />;
     }
 
-    // const showThanks = true;
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
 
     return (
@@ -92,7 +97,7 @@ class ServicesRecap extends Component {
             <div key={category.id}>
               <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
               {services
-                .filter(service => service.parent_id === category.id)
+                .filter(service => service.categoryId === category.id)
                 .map(service => <ListItem key={service.id} service={service} />)}
             </div>
           ))}
