@@ -82,11 +82,11 @@ export const getLanguages = () =>
 
 export const createServices = (locationId, locationTaxonomies) =>
   requestWithAuth((idJwtToken) => {
-    const requests = locationTaxonomies.map(taxonomy =>
+    const requests = locationTaxonomies.map(({ taxonomyId, name }) =>
       axios.request({
         url: `${config.baseApi}/services`,
         method: 'post',
-        data: { locationId, taxonomyId: taxonomy.id, name: taxonomy.name },
+        data: { locationId, taxonomyId, name },
         headers: {
           Authorization: idJwtToken,
         },
