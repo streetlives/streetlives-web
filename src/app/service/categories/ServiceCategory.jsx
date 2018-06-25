@@ -6,6 +6,23 @@ import Button from '../../../components/button';
 import Input from '../../../components/input';
 import getCategoryIcon from '../util/getCategoryIcon';
 
+function getLabelForAddServiceButton(category) {
+  const categoryName = category.name.toLowerCase().trim();
+
+  let label = '+ Add ';
+  if (!categoryName.startsWith('other')) {
+    label += 'another ';
+  }
+
+  label += categoryName;
+
+  if (categoryName.indexOf('service') === -1) {
+    label += ' service';
+  }
+
+  return label;
+}
+
 class ServiceCategory extends Component {
   state = {
     isExpanded: false,
@@ -114,7 +131,7 @@ class ServiceCategory extends Component {
         align="center"
         onClick={() => this.onStartAddingOtherService(category)}
       >
-        + Add another {category.name.toLowerCase()} service
+        {getLabelForAddServiceButton(category)}
       </Selector.Option>
     );
   }
