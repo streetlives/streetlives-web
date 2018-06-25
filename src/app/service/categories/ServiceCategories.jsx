@@ -26,7 +26,7 @@ const LoadingView = ({ locationId }) => (
 
 class ServiceCategories extends Component {
   state = {
-    active: -1,
+    expandedCategories: {},
     selected: {},
     isLoading: false,
   };
@@ -41,8 +41,12 @@ class ServiceCategories extends Component {
     }
   }
 
-  onToggleOpen = value =>
-    this.setState(({ active }) => ({ active: active !== value ? value : -1 }));
+  onToggleOpen = categoryId => this.setState(({ expandedCategories }) => ({
+    expandedCategories: {
+      ...expandedCategories,
+      [categoryId]: !expandedCategories[categoryId],
+    },
+  }));
 
   onSelect = (subcategory) => {
     const { selected } = this.state;
@@ -109,18 +113,19 @@ class ServiceCategories extends Component {
   );
 
   renderCategory = (category) => {
-    const { active } = this.state;
+    const { expandedCategories } = this.state;
+    const isExpanded = expandedCategories[category.id];
 
     return (
       <div key={category.id}>
         <Accordion.Item
           active={this.isCategoryActive(category)}
-          expanded={active === category.id}
+          expanded={isExpanded}
           onClick={() => this.onToggleOpen(category.id)}
           title={category.name}
           icon={getCategoryIcon(category.name)}
         />
-        <Accordion.Content active={active === category.id}>
+        <Accordion.Content active={isExpanded}>
           <Selector fluid>
             {Object.keys(category.subcategories).map(id =>
               this.renderSubcategory(category.subcategories[id]))}
