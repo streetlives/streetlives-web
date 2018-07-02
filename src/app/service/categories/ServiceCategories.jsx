@@ -3,14 +3,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { getLocation } from '../../../selectors/location';
-import { getTaxonomy, getCurrentCategories } from '../../../selectors/taxonomy';
+import { getTaxonomy } from '../../../selectors/taxonomy';
+import { getServices } from '../../../selectors/service';
 import * as api from '../../../services/api';
 import * as actions from '../../../actions';
+import ServiceCategory from './ServiceCategory';
 import Header from '../../../components/header';
 import Accordion from '../../../components/accordion';
-import Selector from '../../../components/selector';
 import Button from '../../../components/button';
-import getCategoryIcon from '../util/getCategoryIcon';
 
 import NavBar from '../../NavBar';
 
@@ -25,8 +25,8 @@ const LoadingView = ({ locationId }) => (
 
 class ServiceCategories extends Component {
   state = {
-    active: -1,
     selected: {},
+    newOtherServices: {},
     isLoading: false,
   };
 
@@ -40,13 +40,43 @@ class ServiceCategories extends Component {
     }
   }
 
-  onToggleOpen = value =>
-    this.setState(({ active }) => ({ active: active !== value ? value : -1 }));
-
-  onSelect = (category) => {
+  onSelectSubcategory = (subcategory) => {
     const { selected } = this.state;
-    const selection = selected[category.id];
-    this.setState({ selected: { ...selected, [category.id]: !selection } });
+    const currentSelection = selected[subcategory.id];
+    this.setState({ selected: { ...selected, [subcategory.id]: !currentSelection } });
+  };
+
+  onAddOtherService = (name, categoryId) => this.setState(({ newOtherServices }) => ({
+    newOtherServices: {
+      ...newOtherServices,
+      [categoryId]: {
+        ...newOtherServices[categoryId],
+        [name]: {
+          name,
+          categoryId,
+          isSelected: true,
+        },
+      },
+    },
+  }));
+
+  onSelectOtherService = (otherService) => {
+    const { newOtherServices } = this.state;
+    const { categoryId, name } = otherService;
+    const currentSelection = newOtherServices[categoryId][name].isSelected;
+
+    this.setState({
+      newOtherServices: {
+        ...newOtherServices,
+        [otherService.categoryId]: {
+          ...newOtherServices[categoryId],
+          [name]: {
+            ...otherService,
+            isSelected: !currentSelection,
+          },
+        },
+      },
+    });
   };
 
   onGoToRecap = () => {
@@ -55,26 +85,45 @@ class ServiceCategories extends Component {
   };
 
   onSubmit = () => {
-    const { selected } = this.state;
+    const { selected, newOtherServices } = this.state;
     const { locationId } = this.props.match.params;
+
     this.setState({ isLoading: true });
-    const locationTaxonomies = this.props.taxonomy
-      .reduce((flat, key) => [...flat, ...(key.children || [])], [])
-      .filter(taxonomy => selected[taxonomy.id]);
+
+    const selectedSubcategories = this.props.taxonomy
+      .reduce((flatSubcategories, category) => [
+        ...flatSubcategories,
+        ...(category.children || []),
+      ], [])
+      .filter(subcategory => selected[subcategory.id])
+      .map(subcategory => ({ taxonomyId: subcategory.id, name: subcategory.name }));
+
+    const selectedOtherServices = [];
+    Object.keys(newOtherServices).forEach((categoryId) => {
+      const categoryNewServices = newOtherServices[categoryId];
+
+      Object.keys(categoryNewServices).forEach((serviceName) => {
+        const newService = categoryNewServices[serviceName];
+
+        if (newService.isSelected) {
+          selectedOtherServices.push({ taxonomyId: categoryId, name: serviceName });
+        }
+      });
+    });
+
+    const allNewlySelectedServices = selectedSubcategories.concat(selectedOtherServices);
 
     api
-      .createServices(locationId, locationTaxonomies)
+      .createServices(locationId, allNewlySelectedServices)
       .then(() => this.onGoToRecap())
       .catch(error => console.log('error', error)); // eslint-disable-line no-console
   };
 
-  getIsActive = id => this.state.selected[id] || this.state.currentCategories[id];
-
   render() {
-    const { active, selected, isLoading } = this.state;
-    const { taxonomy = [], location, currentCategories } = this.props;
+    const { isLoading, selected } = this.state;
+    const { location, servicesByCategory } = this.props;
 
-    if (!taxonomy || !location || isLoading) {
+    if (!servicesByCategory || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
@@ -88,33 +137,17 @@ class ServiceCategories extends Component {
           <Header>What programs and services are available at this location?</Header>
         </div>
         <Accordion>
-          {taxonomy.map((category, i) => (
-            <div key={category.id}>
-              <Accordion.Item
-                active={active === category.id}
-                onClick={() => this.onToggleOpen(category.id)}
-                title={category.name}
-                icon={getCategoryIcon(category.name)}
-              />
-              <Accordion.Content active={active === category.id}>
-                <Selector fluid>
-                  {category.children &&
-                    category.children.map(item => (
-                      <Selector.Option
-                        key={item.id}
-                        onClick={() => this.onSelect(item)}
-                        active={selected[item.id] || currentCategories[item.id]}
-                        disabled={currentCategories[item.id]}
-                      >
-                        {item.name}
-                      </Selector.Option>
-                    ))}
-                  <Selector.Option align="center">
-                    + Add another {category.name.toLowerCase()} service
-                  </Selector.Option>
-                </Selector>
-              </Accordion.Content>
-            </div>
+          {Object.keys(servicesByCategory).map(categoryId => (
+            <ServiceCategory
+              key={categoryId}
+              category={servicesByCategory[categoryId]}
+              currentServices={servicesByCategory[categoryId] || []}
+              newOtherServices={this.state.newOtherServices[categoryId] || []}
+              selected={selected}
+              onSelectSubcategory={this.onSelectSubcategory}
+              onSelectOtherService={this.onSelectOtherService}
+              onAddOtherService={this.onAddOtherService}
+            />
           ))}
         </Accordion>
         <Button fluid primary onClick={this.onSubmit}>
@@ -125,10 +158,45 @@ class ServiceCategories extends Component {
   }
 }
 
+const getServicesByCategory = (state, props) => {
+  const taxonomy = getTaxonomy(state) || [];
+  const services = getServices(state, props) || [];
+
+  let allCategoriesWithServices = {};
+  services.forEach((service) => {
+    service.Taxonomies.forEach((category) => {
+      allCategoriesWithServices = { ...allCategoriesWithServices, [category.id]: true };
+    });
+  });
+
+  const servicesByCategory = {};
+  taxonomy.forEach((category) => {
+    const subcategories = {};
+    (category.children || []).forEach((subcategory) => {
+      subcategories[subcategory.id] = {
+        ...subcategory,
+        hasExistingService: allCategoriesWithServices[subcategory.id],
+      };
+    });
+
+    const isServiceInCategory = serviceTaxonomy => serviceTaxonomy.id === category.id;
+    const otherServicesInCategory =
+      services.filter(service => service.Taxonomies.filter(isServiceInCategory).length > 0);
+
+    servicesByCategory[category.id] = {
+      ...category,
+      subcategories,
+      otherServices: otherServicesInCategory,
+    };
+  });
+
+  return servicesByCategory;
+};
+
 const mapStateToProps = (state, ownProps) => ({
   location: getLocation(state, ownProps),
-  taxonomy: getTaxonomy(state, ownProps),
-  currentCategories: getCurrentCategories(state, ownProps),
+  taxonomy: getTaxonomy(state),
+  servicesByCategory: getServicesByCategory(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
