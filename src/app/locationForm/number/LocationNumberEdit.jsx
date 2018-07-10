@@ -40,7 +40,7 @@ export default class LocationNumberEdit extends Component {
     this.props.updateValue(
       {
         number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
-        extension: this.state.extension,
+        extension: this.state.extension || null,
       },
       this.props.id,
       this.props.metaDataSection,
