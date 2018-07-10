@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { compose, withProps, lifecycle } from 'recompose';
-import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
+import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
 import ExistingLocationMarker from './ExistingLocationMarker';
 import NewLocationMarker from './NewLocationMarker';
-import geocodingUtil from './geocodingUtil';
+import { getAddressForLocation } from './geocodingUtil';
 import config from '../../config';
 
 const MyMap = compose(
@@ -44,6 +44,20 @@ const MyMap = compose(
     onClick={props.onMapClick}
     ref={props.onMapMounted}
   >
+    {props.isCurrentPositionKnown &&
+      <Marker
+        position={props.center}
+        zIndex={window.google.maps.Marker.MAX_ZINDEX + 1}
+        icon={{
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          strokeWeight: 4,
+          strokeColor: '#FFFFFF',
+          fillColor: '#4A90E2',
+          fillOpacity: 1,
+        }}
+      />
+    }
     {props.locations &&
       props.locations.map(location => (
         <ExistingLocationMarker
@@ -83,7 +97,7 @@ class Map extends Component {
   }
 
   onMapClick(clickEvent) {
-    geocodingUtil.getAddressForLocation(clickEvent.latLng)
+    getAddressForLocation(clickEvent.latLng)
       .then((address) => {
         const { formattedAddress, ...addressComponents } = address;
 

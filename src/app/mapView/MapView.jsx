@@ -18,6 +18,7 @@ const debouncePeriod = 500;
 export default class MapView extends Component {
   state = {
     center: defaultCenter,
+    isCurrentPositionKnown: false,
     searchString: '',
     suggestions: [],
   };
@@ -35,6 +36,7 @@ export default class MapView extends Component {
             lat: coords.latitude,
             lng: coords.longitude,
           },
+          isCurrentPositionKnown: true,
         });
       },
       e => console.error('Failed to get current position', e),
@@ -209,6 +211,7 @@ export default class MapView extends Component {
             defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
             center={this.state.center}
+            isCurrentPositionKnown={this.state.isCurrentPositionKnown}
           />
         </div>
       </div>
