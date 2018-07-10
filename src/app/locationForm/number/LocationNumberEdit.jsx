@@ -37,16 +37,17 @@ export default class LocationNumberEdit extends Component {
 
   onSubmit(e) {
     e.preventDefault();
+    const number = [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.');
     this.props.updateValue(
       {
-        number: [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.'),
+        number,
         extension: this.state.extension || null,
       },
       this.props.id,
       this.props.metaDataSection,
       this.props.fieldName,
     );
-    this.props.onSubmit();
+    this.props.onSubmit(number);
   }
 
   render() {
