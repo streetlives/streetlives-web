@@ -37,6 +37,7 @@ class Input extends Component {
       autoCapitalize,
       onFocus,
       onBlur,
+      innerRef,
     } = this.props;
 
     const classNames = cx('Input', {
@@ -48,6 +49,9 @@ class Input extends Component {
         onInput={this.handleInput}
         ref={(e) => {
           this.element = e;
+          if (innerRef) {
+            innerRef(e);
+          }
         }}
         value={value}
         className={classNames}

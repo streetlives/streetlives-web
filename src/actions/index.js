@@ -13,6 +13,9 @@ export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
+export const POST_COMMENT_REQUEST = 'POST_COMMENT_REQUEST';
+export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
+export const POST_COMMENT_ERROR = 'POST_COMMENT_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   api
@@ -253,4 +256,16 @@ export const updateLanguages = ({
       payload: { id: locationId },
     });
   });
+};
+
+// TODO: Send to Slack hook.
+export const postComment = (locationId, comment) => (dispatch) => {
+  dispatch({ type: POST_COMMENT_REQUEST, payload: { locationId, comment } });
+  api.postComment({ locationId, comment })
+    .then(() => {
+      dispatch({ type: POST_COMMENT_SUCCESS, payload: { locationId, comment } });
+    })
+    .catch((e) => {
+      dispatch({ type: POST_COMMENT_ERROR, payload: { err: e, locationId, comment } });
+    });
 };

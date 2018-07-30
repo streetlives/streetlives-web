@@ -24,6 +24,7 @@ import ServiceRecap from './service/recap/ServiceRecap';
 import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
+import CommentsRouter from './comments/Router';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 import config from '../config';
@@ -94,6 +95,10 @@ function App({ authState }) {
               exact
               path="/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?"
               component={withTracker(DocsFormContainer)}
+            />
+            <Route
+              path="/comments"
+              component={withTracker(CommentsRouter)}
             />
             <Route path="*" component={withTracker(NotFound)} />
           </Switch>
