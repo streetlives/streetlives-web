@@ -35,7 +35,6 @@ class NewCommentForm extends Component {
   }
 
   onCommentSubmitted(info) {
-    // TODO: Loading indicator, error handling, etc? (Which would mean... bypassing redux actions?)
     this.props.postComment(
       this.state.commentText,
       info.name,

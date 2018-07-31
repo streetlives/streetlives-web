@@ -5,17 +5,16 @@ export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
+export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
+export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
-export const POST_COMMENT_REQUEST = 'POST_COMMENT_REQUEST';
-export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
-export const POST_COMMENT_ERROR = 'POST_COMMENT_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   api
@@ -260,12 +259,9 @@ export const updateLanguages = ({
 
 // TODO: Send to Slack hook.
 export const postComment = (locationId, comment) => (dispatch) => {
-  dispatch({ type: POST_COMMENT_REQUEST, payload: { locationId, comment } });
+  dispatch({ type: OPTIMISTIC_POST_COMMENT, payload: { locationId, comment } });
   api.postComment({ locationId, comment })
-    .then(() => {
-      dispatch({ type: POST_COMMENT_SUCCESS, payload: { locationId, comment } });
-    })
     .catch((e) => {
-      dispatch({ type: POST_COMMENT_ERROR, payload: { err: e, locationId, comment } });
+      dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
     });
 };

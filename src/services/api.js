@@ -165,7 +165,6 @@ export const getOrganizationLocations = organizationId =>
       })
       .then(result => result.data));
 
-// TODO: Actually update the API to support this, and with this URL structure.
 export const postComment = ({ locationId, comment }) =>
   requestWithAuth(idJwtToken => axios.request({
     url: `${config.baseApi}/comments`,
@@ -174,7 +173,7 @@ export const postComment = ({ locationId, comment }) =>
       locationId,
       content: comment.content,
       postedBy: comment.name,
-      contentInfo: comment.contactInfo,
+      contactInfo: comment.contactInfo,
     },
     headers: {
       Authorization: idJwtToken,
