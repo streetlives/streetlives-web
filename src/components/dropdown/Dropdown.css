@@ -1,20 +1,20 @@
 @value primaryColor from "../../colors.css";
 
-.list-group {
+.Dropdown {
   overflow-y: auto;
   max-height: 60vh;
 }
 
-.list-group-item {
+.Dropdown-item {
   background: #f8f8fc;
   font-weight: 500;
   font-size: 17px;
 }
 
-.list-group-item:hover {
+.Dropdown-item:hover {
   background: #e0e0e0;
 }
 
-.list-group-item:active {
+.Dropdown-item:active {
   background: primaryColor;
 }

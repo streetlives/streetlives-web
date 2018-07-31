@@ -5,8 +5,8 @@ import { Route } from 'react-router-dom';
 // import withTracker from './withTracker';
 import Main from './Main';
 import NewCommentForm from './newCommentForm/NewCommentForm';
-// TODO: Add all the missing pages.
-// import ViewComments from './ViewComments';
+import ViewComments from './viewComments/ViewComments';
+// TODO: Add the intro page.
 // import Intro from './Intro';
 import Thanks from './thanks/Thanks';
 
@@ -17,7 +17,7 @@ export default function Router({ match }) {
     <div className="CommentsRouter">
       {/* <Route exact path={`${match.path}/:locationId/intro`} component={Intro} /> */}
       <Route exact path={`${match.path}/:locationId`} component={Main} />
-      {/* <Route exact path={`${match.path}/:locationId/view`} component={ViewComments} /> */}
+      <Route exact path={`${match.path}/:locationId/view`} component={ViewComments} />
       <Route exact path={`${match.path}/:locationId/add`} component={NewCommentForm} />
       <Route exact path={`${match.path}/:locationId/thanks`} component={Thanks} />
     </div>

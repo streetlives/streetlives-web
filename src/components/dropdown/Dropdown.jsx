@@ -5,7 +5,7 @@ import './Dropdown.css';
 
 function ListItem({ label, onClick }) {
   return (
-    <li className="list-group-item" onClick={onClick} onKeyPress={onClick} role="menuitem">
+    <li className="Dropdown-item" onClick={onClick} onKeyPress={onClick} role="menuitem">
       {label}
     </li>
   );
@@ -13,7 +13,7 @@ function ListItem({ label, onClick }) {
 
 function Dropdown(props) {
   return (
-    <ul className="list-group list-group-flush">
+    <ul className="Dropdown Dropdown-flush">
       {props.options.map(option => (
         <ListItem
           key={option.id}
