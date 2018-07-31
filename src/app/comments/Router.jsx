@@ -8,7 +8,7 @@ import NewCommentForm from './newCommentForm/NewCommentForm';
 // TODO: Add all the missing pages.
 // import ViewComments from './ViewComments';
 // import Intro from './Intro';
-// import Thanks from './Thanks';
+import Thanks from './thanks/Thanks';
 
 // TODO: Handle 404.
 
@@ -19,7 +19,7 @@ export default function Router({ match }) {
       <Route exact path={`${match.path}/:locationId`} component={Main} />
       {/* <Route exact path={`${match.path}/:locationId/view`} component={ViewComments} /> */}
       <Route exact path={`${match.path}/:locationId/add`} component={NewCommentForm} />
-      {/* <Route exact path={`${match.path}/:locationId/thanks`} component={Thanks} /> */}
+      <Route exact path={`${match.path}/:locationId/thanks`} component={Thanks} />
     </div>
   );
 }
