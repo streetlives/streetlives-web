@@ -70,6 +70,7 @@ class ContactInfo extends Component {
   }
 
   proceedToName() {
+    this.nameInput.scrollIntoView();
     this.nameInput.focus();
   }
 
