@@ -10,15 +10,17 @@ function CommentText(props) {
 
   return (
     <div>
-      <Header size="large" className="mb-5 mx-5 text-left">{props.name}</Header>
-      <TextArea
-        placeholder={instructions}
-        value={props.value}
-        minRows={3}
-        onChange={props.onChange}
-        fluid
-        className="ml-5 pr-5"
-      />
+      <div className="pl-5">
+        <Header size="large" className="mb-5 mr-5 text-left">{props.name}</Header>
+        <TextArea
+          placeholder={instructions}
+          value={props.value}
+          minRows={3}
+          onChange={props.onChange}
+          fluid
+          className="pr-5"
+        />
+      </div>
       <div className="w-100 position-absolute" style={{ bottom: 0 }}>
         <Button
           onClick={props.onSubmit}

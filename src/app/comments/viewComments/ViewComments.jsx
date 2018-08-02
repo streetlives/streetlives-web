@@ -35,6 +35,7 @@ class ViewComments extends Component {
     const { address } = locationData;
     const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
 
+    // TODO: Add empty state.
     // TODO: Sort the comments (front-end might be simplest, though wouldn't support pagination...).
     // TODO: Maybe switch to using the separate comments endpoint, which would support pagination...
     // TODO: postedBy and emails probably shouldn't even be returned by the API (for privacy).

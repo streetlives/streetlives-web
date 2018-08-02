@@ -92,11 +92,11 @@ class ContactInfo extends Component {
   }
 
   render() {
-    let inputNavigationButtons;
+    let bottomButtons;
     switch (this.state.focus) {
       case FOCUS.CONTACT:
-        inputNavigationButtons = (
-          <div className="w-100 d-flex">
+        bottomButtons = (
+          <div className="d-flex">
             <span className="flex-grow-1">
               <Button primary basic fluid onClick={this.cancelContact}>CANCEL</Button>
             </span>
@@ -108,8 +108,8 @@ class ContactInfo extends Component {
         break;
 
       case FOCUS.NAME:
-        inputNavigationButtons = (
-          <div className="w-100 d-flex">
+        bottomButtons = (
+          <div className="d-flex">
             <span className="flex-grow-1">
               <Button primary basic fluid onClick={this.cancelName}>CANCEL</Button>
             </span>
@@ -121,13 +121,17 @@ class ContactInfo extends Component {
         break;
 
       default:
-        inputNavigationButtons = null;
+        bottomButtons = (
+          <LinkButton onClick={this.skip}>
+            Skip this step
+          </LinkButton>
+        );
         break;
     }
 
     return (
       <div>
-        <div className="ml-5 text-left">
+        <div className="ml-5 mb-5 pb-5 text-left">
           <div className="mr-5">
             <Header size="large">One last optional step</Header>
             <Header size="small" className="mb-5">
@@ -157,13 +161,8 @@ class ContactInfo extends Component {
             />
           </div>
         </div>
-        <div className="w-100 position-absolute" style={{ bottom: 0 }}>
-          {inputNavigationButtons}
-          {this.state.focus === FOCUS.NONE && (
-            <LinkButton onClick={this.skip}>
-              Skip this step
-            </LinkButton>
-          )}
+        <div className="w-100 position-fixed" style={{ bottom: 0 }}>
+          {bottomButtons}
         </div>
       </div>
     );
