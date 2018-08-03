@@ -8,6 +8,7 @@ function CommentText(props) {
   const instructions =
   'How was your experience? If you like, please add your name or initals at the end';
 
+  // TODO: Update the textarea styles based on the new designs.
   return (
     <div>
       <div className="px-4">

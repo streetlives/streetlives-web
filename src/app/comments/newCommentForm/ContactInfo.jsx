@@ -56,32 +56,23 @@ class ContactInfo extends Component {
     this.props.onSubmit({});
   }
 
+  // TODO: Add "x" buttons inside the inputs to clear them.
+  // TODO: Update the inputs and label styles based on the new designs.
   render() {
     return (
       <div>
         <div className="mx-4 mb-3 text-left">
-          <div className="mr-5">
+          <div className="w-100 mr-5">
             <Header size="large">One last optional step</Header>
             <p className="my-2">
               This comment site is built for {this.props.name} by Streetlives.
               If you’d like to know more about our work please share your contact info below.
             </p>
-            <p className="mb-5">
+            <p>
               It will not appear with your comment.
             </p>
           </div>
-          <Header size="medium">Email / Phone number</Header>
-          <div>
-            <Input
-              fluid
-              onFocus={this.onContactFocused}
-              onChange={this.onContactChanged}
-              placeholder="Enter your email or phone number"
-              value={this.state.contact}
-              innerRef={this.setContactRef}
-            />
-          </div>
-          <Header size="medium">Name</Header>
+          <div className="font-weight-bold mt-5">Name</div>
           <div>
             <Input
               fluid
@@ -89,7 +80,18 @@ class ContactInfo extends Component {
               onChange={this.onNameChanged}
               placeholder="Enter your full name"
               value={this.state.name}
-              innerRef={this.setNameRef}
+              tabIndex={0}
+            />
+          </div>
+          <div className="font-weight-bold mt-4">Email / Phone number</div>
+          <div>
+            <Input
+              fluid
+              onFocus={this.onContactFocused}
+              onChange={this.onContactChanged}
+              placeholder="Enter your email or phone number"
+              value={this.state.contact}
+              tabIndex={0}
             />
           </div>
         </div>
