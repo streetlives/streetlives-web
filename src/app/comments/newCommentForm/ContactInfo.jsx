@@ -15,6 +15,9 @@ class ContactInfo extends Component {
 
     this.onContactChanged = this.onContactChanged.bind(this);
     this.onNameChanged = this.onNameChanged.bind(this);
+    this.onNameKeyPress = this.onNameKeyPress.bind(this);
+
+    this.setContactRef = this.setContactRef.bind(this);
 
     this.cancelContact = this.cancelContact.bind(this);
     this.cancelName = this.cancelName.bind(this);
@@ -22,12 +25,22 @@ class ContactInfo extends Component {
     this.skip = this.skip.bind(this);
   }
 
+  onNameChanged(event) {
+    this.setState({ name: event.target.value });
+  }
+
   onContactChanged(event) {
     this.setState({ contact: event.target.value });
   }
 
-  onNameChanged(event) {
-    this.setState({ name: event.target.value });
+  onNameKeyPress(event) {
+    if (event.key === 'Enter') {
+      this.contactInput.focus();
+    }
+  }
+
+  setContactRef(ref) {
+    this.contactInput = ref;
   }
 
   cancelContact() {
@@ -81,6 +94,7 @@ class ContactInfo extends Component {
               placeholder="Enter your full name"
               value={this.state.name}
               tabIndex={0}
+              onKeyPress={this.onNameKeyPress}
             />
           </div>
           <div className="font-weight-bold mt-4">Email / Phone number</div>
@@ -92,6 +106,7 @@ class ContactInfo extends Component {
               placeholder="Enter your email or phone number"
               value={this.state.contact}
               tabIndex={0}
+              innerRef={this.setContactRef}
             />
           </div>
         </div>

@@ -37,6 +37,7 @@ class Input extends Component {
       autoCapitalize,
       onFocus,
       onBlur,
+      onKeyPress,
       innerRef,
     } = this.props;
 
@@ -69,6 +70,7 @@ class Input extends Component {
         autoCapitalize={autoCapitalize}
         onFocus={onFocus}
         onBlur={onBlur}
+        onKeyPress={onKeyPress}
       />
     );
   }
