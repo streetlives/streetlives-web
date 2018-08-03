@@ -24,7 +24,7 @@ class Thanks extends Component {
   }
 
   goToViewComments() {
-    this.props.history.push(`/comments/${this.props.match.params.locationId}/view`);
+    this.props.history.push(`/comments/${this.props.match.params.locationId}`);
   }
 
   render() {
@@ -39,7 +39,7 @@ class Thanks extends Component {
               <Heart width="100" height="100" />
             </p>
             <p>
-              Your comment will be help people in the community and the staff {name && `at ${name}`}
+              Your comment has helped {name && `${name} and `}the whole commmunity
             </p>
           </div>
           <div className="actions">

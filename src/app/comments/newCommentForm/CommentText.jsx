@@ -5,8 +5,8 @@ import Button from '../../../components/button';
 import TextArea from '../../../components/textarea';
 
 function CommentText(props) {
-  const instructions = 'Share what is good (or bad) here, based on your experience.'
-    + ' (If you want, add your name or initials at the end.)';
+  const instructions =
+  'How was your experience? If you like, please add your name or initals at the end';
 
   return (
     <div>

@@ -61,7 +61,12 @@ class NewCommentForm extends Component {
       );
     }
 
-    return <ContactInfo onSubmit={this.onCommentSubmitted} />;
+    return (
+      <ContactInfo
+        name={locationData.Organization.name}
+        onSubmit={this.onCommentSubmitted}
+      />
+    );
   }
 }
 

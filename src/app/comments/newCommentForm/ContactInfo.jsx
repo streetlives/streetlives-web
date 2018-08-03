@@ -135,9 +135,13 @@ class ContactInfo extends Component {
         <div className="ml-5 mb-5 pb-5 text-left">
           <div className="mr-5">
             <Header size="large">One last optional step</Header>
-            <Header size="small" className="mb-5">
-              Tell us who you are if you’d like to be involved more in this project.
-            </Header>
+            <p className="my-2">
+              This comment site is built for {this.props.name} by Streetlives.
+              If you’d like to know more about our work please share your contact info below.
+            </p>
+            <p className="mb-5">
+              It will not appear with your comment.
+            </p>
           </div>
           <Header size="medium">Email / Phone number</Header>
           <div>
@@ -172,6 +176,7 @@ class ContactInfo extends Component {
 
 ContactInfo.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default ContactInfo;
