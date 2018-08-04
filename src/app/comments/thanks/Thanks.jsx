@@ -24,7 +24,7 @@ class Thanks extends Component {
   }
 
   goToViewComments() {
-    this.props.history.push(`/comments/${this.props.match.params.locationId}`);
+    this.props.history.push(`/comments/${this.props.match.params.locationId}/view`);
   }
 
   render() {
@@ -32,7 +32,7 @@ class Thanks extends Component {
 
     return (
       <div style={styles}>
-        <div className="container p-5 d-flex flex-column justify-content-between h-100">
+        <div className="container pb-5 pt-2 px-4 d-flex flex-column justify-content-between h-100">
           <div className="content text-left">
             <p className="Header">Thank you so much!</p>
             <p>

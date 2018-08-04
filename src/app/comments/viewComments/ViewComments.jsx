@@ -48,7 +48,7 @@ class ViewComments extends Component {
           <Header size="small" className="mt-3 mb-3">{addressString}</Header>
         </div>
         {!comments.length && (
-          <p className="m-5" style={{ fontWeight: 'bold' }}>
+          <p className="m-5 font-weight-bold">
             No comments have been posted about this location yet.
           </p>
         )}
