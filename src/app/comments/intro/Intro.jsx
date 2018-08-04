@@ -15,7 +15,7 @@ const styles = {
   overflow: 'auto',
 };
 
-class ViewComments extends Component {
+class Intro extends Component {
   constructor(props) {
     super(props);
     this.goToViewComments = this.goToViewComments.bind(this);
@@ -81,4 +81,4 @@ const mapDispatchToProps = {
   getLocation,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewComments);
+export default connect(mapStateToProps, mapDispatchToProps)(Intro);

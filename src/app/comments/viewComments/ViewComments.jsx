@@ -6,6 +6,15 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 
+const styles = {
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: '100%',
+  overflow: 'auto',
+};
+
 class ViewComments extends Component {
   constructor(props) {
     super(props);
@@ -42,37 +51,39 @@ class ViewComments extends Component {
     // TODO: Don't actually use small and such, but rather style it all properly with CSS files.
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
     return (
-      <div>
-        <div className="mx-5 text-left">
-          <Header size="large">{locationData.Organization.name}</Header>
-          <Header size="small" className="mt-3 mb-3">{addressString}</Header>
+      <div className="d-flex flex-column" style={styles}>
+        <div className="flex-grow-1">
+          <div className="mx-5 text-left">
+            <Header size="large">{locationData.Organization.name}</Header>
+            <Header size="small" className="mt-3 mb-3">{addressString}</Header>
+          </div>
+          {!comments.length && (
+            <p className="m-5 font-weight-bold">
+              No comments have been posted about this location yet.
+            </p>
+          )}
+          <ul className="list-group w-100">
+            {comments.map(comment => (
+              <li
+                key={comment.id}
+                className="list-group-item px-5 w-100"
+                style={{
+                  borderColor: '#EDEDED',
+                  backgroundColor: '#FCFCFC',
+                }}
+              >
+                <div className="text-left">
+                  {comment.content}
+                </div>
+                <small className="pull-right" style={{ color: '#C2C2C2' }}>
+                  {moment(comment.created_at).format('MMM D, YYYY h:mma')}
+                </small>
+              </li>
+            ))}
+          </ul>
         </div>
-        {!comments.length && (
-          <p className="m-5 font-weight-bold">
-            No comments have been posted about this location yet.
-          </p>
-        )}
-        <ul className="list-group w-100">
-          {comments.map(comment => (
-            <li
-              key={comment.id}
-              className="list-group-item px-5 w-100"
-              style={{
-                borderColor: '#EDEDED',
-                backgroundColor: '#FCFCFC',
-              }}
-            >
-              <div className="text-left">
-                {comment.content}
-              </div>
-              <small className="pull-right" style={{ color: '#C2C2C2' }}>
-                {moment(comment.created_at).format('MMM D, YYYY h:mma')}
-              </small>
-            </li>
-          ))}
-        </ul>
-        <div className="w-100 position-absolute" style={{ bottom: 0 }}>
-          <Button onClick={this.goToAddComment} primary fluid className="mt-3">
+        <div className="w-100">
+          <Button onClick={this.goToAddComment} primary fluid>
             ADD YOUR COMMENT
           </Button>
         </div>
