@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { selectLocationData } from '../../../reducers';
 import Button from '../../../components/button';
 import Heart from '../../../components/heart';
 
@@ -61,7 +62,7 @@ class Thanks extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const locationData = state.locations[ownProps.match.params.locationId];
+  const locationData = selectLocationData(state, ownProps.match.params.locationId);
   return {
     name: locationData && locationData.Organization && locationData.Organization.name,
   };

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { postComment, getLocation } from '../../../actions';
+import { selectLocationData } from '../../../reducers';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 import CommentText from './CommentText';
 import ContactInfo from './ContactInfo';
@@ -71,7 +72,7 @@ class NewCommentForm extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: state.locations[ownProps.match.params.locationId],
+  locationData: selectLocationData(state, ownProps.match.params.locationId),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

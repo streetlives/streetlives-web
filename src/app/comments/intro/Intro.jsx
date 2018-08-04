@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getLocation } from '../../../actions';
+import { selectLocationData } from '../../../reducers';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
@@ -74,7 +75,7 @@ class Intro extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: state.locations[ownProps.match.params.locationId],
+  locationData: selectLocationData(state, ownProps.match.params.locationId),
 });
 
 const mapDispatchToProps = {
