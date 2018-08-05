@@ -10,6 +10,7 @@ export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
 export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
+export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
@@ -278,6 +279,9 @@ export const updateLanguages = ({
 export const postComment = (locationId, comment) => (dispatch) => {
   dispatch({ type: OPTIMISTIC_POST_COMMENT, payload: { locationId, comment } });
   api.postComment({ locationId, comment })
+    .then(() => {
+      dispatch({ type: POST_COMMENT_SUCCESS, payload: { locationId, comment } });
+    })
     .catch((e) => {
       dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
     });

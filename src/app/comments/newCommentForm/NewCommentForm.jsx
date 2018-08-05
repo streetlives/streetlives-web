@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { postComment, getLocation } from '../../../actions';
-import { selectLocationData } from '../../../reducers';
+import { selectLocationData, selectIsPostingComment } from '../../../reducers';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 import CommentText from './CommentText';
 import ContactInfo from './ContactInfo';
@@ -27,6 +27,12 @@ class NewCommentForm extends Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isPostingComment && !this.props.isPostingComment) {
+      this.props.history.push(`/comments/${this.props.match.params.locationId}/thanks`);
+    }
+  }
+
   onCommentTextChanged(event) {
     this.setState({ commentText: event.target.value });
   }
@@ -41,13 +47,12 @@ class NewCommentForm extends Component {
       info.name,
       info.contact,
     );
-    this.props.history.push(`/comments/${this.props.match.params.locationId}/thanks`);
   }
 
   render() {
-    const { locationData } = this.props;
+    const { locationData, isPostingComment } = this.props;
 
-    if (!locationData) {
+    if (!locationData || isPostingComment) {
       return <LoadingLabel />;
     }
 
@@ -73,6 +78,7 @@ class NewCommentForm extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   locationData: selectLocationData(state, ownProps.match.params.locationId),
+  isPostingComment: selectIsPostingComment(state),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

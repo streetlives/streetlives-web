@@ -4,7 +4,7 @@ import { commentsReducer } from './comments';
 
 export { selectLocationData } from './locations';
 export { selectNewLocationData } from './newLocation';
-export { selectComments } from './comments';
+export { selectComments, selectIsPostingComment } from './comments';
 
 export const rootReducerObj = {
   locations: locationsReducer,
