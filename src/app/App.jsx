@@ -2,7 +2,6 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
-import PropTypes from 'prop-types';
 
 import Amplify from 'aws-amplify';
 import { AmplifyTheme, RequireNewPassword, VerifyContact, Authenticator } from 'aws-amplify-react';
@@ -37,64 +36,90 @@ history.listen((location, action) => {
 
 Amplify.configure(awsExports);
 
-function App({ authState }) {
-  if (!config.disableAuth && authState !== 'signedIn') return null;
+const withAuth = (Component) => {
+  if (config.disableAuth) {
+    return Component;
+  }
+
+  return (props) => {
+    const ComponentRenderedOnlyOnAuth = ({ authState }) =>
+      (authState === 'signedIn' ? <Component {...props} /> : null);
+
+    return (
+      <Authenticator hideDefault theme={AmplifyTheme}>
+        <SignIn />
+        <ForgotPassword />
+        <RequireNewPassword />
+        <SignUp />
+        <ConfirmSignUp />
+        <VerifyContact />
+        <ComponentRenderedOnlyOnAuth />
+      </Authenticator>
+    );
+  };
+};
+
+function App() {
   return (
     <Provider store={store}>
       <div className="App">
         <ConnectedRouter history={history}>
           <Switch>
-            <Route exact path="/" component={withTracker(MapView)} />
+            <Route exact path="/" component={withTracker(withAuth(MapView))} />
             <Route
               exact
               path="/location"
-              component={withTracker(NewLocation)}
+              component={withTracker(withAuth(NewLocation))}
             />
-            <Route exact path="/location/:locationId" component={withTracker(LocationInfo)} />
+            <Route
+              exact
+              path="/location/:locationId"
+              component={withTracker(withAuth(LocationInfo))}
+            />
             <Route
               exact
               path="/location/:locationId/recap"
-              component={withTracker(LocationRecap)}
+              component={withTracker(withAuth(LocationRecap))}
             />
             <Route
               exact
               path="/location/:locationId/questions/:questionId/:thanks?"
-              component={withTracker(LocationForm)}
+              component={withTracker(withAuth(LocationForm))}
             />
             <Route
               exact
               path="/location/:locationId/services/"
-              component={withTracker(ServiceCategories)}
+              component={withTracker(withAuth(ServiceCategories))}
             />
             <Route
               exact
               path="/location/:locationId/services/recap/:thanks?"
-              component={withTracker(ServiceRecap)}
+              component={withTracker(withAuth(ServiceRecap))}
             />
             <Route
               exact
               path="/location/:locationId/services/:serviceId/"
-              component={withTracker(ServiceDetails)}
+              component={withTracker(withAuth(ServiceDetails))}
             />
             <Route
               exact
               path="/location/:locationId/services/:serviceId/documents"
-              component={withTracker(DocumentDetails)}
+              component={withTracker(withAuth(DocumentDetails))}
             />
             <Route
               exact
               path="/location/:locationId/services/:serviceId/:fieldName"
-              component={withTracker(ServiceFormContainer)}
+              component={withTracker(withAuth(ServiceFormContainer))}
             />
             <Route
               exact
               path="/location/:locationId/services/:serviceId/documents/:fieldName"
-              component={withTracker(DocsFormContainer)}
+              component={withTracker(withAuth(DocsFormContainer))}
             />
             <Route
               exact
               path="/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?"
-              component={withTracker(DocsFormContainer)}
+              component={withTracker(withAuth(DocsFormContainer))}
             />
             <Route
               path="/comments"
@@ -108,25 +133,7 @@ function App({ authState }) {
   );
 }
 
-App.propTypes = {
-  authState: PropTypes.string.isRequired,
-};
-
 AmplifyTheme.container.paddingRight = 0;
 AmplifyTheme.container.paddingLeft = 0;
 
-const auth = () => (
-  <Authenticator hideDefault theme={AmplifyTheme}>
-    <SignIn />
-    <ForgotPassword />
-    <RequireNewPassword />
-    <SignUp />
-    <ConfirmSignUp />
-    <VerifyContact />
-    <App />
-  </Authenticator>
-);
-
-const mainComponent = config.disableAuth ? App : auth;
-
-export default mainComponent;
+export default App;

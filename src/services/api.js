@@ -9,7 +9,8 @@ const requestWithAuth = (cb) => {
   return Amplify.Auth.currentAuthenticatedUser().then((user) => {
     const idJwtToken = user.signInUserSession.getIdToken().getJwtToken();
     return cb(idJwtToken);
-  });
+  })
+    .catch(() => cb(null));
 };
 
 export const getLocations = ({
@@ -33,16 +34,12 @@ export const getLocations = ({
       .then(result => result.data));
 
 export const getLocation = ({ id }) =>
-  requestWithAuth(idJwtToken =>
-    axios
-      .request({
-        url: `${config.baseApi}/locations/${id}`,
-        method: 'get',
-        headers: {
-          Authorization: idJwtToken,
-        },
-      })
-      .then(result => result.data));
+  axios
+    .request({
+      url: `${config.baseApi}/locations/${id}`,
+      method: 'get',
+    })
+    .then(result => result.data);
 
 const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
   requestWithAuth((idJwtToken) => {
@@ -166,19 +163,15 @@ export const getOrganizationLocations = organizationId =>
       .then(result => result.data));
 
 export const getComments = ({ locationId }) =>
-  requestWithAuth(idJwtToken =>
-    axios
-      .request({
-        url: `${config.baseApi}/comments`,
-        method: 'get',
-        params: {
-          locationId,
-        },
-        headers: {
-          Authorization: idJwtToken,
-        },
-      })
-      .then(result => result.data));
+  axios
+    .request({
+      url: `${config.baseApi}/comments`,
+      method: 'get',
+      params: {
+        locationId,
+      },
+    })
+    .then(result => result.data);
 
 export const postComment = ({ locationId, comment }) =>
   requestWithAuth(idJwtToken => axios.request({
