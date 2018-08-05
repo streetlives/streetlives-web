@@ -8,8 +8,6 @@ import {
   CREATE_PHONE_SUCCESS,
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
-  OPTIMISTIC_POST_COMMENT,
-  ROLLBACK_POST_COMMENT,
 } from '../actions';
 import { DAYS } from '../constants';
 
@@ -195,36 +193,6 @@ export const locationsReducer = (state = {}, action) => {
       ];
       return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
-    case OPTIMISTIC_POST_COMMENT:
-      if (action.payload) {
-        const { locationId, comment } = action.payload;
-        const location = state[locationId];
-        return {
-          ...state,
-          [`last/${locationId}`]: location,
-          [locationId]: {
-            ...location,
-            Comments: [
-              {
-                content: comment.content,
-                posted_by: comment.name,
-                contact_info: comment.contactInfo,
-              },
-              ...location.Comments,
-            ],
-          },
-        };
-      }
-      break;
-    case ROLLBACK_POST_COMMENT:
-      if (action.payload) {
-        return {
-          ...state,
-          [`last/${action.payload.locationId}`]: null,
-          [action.payload.locationId]: state[`last/${action.payload.locationId}`],
-        };
-      }
-      break;
     default:
       return state;
   }
