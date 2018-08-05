@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { getLocation } from '../../../actions';
-import { selectLocationData } from '../../../reducers';
+import { getLocation, getComments } from '../../../actions';
+import { selectLocationData, selectComments } from '../../../reducers';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
@@ -23,8 +23,12 @@ class ViewComments extends Component {
   }
 
   componentWillMount() {
+    const { locationId } = this.props.match.params;
     if (!this.props.locationData) {
-      this.props.getLocation(this.props.match.params.locationId);
+      this.props.getLocation(locationId);
+    }
+    if (!this.props.comments) {
+      this.props.getComments(locationId);
     }
   }
 
@@ -33,21 +37,16 @@ class ViewComments extends Component {
   }
 
   render() {
-    const { locationData } = this.props;
+    const { locationData, comments } = this.props;
 
-    if (!locationData) {
+    if (!locationData || !comments) {
       return <LoadingLabel />;
     }
-
-    const comments = locationData.Comments;
 
     // TODO: See about getting rid of all this duplication between the comment pages.
     const { address } = locationData;
     const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
 
-    // TODO: Sort the comments (front-end might be simplest, though wouldn't support pagination...).
-    // TODO: Maybe switch to using the separate comments endpoint, which would support pagination...
-    // TODO: postedBy and emails probably shouldn't even be returned by the API (for privacy).
     // TODO: Probably extract the list and its items into a component (mabye use for languages?).
     // TODO: Don't actually use small and such, but rather style it all properly with CSS files.
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
@@ -95,10 +94,12 @@ class ViewComments extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   locationData: selectLocationData(state, ownProps.match.params.locationId),
+  comments: selectComments(state, ownProps.match.params.locationId),
 });
 
 const mapDispatchToProps = {
   getLocation,
+  getComments,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewComments);

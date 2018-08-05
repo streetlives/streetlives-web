@@ -23,7 +23,6 @@ class Intro extends Component {
   }
 
   componentWillMount() {
-    // TODO: Figure out why it seems to be loading the data every time I navigate.
     if (!this.props.locationData) {
       this.props.getLocation(this.props.match.params.locationId);
     }

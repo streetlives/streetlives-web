@@ -165,6 +165,21 @@ export const getOrganizationLocations = organizationId =>
       })
       .then(result => result.data));
 
+export const getComments = ({ locationId }) =>
+  requestWithAuth(idJwtToken =>
+    axios
+      .request({
+        url: `${config.baseApi}/comments`,
+        method: 'get',
+        params: {
+          locationId,
+        },
+        headers: {
+          Authorization: idJwtToken,
+        },
+      })
+      .then(result => result.data));
+
 export const postComment = ({ locationId, comment }) =>
   requestWithAuth(idJwtToken => axios.request({
     url: `${config.baseApi}/comments`,

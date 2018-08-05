@@ -2,6 +2,7 @@
 import * as api from '../services/api';
 
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
+export const GET_COMMENTS_RESPONSE = 'GET_COMMENTS_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
@@ -36,6 +37,22 @@ export const getTaxonomy = () => (dispatch) => {
       dispatch({
         type: GET_TAXONOMY_RESPONSE,
         payload: data,
+      }))
+    .catch(e => console.error('error', e));
+};
+
+export const getComments = locationId => (dispatch) => {
+  api
+    .getComments({
+      locationId,
+    })
+    .then(data =>
+      dispatch({
+        type: GET_COMMENTS_RESPONSE,
+        payload: {
+          locationId,
+          comments: data,
+        },
       }))
     .catch(e => console.error('error', e));
 };
