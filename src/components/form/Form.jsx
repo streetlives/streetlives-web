@@ -18,7 +18,7 @@ class Form extends Component {
     this.state = { isEditing: isEditing(props) };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { resourceData } = this.props;
     if (!resourceData || Object.keys(resourceData).length === 0) {
       const { locationId } = this.props.match.params;

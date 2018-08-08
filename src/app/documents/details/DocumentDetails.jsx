@@ -48,7 +48,7 @@ function DocsHeader({ children }) {
 }
 
 class DocumentDetails extends Component {
-  componentWillMount() {
+  componentDidMount() {
     if (Object.keys(this.props.service).length === 0) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
