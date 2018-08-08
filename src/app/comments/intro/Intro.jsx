@@ -7,7 +7,7 @@ import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 
 // TODO: Try to find a better way to achieve this.
-const styles = {
+const fullScreenStyles = {
   position: 'absolute',
   top: '0',
   left: '0',
@@ -40,7 +40,7 @@ class Intro extends Component {
     }
 
     return (
-      <div className="d-flex flex-column" style={styles}>
+      <div className="d-flex flex-column" style={fullScreenStyles}>
         <div className="m-4 text-left font-weight-bold flex-grow-1">
           <Header size="large">
             WELCOME TO THE COMMENT PAGE FOR {locationData.Organization.name.toUpperCase()}!
@@ -52,7 +52,7 @@ class Intro extends Component {
             This site is for us to hear and learn from you.
           </Header>
         </div>
-        <small className="m-4">
+        <small className="m-4 pb-5">
           Comments are anonymous. By using this site you agree to our
           <a
             className="ml-1"
@@ -63,7 +63,7 @@ class Intro extends Component {
             guidelines
           </a>
         </small>
-        <div className="w-100">
+        <div className="w-100 fixed-bottom">
           <Button onClick={this.goToViewComments} primary fluid className="mt-3">
             LET’S GET STARTED
           </Button>

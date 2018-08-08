@@ -4,14 +4,23 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import TextArea from '../../../components/textarea';
 
+const fullScreenStyles = {
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: '100%',
+  overflow: 'auto',
+};
+
 function CommentText(props) {
   const instructions =
   'How was your experience? If you like, please add your name or initals at the end';
 
   // TODO: Update the textarea styles based on the new designs.
   return (
-    <div>
-      <div className="px-4">
+    <div style={{ fullScreenStyles }}>
+      <div className="px-4 pb-5">
         <Header size="large" className="mb-3 text-left">{props.name}</Header>
         <TextArea
           placeholder={instructions}
@@ -27,7 +36,7 @@ function CommentText(props) {
           disabled={!props.value}
           primary
           fluid
-          className="mt-3"
+          className="fixed-bottom mt-3"
         >
           ADD COMMENT
         </Button>

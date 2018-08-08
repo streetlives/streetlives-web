@@ -7,7 +7,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 
-const styles = {
+const fullScreenStyles = {
   position: 'absolute',
   top: '0',
   left: '0',
@@ -50,9 +50,10 @@ class ViewComments extends Component {
     // TODO: Probably extract the list and its items into a component (mabye use for languages?).
     // TODO: Don't actually use small and such, but rather style it all properly with CSS files.
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
+    // TODO: Try to find better way to put the button right under the list (no hard-coded padding).
     return (
-      <div className="d-flex flex-column" style={styles}>
-        <div className="flex-grow-1">
+      <div style={fullScreenStyles}>
+        <div style={{ paddingBottom: '40px' }}>
           <div className="mx-5 text-left">
             <Header size="large">{locationData.Organization.name}</Header>
             <Header size="small" className="mt-3 mb-3">{addressString}</Header>
@@ -82,7 +83,7 @@ class ViewComments extends Component {
             ))}
           </ul>
         </div>
-        <div className="w-100">
+        <div className="w-100 fixed-bottom">
           <Button onClick={this.goToAddComment} primary fluid>
             ADD YOUR COMMENT
           </Button>
