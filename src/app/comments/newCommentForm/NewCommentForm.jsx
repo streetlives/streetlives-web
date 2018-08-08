@@ -21,13 +21,14 @@ class NewCommentForm extends Component {
     this.onCommentSubmitted = this.onCommentSubmitted.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (!this.props.locationData) {
       this.props.getLocation(this.props.match.params.locationId);
     }
   }
 
   componentDidUpdate(prevProps) {
+    // TODO: Probably revert this after fixing the navigation-wipes-everything issue.
     if (prevProps.isPostingComment && !this.props.isPostingComment) {
       this.props.history.push(`/comments/${this.props.match.params.locationId}/thanks`);
     }

@@ -22,7 +22,7 @@ class Intro extends Component {
     this.goToViewComments = this.goToViewComments.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (!this.props.locationData) {
       this.props.getLocation(this.props.match.params.locationId);
     }

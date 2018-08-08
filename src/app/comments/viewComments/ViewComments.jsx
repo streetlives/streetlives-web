@@ -22,7 +22,7 @@ class ViewComments extends Component {
     this.goToAddComment = this.goToAddComment.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { locationId } = this.props.match.params;
     if (!this.props.locationData) {
       this.props.getLocation(locationId);
