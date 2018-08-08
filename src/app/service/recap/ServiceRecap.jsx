@@ -31,7 +31,7 @@ const thanksContent =
 class ServicesRecap extends Component {
   state = { services: [] };
 
-  componentWillMount() {
+  componentDidMount() {
     const { locationId } = this.props.match.params;
     this.props.getLocation(locationId);
 

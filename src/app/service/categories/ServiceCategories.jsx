@@ -30,7 +30,7 @@ class ServiceCategories extends Component {
     isLoading: false,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
     }

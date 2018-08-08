@@ -45,7 +45,7 @@ function ListItem({ route, linkTo, location }) {
 }
 
 class LocationInfo extends Component {
-  componentWillMount() {
+  componentDidMount() {
     if (!this.props.locationData) {
       this.props.getLocation(this.props.match.params.locationId);
     }

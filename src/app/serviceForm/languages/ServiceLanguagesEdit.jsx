@@ -27,7 +27,7 @@ class ServiceLanguages extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     api
       .getLanguages()
       .then(({ data }) => {
