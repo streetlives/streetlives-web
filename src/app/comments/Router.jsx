@@ -7,13 +7,29 @@ import ViewComments from './viewComments/ViewComments';
 import Intro from './intro/Intro';
 import Thanks from './thanks/Thanks';
 
+// TODO: Try coming up with a better way of mapping than hard-coding the current prod IDs.
+const locationNames = {
+  bnl: '1edfab8e-0d7c-437e-a14c-6b9ca0eb5d93',
+  apostles: '5426de21-4e1b-4e6e-bcf1-6bf334de56b5',
+};
+
+const withFriendlyUrls = RouteComponent => (props) => {
+  const { locationId } = props.match.params;
+
+  const propsWithModifiedLocationId = { ...props };
+  propsWithModifiedLocationId.match.params.locationId = locationNames[locationId] || locationId;
+
+  return <RouteComponent {...propsWithModifiedLocationId} />;
+};
+
 export default function Router({ match }) {
+  const { path } = match;
   return (
     <Switch>
-      <Route exact path={`${match.path}/:locationId`} component={Intro} />
-      <Route exact path={`${match.path}/:locationId/view`} component={ViewComments} />
-      <Route exact path={`${match.path}/:locationId/add`} component={NewCommentForm} />
-      <Route exact path={`${match.path}/:locationId/thanks`} component={Thanks} />
+      <Route exact path={`${path}/:locationId`} component={withFriendlyUrls(Intro)} />
+      <Route exact path={`${path}/:locationId/view`} component={withFriendlyUrls(ViewComments)} />
+      <Route exact path={`${path}/:locationId/add`} component={withFriendlyUrls(NewCommentForm)} />
+      <Route exact path={`${path}/:locationId/thanks`} component={withFriendlyUrls(Thanks)} />
       <Route path="*" component={NotFound} />
     </Switch>
   );
