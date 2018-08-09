@@ -28,7 +28,6 @@ class NewCommentForm extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // TODO: Probably revert this after fixing the navigation-wipes-everything issue.
     if (prevProps.isPostingComment && !this.props.isPostingComment) {
       this.props.history.push(`/comments/${this.props.match.params.locationId}/thanks`);
     }
@@ -54,7 +53,11 @@ class NewCommentForm extends Component {
     const { locationData, isPostingComment } = this.props;
 
     if (!locationData || isPostingComment) {
-      return <LoadingLabel />;
+      return (
+        <LoadingLabel>
+          <span>Adding comment...</span>
+        </LoadingLabel>
+      );
     }
 
     if (!this.state.isCommentFinished) {

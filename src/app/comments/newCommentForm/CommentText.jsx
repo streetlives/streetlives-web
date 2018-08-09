@@ -57,7 +57,7 @@ class CommentText extends Component {
               fluid
               className="fixed-bottom mt-3"
             >
-              ADD COMMENT
+              NEXT
             </Button>
           </div>
         </div>
