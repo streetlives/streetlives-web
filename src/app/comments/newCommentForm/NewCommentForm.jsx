@@ -63,7 +63,7 @@ class NewCommentForm extends Component {
     if (!this.state.isCommentFinished) {
       return (
         <CommentText
-          name={locationData.Organization.name}
+          match={this.props.match}
           value={this.state.commentText}
           onChange={this.onCommentTextChanged}
           onSubmit={this.onCommentFinished}
@@ -73,7 +73,7 @@ class NewCommentForm extends Component {
 
     return (
       <ContactInfo
-        name={locationData.Organization.name}
+        match={this.props.match}
         onSubmit={this.onCommentSubmitted}
       />
     );

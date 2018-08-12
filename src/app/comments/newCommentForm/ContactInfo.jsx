@@ -4,6 +4,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
 import LinkButton from '../../../components/link';
+import withCommentsForm from '../withCommentsForm';
 
 class ContactInfo extends Component {
   constructor(props) {
@@ -78,7 +79,7 @@ class ContactInfo extends Component {
           <div className="w-100 mr-5">
             <Header size="large">One last optional step</Header>
             <p className="my-2">
-              This comment site is built for {this.props.name} by Streetlives.
+              This comment site is built for {this.props.organizationName} by Streetlives.
               If you’d like to know more about our work please share your contact info below.
             </p>
             <p>
@@ -123,7 +124,7 @@ class ContactInfo extends Component {
 
 ContactInfo.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
+  organizationName: PropTypes.string.isRequired,
 };
 
-export default ContactInfo;
+export default withCommentsForm(ContactInfo);

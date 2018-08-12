@@ -1,17 +1,7 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { selectLocationData } from '../../../reducers';
 import Button from '../../../components/button';
 import Heart from '../../../components/heart';
-
-const styles = {
-  position: 'absolute',
-  top: '0',
-  left: '0',
-  width: '100%',
-  height: '100%',
-  overflow: 'auto',
-};
+import withCommentsForm from '../withCommentsForm';
 
 class Thanks extends Component {
   constructor(props) {
@@ -29,31 +19,29 @@ class Thanks extends Component {
   }
 
   render() {
-    const { name } = this.props;
+    const { organizationName } = this.props;
 
     return (
-      <div style={styles}>
-        <div className="container pb-5 pt-2 px-4 d-flex flex-column justify-content-between h-100">
-          <div className="content text-left">
-            <p className="Header">Thank you so much!</p>
-            <p>
-              <Heart width="100" height="100" />
-            </p>
-            <p>
-              Your comment has helped {name && `${name} and `}the whole commmunity
-            </p>
+      <div className="container pb-5 pt-2 px-4 d-flex flex-column justify-content-between h-100">
+        <div className="content text-left">
+          <p className="Header">Thank you so much!</p>
+          <p>
+            <Heart width="100" height="100" />
+          </p>
+          <p>
+            Your comment has helped {organizationName} and the whole commmunity
+          </p>
+        </div>
+        <div className="actions">
+          <div className="mt-4">
+            <Button className="mt-4" primary fluid onClick={this.goToViewComments}>
+              SEE PEOPLE’S COMMENTS
+            </Button>
           </div>
-          <div className="actions">
-            <div className="mt-4">
-              <Button className="mt-4" primary fluid onClick={this.goToViewComments}>
-                SEE PEOPLE’S COMMENTS
-              </Button>
-            </div>
-            <div className="mt-2">
-              <Button primary basic fluid onClick={this.goToAddAnotherComment}>
-                ADD ANOTHER COMMENT
-              </Button>
-            </div>
+          <div className="mt-2">
+            <Button primary basic fluid onClick={this.goToAddAnotherComment}>
+              ADD ANOTHER COMMENT
+            </Button>
           </div>
         </div>
       </div>
@@ -61,11 +49,4 @@ class Thanks extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const locationData = selectLocationData(state, ownProps.match.params.locationId);
-  return {
-    name: locationData && locationData.Organization && locationData.Organization.name,
-  };
-};
-
-export default connect(mapStateToProps)(Thanks);
+export default withCommentsForm(Thanks, { hideInfoLink: true });

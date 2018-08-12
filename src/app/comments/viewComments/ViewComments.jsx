@@ -1,20 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { getLocation, getComments } from '../../../actions';
-import { selectLocationData, selectComments } from '../../../reducers';
+import { getComments } from '../../../actions';
+import { selectComments } from '../../../reducers';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
-
-const fullScreenStyles = {
-  position: 'absolute',
-  top: '0',
-  left: '0',
-  width: '100%',
-  height: '100%',
-  overflow: 'auto',
-};
+import withCommentsForm from '../withCommentsForm';
 
 class ViewComments extends Component {
   constructor(props) {
@@ -23,12 +15,8 @@ class ViewComments extends Component {
   }
 
   componentDidMount() {
-    const { locationId } = this.props.match.params;
-    if (!this.props.locationData) {
-      this.props.getLocation(locationId);
-    }
     if (!this.props.comments) {
-      this.props.getComments(locationId);
+      this.props.getComments(this.props.match.params.locationId);
     }
   }
 
@@ -37,25 +25,21 @@ class ViewComments extends Component {
   }
 
   render() {
-    const { locationData, comments } = this.props;
+    const { comments, organizationName, addressString } = this.props;
 
-    if (!locationData || !comments) {
+    if (!comments) {
       return <LoadingLabel />;
     }
-
-    // TODO: See about getting rid of all this duplication between the comment pages.
-    const { address } = locationData;
-    const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
 
     // TODO: Probably extract the list and its items into a component (mabye use for languages?).
     // TODO: Don't actually use small and such, but rather style it all properly with CSS files.
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
     // TODO: Try to find better way to put the button right under the list (no hard-coded padding).
     return (
-      <div style={fullScreenStyles}>
+      <div>
         <div style={{ paddingBottom: '40px' }}>
           <div className="mx-5 text-left">
-            <Header size="large">{locationData.Organization.name}</Header>
+            <Header size="large">{organizationName}</Header>
             <Header size="small" className="mt-3 mb-3">{addressString}</Header>
           </div>
           {!comments.length && (
@@ -69,6 +53,7 @@ class ViewComments extends Component {
                 key={comment.id}
                 className="list-group-item px-5 w-100"
                 style={{
+                  position: 'auto',
                   borderColor: '#EDEDED',
                   backgroundColor: '#FCFCFC',
                 }}
@@ -94,13 +79,11 @@ class ViewComments extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: selectLocationData(state, ownProps.match.params.locationId),
   comments: selectComments(state, ownProps.match.params.locationId),
 });
 
 const mapDispatchToProps = {
-  getLocation,
   getComments,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewComments);
+export default connect(mapStateToProps, mapDispatchToProps)(withCommentsForm(ViewComments));
