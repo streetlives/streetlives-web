@@ -20,7 +20,7 @@ function CommentText(props) {
         <TextArea
           placeholder={instructions}
           value={props.value}
-          minRows={8}
+          minRows={12}
           onChange={props.onChange}
           fluid
         />
