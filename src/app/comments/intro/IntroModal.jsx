@@ -20,7 +20,7 @@ function IntroModal({ name, onDismiss }) {
         name={name}
         footer={(
           <small>
-            Certain comments may be removed at the provider’s discretion
+            Certain comments may be removed at {name}’s discretion
           </small>
         )}
         buttonText="GOT IT"

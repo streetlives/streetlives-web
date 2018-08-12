@@ -79,14 +79,15 @@ class ContactInfo extends Component {
           <div className="w-100 mr-5">
             <Header size="large">One last optional step</Header>
             <p className="my-2">
-              This comment site is built for {this.props.organizationName} by Streetlives.
-              If you’d like to know more about our work please share your contact info below.
+              This site is built for {this.props.organizationName} by Streetlives.
+              If you’d like to know about our work, please share your contact info.
             </p>
             <p>
-              It will not appear with your comment.
+              It will not be added to any mailing list and not appear with your comment,
+              and only be shared with Streetlives and {this.props.organizationName}.
             </p>
           </div>
-          <div className="font-weight-bold mt-5">Name</div>
+          <div className="font-weight-bold">Name</div>
           <div>
             <Input
               fluid

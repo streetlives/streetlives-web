@@ -74,7 +74,7 @@ export default function withCommentsForm(WrappedComponent, { hideInfoLink } = {}
             <IntroModal name={this.props.organizationName} onDismiss={this.onHideInfo} />
           )}
           {!this.state.isShowingInfo && !hideInfoLink && (
-            <div className="fixed-bottom" style={{ bottom: 55, right: 10, left: 'auto' }}>
+            <div className="fixed-bottom" style={{ bottom: 45, right: 10, left: 'auto' }}>
               <Info onClick={this.onShowInfo} />
             </div>
           )}

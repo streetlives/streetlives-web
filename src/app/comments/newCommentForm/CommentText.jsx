@@ -7,17 +7,20 @@ import withCommentsForm from '../withCommentsForm';
 
 function CommentText(props) {
   const instructions =
-    'How was your experience? If you like, please add your name or initals at the end';
+    'How was your experience? If you like, please add your first name or initals at the end.' +
+    ' Please do not leave your full name';
 
   // TODO: Update the textarea styles based on the new designs.
   return (
     <div>
       <div className="px-4 pb-5">
-        <Header size="large" className="mb-3 text-left">{props.organizationName}</Header>
+        <Header size="large" className="mb-3 text-left">
+          Tell us what you think about {props.organizationName}
+        </Header>
         <TextArea
           placeholder={instructions}
           value={props.value}
-          minRows={3}
+          minRows={8}
           onChange={props.onChange}
           fluid
         />
