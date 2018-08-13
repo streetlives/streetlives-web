@@ -11,7 +11,7 @@ function Intro({
   className,
   style,
 }) {
-  const classNames = cx('d-flex flex-column h-100', className);
+  const classNames = cx('d-flex flex-column', className);
   return (
     <div className={classNames} style={style}>
       <div className="m-4 text-left font-weight-bold flex-grow-1">
