@@ -101,7 +101,7 @@ class ContactInfo extends Component {
               fluid
               onFocus={this.onNameFocused}
               onChange={this.onNameChanged}
-              placeholder="Enter your full name"
+              placeholder="Enter your name"
               value={this.state.name}
               tabIndex={0}
               onKeyPress={this.onNameKeyPress}
