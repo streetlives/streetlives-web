@@ -25,7 +25,7 @@ class ViewComments extends Component {
   }
 
   render() {
-    const { comments, organizationName, addressString } = this.props;
+    const { comments, organizationName } = this.props;
 
     if (!comments) {
       return <LoadingLabel />;
@@ -34,40 +34,38 @@ class ViewComments extends Component {
     // TODO: Probably extract the list and its items into a component (mabye use for languages?).
     // TODO: Don't actually use small and such, but rather style it all properly with CSS files.
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
-    // TODO: Try to find better way to put the button right under the list (no hard-coded padding).
     return (
       <div>
-        <div style={{ paddingBottom: '40px' }}>
-          <div className="mx-5 text-left">
-            <Header size="large">{organizationName}</Header>
-            <Header size="small" className="mt-3 mb-3">{addressString}</Header>
-          </div>
-          {!comments.length && (
-            <p className="m-5 font-weight-bold">
-              No comments have been posted about this location yet.
-            </p>
-          )}
-          <ul className="list-group w-100">
-            {comments.map(comment => (
-              <li
-                key={comment.id}
-                className="list-group-item px-5 w-100"
-                style={{
-                  position: 'auto',
-                  borderColor: '#EDEDED',
-                  backgroundColor: '#FCFCFC',
-                }}
-              >
-                <div className="text-left">
-                  {comment.content}
-                </div>
-                <small className="pull-right" style={{ color: '#C2C2C2' }}>
-                  {moment(comment.created_at).format('MMM D, YYYY h:mma')}
-                </small>
-              </li>
-            ))}
-          </ul>
+        <div className="mx-5 text-left">
+          <Header size="large" className="mb-3">
+            Here’s what people are saying about {organizationName}
+          </Header>
         </div>
+        {!comments.length && (
+          <p className="m-5 font-weight-bold">
+            No comments have been posted about this location yet.
+          </p>
+        )}
+        <ul className="list-group w-100">
+          {comments.map(comment => (
+            <li
+              key={comment.id}
+              className="list-group-item px-5 w-100"
+              style={{
+                position: 'auto',
+                borderColor: '#EDEDED',
+                backgroundColor: '#FCFCFC',
+              }}
+            >
+              <div className="text-left">
+                {comment.content}
+              </div>
+              <small className="pull-right" style={{ color: '#C2C2C2' }}>
+                {moment(comment.created_at).format('MMM D, YYYY h:mma')}
+              </small>
+            </li>
+          ))}
+        </ul>
         <div className="w-100 fixed-bottom">
           <Button onClick={this.goToAddComment} primary fluid>
             ADD YOUR COMMENT

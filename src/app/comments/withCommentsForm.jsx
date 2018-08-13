@@ -22,14 +22,9 @@ const mapStateToProps = (state, ownProps) => {
     return {};
   }
 
-  const { address } = locationData;
-  const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
-  const organizationName = locationData.Organization.name;
-
   return {
     locationData,
-    addressString,
-    organizationName,
+    organizationName: locationData.Organization.name,
   };
 };
 

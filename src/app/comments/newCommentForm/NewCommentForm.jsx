@@ -6,8 +6,6 @@ import LoadingLabel from '../../../components/form/LoadingLabel';
 import CommentText from './CommentText';
 import ContactInfo from './ContactInfo';
 
-// TODO: Figure out whether/how to handle going back to edit the comment...
-
 class NewCommentForm extends Component {
   constructor(props) {
     super(props);

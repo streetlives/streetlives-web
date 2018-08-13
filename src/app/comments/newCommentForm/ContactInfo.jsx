@@ -77,9 +77,17 @@ class ContactInfo extends Component {
       <div>
         <div className="mx-4 mb-3 text-left">
           <div className="w-100 mr-5">
-            <Header size="large">One last optional step</Header>
+            <Header size="large" className="mb-3">One last optional step</Header>
             <p className="my-2">
-              This site is built for {this.props.organizationName} by Streetlives.
+              This site is built for {this.props.organizationName} by
+              <a
+                className="ml-1"
+                href="http://www.streetlives.nyc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Streetlives
+              </a>.
               If you’d like to know about our work, please share your contact info.
             </p>
             <p>

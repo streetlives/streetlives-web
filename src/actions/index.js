@@ -275,7 +275,6 @@ export const updateLanguages = ({
   });
 };
 
-// TODO: Send to Slack hook.
 export const postComment = (locationId, comment) => (dispatch) => {
   dispatch({ type: OPTIMISTIC_POST_COMMENT, payload: { locationId, comment } });
   api.postComment({ locationId, comment })
