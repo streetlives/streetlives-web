@@ -19,10 +19,10 @@ function Intro({
           WELCOME TO THE COMMENT PAGE FOR {name.toUpperCase()}!
         </Header>
         <Header size="large">
-          By commenting here you are helping improve our services, and benefitting the community.
+          By commenting here you are helping improve our services and benefitting the community
         </Header>
         <Header size="large">
-          This site is for us to hear and learn from you.
+          This site is for us to hear and learn from you
         </Header>
       </div>
       <div className="mx-4 mb-3">
