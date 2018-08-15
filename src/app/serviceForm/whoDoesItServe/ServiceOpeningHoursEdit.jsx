@@ -7,13 +7,13 @@ import Selector from '../../../components/selector';
 import Input from '../../../components/input';
 import { SERVICE_GROUPS } from '../../../constants';
 import { formatLabel } from './util'
+import './OpeningHoursEditForm.css';
 
 class ServiceOpeningHours extends Component {
   constructor(props) {
     super(props);
 
     this.updateValue = this.updateValue.bind(this);
-    this.handleOkClick = this.handleOkClick.bind(this);
     // serviceGroups -> Group Name -> { allAges: true, customMinAge, customMaxAge}
     let serviceGroups = this.props.value || {};
     this.state = {serviceGroups};
@@ -36,18 +36,13 @@ class ServiceOpeningHours extends Component {
     this.props.fieldName,
   );
 
-  handleOkClick(groupName, group){
-    console.log('groupName, group', groupName, group);
-    this.state.serviceGroups[groupName] = group;
-    this.setState({ serviceGroups : this.state.serviceGroups });
-  }
-
   render() {
     return <div className="w-100">
       <Header className="mb-3">Which groups does this service serve?</Header>
       <Selector fluid>
         {
           SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
+            const serviceGroups = this.state.serviceGroups;
             const group = this.state.serviceGroups[groupName];
             const minAge = (group && group.minAge) || defaultMinAge;
             const maxAge = (group && group.maxAge) || defaultMaxAge;
@@ -64,11 +59,31 @@ class ServiceOpeningHours extends Component {
                 {formatLabel(groupName, minAge, maxAge)}
               </Selector.Option>
             ].concat(showForm ? 
-              <OpeningHoursEditForm 
-                onClick={this.handleOkClick}
-                group={group}
-                groupName={groupName}
-                key={`editForm-${groupName}`} /> : 
+              <form
+                key={`editForm-${groupName}`}
+                className="WhoDoesItServeEditForm"
+                >
+                <ul>
+                  <li onClick={() => { group.allAges = true; this.setState({serviceGroups});}}>
+                    <input className="form-check-input" type="radio" name="ages" checked={group.allAges}/>All ages in this group
+                  </li>
+                  <li onClick={() => { group.allAges = false; this.setState({serviceGroups});}}>
+                    <input className="form-check-input" type="radio"  name="ages" checked={!group.allAges} />Specific ages in this group
+                  </li>
+                </ul>
+                <div className="bottomSection">
+                  <div className="inputContainer">
+                    <div> From: </div> 
+                    <div>
+                      <input disabled={group.allAges} type="number" defaultValue={group.minAge} onChange={(e) => { group.minAge = e.target.value;this.setState({serviceGroups})}}/>
+                    </div>
+                    <div> To: </div>
+                    <div> 
+                      <input disabled={group.allAges} type="number" defaultValue={group.maxAge} onChange={(e) => { group.maxAge = e.target.value; this.setState({serviceGroups})}}/>
+                    </div>
+                  </div>
+                </div>
+              </form> : 
               []
             )
           })
