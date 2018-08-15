@@ -15,6 +15,14 @@ const fullScreenStyles = {
   overflow: 'auto',
 };
 
+const LoadingView = () => (
+  <div className="m-4">
+    <LoadingLabel>
+      Loading screen, be with you in a moment
+    </LoadingLabel>
+  </div>
+);
+
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps.match.params.locationId);
 
@@ -60,7 +68,7 @@ export default function withCommentsForm(WrappedComponent, { hideInfoLink } = {}
       const { locationData } = this.props;
 
       if (!locationData) {
-        return <LoadingLabel />;
+        return <LoadingView />;
       }
 
       return (
