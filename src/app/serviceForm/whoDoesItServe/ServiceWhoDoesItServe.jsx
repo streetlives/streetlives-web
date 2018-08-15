@@ -2,24 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
-
+import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import ServiceOpeningHoursView from './ServiceOpeningHoursView';
 import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
-
 import * as actions from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
-
-const EditComponent = compose(withProps({
-  headerText: 'What groups and ages are served?',
-  placeholderText: 'e.g. Youths ages 18-24, Veterans, Organization clients only',
-}))(props => <FormEdit {...props} />);
-
-const ViewComponent = compose(withProps({
-  topText: 'WHO DOES IT SERVE',
-}))(props => <FormView {...props} />);
+import { Form } from '../../../components/form';
 
 const FormComponent = compose(withProps({
-  ViewComponent,
-  EditComponent,
+  ViewComponent: ServiceOpeningHoursView,
+  EditComponent: ServiceOpeningHoursEdit
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({

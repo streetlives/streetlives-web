@@ -1,0 +1,33 @@
+.WhoDoesItServeEditForm {
+  margin-bottom:1.5em; 
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.WhoDoesItServeEditForm .bottomSection {
+  background-color:#f0f0f0; 
+}
+
+.WhoDoesItServeEditForm ul {
+  padding-left : 30px;
+  margin: .25em 0;
+}
+
+.WhoDoesItServeEditForm .inputContainer {
+  padding-top: 0.5em;
+  width: 100%;
+}
+
+.WhoDoesItServeEditForm .inputContainer > div {
+  width: 25%; 
+  display: inline-block; 
+  text-align:center;
+}
+
+.WhoDoesItServeEditForm .inputContainer > div > input {
+  width: 75%;
+}
+
+.WhoDoesItServeEditForm .buttonContainer {
+ padding: .5em;
+}
