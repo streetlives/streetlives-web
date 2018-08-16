@@ -36,6 +36,13 @@ class ServiceOpeningHours extends Component {
     this.props.fieldName,
   );
 
+  onCheckInputClick(group, serviceGroups, value, e){
+    e.stopPropagation();
+    e.preventDefault();
+    group.allAges = value; 
+    this.setState({serviceGroups});
+  }
+
   render() {
     return <div className="w-100">
       <Header className="mb-3">Which groups does this service serve?</Header>
@@ -64,11 +71,11 @@ class ServiceOpeningHours extends Component {
                 className="WhoDoesItServeEditForm"
                 >
                 <ul>
-                  <li onClick={() => { group.allAges = true; this.setState({serviceGroups});}}>
-                    <input className="form-check-input" type="radio" name="ages" checked={group.allAges}/>All ages in this group
+                  <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, true)}>
+                    <input onChange={() => null} className="form-check-input" type="radio" name="ages" checked={group.allAges}/>All ages in this group
                   </li>
-                  <li onClick={() => { group.allAges = false; this.setState({serviceGroups});}}>
-                    <input className="form-check-input" type="radio"  name="ages" checked={!group.allAges} />Specific ages in this group
+                  <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, false)}>
+                    <input onChange={() => null} className="form-check-input" type="radio"  name="ages" checked={!group.allAges} />Specific ages in this group
                   </li>
                 </ul>
                 <div className="bottomSection">
