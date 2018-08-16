@@ -14,7 +14,7 @@ class ServiceOpeningHours extends Component {
 
     this.updateValue = this.updateValue.bind(this);
     // serviceGroups -> Group Name -> { allAges: true, customMinAge, customMaxAge}
-    let serviceGroups = this.props.value || {};
+    let serviceGroups = typeof this.props.value === 'object' ? this.props.value : {};
     this.state = {serviceGroups};
   }
 

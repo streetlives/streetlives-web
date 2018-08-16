@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import LoadingLabel from './LoadingLabel';
 
-function isEditing(props) {
+function isEditing(value) {
   return (
-    props.value === null ||
-    (typeof props.value === 'object'
-      ? Object.keys(props.value).every(key => !props.value[key])
-      : !props.value)
+    value === null ||
+    (typeof value === 'object'
+      ? Object.keys(value).every(key => !value[key])
+      : !value)
   );
 }
 
@@ -16,7 +16,7 @@ class Form extends Component {
     super(props);
 
     this.isEditing = props.isEditing || isEditing;
-    this.state = { isEditing: this.isEditing(props) };
+    this.state = { isEditing: this.isEditing(props.value) };
   }
 
   componentDidMount() {
@@ -28,7 +28,7 @@ class Form extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this.setState({ isEditing: this.isEditing(props) });
+    this.setState({ isEditing: this.isEditing(props.value) });
   }
 
   onConfirm = () => {
