@@ -9,8 +9,13 @@
 }
 
 .WhoDoesItServeEditForm ul {
-  padding-left : 30px;
+  padding-left : .5em;
   margin: .25em 0;
+  list-style: none;
+}
+
+.WhoDoesItServeEditForm li > span {
+  padding-left: .5em;
 }
 
 .WhoDoesItServeEditForm .inputContainer {

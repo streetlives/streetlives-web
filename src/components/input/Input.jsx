@@ -22,6 +22,8 @@ class Input extends Component {
   render() {
     const {
       type = 'text',
+      checked,
+      disabled,
       fluid,
       placeholder,
       name,
@@ -54,6 +56,8 @@ class Input extends Component {
             innerRef(e);
           }
         }}
+        checked={checked}
+        disabled={disabled}
         value={value}
         className={classNames}
         type={type}

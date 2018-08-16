@@ -2,15 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
-import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
-import ServiceOpeningHoursView from './ServiceOpeningHoursView';
+import WhoDoesItServeEdit from './WhoDoesItServeEdit';
+import WhoDoesItServeView from './WhoDoesItServeView';
 import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
 
 const FormComponent = compose(withProps({
-  ViewComponent: ServiceOpeningHoursView,
-  EditComponent: ServiceOpeningHoursEdit,
+  ViewComponent: WhoDoesItServeView,
+  EditComponent: WhoDoesItServeEdit,
   isEditing: (value) => typeof value !== 'object'
 }))(props => <Form {...props} />);
 

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 
-import OpeningHoursEditForm from './OpeningHoursEditForm';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Selector from '../../../components/selector';
 import Input from '../../../components/input';
 import { SERVICE_GROUPS } from '../../../constants';
 import { formatLabel } from './util'
-import './OpeningHoursEditForm.css';
+import './WhoDoesItServeEditForm.css';
 
 class ServiceOpeningHours extends Component {
   constructor(props) {
@@ -21,12 +20,13 @@ class ServiceOpeningHours extends Component {
 
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge){
     // toggle him
-    if(this.state.serviceGroups[groupName]){
-      delete this.state.serviceGroups[groupName];
+    const serviceGroups = this.state.serviceGroups;
+    if(serviceGroups[groupName]){
+      delete serviceGroups[groupName];
     }else{
-      this.state.serviceGroups[groupName] = { allAges : true, minAge: defaultMinAge, maxAge: defaultMaxAge};
+      serviceGroups[groupName] = { allAges : true, minAge: defaultMinAge, maxAge: defaultMaxAge};
     }
-    this.setState({ serviceGroups : this.state.serviceGroups });
+    this.setState({ serviceGroups });
   }
 
   updateValue = e => this.props.updateValue(
@@ -72,21 +72,21 @@ class ServiceOpeningHours extends Component {
                 >
                 <ul>
                   <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, true)}>
-                    <input onChange={() => null} className="form-check-input" type="radio" name="ages" checked={group.allAges}/>All ages in this group
+                    <Input onChange={() => null} className="form-check-input" type="radio" name="ages" checked={group.allAges}/><span>All ages in this group</span>
                   </li>
                   <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, false)}>
-                    <input onChange={() => null} className="form-check-input" type="radio"  name="ages" checked={!group.allAges} />Specific ages in this group
+                    <Input onChange={() => null} className="form-check-input" type="radio"  name="ages" checked={!group.allAges} /><span>Specific ages in this group</span>
                   </li>
                 </ul>
                 <div className="bottomSection">
                   <div className="inputContainer">
                     <div> From: </div> 
                     <div>
-                      <input disabled={group.allAges} type="number" defaultValue={group.minAge} onChange={(e) => { group.minAge = e.target.value;this.setState({serviceGroups})}}/>
+                      <Input disabled={group.allAges} type="number" defaultValue={group.minAge} onChange={(e) => { group.minAge = e.target.value;this.setState({serviceGroups})}}/>
                     </div>
                     <div> To: </div>
                     <div> 
-                      <input disabled={group.allAges} type="number" defaultValue={group.maxAge} onChange={(e) => { group.maxAge = e.target.value; this.setState({serviceGroups})}}/>
+                      <Input disabled={group.allAges} type="number" defaultValue={group.maxAge} onChange={(e) => { group.maxAge = e.target.value; this.setState({serviceGroups})}}/>
                     </div>
                   </div>
                 </div>
