@@ -13,6 +13,9 @@ class ServiceOpeningHours extends Component {
     super(props);
 
     this.updateValue = this.updateValue.bind(this);
+    this.addCustomGroup = this.addCustomGroup.bind(this);
+    this.getCustomGroups = this.getCustomGroups.bind(this);
+
     // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
     let serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
     this.state = {serviceGroups};
@@ -44,13 +47,62 @@ class ServiceOpeningHours extends Component {
     this.setState({serviceGroups});
   }
 
+  addCustomGroup(){
+    const serviceGroups = this.state.serviceGroups;
+    serviceGroups.push({ allAges : true, name: ''});
+    const customGroups = this.getCustomGroups();
+    this.setState({serviceGroups, lastAddedIndex: customGroups.length-1 });
+  }
+
+  removeCustomGroup(i){
+    const serviceGroups = this.state.serviceGroups;
+    serviceGroups.splice(i, 1);
+    this.setState({serviceGroups});
+  }
+
+  getCustomGroups(){
+    const builtInGroupNames = SERVICE_GROUPS.map( group => group[0] );
+    const allGroupNames = this.state.serviceGroups.map( group => group.name );
+    return this.state.serviceGroups
+      .filter( (group) => builtInGroupNames.indexOf(group.name) === -1 )
+      .map( (group) => [group, allGroupNames.lastIndexOf(group.name)] );
+  }
+
+  getForm(groupName, group, serviceGroups){
+    return <form
+      key={`editForm-${groupName}`}
+      className="WhoDoesItServeEditForm"
+      >
+      <ul>
+        <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, true)}>
+          <Input onChange={() => null} className="form-check-input" type="radio" name="ages" checked={group.allAges}/><span>All ages in this group</span>
+        </li>
+        <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, false)}>
+          <Input onChange={() => null} className="form-check-input" type="radio"  name="ages" checked={!group.allAges} /><span>Specific ages in this group</span>
+        </li>
+      </ul>
+      <div className="bottomSection">
+        <div className="inputContainer">
+          <div> From: </div> 
+          <div>
+            <Input disabled={group.allAges} type="number" defaultValue={group.minAge} onChange={(e) => { group.minAge = e.target.value;this.setState({serviceGroups})}}/>
+          </div>
+          <div> To: </div>
+          <div> 
+            <Input disabled={group.allAges} type="number" defaultValue={group.maxAge} onChange={(e) => { group.maxAge = e.target.value; this.setState({serviceGroups})}}/>
+          </div>
+        </div>
+      </div>
+    </form>;
+  }
+
   render() {
+    const serviceGroups = this.state.serviceGroups;
     return <div className="w-100 WhoDoesItServe">
       <Header className="mb-3">Which groups does this service serve?</Header>
       <Selector fluid>
         {
           SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
-            const serviceGroups = this.state.serviceGroups;
             const group = this.state.serviceGroups.find(group => group.name === groupName);
             const minAge = (group && group.minAge) || defaultMinAge;
             const maxAge = (group && group.maxAge) || defaultMaxAge;
@@ -67,35 +119,43 @@ class ServiceOpeningHours extends Component {
                 {formatLabel(groupName, minAge, maxAge)}
               </Selector.Option>
             ].concat(showForm ? 
-              <form
-                key={`editForm-${groupName}`}
-                className="WhoDoesItServeEditForm"
-                >
-                <ul>
-                  <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, true)}>
-                    <Input onChange={() => null} className="form-check-input" type="radio" name="ages" checked={group.allAges}/><span>All ages in this group</span>
-                  </li>
-                  <li onClick={this.onCheckInputClick.bind(this, group, serviceGroups, false)}>
-                    <Input onChange={() => null} className="form-check-input" type="radio"  name="ages" checked={!group.allAges} /><span>Specific ages in this group</span>
-                  </li>
-                </ul>
-                <div className="bottomSection">
-                  <div className="inputContainer">
-                    <div> From: </div> 
-                    <div>
-                      <Input disabled={group.allAges} type="number" defaultValue={group.minAge} onChange={(e) => { group.minAge = e.target.value;this.setState({serviceGroups})}}/>
-                    </div>
-                    <div> To: </div>
-                    <div> 
-                      <Input disabled={group.allAges} type="number" defaultValue={group.maxAge} onChange={(e) => { group.maxAge = e.target.value; this.setState({serviceGroups})}}/>
-                    </div>
-                  </div>
-                </div>
-              </form> : 
+              this.getForm(groupName, group, serviceGroups) : 
               []
             )
           })
         }
+        {
+          this.getCustomGroups().map(([group, i], j) => <div key={`custom-group-${i}-${j}`} style={{width: '100%', position: 'relative'}}>
+            <input 
+              ref={(e) => e && e.value === '' && this.state.lastAddedIndex === j && e.focus()}
+              style={{width: '100%', border: '1px solid black', padding: '.5em'}}
+              onChange={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                serviceGroups[i].name = e.target.value;
+                this.setState({serviceGroups})
+              }}
+              value={group.name}
+              />
+            <i 
+              onClick={() => this.removeCustomGroup(i)}
+              style={{position:'absolute', right: '.5em', top: '.9em', cursor: 'pointer'}} className="fas fa-times-circle"></i>
+            {
+              this.getForm(group.name, group, serviceGroups)
+            }
+          </div>)
+        }
+        <Selector.Option
+            key="selector-add-another-group"
+            disablePadding={false}
+            active={false}
+            hide={false}
+            onClick={this.addCustomGroup}
+          >
+          <div className="addAnotherGroup">
+            + Add another group
+          </div>
+        </Selector.Option>
       </Selector>
       <Button onClick={this.updateValue} primary>
         OK

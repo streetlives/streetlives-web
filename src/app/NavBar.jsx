@@ -18,7 +18,7 @@ function NavBar({ title, history, backButtonTarget }) {
                   fontSize: '14px',
                   position: 'absolute',
                   left: 0,
-                  top: '.25em',
+                  top: '.2em',
                 }}
                 className="font-weight-light"
                 onClick={() => history.push(backButtonTarget)}
@@ -39,7 +39,13 @@ function NavBar({ title, history, backButtonTarget }) {
               className="font-weight-light"
               onClick={() => history.push('/')}
             >
-              <i className="fa fa-close" />
+              <i 
+                style={{
+                  position: 'absolute',
+                  right: '.5em',
+                  top: '.25em'
+                }}
+                className="fa fa-times" />
             </a>
           </div>
         </div>

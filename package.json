@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.2.0",
     "aws-amplify": "^0.2.11",
     "aws-amplify-react": "^0.1.36",
     "axios": "^0.18.0",
