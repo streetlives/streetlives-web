@@ -15,7 +15,8 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { isEditing: isEditing(props) };
+    this.isEditing = props.isEditing || isEditing;
+    this.state = { isEditing: this.isEditing(props) };
   }
 
   componentDidMount() {
@@ -27,7 +28,7 @@ class Form extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this.setState({ isEditing: isEditing(props) });
+    this.setState({ isEditing: this.isEditing(props) });
   }
 
   onConfirm = () => {

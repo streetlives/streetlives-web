@@ -10,7 +10,8 @@ import { Form } from '../../../components/form';
 
 const FormComponent = compose(withProps({
   ViewComponent: ServiceOpeningHoursView,
-  EditComponent: ServiceOpeningHoursEdit
+  EditComponent: ServiceOpeningHoursEdit,
+  isEditing: (value) => typeof value !== 'object'
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
