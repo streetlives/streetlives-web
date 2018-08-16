@@ -17,3 +17,5 @@ export const formatLabel = (groupName, minAge, maxAge) => (
     </span>
   </div>
 )
+
+export const isEditing = (value) => !Array.isArray(value)

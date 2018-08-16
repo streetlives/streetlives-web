@@ -36,3 +36,8 @@
 .WhoDoesItServeEditForm .buttonContainer {
  padding: .5em;
 }
+
+.WhoDoesItServe .addAnotherGroup {
+  text-align:center; 
+  width: 100%;
+}

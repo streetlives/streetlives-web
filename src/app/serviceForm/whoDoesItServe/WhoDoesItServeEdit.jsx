@@ -5,7 +5,7 @@ import Button from '../../../components/button';
 import Selector from '../../../components/selector';
 import Input from '../../../components/input';
 import { SERVICE_GROUPS } from '../../../constants';
-import { formatLabel } from './util'
+import { formatLabel, isEditing } from './util'
 import './WhoDoesItServeEditForm.css';
 
 class ServiceOpeningHours extends Component {
@@ -13,18 +13,19 @@ class ServiceOpeningHours extends Component {
     super(props);
 
     this.updateValue = this.updateValue.bind(this);
-    // serviceGroups -> Group Name -> { allAges: true, customMinAge, customMaxAge}
-    let serviceGroups = typeof this.props.value === 'object' ? this.props.value : {};
+    // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
+    let serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
     this.state = {serviceGroups};
   }
 
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge){
     // toggle him
     const serviceGroups = this.state.serviceGroups;
-    if(serviceGroups[groupName]){
-      delete serviceGroups[groupName];
+    const groupIndex = serviceGroups.findIndex( group => group.name === groupName )
+    if(groupIndex > -1){
+      serviceGroups.splice(groupIndex, 1);
     }else{
-      serviceGroups[groupName] = { allAges : true, minAge: defaultMinAge, maxAge: defaultMaxAge};
+      serviceGroups.push({ allAges : true, minAge: defaultMinAge, maxAge: defaultMaxAge, name: groupName});
     }
     this.setState({ serviceGroups });
   }
@@ -44,13 +45,13 @@ class ServiceOpeningHours extends Component {
   }
 
   render() {
-    return <div className="w-100">
+    return <div className="w-100 WhoDoesItServe">
       <Header className="mb-3">Which groups does this service serve?</Header>
       <Selector fluid>
         {
           SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
             const serviceGroups = this.state.serviceGroups;
-            const group = this.state.serviceGroups[groupName];
+            const group = this.state.serviceGroups.find(group => group.name === groupName);
             const minAge = (group && group.minAge) || defaultMinAge;
             const maxAge = (group && group.maxAge) || defaultMaxAge;
             const isActive = !!group;

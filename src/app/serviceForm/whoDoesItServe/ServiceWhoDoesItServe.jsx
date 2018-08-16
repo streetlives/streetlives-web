@@ -7,11 +7,12 @@ import WhoDoesItServeView from './WhoDoesItServeView';
 import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
+import { isEditing } from './util';
 
 const FormComponent = compose(withProps({
   ViewComponent: WhoDoesItServeView,
   EditComponent: WhoDoesItServeEdit,
-  isEditing: (value) => typeof value !== 'object'
+  isEditing
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
