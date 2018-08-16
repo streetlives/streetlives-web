@@ -125,10 +125,11 @@ class ServiceOpeningHours extends Component {
           })
         }
         {
-          this.getCustomGroups().map(([group, i], j) => <div key={`custom-group-${i}-${j}`} style={{width: '100%', position: 'relative'}}>
+          this.getCustomGroups().map(([group, i], j) => <div 
+            className="customGroup"
+            key={`custom-group-${i}-${j}`}>
             <input 
               ref={(e) => e && e.value === '' && this.state.lastAddedIndex === j && e.focus()}
-              style={{width: '100%', border: '1px solid black', padding: '.5em'}}
               onChange={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -139,7 +140,7 @@ class ServiceOpeningHours extends Component {
               />
             <i 
               onClick={() => this.removeCustomGroup(i)}
-              style={{position:'absolute', right: '.5em', top: '.9em', cursor: 'pointer'}} className="fas fa-times-circle"></i>
+              className="fas fa-times-circle"></i>
             {
               this.getForm(group.name, group, serviceGroups)
             }

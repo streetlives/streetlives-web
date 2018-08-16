@@ -41,3 +41,21 @@
   text-align:center; 
   width: 100%;
 }
+
+.WhoDoesItServe .customGroup {
+  width: 100%; 
+  position: relative;
+}
+
+.WhoDoesItServe .customGroup > input {
+  width: 100%; 
+  border: 1px solid black; 
+  padding: .5em;
+}
+
+.WhoDoesItServe .customGroup > i {
+  position:absolute; 
+  right: .5em; 
+  top: .9em; 
+  cursor: pointer;
+}
