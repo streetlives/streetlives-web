@@ -1,5 +1,7 @@
 import {
+  GET_LOCATION_REQUEST,
   GET_LOCATION_RESPONSE,
+  GET_LOCATION_RESPONSE_ERROR,
   GET_TAXONOMY_RESPONSE,
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
@@ -39,6 +41,20 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones, location, 
     },
   };
 }
+
+export const locationErrorsReducer = (state = {}, action) => {
+  switch (action.type) {
+    case GET_LOCATION_REQUEST:
+      return { ...state, [action.locationId]: null };
+    case GET_LOCATION_RESPONSE_ERROR:
+      return { ...state, [action.locationId]: action.errorMessage };
+    default:
+      break;
+  }
+  return state;
+}
+
+export const selectLocationError = (state, locationId) => state.locationErrors[locationId];
 
 export const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();
