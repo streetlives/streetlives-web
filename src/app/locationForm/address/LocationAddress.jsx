@@ -24,13 +24,16 @@ const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, locationId);
 
   return {
-    value:
-      locationData && locationData.address && locationData.address && locationData.address.street
-        ? locationData.address.street
-        : null,
+    value: selectValue(locationData),
     resourceData: locationData,
   };
 };
+
+export const selectValue = (locationData) => (
+  locationData && locationData.address && locationData.address && locationData.address.street
+    ? locationData.address.street
+    : null
+)
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newAddress, _, metaDataSection, fieldName) =>

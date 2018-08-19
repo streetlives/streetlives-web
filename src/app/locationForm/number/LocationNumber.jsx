@@ -29,7 +29,7 @@ const LocationNumber = compose(withProps({
 const mapStateToProps = (state, ownProps) => {
   const { locationId } = ownProps.match.params;
   const locationData = selectLocationData(state, locationId);
-  const phone = locationData && locationData.Phones && locationData.Phones[0];
+  const phone = selectValue(locationData);
 
   return {
     resourceData: locationData,
@@ -37,6 +37,10 @@ const mapStateToProps = (state, ownProps) => {
     id: phone && phone.id,
   };
 };
+
+export const selectValue = (locationData) => (
+  locationData && locationData.Phones && locationData.Phones[0]
+)
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: ({ number, extension }, phoneId, metaDataSection, fieldName) =>
