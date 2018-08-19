@@ -3,7 +3,7 @@ import * as api from '../services/api';
 
 export const GET_LOCATION_REQUEST = 'GET_LOCATION_REQUEST';
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
-export const GET_LOCATION_RESPONSE_ERROR = 'GET_LOCATION_RESPONSE_ERROR';
+export const GET_LOCATION_ERROR = 'GET_LOCATION_ERROR';
 export const GET_COMMENTS_RESPONSE = 'GET_COMMENTS_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
@@ -35,7 +35,7 @@ export const getLocation = locationId => (dispatch) => {
         payload: data,
       }))
     .catch(e => dispatch({
-      type: GET_LOCATION_RESPONSE_ERROR,
+      type: GET_LOCATION_ERROR,
       locationId,
       errorMessage: e.message
     }));

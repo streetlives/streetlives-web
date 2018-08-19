@@ -1,7 +1,7 @@
 import {
   GET_LOCATION_REQUEST,
   GET_LOCATION_RESPONSE,
-  GET_LOCATION_RESPONSE_ERROR,
+  GET_LOCATION_ERROR,
   GET_TAXONOMY_RESPONSE,
   OPTIMISTIC_UPDATE_LOCATION,
   ROLLBACK_UPDATE_LOCATION,
@@ -46,7 +46,7 @@ export const locationErrorsReducer = (state = {}, action) => {
   switch (action.type) {
     case GET_LOCATION_REQUEST:
       return { ...state, [action.locationId]: null };
-    case GET_LOCATION_RESPONSE_ERROR:
+    case GET_LOCATION_ERROR:
       return { ...state, [action.locationId]: action.errorMessage };
     default:
       break;
