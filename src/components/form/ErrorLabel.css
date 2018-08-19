@@ -1,13 +1,13 @@
-.FormEdit {
+.ErrorLabel {
   text-align: center; 
   margin-top: 75%;
 }
 
-.FormEdit > p:first-child > i {
+.ErrorLabel > p:first-child > i {
   color: red;
 }
 
-.FormEdit > p:last-child {
+.ErrorLabel > p:last-child {
   color: blue; 
   font-style: italic; 
   cursor: pointer;
