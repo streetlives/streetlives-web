@@ -1,0 +1,18 @@
+.Legal {
+  margin: 2em;
+  text-align: left;
+}
+
+.Legal h2 {
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.Legal p {
+  text-indent: 2em;
+}
+
+.Legal li {
+  margin-left: 1em;
+  text-indent: 0;
+}

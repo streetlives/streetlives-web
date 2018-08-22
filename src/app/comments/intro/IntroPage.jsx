@@ -9,15 +9,11 @@ function IntroPage(props) {
       className="flex-grow-1 h-100"
       footer={(
         <small>
-          Comments are anonymous. By using this site you agree to our
-          <a
-            className="ml-1"
-            href="https://policies.google.com/technologies/partner-sites"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            guidelines
-          </a>
+          Comments are anonymous unless you choose to share identifying information.
+          By using this site you agree to our
+          <a href="/tou" className="ml-1">Terms of use</a>,
+          <a href="/privacy" className="mx-1">Privacy Policy</a>
+          and Guidelines
         </small>
       )}
       buttonText="LET’S GET STARTED"
