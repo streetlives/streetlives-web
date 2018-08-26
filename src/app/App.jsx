@@ -23,8 +23,6 @@ import ServiceRecap from './service/recap/ServiceRecap';
 import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
-import Privacy from './legal/Privacy';
-import TermsOfUse from './legal/TermsOfUse';
 import CommentsRouter from './comments/Router';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
@@ -136,8 +134,6 @@ function App() {
               path="/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?"
               component={withTracker(withAuth(DocsFormContainer))}
             />
-            <Route exact path="/privacy" component={withTracker(Privacy)} />
-            <Route exact path="/tou" component={withTracker(TermsOfUse)} />
             <Route
               path="/comments"
               component={withTracker(CommentsRouter)}
