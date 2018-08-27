@@ -62,7 +62,7 @@ class ViewComments extends Component {
                 <div className="text-left">
                   {comment.content}
                 </div>
-                <small className="pull-right" style={{ color: '#C2C2C2' }}>
+                <small className="pull-right" style={{ color: '#AAAAAA' }}>
                   {moment(comment.created_at).format('MMM D, YYYY h:mma')}
                 </small>
               </li>
