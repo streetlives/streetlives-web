@@ -82,7 +82,7 @@ class ContactInfo extends Component {
             </p>
             <p>
               It will not be added to any mailing list and not appear with your comment,
-              and only be shared with Streetlives and {this.props.organizationName}.
+              and only be shared by Streetlives with {this.props.organizationName}.
             </p>
           </div>
           <div className="font-weight-bold">Name</div>
