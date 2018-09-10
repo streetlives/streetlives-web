@@ -3,6 +3,9 @@ import {
   OPTIMISTIC_POST_COMMENT,
   ROLLBACK_POST_COMMENT,
   POST_COMMENT_SUCCESS,
+  POST_REPLY_REQUEST,
+  POST_REPLY_SUCCESS,
+  POST_REPLY_ERROR,
 } from '../actions';
 
 export const commentsReducer = (state = { isPosting: false }, action) => {
@@ -42,6 +45,46 @@ export const commentsReducer = (state = { isPosting: false }, action) => {
         ...state,
         [`last/${action.payload.locationId}`]: null,
         [action.payload.locationId]: state[`last/${action.payload.locationId}`],
+        isPosting: false,
+      };
+
+    case POST_REPLY_REQUEST: {
+      return {
+        ...state,
+        isPosting: true,
+      };
+    }
+
+    case POST_REPLY_SUCCESS: {
+      const { locationId, originalCommentId, reply } = action.payload;
+
+      const comments = state[locationId] || [];
+      const originalComment =
+        comments.filter(comment => comment.id === originalCommentId)[0];
+
+      if (!originalComment) {
+        return {
+          ...state,
+          isPosting: false,
+        };
+      }
+
+      const originalCommentIndex = comments.indexOf(originalComment);
+      const updatedComments = comments.slice();
+      updatedComments[originalCommentIndex] = {
+        ...originalComment,
+        Replies: [reply],
+      };
+      return {
+        ...state,
+        [locationId]: updatedComments,
+        isPosting: false,
+      };
+    }
+
+    case POST_REPLY_ERROR:
+      return {
+        ...state,
         isPosting: false,
       };
 

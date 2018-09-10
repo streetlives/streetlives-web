@@ -7,10 +7,13 @@ export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
 export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
+export const POST_REPLY_REQUEST = 'POST_REPLY_REQUEST';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
 export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
+export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
 export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
+export const POST_REPLY_SUCCESS = 'POST_REPLY_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
@@ -283,5 +286,17 @@ export const postComment = (locationId, comment) => (dispatch) => {
     })
     .catch((e) => {
       dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
+    });
+};
+
+export const replyToComment = (locationId, originalCommentId, reply) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: POST_REPLY_REQUEST, payload: params });
+  api.replyToComment({ locationId, originalCommentId, reply })
+    .then(() => {
+      dispatch({ type: POST_REPLY_SUCCESS, payload: params });
+    })
+    .catch((err) => {
+      dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
     });
 };
