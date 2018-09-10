@@ -91,7 +91,7 @@ class CommentRow extends Component {
         </div>
         {reply && (
           <div className="text-left">
-            <Header size="medium">{organizationName} replied:</Header>
+            <div className="font-weight-bold mt-3 mb-2">{organizationName} replied:</div>
             <div className="text-left mb-1">
               {reply.content}
             </div>

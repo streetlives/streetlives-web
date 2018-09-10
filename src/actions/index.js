@@ -296,8 +296,14 @@ export const replyToComment = (locationId, originalCommentId, reply) => (dispatc
   const params = { locationId, originalCommentId, reply };
   dispatch({ type: POST_REPLY_REQUEST, payload: params });
   api.replyToComment({ locationId, originalCommentId, reply })
-    .then(() => {
-      dispatch({ type: POST_REPLY_SUCCESS, payload: params });
+    .then((postedReply) => {
+      dispatch({
+        type: POST_REPLY_SUCCESS,
+        payload: {
+          ...params,
+          reply: postedReply,
+        },
+      });
     })
     .catch((err) => {
       dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
