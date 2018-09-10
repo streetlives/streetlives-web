@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import { connect } from 'react-redux';
+import { deleteReply } from '../../../actions';
 import LinkButton from '../../../components/link';
 import Header from '../../../components/header';
+import DeleteReplyModal from './DeleteReplyModal';
 
 const renderDate = date => (
   <small className="flex-grow-1 text-right pull-right" style={{ color: '#AAAAAA' }}>
@@ -12,13 +15,40 @@ const renderDate = date => (
 class CommentRow extends Component {
   constructor(props) {
     super(props);
+    this.state = { isShowingDeleteConfirmation: false };
+
     this.goToReply = this.goToReply.bind(this);
+    this.showDeleteReply = this.showDeleteReply.bind(this);
+    this.cancelDeleteReply = this.cancelDeleteReply.bind(this);
+    this.confirmDeleteReply = this.confirmDeleteReply.bind(this);
   }
 
   goToReply() {
     const { id: commentId } = this.props.comment;
     const { locationId } = this.props.match.params;
     this.props.history.push(`/comments/${locationId}/${commentId}/reply`);
+  }
+
+  showDeleteReply() {
+    this.setState({ isShowingDeleteConfirmation: true });
+  }
+
+  cancelDeleteReply() {
+    this.setState({ isShowingDeleteConfirmation: false });
+  }
+
+  confirmDeleteReply() {
+    const { comment, match } = this.props;
+    const { locationId } = match.params;
+    const reply = comment.Replies[0];
+
+    this.setState({ isShowingDeleteConfirmation: false }, () => {
+      this.props.deleteReply({
+        locationId,
+        originalCommentId: comment.id,
+        reply,
+      });
+    });
   }
 
   render() {
@@ -29,6 +59,15 @@ class CommentRow extends Component {
       Replies: replies,
     } = comment;
     const reply = replies[0];
+
+    if (this.state.isShowingDeleteConfirmation) {
+      return (
+        <DeleteReplyModal
+          onConfirm={this.confirmDeleteReply}
+          onCancel={this.cancelDeleteReply}
+        />
+      );
+    }
 
     return (
       <li
@@ -56,6 +95,11 @@ class CommentRow extends Component {
             <div className="text-left mb-1">
               {reply.content}
             </div>
+            {isStaffUser &&
+              <LinkButton className="p-0" onClick={this.showDeleteReply}>
+                Delete
+              </LinkButton>
+            }
             {renderDate(reply.created_at)}
           </div>
         )}
@@ -64,4 +108,8 @@ class CommentRow extends Component {
   }
 }
 
-export default CommentRow;
+const mapDispatchToProps = {
+  deleteReply,
+};
+
+export default connect(null, mapDispatchToProps)(CommentRow);

@@ -201,3 +201,13 @@ export const replyToComment = ({ originalCommentId, reply }) =>
       },
     }))
     .then(result => result.data);
+
+export const deleteReply = reply =>
+  getAuthToken()
+    .then(idJwtToken => axios.request({
+      url: `${config.baseApi}/comments/${reply.id}`,
+      method: 'delete',
+      headers: {
+        Authorization: idJwtToken,
+      },
+    }));

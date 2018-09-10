@@ -7,19 +7,22 @@ export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
 export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
-export const POST_REPLY_REQUEST = 'POST_REPLY_REQUEST';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
 export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
-export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
 export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
-export const POST_REPLY_SUCCESS = 'POST_REPLY_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
+export const POST_REPLY_REQUEST = 'POST_REPLY_REQUEST';
+export const POST_REPLY_SUCCESS = 'POST_REPLY_SUCCESS';
+export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
+export const DELETE_REPLY_REQUEST = 'DELETE_REPLY_REQUEST';
+export const DELETE_REPLY_SUCCESS = 'DELETE_REPLY_SUCCESS';
+export const DELETE_REPLY_ERROR = 'DELETE_REPLY_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   api
@@ -298,5 +301,17 @@ export const replyToComment = (locationId, originalCommentId, reply) => (dispatc
     })
     .catch((err) => {
       dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
+    });
+};
+
+export const deleteReply = ({ locationId, originalCommentId, reply }) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: DELETE_REPLY_REQUEST, payload: params });
+  api.deleteReply(reply)
+    .then(() => {
+      dispatch({ type: DELETE_REPLY_SUCCESS, payload: params });
+    })
+    .catch((err) => {
+      dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, err } });
     });
 };

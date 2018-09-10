@@ -6,6 +6,8 @@ import {
   POST_REPLY_REQUEST,
   POST_REPLY_SUCCESS,
   POST_REPLY_ERROR,
+  DELETE_REPLY_REQUEST,
+  DELETE_REPLY_ERROR,
 } from '../actions';
 
 export const commentsReducer = (state = { isPosting: false }, action) => {
@@ -86,6 +88,37 @@ export const commentsReducer = (state = { isPosting: false }, action) => {
       return {
         ...state,
         isPosting: false,
+      };
+
+    case DELETE_REPLY_REQUEST: {
+      const { locationId, originalCommentId } = action.payload;
+      const comments = state[locationId] || [];
+      const originalComment =
+        comments.filter(comment => comment.id === originalCommentId)[0];
+
+      if (!originalComment) {
+        return state;
+      }
+
+      const originalCommentIndex = comments.indexOf(originalComment);
+      const updatedComments = comments.slice();
+      updatedComments[originalCommentIndex] = {
+        ...originalComment,
+        Replies: [],
+      };
+
+      return {
+        ...state,
+        [`last/${locationId}`]: comments,
+        [locationId]: updatedComments,
+      };
+    }
+
+    case DELETE_REPLY_ERROR:
+      return {
+        ...state,
+        [`last/${action.payload.locationId}`]: null,
+        [action.payload.locationId]: state[`last/${action.payload.locationId}`],
       };
 
     default:
