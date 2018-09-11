@@ -2,7 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData } from '../../../reducers';
+import { getLocation as selectLocationData, getLocationError } from '../../../selectors/location';
 import { updateLocation, getLocation } from '../../../actions';
 import { Form } from '../../../components/form';
 import LocationNameView from './LocationNameView';
@@ -14,12 +14,13 @@ const LocationName = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.match.params;
-  const locationData = selectLocationData(state, locationId);
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = getLocationError(state, ownProps);
 
   return {
     resourceData: locationData,
     value: locationData ? locationData.name : null,
+    resourceLoadError: locationError 
   };
 };
 

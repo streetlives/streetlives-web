@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 
-import { selectLocationData } from '../../../reducers';
+import { getLocation as selectLocationData, getLocationError } from '../../../selectors/location';
 import { updatePhone, getLocation, createPhone } from '../../../actions';
 import { Form, FormView } from '../../../components/form';
 import LocationNumberEdit from './LocationNumberEdit';
@@ -27,14 +27,15 @@ const LocationNumber = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.match.params;
-  const locationData = selectLocationData(state, locationId);
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = getLocationError(state, ownProps);
   const phone = locationData && locationData.Phones && locationData.Phones[0];
 
   return {
     resourceData: locationData,
     value: phone,
     id: phone && phone.id,
+    resourceLoadError: locationError 
   };
 };
 

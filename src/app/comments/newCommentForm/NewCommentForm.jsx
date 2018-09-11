@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { postComment, getLocation } from '../../../actions';
-import { selectLocationData, selectIsPostingComment } from '../../../reducers';
+import { selectIsPostingComment } from '../../../reducers';
+import { getLocationError, getLocation as selectLocationData } from '../../../selectors/location';
 import LoadingLabel from '../../../components/form/LoadingLabel';
+import ErrorLabel from '../../../components/form/ErrorLabel';
 import CommentText from './CommentText';
 import ContactInfo from './ContactInfo';
 
@@ -48,7 +50,11 @@ class NewCommentForm extends Component {
   }
 
   render() {
-    const { locationData, isPostingComment } = this.props;
+    const { locationData, isPostingComment, locationError } = this.props;
+
+    if(locationError){
+      return <ErrorLabel errorMessage={locationError} />;
+    }
 
     if (!locationData || isPostingComment) {
       return (
@@ -79,7 +85,8 @@ class NewCommentForm extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: selectLocationData(state, ownProps.match.params.locationId),
+  locationData: selectLocationData(state, ownProps),
+  locationError : getLocationError(state, ownProps),
   isPostingComment: selectIsPostingComment(state),
 });
 

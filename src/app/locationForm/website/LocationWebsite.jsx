@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData } from '../../../reducers';
+import { getLocation as selectLocationData, getLocationError  } from '../../../selectors/location';
 import { updateOrganization, getLocation } from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
 
@@ -20,13 +20,13 @@ const Website = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.match.params;
-  const locationData = selectLocationData(state, locationId);
+  const locationData = selectLocationData(state, ownProps);
 
   return {
     resourceData: locationData,
     value: locationData && locationData.Organization && locationData.Organization.url,
     id: locationData && locationData.Organization && locationData.Organization.id,
+    resourceLoadError: getLocationError(state, ownProps)
   };
 };
 

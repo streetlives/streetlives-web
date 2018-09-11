@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation } from '../../../selectors/location';
+import ErrorLabel from '../../../components/form/ErrorLabel';
+import { getLocationError as selectLocationError, getLocation as selectLocationData } from '../../../selectors/location';
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -60,10 +61,14 @@ class ServiceDetails extends Component {
   };
 
   render() {
-    const { service, locationData } = this.props;
+    const { service, locationData, locationError } = this.props;
     const { locationId, serviceId } = this.props.match.params;
 
-    if (Object.keys(locationData).length === 0 || Object.keys(service).length === 0) {
+    if(locationError){
+      return <ErrorLabel errorMessage={locationError} />;
+    }
+
+    if (!locationData || Object.keys(locationData).length === 0 || !service || Object.keys(service).length === 0) {
       return <LoadingView />;
     }
 
@@ -94,7 +99,8 @@ class ServiceDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationData: getLocation(state, ownProps),
+  locationData: selectLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
