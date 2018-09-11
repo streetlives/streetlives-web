@@ -3,7 +3,6 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { deleteReply } from '../../../actions';
 import LinkButton from '../../../components/link';
-import Header from '../../../components/header';
 import DeleteReplyModal from './DeleteReplyModal';
 
 const renderDate = date => (
@@ -58,7 +57,7 @@ class CommentRow extends Component {
       created_at: createdAt,
       Replies: replies,
     } = comment;
-    const reply = replies[0];
+    const reply = replies && replies[0];
 
     if (this.state.isShowingDeleteConfirmation) {
       return (
