@@ -54,8 +54,6 @@ export const locationErrorsReducer = (state = {}, action) => {
   return state;
 }
 
-export const selectLocationError = (state, locationId) => state.locationErrors[locationId];
-
 export const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();
   switch (action.type) {
@@ -215,5 +213,3 @@ export const locationsReducer = (state = {}, action) => {
 
   return state;
 };
-
-export const selectLocationData = (state, locationId) => state.locations[locationId];

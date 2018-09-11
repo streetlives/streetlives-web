@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectLocationError, selectLocationData } from '../../reducers/locations';
+import { getLocationError as selectLocationError, getLocation as selectLocationData } from '../../selectors/location';
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
@@ -92,9 +92,8 @@ class LocationInfo extends Component {
 }
 
 export function mapStateToProps(state, ownProps) {
-  const locationId = ownProps.match.params.locationId;
-  const locationData = selectLocationData(state, locationId);
-  const locationError = selectLocationError(state, locationId);
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = selectLocationError(state, ownProps);
 
   return {
     locationError,

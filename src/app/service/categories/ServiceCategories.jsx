@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation } from '../../../selectors/location';
+import ErrorLabel from '../../../components/form/ErrorLabel';
+import { getLocation, getLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import { getServices } from '../../../selectors/service';
 import * as api from '../../../services/api';
@@ -34,7 +35,7 @@ class ServiceCategories extends Component {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
     }
-    if (Object.keys(this.props.location).length === 0) {
+    if (!this.props.location) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
     }
@@ -121,7 +122,11 @@ class ServiceCategories extends Component {
 
   render() {
     const { isLoading, selected } = this.state;
-    const { location, servicesByCategory } = this.props;
+    const { location, servicesByCategory, locationError } = this.props;
+
+    if(locationError){
+      return <ErrorLabel errorMessage={locationError} />;
+    }
 
     if (!servicesByCategory || !location || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
@@ -195,6 +200,7 @@ const getServicesByCategory = (state, props) => {
 
 const mapStateToProps = (state, ownProps) => ({
   location: getLocation(state, ownProps),
+  locationError: getLocationError(state, ownProps),
   taxonomy: getTaxonomy(state),
   servicesByCategory: getServicesByCategory(state, ownProps),
 });

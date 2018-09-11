@@ -142,7 +142,7 @@ export default class MapView extends Component {
             {
               this.state.suggestions && <Dropdown options={
                 this.state.suggestions.map(organization => ({
-                  key: organization.id,
+                  id: organization.id,
                   label: organization.name,
                   onClick: () => this.handleSuggestionClick(organization),
                 }))}
