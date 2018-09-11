@@ -70,11 +70,13 @@ class CommentRow extends Component {
 
     return (
       <li
-        className="list-group-item px-5 w-100"
+        className="list-group-item w-100"
         style={{
           position: 'auto',
           borderColor: '#EDEDED',
           backgroundColor: '#FCFCFC',
+          paddingLeft: '35px',
+          paddingRight: '35px',
         }}
       >
         <div className="text-left mb-1">
@@ -89,8 +91,8 @@ class CommentRow extends Component {
           {renderDate(createdAt)}
         </div>
         {reply && (
-          <div className="text-left">
-            <div className="font-weight-bold mt-3 mb-2">{organizationName} replied:</div>
+          <div className="text-left mt-2 p-3 clearfix border">
+            <div className="font-weight-bold mb-2">{organizationName} replied:</div>
             <div className="text-left mb-1">
               {reply.content}
             </div>
