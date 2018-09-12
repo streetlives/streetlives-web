@@ -1,20 +1,27 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import { getComments } from '../../../actions';
 import { selectComments } from '../../../reducers';
+import { getUserOrganizations } from '../../../services/auth';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 import withCommentsForm from '../withCommentsForm';
+import CommentRow from './CommentRow';
 
 class ViewComments extends Component {
   constructor(props) {
     super(props);
+    this.state = { userOrganizations: null };
     this.goToAddComment = this.goToAddComment.bind(this);
   }
 
   componentDidMount() {
+    getUserOrganizations()
+      .then((organizations) => {
+        this.setState({ userOrganizations: organizations });
+      });
+
     if (!this.props.comments) {
       this.props.getComments(this.props.match.params.locationId);
     }
@@ -25,7 +32,10 @@ class ViewComments extends Component {
   }
 
   render() {
-    const { comments, organizationName } = this.props;
+    const { comments, organizationName, organizationId } = this.props;
+    const { userOrganizations } = this.state;
+
+    const isStaffUser = userOrganizations && userOrganizations.indexOf(organizationId) !== -1;
 
     if (!comments) {
       return <LoadingLabel />;
@@ -36,7 +46,7 @@ class ViewComments extends Component {
     // TODO: Once using CSS, leverage the existing colors (namely "placeholderGray").
     // TODO: Try to find better way to put the button right under the list (no hard-coded padding).
     return (
-      <div>
+      <div className="w-100">
         <div style={{ paddingBottom: '40px' }}>
           <div className="mx-5 text-left">
             <Header size="large" className="mb-3">
@@ -50,22 +60,12 @@ class ViewComments extends Component {
           )}
           <ul className="list-group w-100">
             {comments.map(comment => (
-              <li
+              <CommentRow
+                {...this.props}
                 key={comment.id}
-                className="list-group-item px-5 w-100"
-                style={{
-                  position: 'auto',
-                  borderColor: '#EDEDED',
-                  backgroundColor: '#FCFCFC',
-                }}
-              >
-                <div className="text-left">
-                  {comment.content}
-                </div>
-                <small className="pull-right" style={{ color: '#AAAAAA' }}>
-                  {moment(comment.created_at).format('MMM D, YYYY h:mma')}
-                </small>
-              </li>
+                comment={comment}
+                isStaffUser={isStaffUser}
+              />
             ))}
           </ul>
         </div>

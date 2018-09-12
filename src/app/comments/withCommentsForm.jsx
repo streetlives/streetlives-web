@@ -33,6 +33,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     locationData,
     organizationName: locationData.Organization.name,
+    organizationId: locationData.Organization.id,
   };
 };
 
