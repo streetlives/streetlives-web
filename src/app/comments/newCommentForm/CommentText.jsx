@@ -10,7 +10,6 @@ function CommentText(props) {
     'How was your experience? If you like, please add your first name or initals at the end.' +
     ' Please do not leave your full name';
 
-  // TODO: Update the textarea styles based on the new designs.
   return (
     <div>
       <div className="px-4 pb-5">

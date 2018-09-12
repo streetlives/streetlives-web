@@ -70,8 +70,6 @@ class ContactInfo extends Component {
     this.props.onSubmit({});
   }
 
-  // TODO: Add "x" buttons inside the inputs to clear them.
-  // TODO: Update the inputs and label styles based on the new designs.
   render() {
     return (
       <div>
@@ -79,20 +77,12 @@ class ContactInfo extends Component {
           <div className="w-100 mr-5">
             <Header size="large" className="mb-3">One last optional step</Header>
             <p className="my-2">
-              This site is built for {this.props.organizationName} by
-              <a
-                className="ml-1"
-                href="http://www.streetlives.nyc"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Streetlives
-              </a>.
+              This site is built for {this.props.organizationName} by Streetlives.
               If you’d like to know about our work, please share your contact info.
             </p>
             <p>
               It will not be added to any mailing list and not appear with your comment,
-              and only be shared with Streetlives and {this.props.organizationName}.
+              and only be shared by Streetlives with {this.props.organizationName}.
             </p>
           </div>
           <div className="font-weight-bold">Name</div>
@@ -121,7 +111,14 @@ class ContactInfo extends Component {
           </div>
         </div>
         <div className="mx-5">
-          <Button primary fluid onClick={this.submit}>DONE</Button>
+          <Button
+            primary
+            fluid
+            disabled={!this.state.contact && !this.state.name}
+            onClick={this.submit}
+          >
+            DONE
+          </Button>
         </div>
         <LinkButton onClick={this.skip}>
           Skip this step
