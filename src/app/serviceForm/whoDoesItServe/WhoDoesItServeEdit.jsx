@@ -8,7 +8,7 @@ import { SERVICE_GROUPS } from '../../../constants';
 import { formatLabel, isEditing } from './util'
 import './WhoDoesItServeEditForm.css';
 
-class ServiceOpeningHours extends Component {
+class WhoDoesItServe extends Component {
   constructor(props) {
     super(props);
 
@@ -165,4 +165,4 @@ class ServiceOpeningHours extends Component {
   }
 }
 
-export default ServiceOpeningHours;
+export default WhoDoesItServe;
