@@ -22,7 +22,7 @@ class WhoDoesItServe extends Component {
   }
 
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge){
-    // toggle him
+    // toggle it
     const serviceGroups = this.state.serviceGroups;
     const groupIndex = serviceGroups.findIndex( group => group.name === groupName )
     if(groupIndex > -1){
