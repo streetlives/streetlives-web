@@ -61,8 +61,8 @@ const withAuth = (Component) => {
 
 // TODO: Try coming up with a better way of mapping than hard-coding the current prod IDs.
 const feedbackLocations = [
-  { name: 'bnl', id: '1edfab8e-0d7c-437e-a14c-6b9ca0eb5d93' },
-  { name: 'apostles', id: '5426de21-4e1b-4e6e-bcf1-6bf334de56b5' },
+  { name: 'sjbl', id: '1edfab8e-0d7c-437e-a14c-6b9ca0eb5d93' },
+  { name: 'holy', id: '5426de21-4e1b-4e6e-bcf1-6bf334de56b5' },
 ];
 
 function App() {
