@@ -1,5 +1,5 @@
 import locationsReducer from './locations';
-import { locationErrorsReducer } from './locationErrors';
+import locationErrorsReducer from './locationErrors';
 import { newLocationReducer } from './newLocation';
 import { commentsReducer } from './comments';
 
