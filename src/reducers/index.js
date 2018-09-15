@@ -1,4 +1,5 @@
-import { locationsReducer, locationErrorsReducer } from './locations';
+import { locationsReducer } from './locations';
+import { locationErrorsReducer } from './locationErrors';
 import { newLocationReducer } from './newLocation';
 import { commentsReducer } from './comments';
 
