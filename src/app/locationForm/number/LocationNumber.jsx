@@ -35,7 +35,7 @@ const mapStateToProps = (state, ownProps) => {
     resourceData: locationData,
     value: phone,
     id: phone && phone.id,
-    resourceLoadError: locationError 
+    resourceLoadError: locationError,
   };
 };
 

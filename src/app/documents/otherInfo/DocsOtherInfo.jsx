@@ -28,7 +28,7 @@ const mapStateToProps = (state, ownProps) => ({
   resourceData: getDocuments(state, ownProps),
   value: getDocumentAdditionalInfo(state, ownProps),
   id: getServiceId(ownProps),
-  resourceLoadError: getLocationError(state, ownProps)
+  resourceLoadError: getLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

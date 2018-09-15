@@ -13,14 +13,14 @@ import { isEditing } from './util';
 const FormComponent = compose(withProps({
   ViewComponent: WhoDoesItServeView,
   EditComponent: WhoDoesItServeEdit,
-  isEditing
+  isEditing,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
   value: getServiceWhoDoesItServe(state, ownProps),
   id: getServiceId(ownProps),
-  resourceLoadError: getLocationError(state, ownProps)
+  resourceLoadError: getLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

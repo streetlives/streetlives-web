@@ -7,8 +7,10 @@
   color: red;
 }
 
-.ErrorLabel > p:last-child {
+.ErrorLabel > button {
   color: blue; 
   font-style: italic; 
   cursor: pointer;
+  border: none;
+  background-color: white;
 }

@@ -24,5 +24,6 @@ module.exports = {
       },
     ],
     'jsx-a11y/label-has-for': [2, { required: 'id' }],
+    'no-param-reassign': ["error", { "props": false }],
   },
 };

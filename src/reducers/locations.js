@@ -52,7 +52,7 @@ export const locationErrorsReducer = (state = {}, action) => {
       break;
   }
   return state;
-}
+};
 
 export const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();

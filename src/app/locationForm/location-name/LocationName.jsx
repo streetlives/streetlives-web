@@ -20,7 +20,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     resourceData: locationData,
     value: locationData ? locationData.name : null,
-    resourceLoadError: locationError 
+    resourceLoadError: locationError,
   };
 };
 

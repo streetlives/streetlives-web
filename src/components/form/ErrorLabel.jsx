@@ -1,7 +1,7 @@
 import React from 'react';
-import './ErrorLabel.css'
+import './ErrorLabel.css';
 
-function reload(){
+function reload() {
   window.location.reload();
 }
 
@@ -11,7 +11,12 @@ const ErrorLabel = ({ errorMessage }) => (
       <i className="fas fa-exclamation-triangle" aria-hidden="true" />&nbsp;
       <span>{errorMessage}</span>
     </p>
-    <p onClick={reload}> Click here to reload the page </p>
+    <button
+      className="default"
+      onClick={reload}
+    >
+      Click here to reload the page
+    </button>
   </div>
 );
 

@@ -34,7 +34,9 @@ class ServicesRecap extends Component {
   }
 
   componentWillReceiveProps(nextProps, prevState) {
-    if (!nextProps.locationError && nextProps.locationData && nextProps.locationData !== this.props.locationData) {
+    if (!nextProps.locationError &&
+      nextProps.locationData &&
+      nextProps.locationData !== this.props.locationData) {
       const services =
         nextProps.locationData.Services &&
         nextProps.locationData.Services.map((service) => {
@@ -65,7 +67,7 @@ class ServicesRecap extends Component {
     const { taxonomy = [], locationError } = this.props;
     const { services = [] } = this.state;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 

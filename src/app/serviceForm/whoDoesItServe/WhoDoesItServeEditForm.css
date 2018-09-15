@@ -53,9 +53,9 @@
   padding: .5em;
 }
 
-.WhoDoesItServe .customGroup > i {
+.WhoDoesItServe .customGroup > button {
   position:absolute; 
   right: .5em; 
-  top: .9em; 
+  top: .5em; 
   cursor: pointer;
 }

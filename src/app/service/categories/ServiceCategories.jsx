@@ -124,7 +124,7 @@ class ServiceCategories extends Component {
     const { isLoading, selected } = this.state;
     const { location, servicesByCategory, locationError } = this.props;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 

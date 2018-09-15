@@ -52,7 +52,7 @@ class NewCommentForm extends Component {
   render() {
     const { locationData, isPostingComment, locationError } = this.props;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 
@@ -86,7 +86,7 @@ class NewCommentForm extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   locationData: selectLocationData(state, ownProps),
-  locationError : getLocationError(state, ownProps),
+  locationError: getLocationError(state, ownProps),
   isPostingComment: selectIsPostingComment(state),
 });
 

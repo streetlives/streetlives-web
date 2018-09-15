@@ -23,7 +23,7 @@ export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
 export const getLocation = locationId => (dispatch) => {
   dispatch({
     type: GET_LOCATION_REQUEST,
-    locationId
+    locationId,
   });
   api
     .getLocation({
@@ -37,7 +37,7 @@ export const getLocation = locationId => (dispatch) => {
     .catch(e => dispatch({
       type: GET_LOCATION_ERROR,
       locationId,
-      errorMessage: e.message
+      errorMessage: e.message,
     }));
 };
 

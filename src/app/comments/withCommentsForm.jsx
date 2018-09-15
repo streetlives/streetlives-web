@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
-import { getLocation as selectLocationData, getLocationError as selectLocationError } from '../../selectors/location';
+import {
+  getLocation as selectLocationData,
+  getLocationError as selectLocationError,
+} from '../../selectors/location';
 import IntroModal from './intro/IntroModal';
 import Info from '../../components/info';
 import ErrorLabel from '../../components/form/ErrorLabel';
@@ -21,7 +24,7 @@ const mapStateToProps = (state, ownProps) => {
   const locationError = selectLocationError(state, ownProps);
 
   if (!locationData) {
-    return {locationError};
+    return { locationError };
   }
 
   return {
@@ -62,7 +65,7 @@ export default function withCommentsForm(WrappedComponent, { hideInfoLink } = {}
     render() {
       const { locationData, locationError } = this.props;
 
-      if(locationError){
+      if (locationError) {
         return <ErrorLabel errorMessage={locationError} />;
       }
 

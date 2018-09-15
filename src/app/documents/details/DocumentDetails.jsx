@@ -66,7 +66,7 @@ class DocumentDetails extends Component {
     const { locationId, serviceId } = this.props.match.params;
     const { service, locationError } = this.props;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 
@@ -103,7 +103,7 @@ class DocumentDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationError : selectLocationError(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

@@ -7,7 +7,7 @@ export { selectComments, selectIsPostingComment } from './comments';
 
 export const rootReducerObj = {
   locations: locationsReducer,
-  locationErrors : locationErrorsReducer,
+  locationErrors: locationErrorsReducer,
   newLocation: newLocationReducer,
   comments: commentsReducer,
 };

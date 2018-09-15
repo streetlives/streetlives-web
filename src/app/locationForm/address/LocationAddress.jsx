@@ -29,7 +29,7 @@ const mapStateToProps = (state, ownProps) => {
         ? locationData.address.street
         : null,
     resourceData: locationData,
-    resourceLoadError: locationError 
+    resourceLoadError: locationError,
   };
 };
 

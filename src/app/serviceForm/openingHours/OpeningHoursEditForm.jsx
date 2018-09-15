@@ -9,16 +9,20 @@ export default class OpeningHoursEditForm extends Component {
     } = this.props;
     return hours.map((hour, i) => (
       <form
-        key={i}
+        key={i} // eslint-disable-line react/no-array-index-key
         style={{
           display: active ? 'block' : 'none',
         }}
         className="OpeningHoursEditForm"
       >
-        <i
+        <button
+          className="default"
           onClick={() => removeHour(hour)}
-          className="fa fa-trash"
-        />
+        >
+          <i
+            className="fa fa-trash"
+          />
+        </button>
         <div className="table-container">
           <table>
             <tbody>
@@ -51,8 +55,13 @@ export default class OpeningHoursEditForm extends Component {
           i === (hours.length - 1) &&
           <div
             className="AddMoreHoursBtn"
-            onClick={addHour}
-          >+&nbsp;Add more hours
+          >
+            <button
+              className="default"
+              onClick={addHour}
+            >
+              +&nbsp;Add more hours
+            </button>
           </div>
         }
       </form>

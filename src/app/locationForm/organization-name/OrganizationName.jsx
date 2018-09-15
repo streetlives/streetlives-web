@@ -30,7 +30,7 @@ const mapStateToProps = (state, ownProps) => {
         : null,
     resourceData: locationData,
     id: locationData && locationData.Organization && locationData.Organization.id,
-    resourceLoadError: locationError 
+    resourceLoadError: locationError,
   };
 };
 
