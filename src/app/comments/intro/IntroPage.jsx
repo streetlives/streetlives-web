@@ -1,6 +1,7 @@
 import React from 'react';
 import IntroComponent from './IntroComponent';
 import withCommentsForm from '../withCommentsForm';
+import config from '../../../config';
 
 function IntroPage(props) {
   return (
@@ -9,14 +10,32 @@ function IntroPage(props) {
       className="flex-grow-1 h-100"
       footer={(
         <small>
-          Comments are anonymous. By using this site you agree to our
+          Comments are anonymous unless you choose to share identifying information.
+          By using this site you agree to our
           <a
-            className="ml-1"
-            href="https://policies.google.com/technologies/partner-sites"
+            href={config.termsOfUseUrl}
             target="_blank"
             rel="noopener noreferrer"
+            className="ml-1"
           >
-            guidelines
+            Terms of use
+          </a>,
+          <a
+            href={config.privacyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-1"
+          >
+            Privacy Policy
+          </a>
+          and
+          <a
+            href={config.commentGuidelinesUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1"
+          >
+            Guidelines
           </a>
         </small>
       )}

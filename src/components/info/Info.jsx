@@ -5,7 +5,7 @@ import infoImage from './info.svg';
 import './Info.css';
 
 function Icon({ onClick, className }) {
-  const classNames = cx('Icon', className);
+  const classNames = cx('Info', className);
   return (
     <input
       type="image"

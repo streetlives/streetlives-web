@@ -19,6 +19,12 @@ export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
+export const POST_REPLY_REQUEST = 'POST_REPLY_REQUEST';
+export const POST_REPLY_SUCCESS = 'POST_REPLY_SUCCESS';
+export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
+export const DELETE_REPLY_REQUEST = 'DELETE_REPLY_REQUEST';
+export const DELETE_REPLY_SUCCESS = 'DELETE_REPLY_SUCCESS';
+export const DELETE_REPLY_ERROR = 'DELETE_REPLY_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   dispatch({
@@ -293,5 +299,35 @@ export const postComment = (locationId, comment) => (dispatch) => {
     })
     .catch((e) => {
       dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
+    });
+};
+
+export const replyToComment = (locationId, originalCommentId, reply) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: POST_REPLY_REQUEST, payload: params });
+  api.replyToComment({ locationId, originalCommentId, reply })
+    .then((postedReply) => {
+      dispatch({
+        type: POST_REPLY_SUCCESS,
+        payload: {
+          ...params,
+          reply: postedReply,
+        },
+      });
+    })
+    .catch((err) => {
+      dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
+    });
+};
+
+export const deleteReply = ({ locationId, originalCommentId, reply }) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: DELETE_REPLY_REQUEST, payload: params });
+  api.deleteReply(reply)
+    .then(() => {
+      dispatch({ type: DELETE_REPLY_SUCCESS, payload: params });
+    })
+    .catch((err) => {
+      dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, err } });
     });
 };
