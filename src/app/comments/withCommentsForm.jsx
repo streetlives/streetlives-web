@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
 import {
-  getLocation as selectLocationData,
-  getLocationError as selectLocationError,
+  selectLocationData,
+  selectLocationError,
 } from '../../selectors/location';
 import IntroModal from './intro/IntroModal';
 import Info from '../../components/info';

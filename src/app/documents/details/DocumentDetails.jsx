@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocationError as selectLocationError } from '../../../selectors/location';
+import { selectLocationError } from '../../../selectors/location';
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';

@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { getLocation, getLocationError } from '../../../selectors/location';
+import { selectLocationData, selectLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
@@ -122,8 +122,8 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: getLocation(state, ownProps),
-  locationError: getLocationError(state, ownProps),
+  locationData: selectLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state, ownProps),
 });
 

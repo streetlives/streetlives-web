@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 
 import ErrorLabel from '../../../components/form/ErrorLabel';
 import {
-  getLocationError as selectLocationError,
-  getLocation as selectLocationData,
+  selectLocationError,
+  selectLocationData,
 } from '../../../selectors/location';
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';

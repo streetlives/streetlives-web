@@ -5,7 +5,7 @@ import { compose, withProps } from 'recompose';
 import WhoDoesItServeEdit from './WhoDoesItServeEdit';
 import WhoDoesItServeView from './WhoDoesItServeView';
 import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
-import { getLocationError } from '../../../selectors/location';
+import { selectLocationError } from '../../../selectors/location';
 import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
 import { isEditing } from './util';
@@ -20,7 +20,7 @@ const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
   value: getServiceWhoDoesItServe(state, ownProps),
   id: getServiceId(ownProps),
-  resourceLoadError: getLocationError(state, ownProps),
+  resourceLoadError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

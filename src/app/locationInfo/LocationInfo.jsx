@@ -3,8 +3,8 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import {
-  getLocationError as selectLocationError,
-  getLocation as selectLocationData,
+  selectLocationError,
+   selectLocationData,
 } from '../../selectors/location';
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';

@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import ErrorLabel from '../../../components/form/ErrorLabel';
-import { getLocation, getLocationError } from '../../../selectors/location';
+import { selectLocationData, selectLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import { getServices } from '../../../selectors/service';
 import * as api from '../../../services/api';
@@ -199,8 +199,8 @@ const getServicesByCategory = (state, props) => {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-  location: getLocation(state, ownProps),
-  locationError: getLocationError(state, ownProps),
+  location: selectLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state),
   servicesByCategory: getServicesByCategory(state, ownProps),
 });
