@@ -5,7 +5,9 @@ export const getServiceId = props => props.match.params.serviceId;
 
 export const getTaxonomy = (state, props) => state.locations.taxonomy;
 
-export const getServices = (state, props) => (selectLocationData(state, props) || {}).Services || [];
+export const getServices = (state, props) => (
+  (selectLocationData(state, props) || {}).Services || []
+);
 
 export const getService = (state, props) => {
   const serviceId = getServiceId(props);

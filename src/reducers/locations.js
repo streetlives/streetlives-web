@@ -40,7 +40,7 @@ function constructNewStateWithUpdatedPhones(state, action, newPhones, location, 
   };
 }
 
-export const locationsReducer = (state = {}, action) => {
+const locationsReducer = (state = {}, action) => {
   const dateString = new Date().toISOString();
   switch (action.type) {
     case GET_LOCATION_RESPONSE:
@@ -199,3 +199,5 @@ export const locationsReducer = (state = {}, action) => {
 
   return state;
 };
+
+export default locationsReducer;

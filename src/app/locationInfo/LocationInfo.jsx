@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import {
   selectLocationError,
-   selectLocationData,
+  selectLocationData,
 } from '../../selectors/location';
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';

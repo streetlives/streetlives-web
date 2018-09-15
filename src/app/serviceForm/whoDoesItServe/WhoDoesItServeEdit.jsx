@@ -26,7 +26,7 @@ class WhoDoesItServe extends Component {
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge) {
     // toggle it
     const { state: { serviceGroups } } = this;
-    const groupIndex = serviceGroups.findIndex( group => group.name === groupName );
+    const groupIndex = serviceGroups.findIndex(group => group.name === groupName);
     if (groupIndex > -1) {
       serviceGroups.splice(groupIndex, 1);
     } else {

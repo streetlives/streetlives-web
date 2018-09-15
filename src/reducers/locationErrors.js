@@ -3,7 +3,7 @@ import {
   GET_LOCATION_ERROR,
 } from '../actions';
 
-export const locationErrorsReducer = (state = {}, action) => {
+const locationErrorsReducer = (state = {}, action) => {
   switch (action.type) {
     case GET_LOCATION_REQUEST:
       return { ...state, [action.locationId]: null };
@@ -15,3 +15,4 @@ export const locationErrorsReducer = (state = {}, action) => {
   return state;
 };
 
+export default locationErrorsReducer;
