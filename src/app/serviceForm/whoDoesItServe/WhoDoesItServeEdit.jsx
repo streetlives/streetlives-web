@@ -40,8 +40,8 @@ class WhoDoesItServe extends Component {
   onCheckInputClick(group, serviceGroups, value, e) {
     e.stopPropagation();
     e.preventDefault();
-    group.allAges = value;
-    this.setState({ serviceGroups });
+
+    this.updateServiceGroups(group, serviceGroups, 'allAges', value);
   }
 
   getCustomGroups() {
@@ -61,7 +61,7 @@ class WhoDoesItServe extends Component {
         <ul>
           <li
             role="presentation"
-            onClick={() => this.onCheckInputClick(group, serviceGroups, true)}
+            onClick={e => this.onCheckInputClick(group, serviceGroups, true, e)}
           >
             <Input
               onChange={() => null}
@@ -74,7 +74,7 @@ class WhoDoesItServe extends Component {
           </li>
           <li
             role="presentation"
-            onClick={() => this.onCheckInputClick(group, serviceGroups, false)}
+            onClick={e => this.onCheckInputClick(group, serviceGroups, false, e)}
           >
             <Input
               onChange={() => null}
@@ -95,7 +95,7 @@ class WhoDoesItServe extends Component {
                 type="number"
                 defaultValue={group.minAge}
                 onChange={(e) => {
-                  group.minAge = e.target.value; this.setState({ serviceGroups });
+                  this.updateServiceGroups(group, serviceGroups, 'minAge', e.target.value);
                 }}
               />
             </div>
@@ -106,7 +106,7 @@ class WhoDoesItServe extends Component {
                 type="number"
                 defaultValue={group.maxAge}
                 onChange={(e) => {
-                  group.maxAge = e.target.value; this.setState({ serviceGroups });
+                  this.updateServiceGroups(group, serviceGroups, 'maxAge', e.target.value);
                 }}
               />
             </div>
@@ -114,6 +114,20 @@ class WhoDoesItServe extends Component {
         </div>
       </form>
     );
+  }
+
+  updateServiceGroups(group, serviceGroups, prop, value) {
+    const idx = serviceGroups.indexOf(group);
+    const updatedServiceGroups = [
+      ...serviceGroups.slice(0, idx),
+      {
+        ...group,
+        [prop]: value,
+      },
+      ...serviceGroups.slice(idx + 1),
+    ];
+
+    this.setState({ serviceGroups: updatedServiceGroups });
   }
 
   removeCustomGroup(i) {
@@ -168,15 +182,19 @@ class WhoDoesItServe extends Component {
             this.getCustomGroups().map(([group, i], j) => (
               <div
                 className="customGroup"
-                key={`custom-group-${group.name}`}
+                key={`custom-group-${j}`} // eslint-disable-line react/no-array-index-key
               >
                 <input
                   ref={e => e && e.value === '' && this.state.lastAddedIndex === j && e.focus()}
                   onChange={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    serviceGroups[i].name = e.target.value;
-                    this.setState({ serviceGroups });
+                    this.updateServiceGroups(
+                      serviceGroups[i],
+                      serviceGroups,
+                      'name',
+                      e.target.value,
+                    );
                   }}
                   value={group.name}
                 />
