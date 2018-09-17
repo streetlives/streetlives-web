@@ -44,7 +44,7 @@
     "build": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "eslint src/ --ext js,jsx --ignore-pattern \"*.story.jsx\"",
+    "lint": "eslint src/ --ext js,jsx",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
     "predeploy": "npm run build",
