@@ -5,12 +5,15 @@
 }
 
 .Header-large {
-  font-size: 1.75em;
+  font-size: 21px;
+  font-weight: bold;
 }
 
 .Header-medium {
-  font-size: 1.25em;
+  font-size: 17px;
+  font-weight: bold;
 }
+
 .Header-small {
-  font-size: 1em;
+  font-size: 17px;
 }

@@ -1,0 +1,61 @@
+.WhoDoesItServeEditForm {
+  margin-bottom:1.5em; 
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.WhoDoesItServeEditForm .bottomSection {
+  background-color:#f0f0f0; 
+}
+
+.WhoDoesItServeEditForm ul {
+  padding-left : .5em;
+  margin: .25em 0;
+  list-style: none;
+}
+
+.WhoDoesItServeEditForm li > span {
+  padding-left: .5em;
+}
+
+.WhoDoesItServeEditForm .inputContainer {
+  padding: 0.5em 0;
+  width: 100%;
+}
+
+.WhoDoesItServeEditForm .inputContainer > div {
+  width: 25%; 
+  display: inline-block; 
+  text-align:center;
+}
+
+.WhoDoesItServeEditForm .inputContainer > div > input {
+  width: 75%;
+}
+
+.WhoDoesItServeEditForm .buttonContainer {
+ padding: .5em;
+}
+
+.WhoDoesItServe .addAnotherGroup {
+  text-align:center; 
+  width: 100%;
+}
+
+.WhoDoesItServe .customGroup {
+  width: 100%; 
+  position: relative;
+}
+
+.WhoDoesItServe .customGroup > input {
+  width: 100%; 
+  border: 1px solid black; 
+  padding: .5em;
+}
+
+.WhoDoesItServe .customGroup > button {
+  position:absolute; 
+  right: .5em; 
+  top: .5em; 
+  cursor: pointer;
+}

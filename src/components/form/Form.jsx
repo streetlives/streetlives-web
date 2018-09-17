@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import LoadingLabel from './LoadingLabel';
+import ErrorLabel from './ErrorLabel';
 
-function isEditing(props) {
+function isEditing(value) {
   return (
-    props.value === null ||
-    (typeof props.value === 'object'
-      ? Object.keys(props.value).every(key => !props.value[key])
-      : !props.value)
+    value === null ||
+    (typeof value === 'object'
+      ? Object.keys(value).every(key => !value[key])
+      : !value)
   );
 }
 
@@ -15,7 +16,8 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { isEditing: isEditing(props) };
+    this.isEditing = props.isEditing || isEditing;
+    this.state = { isEditing: this.isEditing(props.value) };
   }
 
   componentDidMount() {
@@ -27,7 +29,7 @@ class Form extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this.setState({ isEditing: isEditing(props) });
+    this.setState({ isEditing: this.isEditing(props.value) });
   }
 
   onConfirm = () => {
@@ -54,7 +56,11 @@ class Form extends Component {
   };
 
   render() {
-    const { EditComponent, ViewComponent, resourceData } = this.props;
+    const {
+      EditComponent, ViewComponent, resourceData, resourceLoadError,
+    } = this.props;
+
+    if (resourceLoadError) return <ErrorLabel errorMessage={resourceLoadError} />;
 
     if (!resourceData || Object.keys(resourceData).length === 0) return <LoadingLabel />;
 
@@ -93,6 +99,7 @@ Form.propTypes = {
   EditComponent: PropTypes.func.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
   resourceData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  resourceLoadError: PropTypes.string,
   fetchResourceData: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
   onFieldVerified: PropTypes.func,

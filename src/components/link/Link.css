@@ -1,0 +1,11 @@
+.Link {
+  background: none;
+  border: none;
+  color: #555555;
+  text-decoration: underline;
+  font-size: 0.75em;
+  font-weight: normal;
+  letter-spacing: -0.2px;
+  line-height: 20px;
+  padding: 12px;
+}

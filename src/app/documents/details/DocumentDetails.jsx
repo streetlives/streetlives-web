@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getLocation } from '../../../selectors/location';
+import { selectLocationError } from '../../../selectors/location';
 import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
@@ -12,6 +12,7 @@ import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
 import LoadingLabel from '../../../components/form/LoadingLabel';
+import ErrorLabel from '../../../components/form/ErrorLabel';
 
 import { DOCUMENT_FIELDS } from '../routes';
 
@@ -63,7 +64,11 @@ class DocumentDetails extends Component {
 
   render() {
     const { locationId, serviceId } = this.props.match.params;
-    const { service } = this.props;
+    const { service, locationError } = this.props;
+
+    if (locationError) {
+      return <ErrorLabel errorMessage={locationError} />;
+    }
 
     if (Object.keys(service).length === 0) {
       return <LoadingView />;
@@ -98,7 +103,7 @@ class DocumentDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
-  locationData: getLocation(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

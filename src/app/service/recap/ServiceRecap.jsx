@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { getLocation, getOriginalLocation } from '../../../selectors/location';
+import { selectLocationData, selectOriginalLocationData, selectLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
@@ -11,18 +11,11 @@ import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
 import getCategoryIcon from '../util/getCategoryIcon';
 import ThanksOverlay, { overlayStyles } from '../../locationForm/thanks/ThanksOverlay';
+import LoadingLabel from '../../../components/form/LoadingLabel';
+import ErrorLabel from '../../../components/form/ErrorLabel';
 
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
-
-const LoadingView = () => (
-  <div className="d-flex flex-column">
-    <NavBar title="Services recap" />
-    <p>
-      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
-    </p>
-  </div>
-);
 
 const thanksHeader = 'Great work!';
 const thanksContent =
@@ -41,7 +34,9 @@ class ServicesRecap extends Component {
   }
 
   componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.locationData && nextProps.locationData !== this.props.locationData) {
+    if (!nextProps.locationError &&
+      nextProps.locationData &&
+      nextProps.locationData !== this.props.locationData) {
       const services =
         nextProps.locationData.Services &&
         nextProps.locationData.Services.map((service) => {
@@ -69,11 +64,15 @@ class ServicesRecap extends Component {
     this.props.history.push(`/location/${this.props.match.params.locationId}/services/recap`);
 
   render() {
-    const { taxonomy = [] } = this.props;
+    const { taxonomy = [], locationError } = this.props;
     const { services = [] } = this.state;
 
+    if (locationError) {
+      return <ErrorLabel errorMessage={locationError} />;
+    }
+
     if (!taxonomy || !services) {
-      return <LoadingView />;
+      return <LoadingLabel />;
     }
 
     const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
@@ -126,8 +125,9 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: getLocation(state, ownProps),
-  originalLocationData: getOriginalLocation(state, ownProps),
+  locationData: selectLocationData(state, ownProps),
+  originalLocationData: selectOriginalLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state, ownProps),
 });
 

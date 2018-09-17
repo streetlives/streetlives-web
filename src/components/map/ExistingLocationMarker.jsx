@@ -15,7 +15,7 @@ function renderPhone(phone) {
 function renderUrl(url) {
   const linkUrl = url.includes('//') ? url : `http://${url}`;
   return (
-    <a href={linkUrl} target="_blank">
+    <a href={linkUrl} target="_blank" rel="noopener noreferrer">
       {url}
     </a>
   );

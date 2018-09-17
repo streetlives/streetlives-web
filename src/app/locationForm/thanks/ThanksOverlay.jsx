@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Button from '../../../components/button';
-import Heart from './heart';
+import Heart from '../../../components/heart';
 
 const styles = {
   position: 'absolute',

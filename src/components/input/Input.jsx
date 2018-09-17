@@ -22,6 +22,8 @@ class Input extends Component {
   render() {
     const {
       type = 'text',
+      checked,
+      disabled,
       fluid,
       placeholder,
       name,
@@ -31,12 +33,13 @@ class Input extends Component {
       size,
       pattern,
       required,
-      autoFocus,
       tabIndex,
       autoCorrect,
       autoCapitalize,
       onFocus,
       onBlur,
+      onKeyPress,
+      innerRef,
     } = this.props;
 
     const classNames = cx('Input', {
@@ -48,7 +51,12 @@ class Input extends Component {
         onInput={this.handleInput}
         ref={(e) => {
           this.element = e;
+          if (innerRef) {
+            innerRef(e);
+          }
         }}
+        checked={checked}
+        disabled={disabled}
         value={value}
         className={classNames}
         type={type}
@@ -59,12 +67,12 @@ class Input extends Component {
         size={size}
         pattern={pattern}
         required={required}
-        autoFocus={autoFocus}
         tabIndex={tabIndex}
         autoCorrect={autoCorrect}
         autoCapitalize={autoCapitalize}
         onFocus={onFocus}
         onBlur={onBlur}
+        onKeyPress={onKeyPress}
       />
     );
   }

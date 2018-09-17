@@ -1,0 +1,17 @@
+@value placeholderGray, borderGray from "../../colors.css";
+
+.TextArea {
+  border: none;
+  outline: none;
+  border-bottom: 1px solid borderGray;
+}
+
+.TextArea::placeholder {
+  color: placeholderGray;
+  font-weight: 300;
+  padding-right: 1em;
+}
+
+.TextArea-fluid {
+  width: 100%;
+}

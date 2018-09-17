@@ -1,20 +1,36 @@
 /* eslint-disable no-console */
 import * as api from '../services/api';
 
+export const GET_LOCATION_REQUEST = 'GET_LOCATION_REQUEST';
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
+export const GET_LOCATION_ERROR = 'GET_LOCATION_ERROR';
+export const GET_COMMENTS_RESPONSE = 'GET_COMMENTS_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
+export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
 export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
 export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
+export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
+export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
+export const POST_REPLY_REQUEST = 'POST_REPLY_REQUEST';
+export const POST_REPLY_SUCCESS = 'POST_REPLY_SUCCESS';
+export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
+export const DELETE_REPLY_REQUEST = 'DELETE_REPLY_REQUEST';
+export const DELETE_REPLY_SUCCESS = 'DELETE_REPLY_SUCCESS';
+export const DELETE_REPLY_ERROR = 'DELETE_REPLY_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
+  dispatch({
+    type: GET_LOCATION_REQUEST,
+    locationId,
+  });
   api
     .getLocation({
       id: locationId,
@@ -24,7 +40,11 @@ export const getLocation = locationId => (dispatch) => {
         type: GET_LOCATION_RESPONSE,
         payload: data,
       }))
-    .catch(e => console.error('error', e));
+    .catch(e => dispatch({
+      type: GET_LOCATION_ERROR,
+      locationId,
+      errorMessage: e.message,
+    }));
 };
 
 export const getTaxonomy = () => (dispatch) => {
@@ -34,6 +54,22 @@ export const getTaxonomy = () => (dispatch) => {
       dispatch({
         type: GET_TAXONOMY_RESPONSE,
         payload: data,
+      }))
+    .catch(e => console.error('error', e));
+};
+
+export const getComments = locationId => (dispatch) => {
+  api
+    .getComments({
+      locationId,
+    })
+    .then(data =>
+      dispatch({
+        type: GET_COMMENTS_RESPONSE,
+        payload: {
+          locationId,
+          comments: data,
+        },
       }))
     .catch(e => console.error('error', e));
 };
@@ -253,4 +289,45 @@ export const updateLanguages = ({
       payload: { id: locationId },
     });
   });
+};
+
+export const postComment = (locationId, comment) => (dispatch) => {
+  dispatch({ type: OPTIMISTIC_POST_COMMENT, payload: { locationId, comment } });
+  api.postComment({ locationId, comment })
+    .then(() => {
+      dispatch({ type: POST_COMMENT_SUCCESS, payload: { locationId, comment } });
+    })
+    .catch((e) => {
+      dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
+    });
+};
+
+export const replyToComment = (locationId, originalCommentId, reply) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: POST_REPLY_REQUEST, payload: params });
+  api.replyToComment({ locationId, originalCommentId, reply })
+    .then((postedReply) => {
+      dispatch({
+        type: POST_REPLY_SUCCESS,
+        payload: {
+          ...params,
+          reply: postedReply,
+        },
+      });
+    })
+    .catch((err) => {
+      dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
+    });
+};
+
+export const deleteReply = ({ locationId, originalCommentId, reply }) => (dispatch) => {
+  const params = { locationId, originalCommentId, reply };
+  dispatch({ type: DELETE_REPLY_REQUEST, payload: params });
+  api.deleteReply(reply)
+    .then(() => {
+      dispatch({ type: DELETE_REPLY_SUCCESS, payload: params });
+    })
+    .catch((err) => {
+      dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, err } });
+    });
 };

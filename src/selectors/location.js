@@ -1,5 +1,7 @@
-export const getLocationId = props => props.match.params.locationId;
+const selectLocationId = props => props.match.params.locationId;
 
-export const getLocation = (state, props) => state.locations[getLocationId(props)] || {};
+export const selectLocationData = (state, props) => state.locations[selectLocationId(props)];
 
-export const getOriginalLocation = (state, props) => state.locations[`original/${getLocationId(props)}`] || {};
+export const selectOriginalLocationData = (state, props) => state.locations[`original/${selectLocationId(props)}`] || {};
+
+export const selectLocationError = (state, props) => state.locationErrors[selectLocationId(props)];
