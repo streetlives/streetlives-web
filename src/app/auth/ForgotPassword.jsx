@@ -104,7 +104,12 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
         {this.state.delivery ? this.submitView() : this.sendView()}
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signIn')}>Back to Sign In</a>
+            <button
+              className="default"
+              onClick={() => this.changeState('signIn')}
+            >
+                Back to Sign In
+            </button>
           </Col>
         </Row>
       </Grid>

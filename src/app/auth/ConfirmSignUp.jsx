@@ -66,7 +66,12 @@ export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('signIn')}>Want to go back to sign in? Click here</a>
+            <button
+              className="default"
+              onClick={() => this.changeState('signIn')}
+            >
+              Want to go back to sign in? Click here
+            </button>
           </Col>
         </Row>
       </Grid>

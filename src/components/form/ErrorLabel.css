@@ -1,0 +1,16 @@
+.ErrorLabel {
+  text-align: center; 
+  margin-top: 75%;
+}
+
+.ErrorLabel > p:first-child > i {
+  color: red;
+}
+
+.ErrorLabel > button {
+  color: blue; 
+  font-style: italic; 
+  cursor: pointer;
+  border: none;
+  background-color: white;
+}

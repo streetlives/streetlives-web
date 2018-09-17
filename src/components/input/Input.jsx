@@ -33,7 +33,6 @@ class Input extends Component {
       size,
       pattern,
       required,
-      autoFocus,
       tabIndex,
       autoCorrect,
       autoCapitalize,
@@ -68,7 +67,6 @@ class Input extends Component {
         size={size}
         pattern={pattern}
         required={required}
-        autoFocus={autoFocus}
         tabIndex={tabIndex}
         autoCorrect={autoCorrect}
         autoCapitalize={autoCapitalize}

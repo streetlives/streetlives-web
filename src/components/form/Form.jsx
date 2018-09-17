@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import LoadingLabel from './LoadingLabel';
+import ErrorLabel from './ErrorLabel';
 
 function isEditing(value) {
   return (
@@ -55,7 +56,11 @@ class Form extends Component {
   };
 
   render() {
-    const { EditComponent, ViewComponent, resourceData } = this.props;
+    const {
+      EditComponent, ViewComponent, resourceData, resourceLoadError,
+    } = this.props;
+
+    if (resourceLoadError) return <ErrorLabel errorMessage={resourceLoadError} />;
 
     if (!resourceData || Object.keys(resourceData).length === 0) return <LoadingLabel />;
 
@@ -94,6 +99,7 @@ Form.propTypes = {
   EditComponent: PropTypes.func.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
   resourceData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  resourceLoadError: PropTypes.string,
   fetchResourceData: PropTypes.func.isRequired,
   updateValue: PropTypes.func.isRequired,
   onFieldVerified: PropTypes.func,

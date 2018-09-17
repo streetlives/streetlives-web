@@ -5,6 +5,7 @@ import { compose, withProps } from 'recompose';
 
 import { getDocuments, getDocumentAdditionalInfo } from '../../../selectors/document';
 import { getServiceId } from '../../../selectors/service';
+import { selectLocationError } from '../../../selectors/location';
 
 import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
@@ -27,6 +28,7 @@ const mapStateToProps = (state, ownProps) => ({
   resourceData: getDocuments(state, ownProps),
   value: getDocumentAdditionalInfo(state, ownProps),
   id: getServiceId(ownProps),
+  resourceLoadError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

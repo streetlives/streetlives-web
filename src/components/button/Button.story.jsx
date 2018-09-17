@@ -14,8 +14,8 @@ const DefaultExample = (
 
 const TypesExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Types</label>
-    <Button primary onClick={action('clicked')}>
+    <label htmlFor="types-example" className="w-100 mt-4">Types</label>
+    <Button id="types-example" primary onClick={action('clicked')}>
       Primary
     </Button>
     <Button secondary onClick={action('clicked')}>
@@ -26,8 +26,8 @@ const TypesExample = (
 
 const DisabledExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Disabled Buttons</label>
-    <Button disabled onClick={action('clicked')}>
+    <label htmlFor="disabled-example" className="w-100 mt-4">Disabled Buttons</label>
+    <Button id="disabled-example" disabled onClick={action('clicked')}>
       Default
     </Button>
     <Button disabled primary onClick={action('clicked')}>
@@ -41,8 +41,8 @@ const DisabledExample = (
 
 const BasicExample = (
   <div className="container-fluid">
-    <label className="w-100 mt-4">Disabled Buttons</label>
-    <Button basic onClick={action('clicked')}>
+    <label htmlFor="basic-example" className="w-100 mt-4">Disabled Buttons</label>
+    <Button id="basic-example" basic onClick={action('clicked')}>
       Default
     </Button>
     <Button basic primary onClick={action('clicked')}>
