@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData } from '../../../reducers';
+import { selectLocationData, selectLocationError } from '../../../selectors/location';
 import { updateLocation, getLocation } from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
 
@@ -20,8 +20,8 @@ const LocationAddress = compose(withProps({
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => {
-  const { locationId } = ownProps.match.params;
-  const locationData = selectLocationData(state, locationId);
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = selectLocationError(state, ownProps);
 
   return {
     value:
@@ -29,6 +29,7 @@ const mapStateToProps = (state, ownProps) => {
         ? locationData.address.street
         : null,
     resourceData: locationData,
+    resourceLoadError: locationError,
   };
 };
 

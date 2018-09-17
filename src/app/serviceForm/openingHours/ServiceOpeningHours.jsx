@@ -5,6 +5,7 @@ import { compose, withProps } from 'recompose';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
 import ServiceOpeningHoursView from './ServiceOpeningHoursView';
 import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
+import { selectLocationError } from '../../../selectors/location';
 import * as actions from '../../../actions';
 import { Form } from '../../../components/form';
 
@@ -25,6 +26,7 @@ const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
   value: getServiceOpeningHours(state, ownProps),
   id: getServiceId(ownProps),
+  resourceLoadError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

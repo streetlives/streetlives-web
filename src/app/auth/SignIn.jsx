@@ -76,7 +76,12 @@ export default class StreetlivesSignIn extends SignIn {
         </Row>
         <Row>
           <Col>
-            <a onClick={() => this.changeState('forgotPassword')}>Forgot password? Click here</a>
+            <button
+              className="default"
+              onClick={() => this.changeState('forgotPassword')}
+            >
+              Forgot password? Click here
+            </button>
           </Col>
         </Row>
       </form>

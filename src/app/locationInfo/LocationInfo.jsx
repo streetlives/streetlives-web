@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import {
+  selectLocationError,
+  selectLocationData,
+} from '../../selectors/location';
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
@@ -9,6 +13,7 @@ import Button from '../../components/button';
 import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
 import LoadingLabel from '../../components/form/LoadingLabel';
+import ErrorLabel from '../../components/form/ErrorLabel';
 import FieldItem from './FieldItem';
 
 const getServicesUrl = locationId => `/location/${locationId}/services`;
@@ -57,7 +62,11 @@ class LocationInfo extends Component {
   };
 
   render() {
-    const { locationData } = this.props;
+    const { locationData, locationError } = this.props;
+
+    if (locationError) {
+      return <ErrorLabel errorMessage={this.props.locationError} />;
+    }
 
     if (!locationData) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
@@ -85,7 +94,8 @@ class LocationInfo extends Component {
 }
 
 export function mapStateToProps(state, ownProps) {
-  const locationData = state.locations[ownProps.match.params.locationId];
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = selectLocationError(state, ownProps);
 
   const organizationName =
     locationData && locationData.Organization && locationData.Organization.name;
@@ -105,6 +115,7 @@ export function mapStateToProps(state, ownProps) {
   ];
 
   return {
+    locationError,
     locationData,
     values,
   };

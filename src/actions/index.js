@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import * as api from '../services/api';
 
+export const GET_LOCATION_REQUEST = 'GET_LOCATION_REQUEST';
 export const GET_LOCATION_RESPONSE = 'GET_LOCATION_RESPONSE';
+export const GET_LOCATION_ERROR = 'GET_LOCATION_ERROR';
 export const GET_COMMENTS_RESPONSE = 'GET_COMMENTS_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
@@ -25,6 +27,10 @@ export const DELETE_REPLY_SUCCESS = 'DELETE_REPLY_SUCCESS';
 export const DELETE_REPLY_ERROR = 'DELETE_REPLY_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
+  dispatch({
+    type: GET_LOCATION_REQUEST,
+    locationId,
+  });
   api
     .getLocation({
       id: locationId,
@@ -34,7 +40,11 @@ export const getLocation = locationId => (dispatch) => {
         type: GET_LOCATION_RESPONSE,
         payload: data,
       }))
-    .catch(e => console.error('error', e));
+    .catch(e => dispatch({
+      type: GET_LOCATION_ERROR,
+      locationId,
+      errorMessage: e.message,
+    }));
 };
 
 export const getTaxonomy = () => (dispatch) => {

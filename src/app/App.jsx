@@ -76,6 +76,7 @@ function App() {
             <Route exact path="/team" component={withTracker(withAuth(MapView))} />
             {feedbackLocations.map(({ name, id }) => (
               <Route
+                key={name}
                 exact
                 path={`/${name}`}
                 render={props => <Redirect to={`/comments/${id}`} />}

@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
-import { selectLocationData } from '../../reducers';
+import {
+  selectLocationData,
+  selectLocationError,
+} from '../../selectors/location';
 import IntroModal from './intro/IntroModal';
 import Info from '../../components/info';
+import ErrorLabel from '../../components/form/ErrorLabel';
 import LoadingLabel from '../../components/form/LoadingLabel';
 
 const fullScreenStyles = {
@@ -24,14 +28,16 @@ const LoadingView = () => (
 );
 
 const mapStateToProps = (state, ownProps) => {
-  const locationData = selectLocationData(state, ownProps.match.params.locationId);
+  const locationData = selectLocationData(state, ownProps);
+  const locationError = selectLocationError(state, ownProps);
 
   if (!locationData) {
-    return {};
+    return { locationError };
   }
 
   return {
     locationData,
+    locationError,
     organizationName: locationData.Organization.name,
     organizationId: locationData.Organization.id,
   };
@@ -66,7 +72,11 @@ export default function withCommentsForm(WrappedComponent, { hideInfoLink } = {}
     }
 
     render() {
-      const { locationData } = this.props;
+      const { locationData, locationError } = this.props;
+
+      if (locationError) {
+        return <ErrorLabel errorMessage={locationError} />;
+      }
 
       if (!locationData) {
         return <LoadingView />;
