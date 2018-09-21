@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { selectLocationData, selectLocationError } from '../../../selectors/location';
+import { selectLocationData, selectOriginalLocationData, selectLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
@@ -97,7 +97,10 @@ class ServicesRecap extends Component {
               <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
               {services
                 .filter(service => service.categoryId === category.id)
-                .map(service => <ListItem key={service.id} service={service} />)}
+                .map(service => {
+                  const originalService = this.props.originalLocationData.Services.find( ({id}) => id === service.id );
+                  return <ListItem key={service.id} service={service} originalService={originalService} />;
+                })}
             </div>
           ))}
           <div className="position-fixed" style={{ right: 0, bottom: 0, left: 0 }}>
@@ -123,6 +126,7 @@ class ServicesRecap extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   locationData: selectLocationData(state, ownProps),
+  originalLocationData: selectOriginalLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state, ownProps),
 });
