@@ -43,10 +43,10 @@ function getUpdatedAt(location, metaDataSection, fieldName) {
   return field ? field.last_action_date : null;
 }
 
-function ListItem({ route, linkTo, location }) {
+function ListItem({ route, linkTo, location, value }) {
   const { label, metaDataSection, fieldName } = route;
   const updatedAt = getUpdatedAt(location, metaDataSection, fieldName);
-  return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
+  return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} value={value} />;
 }
 
 class LocationInfo extends Component {
@@ -83,6 +83,7 @@ class LocationInfo extends Component {
             route={field}
             linkTo={`${this.props.location.pathname}/${field.urlFragment}`}
             location={locationData}
+            value={field.selectValue(locationData)}
           />
         ))}
         <Button fluid primary onClick={this.onGoToServices}>
@@ -97,27 +98,9 @@ export function mapStateToProps(state, ownProps) {
   const locationData = selectLocationData(state, ownProps);
   const locationError = selectLocationError(state, ownProps);
 
-  const organizationName =
-    locationData && locationData.Organization && locationData.Organization.name;
-  const addresses = locationData && locationData.PhysicalAddresses;
-  const locationName = locationData && locationData.name;
-  const locationDescription = locationData && locationData.description;
-  const phoneNumbers = locationData && locationData.Phones;
-  const website = locationData && locationData.Organization && locationData.Organization.url;
-
-  const values = [
-    organizationName,
-    addresses,
-    locationName,
-    locationDescription,
-    phoneNumbers,
-    website,
-  ];
-
   return {
     locationError,
     locationData,
-    values,
   };
 }
 

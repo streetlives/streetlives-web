@@ -5,8 +5,8 @@ import cx from 'classnames';
 import Badge from '../../components/badge';
 import { FIELD_TYPES, getFieldType } from './utils';
 
-function UpdatedBadge({ updatedAt }) {
-  const fieldType = getFieldType(updatedAt);
+function UpdatedBadge({ updatedAt, value }) {
+  const fieldType = getFieldType(updatedAt, value);
   const classNames = {
     emptyDot: cx('rounded-circle mr-2', {
       'bg-success': fieldType === FIELD_TYPES.SUCCESS,
@@ -21,8 +21,8 @@ function UpdatedBadge({ updatedAt }) {
   const shouldVerify = fieldType === FIELD_TYPES.DANGER || fieldType === FIELD_TYPES.WARNING;
   const isMissing = fieldType === FIELD_TYPES.MISSING;
 
-  const timeAgoText = !isMissing ? moment(updatedAt).fromNow() : 'Missing info. Please add!';
-  const updatedAtText = shouldVerify ? `${timeAgoText}. Please verify.` : timeAgoText;
+  const timeAgoText = !isMissing ? (updatedAt ? `${moment(updatedAt).fromNow()}.` : '') : 'Missing info. Please add!';
+  const updatedAtText = shouldVerify ? `${timeAgoText} Please verify.` : timeAgoText;
 
   return (
     <Badge>

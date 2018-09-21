@@ -79,7 +79,7 @@ class CommentRow extends Component {
           paddingRight: '35px',
         }}
       >
-        <div className="text-left mb-1">
+        <div className="text-left mb-1" style={{ whiteSpace: 'pre-line' }}>
           {content}
         </div>
         <div className="d-flex">

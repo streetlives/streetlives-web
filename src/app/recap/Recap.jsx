@@ -7,7 +7,7 @@ function Recap({ history, match }) {
   return (
     <div className="d-flex flex-column">
       <NavBar
-        backButtonTarget="/"
+        backButtonTarget="/team"
         title="Recap"
       />
       <div
