@@ -8,9 +8,13 @@ export const FIELD_TYPES = {
   SUCCESS: 'success',
 };
 
-export function getFieldType(date) {
-  if (!date) {
+export function getFieldType(date,  value) {
+  if (!date && !value) {
     return FIELD_TYPES.MISSING;
+  }
+
+  if (!date && value) {
+    return FIELD_TYPES.WARNING;
   }
 
   const oneYearAgo = moment().subtract(1, 'years');

@@ -8,7 +8,7 @@ import UpdatedBadge from './UpdatedBadge';
 
 import './FieldItem.css';
 
-function FieldItem({ title, updatedAt, linkTo }) {
+function FieldItem({ title, updatedAt, linkTo, value }) {
   return (
     <Link className="FieldItem border-top border-bottom" to={linkTo}>
       <div className="container p-4 text-left">
@@ -16,7 +16,7 @@ function FieldItem({ title, updatedAt, linkTo }) {
           <div className="d-flex flex-column">
             <h5 className="font-weight-light mb-1">{title}</h5>
             <div className="d-flex">
-              <UpdatedBadge updatedAt={updatedAt} />
+              <UpdatedBadge updatedAt={updatedAt} value={value} />
             </div>
           </div>
           <div>

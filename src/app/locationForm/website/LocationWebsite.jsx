@@ -24,11 +24,15 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     resourceData: locationData,
-    value: locationData && locationData.Organization && locationData.Organization.url,
+    locationData: selectValue(locationData),
     id: locationData && locationData.Organization && locationData.Organization.id,
     resourceLoadError: selectLocationError(state, ownProps),
   };
 };
+
+export const selectValue = (locationData) => (
+  locationData && locationData.Organization && locationData.Organization.url
+);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newWebsite, organizationId, metaDataSection, fieldName) =>
