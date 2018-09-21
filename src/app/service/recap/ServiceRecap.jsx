@@ -58,7 +58,7 @@ class ServicesRecap extends Component {
     this.props.history.push(`/location/${locationId}/services/recap/thanks`);
   };
 
-  onNextSection = () => this.props.history.push('/');
+  onNextSection = () => this.props.history.push('/team');
 
   onBackSection = () =>
     this.props.history.push(`/location/${this.props.match.params.locationId}/services/recap`);

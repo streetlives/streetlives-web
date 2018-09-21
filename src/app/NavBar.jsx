@@ -39,7 +39,7 @@ function NavBar({ title, history, backButtonTarget }) {
                 top: '.25em',
               }}
               className="default font-weight-light"
-              onClick={() => history.push('/')}
+              onClick={() => history.push('/team')}
             >
               <i
                 style={{
