@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { getLocationError as selectLocationError, getLocation as selectLocationData } from '../../selectors/location';
+import {
+  selectLocationError,
+  selectLocationData,
+} from '../../selectors/location';
 import NavBar from '../NavBar';
 import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
@@ -61,7 +64,7 @@ class LocationInfo extends Component {
   render() {
     const { locationData, locationError } = this.props;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={this.props.locationError} />;
     }
 

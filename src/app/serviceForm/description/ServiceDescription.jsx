@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
 import { getService, getServiceDescription, getServiceId } from '../../../selectors/service';
-import { getLocationError } from '../../../selectors/location';
+import { selectLocationError } from '../../../selectors/location';
 
 import * as actions from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
@@ -27,7 +27,7 @@ const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
   value: getServiceDescription(state, ownProps),
   id: getServiceId(ownProps),
-  resourceLoadError: getLocationError(state, ownProps)
+  resourceLoadError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

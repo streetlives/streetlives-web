@@ -13,40 +13,43 @@ function NavBar({ title, history, backButtonTarget }) {
           >
 
             {backButtonTarget && (
-              <a
+              <button
                 style={{
+                  color: 'white',
                   fontSize: '14px',
                   position: 'absolute',
                   left: 0,
                   top: '.2em',
                 }}
-                className="font-weight-light"
+                className="default font-weight-light"
                 onClick={() => history.push(backButtonTarget)}
               >
                 &lt;Back
-              </a>)
+              </button>)
             }
             <span style={{ fontSize: '18px' }} className="font-weight-bold m-0">
               {title}
             </span>
-            <a
+            <button
               style={{
+                color: 'white',
                 fontSize: '14px',
                 position: 'absolute',
                 right: 0,
                 top: '.25em',
               }}
-              className="font-weight-light"
-              onClick={() => history.push('/')}
+              className="default font-weight-light"
+              onClick={() => history.push('/team')}
             >
-              <i 
+              <i
                 style={{
                   position: 'absolute',
                   right: '.5em',
-                  top: '.25em'
+                  top: '.25em',
                 }}
-                className="fa fa-times" />
-            </a>
+                className="fa fa-times"
+              />
+            </button>
           </div>
         </div>
       </div>

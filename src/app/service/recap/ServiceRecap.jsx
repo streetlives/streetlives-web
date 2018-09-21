@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { getLocation, getLocationError } from '../../../selectors/location';
+import { selectLocationData, selectLocationError } from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
@@ -34,7 +34,9 @@ class ServicesRecap extends Component {
   }
 
   componentWillReceiveProps(nextProps, prevState) {
-    if (!nextProps.locationError && nextProps.locationData && nextProps.locationData !== this.props.locationData) {
+    if (!nextProps.locationError &&
+      nextProps.locationData &&
+      nextProps.locationData !== this.props.locationData) {
       const services =
         nextProps.locationData.Services &&
         nextProps.locationData.Services.map((service) => {
@@ -56,7 +58,7 @@ class ServicesRecap extends Component {
     this.props.history.push(`/location/${locationId}/services/recap/thanks`);
   };
 
-  onNextSection = () => this.props.history.push('/');
+  onNextSection = () => this.props.history.push('/team');
 
   onBackSection = () =>
     this.props.history.push(`/location/${this.props.match.params.locationId}/services/recap`);
@@ -65,7 +67,7 @@ class ServicesRecap extends Component {
     const { taxonomy = [], locationError } = this.props;
     const { services = [] } = this.state;
 
-    if(locationError){
+    if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 
@@ -120,8 +122,8 @@ class ServicesRecap extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  locationData: getLocation(state, ownProps),
-  locationError: getLocationError(state, ownProps),
+  locationData: selectLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state, ownProps),
 });
 

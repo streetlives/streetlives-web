@@ -56,9 +56,11 @@ class Form extends Component {
   };
 
   render() {
-    const { EditComponent, ViewComponent, resourceData, resourceLoadError } = this.props;
+    const {
+      EditComponent, ViewComponent, resourceData, resourceLoadError,
+    } = this.props;
 
-    if(resourceLoadError) return <ErrorLabel errorMessage={resourceLoadError} />;
+    if (resourceLoadError) return <ErrorLabel errorMessage={resourceLoadError} />;
 
     if (!resourceData || Object.keys(resourceData).length === 0) return <LoadingLabel />;
 

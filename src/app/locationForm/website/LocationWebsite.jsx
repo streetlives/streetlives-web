@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { getLocation as selectLocationData, getLocationError  } from '../../../selectors/location';
+import { selectLocationData, selectLocationError } from '../../../selectors/location';
 import { updateOrganization, getLocation } from '../../../actions';
 import { Form, FormEdit, FormView } from '../../../components/form';
 
@@ -26,7 +26,7 @@ const mapStateToProps = (state, ownProps) => {
     resourceData: locationData,
     locationData: selectValue(locationData),
     id: locationData && locationData.Organization && locationData.Organization.id,
-    resourceLoadError: getLocationError(state, ownProps)
+    resourceLoadError: selectLocationError(state, ownProps),
   };
 };
 

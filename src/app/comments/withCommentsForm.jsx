@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getLocation } from '../../actions';
-import { getLocation as selectLocationData, getLocationError as selectLocationError } from '../../selectors/location';
+import {
+  selectLocationData,
+  selectLocationError,
+} from '../../selectors/location';
 import IntroModal from './intro/IntroModal';
 import Info from '../../components/info';
 import ErrorLabel from '../../components/form/ErrorLabel';
@@ -16,18 +19,27 @@ const fullScreenStyles = {
   overflow: 'auto',
 };
 
+const LoadingView = () => (
+  <div className="m-4">
+    <LoadingLabel>
+      Loading screen, be with you in a moment
+    </LoadingLabel>
+  </div>
+);
+
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
   const locationError = selectLocationError(state, ownProps);
 
   if (!locationData) {
-    return {locationError};
+    return { locationError };
   }
 
   return {
     locationData,
     locationError,
     organizationName: locationData.Organization.name,
+    organizationId: locationData.Organization.id,
   };
 };
 
@@ -62,12 +74,12 @@ export default function withCommentsForm(WrappedComponent, { hideInfoLink } = {}
     render() {
       const { locationData, locationError } = this.props;
 
-      if(locationError){
+      if (locationError) {
         return <ErrorLabel errorMessage={locationError} />;
       }
 
       if (!locationData) {
-        return <LoadingLabel />;
+        return <LoadingView />;
       }
 
       return (

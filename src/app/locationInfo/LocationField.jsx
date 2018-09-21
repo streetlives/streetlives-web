@@ -42,7 +42,7 @@ class LocationField extends Component {
     const updatedAtText = shouldVerify ? `${timeAgoText}. Please verify.` : timeAgoText;
 
     return (
-      <div className={classNames.field} onClick={this.navigateToFieldForm}>
+      <div role="presentation" className={classNames.field} onClick={this.navigateToFieldForm}>
         <div className="container p-4 text-left">
           <div className="row d-flex justify-content-between align-items-center">
             <div className="d-flex flex-column">
