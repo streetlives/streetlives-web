@@ -8,6 +8,8 @@ import {
   POST_REPLY_ERROR,
   DELETE_REPLY_REQUEST,
   DELETE_REPLY_ERROR,
+  REMOVE_COMMENT_REQUEST,
+  REMOVE_COMMENT_ERROR,
 } from '../actions';
 
 export const commentsReducer = (state = { isPosting: false }, action) => {
@@ -114,7 +116,24 @@ export const commentsReducer = (state = { isPosting: false }, action) => {
       };
     }
 
+    case REMOVE_COMMENT_REQUEST: {
+      const { locationId, comment } = action.payload;
+      const comments = state[locationId] || [];
+      const commentIndex = comments.indexOf(comment);
+
+      if (commentIndex === -1) {
+        return state;
+      }
+
+      return {
+        ...state,
+        [`last/${locationId}`]: comments,
+        [locationId]: [...comments.slice(0, commentIndex), ...comments.slice(commentIndex + 1)],
+      };
+    }
+
     case DELETE_REPLY_ERROR:
+    case REMOVE_COMMENT_ERROR:
       return {
         ...state,
         [`last/${action.payload.locationId}`]: null,

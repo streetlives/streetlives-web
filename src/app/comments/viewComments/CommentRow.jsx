@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { deleteReply } from '../../../actions';
+import { deleteReply, removeComment } from '../../../actions';
 import LinkButton from '../../../components/link';
-import DeleteReplyModal from './DeleteReplyModal';
+import ConfirmationModal from './ConfirmationModal';
 
 const renderDate = date => (
   <small className="flex-grow-1 text-right pull-right" style={{ color: '#AAAAAA' }}>
@@ -14,9 +14,15 @@ const renderDate = date => (
 class CommentRow extends Component {
   constructor(props) {
     super(props);
-    this.state = { isShowingDeleteConfirmation: false };
+    this.state = {
+      isShowingReplyDeleteConfirmation: false,
+      isShowingCommentRemoveConfirmation: false,
+    };
 
     this.goToReply = this.goToReply.bind(this);
+    this.showRemoveComment = this.showRemoveComment.bind(this);
+    this.cancelRemoveComment = this.cancelRemoveComment.bind(this);
+    this.confirmRemoveComment = this.confirmRemoveComment.bind(this);
     this.showDeleteReply = this.showDeleteReply.bind(this);
     this.cancelDeleteReply = this.cancelDeleteReply.bind(this);
     this.confirmDeleteReply = this.confirmDeleteReply.bind(this);
@@ -28,12 +34,29 @@ class CommentRow extends Component {
     this.props.history.push(`/comments/${locationId}/${commentId}/reply`);
   }
 
+  showRemoveComment() {
+    this.setState({ isShowingCommentRemoveConfirmation: true });
+  }
+
+  cancelRemoveComment() {
+    this.setState({ isShowingCommentRemoveConfirmation: false });
+  }
+
+  confirmRemoveComment() {
+    const { comment, match } = this.props;
+    const { locationId } = match.params;
+
+    this.setState({ isShowingCommentRemoveConfirmation: false }, () => {
+      this.props.removeComment({ locationId, comment });
+    });
+  }
+
   showDeleteReply() {
-    this.setState({ isShowingDeleteConfirmation: true });
+    this.setState({ isShowingReplyDeleteConfirmation: true });
   }
 
   cancelDeleteReply() {
-    this.setState({ isShowingDeleteConfirmation: false });
+    this.setState({ isShowingReplyDeleteConfirmation: false });
   }
 
   confirmDeleteReply() {
@@ -41,7 +64,7 @@ class CommentRow extends Component {
     const { locationId } = match.params;
     const reply = comment.Replies[0];
 
-    this.setState({ isShowingDeleteConfirmation: false }, () => {
+    this.setState({ isShowingReplyDeleteConfirmation: false }, () => {
       this.props.deleteReply({
         locationId,
         originalCommentId: comment.id,
@@ -51,7 +74,12 @@ class CommentRow extends Component {
   }
 
   render() {
-    const { comment, isStaffUser, organizationName } = this.props;
+    const {
+      comment,
+      isStaffUser,
+      isAdmin,
+      organizationName,
+    } = this.props;
     const {
       content,
       created_at: createdAt,
@@ -59,9 +87,24 @@ class CommentRow extends Component {
     } = comment;
     const reply = replies && replies[0];
 
-    if (this.state.isShowingDeleteConfirmation) {
+    if (this.state.isShowingCommentRemoveConfirmation) {
       return (
-        <DeleteReplyModal
+        <ConfirmationModal
+          prompt="Are you sure you want to remove this comment?"
+          confirmText="YES"
+          cancelText="NO, LET’S KEEP IT"
+          onConfirm={this.confirmRemoveComment}
+          onCancel={this.cancelRemoveComment}
+        />
+      );
+    }
+
+    if (this.state.isShowingReplyDeleteConfirmation) {
+      return (
+        <ConfirmationModal
+          prompt="Are you sure you want to delete this reply?"
+          confirmText="YES"
+          cancelText="NO, LET’S KEEP IT"
           onConfirm={this.confirmDeleteReply}
           onCancel={this.cancelDeleteReply}
         />
@@ -83,6 +126,11 @@ class CommentRow extends Component {
           {content}
         </div>
         <div className="d-flex">
+          {isAdmin &&
+            <LinkButton className="p-0" onClick={this.showRemoveComment}>
+              Remove
+            </LinkButton>
+          }
           {isStaffUser && !reply &&
             <LinkButton className="p-0" onClick={this.goToReply}>
               Reply
@@ -111,6 +159,7 @@ class CommentRow extends Component {
 
 const mapDispatchToProps = {
   deleteReply,
+  removeComment,
 };
 
 export default connect(null, mapDispatchToProps)(CommentRow);

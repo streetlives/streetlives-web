@@ -25,6 +25,9 @@ export const POST_REPLY_ERROR = 'POST_REPLY_ERROR';
 export const DELETE_REPLY_REQUEST = 'DELETE_REPLY_REQUEST';
 export const DELETE_REPLY_SUCCESS = 'DELETE_REPLY_SUCCESS';
 export const DELETE_REPLY_ERROR = 'DELETE_REPLY_ERROR';
+export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
+export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
+export const REMOVE_COMMENT_ERROR = 'REMOVE_COMMENT_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   dispatch({
@@ -329,5 +332,17 @@ export const deleteReply = ({ locationId, originalCommentId, reply }) => (dispat
     })
     .catch((err) => {
       dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, err } });
+    });
+};
+
+export const removeComment = ({ locationId, comment }) => (dispatch) => {
+  const params = { locationId, comment };
+  dispatch({ type: REMOVE_COMMENT_REQUEST, payload: params });
+  api.removeComment(comment)
+    .then(() => {
+      dispatch({ type: REMOVE_COMMENT_SUCCESS, payload: params });
+    })
+    .catch((err) => {
+      dispatch({ type: REMOVE_COMMENT_ERROR, payload: { ...params, err } });
     });
 };
