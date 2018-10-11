@@ -211,3 +211,16 @@ export const deleteReply = reply =>
         Authorization: idJwtToken,
       },
     }));
+
+export const removeComment = comment =>
+  getAuthToken()
+    .then(idJwtToken => axios.request({
+      url: `${config.baseApi}/comments/${comment.id}/hidden`,
+      method: 'put',
+      data: {
+        hidden: true,
+      },
+      headers: {
+        Authorization: idJwtToken,
+      },
+    }));

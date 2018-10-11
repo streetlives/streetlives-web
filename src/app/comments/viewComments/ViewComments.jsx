@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getComments } from '../../../actions';
 import { selectComments } from '../../../reducers';
-import { getUserOrganizations } from '../../../services/auth';
+import { getUserOrganizations, isUserAdmin } from '../../../services/auth';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import LoadingLabel from '../../../components/form/LoadingLabel';
@@ -12,14 +12,20 @@ import CommentRow from './CommentRow';
 class ViewComments extends Component {
   constructor(props) {
     super(props);
-    this.state = { userOrganizations: null };
+    this.state = { userOrganizations: null, isAdmin: false };
     this.goToAddComment = this.goToAddComment.bind(this);
   }
 
   componentDidMount() {
-    getUserOrganizations()
-      .then((organizations) => {
-        this.setState({ userOrganizations: organizations });
+    Promise.all([
+      getUserOrganizations(),
+      isUserAdmin(),
+    ])
+      .then(([organizations, isAdmin]) => {
+        this.setState({
+          userOrganizations: organizations,
+          isAdmin,
+        });
       });
 
     if (!this.props.comments) {
@@ -33,7 +39,7 @@ class ViewComments extends Component {
 
   render() {
     const { comments, organizationName, organizationId } = this.props;
-    const { userOrganizations } = this.state;
+    const { userOrganizations, isAdmin } = this.state;
 
     const isStaffUser = userOrganizations && userOrganizations.indexOf(organizationId) !== -1;
 
@@ -65,6 +71,7 @@ class ViewComments extends Component {
                 key={comment.id}
                 comment={comment}
                 isStaffUser={isStaffUser}
+                isAdmin={isAdmin}
               />
             ))}
           </ul>

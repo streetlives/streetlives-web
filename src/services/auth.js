@@ -29,3 +29,14 @@ export const getUserOrganizations = () => getIdToken()
 
     return organizationsStr.split(',');
   });
+
+export const isUserAdmin = () => getIdToken()
+  .then((idToken) => {
+    if (!idToken) {
+      return null;
+    }
+
+    const groups = idToken.payload['cognito:groups'];
+
+    return !!groups && groups.indexOf(config.adminGroupName) !== -1;
+  });

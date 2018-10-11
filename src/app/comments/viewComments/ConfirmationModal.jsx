@@ -13,7 +13,13 @@ const modalStyles = {
   overflow: 'auto',
 };
 
-function DeleteReplyModal({ onConfirm, onCancel }) {
+function ConfirmationModal({
+  prompt,
+  confirmText,
+  cancelText,
+  onConfirm,
+  onCancel,
+}) {
   return (
     <div>
       <div
@@ -22,14 +28,14 @@ function DeleteReplyModal({ onConfirm, onCancel }) {
       >
         <Icon name="exclamation-triangle" size="3x" className="mt-5" />
         <Header size="large" className="m-4 flex-grow-1">
-          Are you sure you want to delete this reply?
+          {prompt}
         </Header>
         <div className="px-3">
           <Button onClick={onConfirm} primary fluid>
-            YES
+            {confirmText}
           </Button>
           <Button onClick={onCancel} primary basic fluid className="my-2">
-            NO, LET’S KEEP IT
+            {cancelText}
           </Button>
         </div>
       </div>
@@ -38,4 +44,4 @@ function DeleteReplyModal({ onConfirm, onCancel }) {
   );
 }
 
-export default DeleteReplyModal;
+export default ConfirmationModal;
