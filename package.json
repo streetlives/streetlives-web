@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.2.0",
-    "aws-amplify": "^1.0.11",
-    "aws-amplify-react": "^1.0.0",
+    "aws-amplify": "^1.1.6",
+    "aws-amplify-react": "^2.0.7",
     "axios": "^0.18.0",
     "babel-eslint": "^8.2.3",
     "babel-polyfill": "^6.26.0",
