@@ -16,8 +16,8 @@ export default class StreetlivesSignIn extends SignIn {
   }
 
   showComponent(theme) {
-    const { hide } = this.props;
-    if (hide && hide.includes(SignIn)) {
+    const { authState } = this.props;
+    if (authState !== 'signIn') {
       return null;
     }
 

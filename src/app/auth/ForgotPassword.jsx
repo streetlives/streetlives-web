@@ -25,9 +25,10 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
           <Input
             fluid
             placeholder="Enter your phone number"
-            id="phone"
-            key="phone"
-            name="phone"
+            id="username"
+            key="username"
+            name="username"
+            autoComplete="off"
             onChange={this.handleInputChange}
           />
         </Col>
@@ -58,6 +59,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
             id="code"
             key="code"
             name="code"
+            autoComplete="off"
             onChange={this.handleInputChange}
           />
         </Col>
@@ -72,6 +74,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
             id="password"
             key="password"
             name="password"
+            autoComplete="off"
             onChange={this.handleInputChange}
           />
         </Col>
@@ -87,8 +90,8 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
   }
 
   showComponent(theme) {
-    const { hide } = this.props;
-    if (hide && hide.includes(ForgotPassword)) {
+    const { authState } = this.props;
+    if (authState !== 'forgotPassword') {
       return null;
     }
 
