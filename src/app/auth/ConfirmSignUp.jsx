@@ -6,8 +6,8 @@ import { Grid, Row, Col } from '../../components/layout/bootstrap';
 
 export default class StreetlivesConfirmSignUp extends ConfirmSignUp {
   showComponent(theme) {
-    const { hide } = this.props;
-    if (hide && hide.includes(ConfirmSignUp)) {
+    const { authState } = this.props;
+    if (authState !== 'confirmSignUp') {
       return null;
     }
 

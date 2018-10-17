@@ -36,6 +36,7 @@ class Input extends Component {
       tabIndex,
       autoCorrect,
       autoCapitalize,
+      autoComplete,
       onFocus,
       onBlur,
       onKeyPress,
@@ -70,6 +71,7 @@ class Input extends Component {
         tabIndex={tabIndex}
         autoCorrect={autoCorrect}
         autoCapitalize={autoCapitalize}
+        autoComplete={autoComplete}
         onFocus={onFocus}
         onBlur={onBlur}
         onKeyPress={onKeyPress}
