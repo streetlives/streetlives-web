@@ -8,7 +8,7 @@ import { DOCUMENT_FIELDS } from '../../documents/routes';
 import './ListItem.css';
 
 function getMetadataFromService(service, route){
-  return service.metadata[route.metaDataSection].find( metadata => metadata.field_name === route.fieldName);
+  return service.metadata[route.metaDataSection] && service.metadata[route.metaDataSection].find( metadata => metadata.field_name === route.fieldName);
 }
 
 function getProgress(service, originalService){
