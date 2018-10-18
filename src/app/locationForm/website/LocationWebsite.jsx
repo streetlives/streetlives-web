@@ -24,7 +24,7 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     resourceData: locationData,
-    locationData: selectValue(locationData),
+    value: selectValue(locationData),
     id: locationData && locationData.Organization && locationData.Organization.id,
     resourceLoadError: selectLocationError(state, ownProps),
   };
