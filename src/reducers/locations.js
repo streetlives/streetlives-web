@@ -104,9 +104,9 @@ const locationsReducer = (state = {}, action) => {
                 Languages: params.languages || Languages,
                 DocumentsInfo: {
                   recertification_time:
-                    documents.recertificationTime || DocumentsInfo.recertification_time,
-                  grace_period: documents.gracePeriod || DocumentsInfo.grace_period,
-                  additional_info: documents.additionalInfo || DocumentsInfo.additional_info,
+                    documents.recertificationTime || (DocumentsInfo && DocumentsInfo.recertification_time),
+                  grace_period: documents.gracePeriod || (DocumentsInfo && DocumentsInfo.grace_period),
+                  additional_info: documents.additionalInfo || (DocumentsInfo && DocumentsInfo.additional_info),
                 },
                 RequiredDocuments,
                 RegularSchedules: hours || RegularSchedules,
