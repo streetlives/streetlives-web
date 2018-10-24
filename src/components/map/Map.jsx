@@ -23,13 +23,11 @@ const MyMap = compose(
         },
         onBoundsChanged: () => {
           const bounds = mapRef.getBounds();
-          const center = mapRef.getCenter();
+          const center = bounds.getCenter();
           if (!bounds || !center) return;
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
             center,
-            {
-              lat: () => bounds.f.b, lng: () => bounds.b.b,
-            },
+            bounds.getSouthWest()
           );
           this.props.onBoundsChanged({ bounds, center, radius });
         },
