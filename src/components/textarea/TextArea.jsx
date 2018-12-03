@@ -9,6 +9,7 @@ function TextArea({
   minRows,
   maxRows,
   onChange,
+  value,
   className,
 }) {
   const classNames = cx('TextArea', className, {
@@ -21,6 +22,7 @@ function TextArea({
       placeholder={placeholder}
       minRows={minRows}
       maxRows={maxRows}
+      value={value}
       onChange={onChange}
     />
   );

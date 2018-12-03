@@ -33,8 +33,8 @@ class NewCommentForm extends Component {
     }
   }
 
-  onCommentTextChanged(event) {
-    this.setState({ commentText: event.target.value });
+  onCommentTextChanged(text) {
+    this.setState({ commentText: text });
   }
 
   onCommentFinished() {
