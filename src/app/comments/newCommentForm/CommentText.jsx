@@ -45,7 +45,8 @@ class CommentText extends Component {
     // eslint-disable-next-line new-cap
     this.recognition = new window.webkitSpeechRecognition();
 
-    this.recognition.continuous = true;
+    // TODO: Keep trying to make continuous work.
+    this.recognition.continuous = false;
     this.recognition.interimResults = true;
 
     this.recognition.onstart = () => {
