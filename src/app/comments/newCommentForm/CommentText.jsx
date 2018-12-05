@@ -5,6 +5,7 @@ import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
 import TextArea from '../../../components/textarea';
+import ListeningIndicator from '../../../components/listeningIndicator';
 import withCommentsForm from '../withCommentsForm';
 
 const LISTENING_STATUS = {
@@ -26,7 +27,7 @@ class CommentText extends Component {
     this.recognition = null;
 
     this.onTextChange = this.onTextChange.bind(this);
-    this.toggleSpeechToText = this.toggleSpeechToText.bind(this);
+    this.startSpeechToText = this.startSpeechToText.bind(this);
   }
 
   onTextChange(event) {
@@ -45,13 +46,7 @@ class CommentText extends Component {
     return `${this.props.value}\n${this.state.currentTranscript}`;
   }
 
-  toggleSpeechToText() {
-    if (this.state.listeningStatus !== LISTENING_STATUS.IDLE) {
-      this.recognition.stop();
-      this.setState({ listeningStatus: LISTENING_STATUS.IDLE });
-      return;
-    }
-
+  startSpeechToText() {
     GoogleAnalytics.event({
       category: 'User',
       action: 'Speech-to-text clicked',
@@ -112,6 +107,7 @@ class CommentText extends Component {
             {instructions}
           </div>
         </div>
+        {isListening && <ListeningIndicator />}
         <div className="fixed-bottom p-2 border d-flex flex-row bg-light">
           <TextArea
             value={this.getCurrentCommentText()}
@@ -124,7 +120,7 @@ class CommentText extends Component {
           <div className="align-self-end" style={{ position: 'relative' }}>
             {this.state.supportsSpeech && !isListening && (
               <Icon
-                onClick={this.toggleSpeechToText}
+                onClick={this.startSpeechToText}
                 name="microphone"
                 className="border rounded-circle py-1 px-2 mb-2"
                 style={{
