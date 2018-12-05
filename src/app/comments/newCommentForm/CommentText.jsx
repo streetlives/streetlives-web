@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import GoogleAnalytics from 'react-ga';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
@@ -45,13 +46,16 @@ class CommentText extends Component {
   }
 
   toggleSpeechToText() {
-    // TODO: Send GA event, etc.
-
     if (this.state.listeningStatus !== LISTENING_STATUS.IDLE) {
       this.recognition.stop();
       this.setState({ listeningStatus: LISTENING_STATUS.IDLE });
       return;
     }
+
+    GoogleAnalytics.event({
+      category: 'User',
+      action: 'Speech-to-text clicked',
+    });
 
     this.setState({ listeningStatus: LISTENING_STATUS.LOADING });
 
@@ -93,7 +97,7 @@ class CommentText extends Component {
 
   render() {
     const instructions =
-      'How was your experience? If you like, please add your first name or initals at the end.' +
+      'How was your experience? If you like, please add your first name or initials at the end.' +
       ' Please do not leave your full name';
 
     const isListening = this.state.listeningStatus === LISTENING_STATUS.LISTENING;
@@ -136,7 +140,7 @@ class CommentText extends Component {
             onClick={this.props.onSubmit}
             disabled={!this.props.value}
             primary
-            className="py-1 ml-1"
+            className="py-1 ml-1 mb-2 align-self-end"
           >
             ADD
           </Button>
