@@ -91,10 +91,6 @@ class CommentText extends Component {
   }
 
   render() {
-    const instructions =
-      'How was your experience? If you like, please add your first name or initials at the end.' +
-      ' Please do not leave your full name';
-
     const isListening = this.state.listeningStatus === LISTENING_STATUS.LISTENING;
 
     return (
@@ -103,9 +99,13 @@ class CommentText extends Component {
           <Header size="large" className="mb-3 text-left">
             Tell us what you think about {this.props.organizationName}
           </Header>
-          <div>
-            {instructions}
-          </div>
+          <p>
+            How was your experience? If you like, please add your first name or initials at the end.
+            Please do not leave your full name
+          </p>
+          <p>
+            Type below, or tap Mic to record your comment.
+          </p>
         </div>
         {isListening && <ListeningIndicator className="mt-3" />}
         <div className="fixed-bottom p-2 border d-flex flex-row bg-light">
