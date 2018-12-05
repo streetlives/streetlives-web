@@ -8,6 +8,7 @@ function Icon({
   size,
   onClick,
   className,
+  style,
 }) {
   const classNames = cx(`fa fa-${name} Icon-${name}`, className, {
     Icon: true,
@@ -16,7 +17,7 @@ function Icon({
     'fa-3x': size === '3x',
   });
 
-  return <i onClick={onClick} className={classNames} />;
+  return <i onClick={onClick} className={classNames} style={style} />;
 }
 
 Icon.propTypes = {
