@@ -107,7 +107,7 @@ class CommentText extends Component {
             {instructions}
           </div>
         </div>
-        {isListening && <ListeningIndicator />}
+        {isListening && <ListeningIndicator className="mt-3" />}
         <div className="fixed-bottom p-2 border d-flex flex-row bg-light">
           <TextArea
             value={this.getCurrentCommentText()}
