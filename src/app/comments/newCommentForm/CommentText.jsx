@@ -103,9 +103,11 @@ class CommentText extends Component {
             How was your experience? If you like, please add your first name or initials at the end.
             Please do not leave your full name
           </p>
-          <p>
-            Type below, or tap Mic to record your comment.
-          </p>
+          {this.state.supportsSpeech && (
+            <p>
+              Type below, or tap Mic to record your comment.
+            </p>
+          )}
         </div>
         {isListening && <ListeningIndicator className="mt-3" />}
         <div className="fixed-bottom p-2 border d-flex flex-row bg-light">
