@@ -15,3 +15,7 @@
 .TextArea-fluid {
   width: 100%;
 }
+
+.TextArea-rounded {
+  border-radius: 20px;
+}

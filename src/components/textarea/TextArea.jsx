@@ -5,14 +5,18 @@ import './TextArea.css';
 
 function TextArea({
   fluid,
+  rounded,
   placeholder,
   minRows,
   maxRows,
   onChange,
+  autoFocus,
+  value,
   className,
 }) {
   const classNames = cx('TextArea', className, {
     'TextArea-fluid': fluid,
+    'TextArea-rounded': rounded,
   });
 
   return (
@@ -21,6 +25,8 @@ function TextArea({
       placeholder={placeholder}
       minRows={minRows}
       maxRows={maxRows}
+      autoFocus={autoFocus}
+      value={value}
       onChange={onChange}
     />
   );

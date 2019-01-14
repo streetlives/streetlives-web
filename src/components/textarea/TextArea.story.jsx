@@ -18,7 +18,19 @@ const FluidExample = (
   </div>
 );
 
+const RoundedExample = (
+  <div className="container-rounded">
+    <label className="w-100 mt-4" htmlFor="roundedTextArea">Rounded TextArea</label>
+    <TextArea
+      id="roundedTextArea"
+      rounded
+      placeholder="Enter some long story with multiple lines..."
+    />
+  </div>
+);
+
 storiesOf('TextArea', module)
   .add('Overview', () => [DefaultExample, FluidExample])
   .add('Default example', () => DefaultExample)
-  .add('Fluid example', () => FluidExample);
+  .add('Fluid example', () => FluidExample)
+  .add('Rounded example', () => RoundedExample);
