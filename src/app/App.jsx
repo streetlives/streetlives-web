@@ -64,6 +64,8 @@ const withAuth = (Component) => {
 const feedbackLocations = [
   { name: 'sjbl', id: '1edfab8e-0d7c-437e-a14c-6b9ca0eb5d93' },
   { name: 'holy', id: '5426de21-4e1b-4e6e-bcf1-6bf334de56b5' },
+  { name: 'sjbl-vol', id: 'c46faf1f-2af0-4ea7-b69c-cd482d10eda3' },
+  { name: 'holy-vol', id: '7db4cde4-add1-40ad-9209-9a0e8c57078f' },
 ];
 
 function App() {
