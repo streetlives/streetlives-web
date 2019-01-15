@@ -27,7 +27,7 @@ const MyMap = compose(
           if (!bounds || !center) return;
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
             center,
-            bounds.getSouthWest()
+            bounds.getSouthWest(),
           );
           this.props.onBoundsChanged({ bounds, center, radius });
         },
@@ -42,9 +42,9 @@ const MyMap = compose(
     onClick={props.onMapClick}
     ref={props.onMapMounted}
   >
-    {props.isCurrentPositionKnown &&
+    {!!props.userPosition &&
       <Marker
-        position={props.center}
+        position={props.userPosition}
         zIndex={window.google.maps.Marker.MAX_ZINDEX + 1}
         icon={{
           path: window.google.maps.SymbolPath.CIRCLE,
