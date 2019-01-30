@@ -41,14 +41,14 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src/ --ext js,jsx",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "predeploy": "npm run build",
-    "deploy": "aws s3 cp --recursive ./build s3://streetlives-web-stag/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers"
+    "deploy": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' npm run build && aws s3 cp --recursive ./build s3://streetlives-web-stag/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers &&  aws cloudfront create-invalidation --distribution-id E147V24YAA2KKQ --paths '/*'",
+    "deploy-prod": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod' npm run build && aws s3 cp --recursive ./build s3://streetlives-web2/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers &&  aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.3.15",
