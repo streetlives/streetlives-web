@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
-import { getAddressForLocation } from './geocodingUtil';
 import config from '../../config';
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };
@@ -65,7 +64,6 @@ const MyMap = compose(
     }}
     defaultZoom={defaultZoom}
     defaultCenter={defaultCenter}
-    onClick={props.onMapClick}
     ref={props.onMapMounted}
   >
     {!!props.userPosition &&
@@ -92,7 +90,6 @@ class Map extends Component {
     this.state = {
       userPosition: null,
     };
-    this.onMapClick = this.onMapClick.bind(this);
   }
 
   componentDidMount() {
@@ -116,28 +113,10 @@ class Map extends Component {
     );
   }
 
-  onMapClick(clickEvent) {
-    if (!this.props.onClick) {
-      return;
-    }
-
-    getAddressForLocation(clickEvent.latLng)
-      .then((address) => {
-        const position = { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] };
-        this.props.onClick({ position, address });
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error('Failed to get address for new location', err);
-      });
-  }
-
   render() {
     return (
       <MyMap
         {...this.props}
-        onBoundsChanged={this.props.onBoundsChanged}
-        onMapClick={this.onMapClick}
         userPosition={this.state.userPosition}
         center={this.props.center || this.state.userPosition || defaultCenter}
       />
@@ -149,6 +128,7 @@ Map.propTypes = {
   center: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
   onBoundsChanged: PropTypes.func,
   onClick: PropTypes.func,
+  children: PropTypes.node,
 };
 
 export default Map;

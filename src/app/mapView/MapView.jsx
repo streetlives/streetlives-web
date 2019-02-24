@@ -6,6 +6,7 @@ import {
   getOrganizations,
   getOrganizationLocations,
 } from '../../services/api';
+import { getAddressForLocation } from '../../services/geocoding';
 import Map from '../../components/map';
 // TODO: Refactor markers so each map page can customize its own
 // (with Google Maps details still encapsulated).
@@ -34,17 +35,24 @@ export default class MapView extends Component {
     }, true);
   }
 
-  onMapClick = ({ position, address }) => {
-    const { formattedAddress, ...addressComponents } = address;
+  onMapClick = (clickEvent) => {
+    getAddressForLocation(clickEvent.latLng)
+      .then((address) => {
+        const { formattedAddress, ...addressComponents } = address;
 
-    this.setState({
-      newLocation: {
-        position,
-        formattedAddress,
-        address: addressComponents,
-      },
-      openLocationId: null,
-    });
+        this.setState({
+          newLocation: {
+            position: { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] },
+            address: addressComponents,
+            formattedAddress,
+          },
+          openLocationId: null,
+        });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('Failed to get address for new location', err);
+      });
   };
 
   onToggleMarkerInfo = (toggledLocationId) => {
