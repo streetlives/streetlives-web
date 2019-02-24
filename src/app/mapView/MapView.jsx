@@ -7,6 +7,10 @@ import {
   getOrganizationLocations,
 } from '../../services/api';
 import Map from '../../components/map';
+// TODO: Refactor markers so each map page can customize its own
+// (with Google Maps details still encapsulated).
+import ExistingLocationMarker from '../../components/map/ExistingLocationMarker';
+import NewLocationMarker from '../../components/map/NewLocationMarker';
 import Dropdown from '../../components/dropdown';
 
 const debouncePeriod = 500;
@@ -16,6 +20,8 @@ export default class MapView extends Component {
     center: null,
     searchString: '',
     suggestions: [],
+    openLocationId: null,
+    newLocation: null,
   };
 
   componentDidMount() {
@@ -27,6 +33,30 @@ export default class MapView extends Component {
       this.searchInput.focus();
     }, true);
   }
+
+  onMapClick = ({ position, address }) => {
+    const { formattedAddress, ...addressComponents } = address;
+
+    this.setState({
+      newLocation: {
+        position,
+        formattedAddress,
+        address: addressComponents,
+      },
+      openLocationId: null,
+    });
+  };
+
+  onToggleMarkerInfo = (toggledLocationId) => {
+    this.setState({
+      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
+      newLocation: null,
+    });
+  };
+
+  onNewLocationCancel = () => {
+    this.setState({ newLocation: null });
+  };
 
   onSearchChanged = (searchString) => {
     this.setState({ searchString }, () => {
@@ -80,7 +110,7 @@ export default class MapView extends Component {
             lng: coords[0],
           },
         });
-        this.map.onToggleMarkerInfo(firstLoc.id);
+        this.onToggleMarkerInfo(firstLoc.id);
       })
       .catch(e => console.error('error', e));
   }
@@ -94,6 +124,27 @@ export default class MapView extends Component {
       .then(locations => this.setState({ locations })) // TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
   };
+
+  renderLocationMarkers = () => (
+    <div>
+      {this.state.locations &&
+        this.state.locations.map(location => (
+          <ExistingLocationMarker
+            key={location.id}
+            mapLocation={location}
+            isOpen={location.id === this.state.openLocationId}
+            onToggleInfo={this.onToggleMarkerInfo}
+          />
+      ))}
+      {this.state.newLocation && (
+        <NewLocationMarker
+          key="new"
+          mapLocation={this.state.newLocation}
+          onClose={this.onNewLocationCancel}
+        />
+      )}
+    </div>
+  );
 
   render() {
     return (
@@ -166,11 +217,12 @@ export default class MapView extends Component {
           }}
         >
           <Map
-            ref={(m) => { this.map = m; }}
-            locations={this.state && this.state.locations}
             onBoundsChanged={this.onBoundsChanged}
+            onClick={this.onMapClick}
             center={this.state.center}
-          />
+          >
+            {this.renderLocationMarkers()}
+          </Map>
         </div>
       </div>
     );

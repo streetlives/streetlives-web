@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
-import ExistingLocationMarker from './ExistingLocationMarker';
-import NewLocationMarker from './NewLocationMarker';
 import { getAddressForLocation } from './geocodingUtil';
 import config from '../../config';
 
@@ -84,22 +82,7 @@ const MyMap = compose(
         }}
       />
     }
-    {props.locations &&
-      props.locations.map(location => (
-        <ExistingLocationMarker
-          key={location.id}
-          mapLocation={location}
-          isOpen={location.id === props.openLocationId}
-          onToggleInfo={props.onToggleMarkerInfo}
-        />
-      ))}
-    {props.newLocation && (
-      <NewLocationMarker
-        key="new"
-        mapLocation={props.newLocation}
-        onClose={props.onNewLocationCancel}
-      />
-    )}
+    {props.children}
   </GoogleMap>
 ));
 
@@ -107,13 +90,9 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      openLocationId: null,
-      newLocation: null,
       userPosition: null,
     };
-    this.onToggleMarkerInfo = this.onToggleMarkerInfo.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
-    this.onNewLocationCancel = this.onNewLocationCancel.bind(this);
   }
 
   componentDidMount() {
@@ -137,26 +116,15 @@ class Map extends Component {
     );
   }
 
-  onToggleMarkerInfo(toggledLocationId) {
-    this.setState({
-      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
-      newLocation: null,
-    });
-  }
-
   onMapClick(clickEvent) {
+    if (!this.props.onClick) {
+      return;
+    }
+
     getAddressForLocation(clickEvent.latLng)
       .then((address) => {
-        const { formattedAddress, ...addressComponents } = address;
-
-        this.setState({
-          newLocation: {
-            position: { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] },
-            address: addressComponents,
-            formattedAddress,
-          },
-          openLocationId: null,
-        });
+        const position = { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] };
+        this.props.onClick({ position, address });
       })
       .catch((err) => {
         // eslint-disable-next-line no-console
@@ -164,19 +132,11 @@ class Map extends Component {
       });
   }
 
-  onNewLocationCancel() {
-    this.setState({ newLocation: null });
-  }
-
   render() {
     return (
       <MyMap
         {...this.props}
-        openLocationId={this.state.openLocationId}
-        onToggleMarkerInfo={this.onToggleMarkerInfo}
         onBoundsChanged={this.props.onBoundsChanged}
-        newLocation={this.state.newLocation}
-        onNewLocationCancel={this.onNewLocationCancel}
         onMapClick={this.onMapClick}
         userPosition={this.state.userPosition}
         center={this.props.center || this.state.userPosition || defaultCenter}
@@ -186,9 +146,9 @@ class Map extends Component {
 }
 
 Map.propTypes = {
-  locations: PropTypes.arrayOf(PropTypes.object),
   center: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
   onBoundsChanged: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 export default Map;
