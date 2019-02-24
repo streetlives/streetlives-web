@@ -9,42 +9,16 @@ import {
 import Map from '../../components/map';
 import Dropdown from '../../components/dropdown';
 
-const defaultCenter = { lat: 40.7831, lng: -73.9712 };
-const defaultZoom = 14;
-const minZoom = 11;
-const geolocationTimeout = 5000;
 const debouncePeriod = 500;
 
 export default class MapView extends Component {
   state = {
-    center: defaultCenter,
-    userPosition: null,
+    center: null,
     searchString: '',
     suggestions: [],
   };
 
   componentDidMount() {
-    if (!navigator || !navigator.geolocation) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (userPosition) => {
-        const { coords } = userPosition;
-        const location = {
-          lat: coords.latitude,
-          lng: coords.longitude,
-        };
-
-        this.setState({
-          center: location,
-          userPosition: location,
-        });
-      },
-      e => console.error('Failed to get current position', e),
-      { timeout: geolocationTimeout },
-    );
-
     this.mapWrapper.addEventListener('touchstart', () => {
       this.searchInput.blur();
     }, true);
@@ -194,26 +168,8 @@ export default class MapView extends Component {
           <Map
             ref={(m) => { this.map = m; }}
             locations={this.state && this.state.locations}
-            options={{
-              minZoom,
-              disableDefaultUI: true,
-              gestureHandling: 'greedy',
-              clickableIcons: false,
-              styles: [
-                  {
-                      featureType: 'poi',
-                      elementType: 'labels',
-                      stylers: [
-                            { visibility: 'off' },
-                      ],
-                  },
-              ],
-            }}
-            defaultZoom={defaultZoom}
-            defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
             center={this.state.center}
-            userPosition={this.state.userPosition}
           />
         </div>
       </div>
