@@ -1,36 +1,27 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import {
-  getLocations,
-  getOrganizations,
-  getOrganizationLocations,
-} from '../../../services/api';
+import { getLocations } from '../../../services/api';
 import Map from '../../../components/map';
+import Button from '../../../components/button';
+import Icon from '../../../components/icon';
 // TODO: Refactor markers so each map page can customize its own
 // (with Google Maps details still encapsulated).
 import ExistingLocationMarker from '../../../components/map/ExistingLocationMarker';
-import Dropdown from '../../../components/dropdown';
 
 const debouncePeriod = 500;
 
 export default class MapView extends Component {
   state = {
     center: null,
+    radius: null,
+    isEnteringSearchString: false,
     searchString: '',
-    suggestions: [],
+    modifiedSearchString: '',
+    suggestedCategoryForString: null,
+    filteredCategory: null,
     openLocationId: null,
   };
-
-  componentDidMount() {
-    this.mapWrapper.addEventListener('touchstart', () => {
-      this.searchInput.blur();
-    }, true);
-
-    this.inputGroup.addEventListener('touchstart', () => {
-      this.searchInput.focus();
-    }, true);
-  }
 
   onMapClick = () => {
     this.setState({ openLocationId: null });
@@ -42,160 +33,199 @@ export default class MapView extends Component {
     });
   };
 
-  onSearchChanged = (searchString) => {
-    this.setState({ searchString }, () => {
-      if (searchString) {
-        this.onSuggestionsFetchRequested({ searchString });
-      } else {
-        this.onSuggestionsClearRequested();
-      }
-    });
-  };
-
   onBoundsChanged = debounce(({ center, radius }) => {
-    this.fetchLocations(center, radius);
-  }, debouncePeriod);
-
-  onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
-    getOrganizations(searchString)
-      .then((organizations) => {
-        const searchStringAtTimeOfResponse = this.state.searchString;
-        const searchResponseStillValid =
-          searchStringAtTimeOfResponse && searchStringAtTimeOfResponse.indexOf(searchString) !== -1;
-
-        if (searchResponseStillValid) {
-          this.setState({ suggestions: organizations });
-        }
-      })
-      .catch(e => console.error('error', e));
-  }, debouncePeriod);
-
-  onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: [],
+    this.setState({ center, radius }, () => {
+      this.fetchLocations();
     });
-  };
+  }, debouncePeriod);
 
-  handleSuggestionClick = (organization) => {
-    getOrganizationLocations(organization.id)
-      .then((locations) => {
-        if (!locations.length) return;
-        const locationsWithOrganization = locations.map(loc => ({
-          ...loc,
-          Organization: organization,
-        })); // TODO: add orgranization to locations
-        const firstLoc = locationsWithOrganization[0];
-        const coords = firstLoc.position.coordinates; // TODO: focus all
-        this.searchInput.value = '';
-        this.setState({
-          suggestions: [],
-          center: {
-            lat: coords[1],
-            lng: coords[0],
-          },
-        });
-        this.onToggleMarkerInfo(firstLoc.id);
-      })
-      .catch(e => console.error('error', e));
-  }
+  getCurrentFilterString = () => this.state.searchString || this.state.filteredCategory;
 
-  fetchLocations = (center, radius) => {
+  fetchLocations = () => {
+    // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
+    // TODO: Add a limit (either here or on the backend).
+    const { center, radius, searchString } = this.state;
+
     getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
+      searchString,
     })
-      .then(locations => this.setState({ locations })) // TODO: we can save these in the redux store
+      .then(locations => this.setState({ locations }))
       .catch(e => console.error('error', e));
   };
 
-  renderLocationMarkers = () => this.state.locations &&
-    this.state.locations.map(location => (
-      <ExistingLocationMarker
-        key={location.id}
-        mapLocation={location}
-        isOpen={location.id === this.state.openLocationId}
-        onToggleInfo={this.onToggleMarkerInfo}
-      />
-    ));
+  updateSearchString = (event) => {
+    this.setState({ modifiedSearchString: event.target.value });
+  };
+
+  enterSearchMode = () => {
+    if (!this.state.isEnteringSearchString) {
+      this.setState({
+        isEnteringSearchString: true,
+        modifiedSearchString: '',
+      });
+    }
+  };
+
+  cancelSearchMode = () => {
+    this.setState({
+      isEnteringSearchString: false,
+      modifiedSearchString: '',
+    });
+  };
+
+  clearResults = () => {
+    this.setState({
+      searchString: null,
+      filteredCategory: null,
+    }, () => {
+      this.fetchLocations();
+    });
+  };
+
+  searchLocations = () => {
+    // TODO: Don't remove the overlay until the results are in. Loading indicator I guess.
+    this.setState({
+      isEnteringSearchString: false,
+      searchString: this.state.modifiedSearchString,
+      modifiedSearchString: '',
+    }, () => {
+      this.fetchLocations();
+    });
+  };
+
+  // TODO: Should be a (presentational) component, possibly shared between MapView and MapPage.
+  // TODO: Add the icon to the tab order or whatnot.
+  renderSearchBar = () => (
+    <div
+      style={{
+        backgroundColor: '#323232',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        zIndex: 2,
+      }}
+    >
+      <form className="input-group" style={{ padding: '.5em' }} onSubmit={this.searchLocations} >
+        {this.state.isEnteringSearchString && (
+          <span
+            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
+            className="input-group-prepend input-group-text"
+          >
+            <Icon name="chevron-left" onClick={this.cancelSearchMode} style={{ color: 'white' }} />
+          </span>
+        )}
+        <input
+          onChange={this.updateSearchString}
+          onFocus={this.enterSearchMode}
+          style={{ border: 'none', borderRadius: 0 }}
+          type="text"
+          className="form-control"
+          placeholder="Find what you need"
+          value={this.state.modifiedSearchString}
+          required
+        />
+        {this.state.isEnteringSearchString && (
+          <button
+            type="submit"
+            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
+            className="input-group-text"
+          >
+            <Icon name="search" style={{ color: 'white' }} />
+          </button>
+        )}
+      </form>
+    </div>
+  );
+
+  renderFilteringInfoBar = () => (
+    <div
+      className="py-1"
+      style={{
+        backgroundColor: 'white',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        zIndex: 2,
+      }}
+    >
+      Showing results for
+      <span className="font-weight-bold ml-1">
+        {this.getCurrentFilterString()}
+      </span>
+    </div>
+  );
+
+  renderBottomBar = () => (
+    <div
+      className="d-flex justify-content-around"
+      style={{
+        position: 'absolute',
+        bottom: '1em',
+        left: '1em',
+        right: '1em',
+        zIndex: 2,
+      }}
+    >
+      <Button primary onClick={this.clearResults}>
+          CLEAR RESULTS
+      </Button>
+      <Button secondary>
+          FILTER RESULTS
+      </Button>
+    </div>
+  );
+
+  renderSearchOverlay = () => (
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        height: this.state.isEnteringSearchString ? '100%' : 0,
+        transition: 'height 0.2s',
+        backgroundColor: '#F8F8FC',
+      }}
+    />
+  );
 
   render() {
+    const isFiltering = !!this.getCurrentFilterString();
     return (
       <div className="Map">
         <div
-          className="suggestions"
           style={{
-            position: 'absolute',
-            top: '2.75em',
-            paddingLeft: 0,
-            zIndex: 1,
-            left: '.5em',
-            right: '.5em',
-            textAlign: 'left',
-            transition: 'height 0.5s',
-            height: this.state.suggestions.length ? `${window.innerHeight - 50}px` : '0px',
-            overflow: 'hidden',
-            pointerEvents: 'none',
-          }}
-        >
-          <div style={{ pointerEvents: 'auto' }}>
-            {
-              this.state.suggestions && <Dropdown options={
-                this.state.suggestions.map(organization => ({
-                  id: organization.id,
-                  label: organization.name,
-                  onClick: () => this.handleSuggestionClick(organization),
-                }))}
-              />
-            }
-          </div>
-        </div>
-        <div
-          style={{
-            backgroundColor: '#323232',
             position: 'absolute',
             left: 0,
-            top: '0em',
+            top: 0,
             right: 0,
+            bottom: 0,
+            zIndex: 1,
           }}
         >
-          <div
-            ref={(e) => { this.inputGroup = e; }}
-            className="input-group"
-            style={{ padding: '.5em' }}
-          >
-            <div className="input-group-prepend">
-              <span
-                style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
-                className="input-group-text"
-              >
-                <i className="fa fa-search" />
-              </span>
-            </div>
-            <input
-              ref={(input) => { this.searchInput = input; }}
-              onChange={event => this.onSearchChanged(event.target.value)}
-              style={{ border: 'none', borderRadius: 0 }}
-              type="text"
-              className="form-control"
-              placeholder="Type the address, or drop a pin"
-              required
-            />
-          </div>
-        </div>
-        <div
-          ref={(e) => { this.mapWrapper = e; }}
-          style={{
-            position: 'absolute', left: 0, top: '3.2em', right: 0, bottom: 0,
-          }}
-        >
+          {isFiltering ? this.renderFilteringInfoBar() : this.renderSearchBar()}
           <Map
             onBoundsChanged={this.onBoundsChanged}
             onClick={this.onMapClick}
-            center={this.state.center}
           >
-            {this.renderLocationMarkers()}
+            {this.renderSearchOverlay()}
+            {this.state.locations &&
+              this.state.locations.map(location => (
+                <ExistingLocationMarker
+                  key={location.id}
+                  mapLocation={location}
+                  isOpen={location.id === this.state.openLocationId}
+                  onToggleInfo={this.onToggleMarkerInfo}
+                />
+              ))
+            }
           </Map>
+          {isFiltering && this.renderBottomBar()}
         </div>
       </div>
     );
