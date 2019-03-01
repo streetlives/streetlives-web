@@ -11,7 +11,7 @@ import ExistingLocationMarker from '../../../components/map/ExistingLocationMark
 
 const debouncePeriod = 500;
 
-export default class MapView extends Component {
+export default class MapPage extends Component {
   state = {
     center: null,
     radius: null,
