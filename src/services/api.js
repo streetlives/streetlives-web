@@ -5,22 +5,17 @@ import { getAuthToken } from './auth';
 export const getLocations = ({
   latitude, longitude, radius, searchString,
 }) =>
-  getAuthToken()
-    .then(idJwtToken =>
-      axios
-        .request({
-          url: `${config.baseApi}/locations`,
-          method: 'get',
-          params: {
-            latitude,
-            longitude,
-            radius,
-            searchString,
-          },
-          headers: {
-            Authorization: idJwtToken,
-          },
-        }))
+  axios
+    .request({
+      url: `${config.baseApi}/locations`,
+      method: 'get',
+      params: {
+        latitude,
+        longitude,
+        radius,
+        searchString,
+      },
+    })
     .then(result => result.data);
 
 export const getLocation = ({ id }) =>
