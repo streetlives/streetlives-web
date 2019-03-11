@@ -5,9 +5,7 @@ import { getLocations } from '../../../services/api';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
-// TODO: Refactor markers so each map page can customize its own
-// (with Google Maps details still encapsulated).
-import ExistingLocationMarker from '../../../components/map/ExistingLocationMarker';
+import LocationInfoMarker from './LocationInfoMarker';
 
 const debouncePeriod = 500;
 
@@ -216,7 +214,7 @@ export default class MapPage extends Component {
             {this.renderSearchOverlay()}
             {this.state.locations &&
               this.state.locations.map(location => (
-                <ExistingLocationMarker
+                <LocationInfoMarker
                   key={location.id}
                   mapLocation={location}
                   isOpen={location.id === this.state.openLocationId}

@@ -8,11 +8,9 @@ import {
 } from '../../services/api';
 import { getAddressForLocation } from '../../services/geocoding';
 import Map from '../../components/map';
-// TODO: Refactor markers so each map page can customize its own
-// (with Google Maps details still encapsulated).
-import ExistingLocationMarker from '../../components/map/ExistingLocationMarker';
-import NewLocationMarker from '../../components/map/NewLocationMarker';
 import Dropdown from '../../components/dropdown';
+import ExistingLocationMarker from './ExistingLocationMarker';
+import NewLocationMarker from './NewLocationMarker';
 
 const debouncePeriod = 500;
 
