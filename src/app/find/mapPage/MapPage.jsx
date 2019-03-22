@@ -59,6 +59,7 @@ export default class MapPage extends Component {
       searchString,
       filteredCategory,
     } = this.state;
+    const startingState = this.state;
 
     getLocations({
       latitude: center.lat(),
@@ -67,7 +68,14 @@ export default class MapPage extends Component {
       taxonomyId: filteredCategory && filteredCategory.id,
       searchString,
     })
-      .then(locations => this.setState({ locations }))
+      .then((locations) => {
+        if (this.state !== startingState) {
+          // Ignore stale responses.
+          return;
+        }
+
+        this.setState({ locations });
+      })
       .catch(e => console.error('error', e));
   };
 
