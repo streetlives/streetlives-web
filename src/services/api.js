@@ -3,7 +3,11 @@ import config from '../config';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
-  latitude, longitude, radius, searchString, taxonomyId,
+  latitude,
+  longitude,
+  radius,
+  searchString,
+  taxonomyIds,
 }) => {
   const params = {
     latitude,
@@ -14,8 +18,8 @@ export const getLocations = ({
   if (searchString) {
     params.searchString = searchString;
   }
-  if (taxonomyId) {
-    params.taxonomyId = taxonomyId;
+  if (taxonomyIds) {
+    params.taxonomyId = taxonomyIds.join(',');
   }
 
   return axios

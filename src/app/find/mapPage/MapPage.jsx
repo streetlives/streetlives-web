@@ -52,20 +52,29 @@ export default class MapPage extends Component {
   fetchLocations = () => {
     // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
     // TODO: Add a limit (either here or on the backend).
-    // TODO: Request at most the 3 taxonomies included in the MVP.
     const {
       center,
       radius,
       searchString,
+      categories,
       filteredCategory,
     } = this.state;
     const startingState = this.state;
+
+    if (!center || !categories) {
+      // Can't fetch until we know which area and categories are relevant.
+      return;
+    }
+
+    const includedCategories = filteredCategory ?
+      [filteredCategory.id] :
+      categories.map(({ id }) => id);
 
     getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
-      taxonomyId: filteredCategory && filteredCategory.id,
+      taxonomyIds: includedCategories,
       searchString,
     })
       .then((locations) => {
@@ -91,7 +100,7 @@ export default class MapPage extends Component {
           .filter(({ index }) => index !== -1)
           .sort((category1, category2) => category1.index - category2.index);
 
-        this.setState({ categories });
+        this.setState({ categories }, this.fetchLocations);
       })
       .catch(e => console.error('Error fetching taxonomy', e));
   };
