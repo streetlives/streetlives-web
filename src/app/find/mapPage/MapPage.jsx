@@ -22,6 +22,7 @@ export default class MapPage extends Component {
     suggestedCategoryForString: null,
     filteredCategory: null,
     openLocationId: null,
+    isChangingFilters: false,
   };
 
   componentDidMount() {
@@ -49,7 +50,7 @@ export default class MapPage extends Component {
     (this.state.filteredCategory &&
       `places that provide ${this.state.filteredCategory.name.toLowerCase()}`);
 
-  fetchLocations = () => {
+  fetchLocations = (callback) => {
     // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
     // TODO: Add a limit (either here or on the backend).
     const {
@@ -59,7 +60,6 @@ export default class MapPage extends Component {
       categories,
       filteredCategory,
     } = this.state;
-    const startingState = this.state;
 
     if (!center || !categories) {
       // Can't fetch until we know which area and categories are relevant.
@@ -78,12 +78,20 @@ export default class MapPage extends Component {
       searchString,
     })
       .then((locations) => {
-        if (this.state !== startingState) {
-          // Ignore stale responses.
+        // Ignore stale responses.
+        if (
+          center !== this.state.center ||
+          radius !== this.state.radius ||
+          searchString !== this.state.searchString ||
+          filteredCategory !== this.state.filteredCategory
+        ) {
+          if (callback) {
+            callback();
+          }
           return;
         }
 
-        this.setState({ locations });
+        this.setState({ locations }, callback);
       })
       .catch(e => console.error('error', e));
   };
@@ -110,8 +118,11 @@ export default class MapPage extends Component {
   };
 
   filterCategory = (category) => {
-    this.setState({ filteredCategory: category }, () => {
-      this.fetchLocations();
+    this.setState({
+      filteredCategory: category,
+      isChangingFilters: true,
+    }, () => {
+      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
     });
   };
 
@@ -135,19 +146,20 @@ export default class MapPage extends Component {
     this.setState({
       searchString: null,
       filteredCategory: null,
+      isChangingFilters: true,
     }, () => {
-      this.fetchLocations();
+      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
     });
   };
 
   searchLocations = () => {
-    // TODO: Don't remove the overlay until the results are in. Loading indicator I guess.
     this.setState({
       isEnteringSearchString: false,
       searchString: this.state.modifiedSearchString,
       modifiedSearchString: '',
+      isChangingFilters: true,
     }, () => {
-      this.fetchLocations();
+      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
     });
   };
 
@@ -213,10 +225,16 @@ export default class MapPage extends Component {
         zIndex: 2,
       }}
     >
-      Showing results for
-      <span className="font-weight-bold ml-1">
-        {this.getCurrentFilterString()}
-      </span>
+      {this.state.isChangingFilters ? (
+        <div>Loading results...</div>
+      ) : (
+        <div>
+          Showing results for
+          <span className="font-weight-bold ml-1">
+            {this.getCurrentFilterString()}
+          </span>
+        </div>
+      )}
     </div>
   );
 
@@ -289,7 +307,11 @@ export default class MapPage extends Component {
             zIndex: 1,
           }}
         >
-          {isFiltering ? this.renderFilteringInfoBar() : this.renderSearchBar()}
+          {
+            (isFiltering || this.state.isChangingFilters) ?
+              this.renderFilteringInfoBar() :
+              this.renderSearchBar()
+          }
           <Map
             onBoundsChanged={this.onBoundsChanged}
             onClick={this.onMapClick}
