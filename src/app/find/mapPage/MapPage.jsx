@@ -83,8 +83,13 @@ export default class MapPage extends Component {
     // TODO: Potentially use an action (i.e. put in Redux state).
     getTaxonomy()
       .then((taxonomy) => {
-        const categories = taxonomy.filter(({ name }) =>
-          selectableCategoryNames.includes(name.trim().toLowerCase()));
+        const categories = taxonomy
+          .map(category => ({
+            ...category,
+            index: selectableCategoryNames.indexOf(category.name.trim().toLowerCase()),
+          }))
+          .filter(({ index }) => index !== -1)
+          .sort((category1, category2) => category1.index - category2.index);
 
         this.setState({ categories });
       })
@@ -226,9 +231,7 @@ export default class MapPage extends Component {
     </div>
   );
 
-  // TODO: Try avoiding inline functions in JSX.
   // TODO: Style properly.
-  // TODO: Make sure to order same as selectableCategoryNames.
   renderCategoriesSelector = () => this.state.categories && (
     <div
       className="d-flex justify-content-around"
