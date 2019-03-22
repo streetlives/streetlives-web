@@ -3,20 +3,29 @@ import config from '../config';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
-  latitude, longitude, radius, searchString,
-}) =>
-  axios
+  latitude, longitude, radius, searchString, taxonomyId,
+}) => {
+  const params = {
+    latitude,
+    longitude,
+    radius,
+  };
+
+  if (searchString) {
+    params.searchString = searchString;
+  }
+  if (taxonomyId) {
+    params.taxonomyId = taxonomyId;
+  }
+
+  return axios
     .request({
       url: `${config.baseApi}/locations`,
       method: 'get',
-      params: {
-        latitude,
-        longitude,
-        radius,
-        searchString,
-      },
+      params,
     })
     .then(result => result.data);
+};
 
 export const getLocation = ({ id }) =>
   axios
@@ -45,15 +54,11 @@ const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
     });
 
 export const getTaxonomy = () =>
-  getAuthToken()
-    .then(idJwtToken =>
-      axios.request({
-        url: `${config.baseApi}/taxonomy`,
-        method: 'get',
-        headers: {
-          Authorization: idJwtToken,
-        },
-      }));
+  axios.request({
+    url: `${config.baseApi}/taxonomy`,
+    method: 'get',
+  })
+    .then(result => result.data);
 
 export const getLanguages = () =>
   getAuthToken()

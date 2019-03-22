@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations } from '../../../services/api';
+import { getLocations, getTaxonomy } from '../../../services/api';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
 import LocationInfoMarker from './LocationInfoMarker';
+
+const selectableCategoryNames = ['food', 'clothing', 'personal care'];
 
 const debouncePeriod = 500;
 
@@ -16,10 +18,15 @@ export default class MapPage extends Component {
     isEnteringSearchString: false,
     searchString: '',
     modifiedSearchString: '',
+    categories: null,
     suggestedCategoryForString: null,
     filteredCategory: null,
     openLocationId: null,
   };
+
+  componentDidMount() {
+    this.fetchCategories();
+  }
 
   onMapClick = () => {
     this.setState({ openLocationId: null });
@@ -37,25 +44,53 @@ export default class MapPage extends Component {
     });
   }, debouncePeriod);
 
-  getCurrentFilterString = () => this.state.searchString || this.state.filteredCategory;
+  getCurrentFilterString = () =>
+    this.state.searchString ||
+    (this.state.filteredCategory &&
+      `places that provide ${this.state.filteredCategory.name.toLowerCase()}`);
 
   fetchLocations = () => {
     // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
     // TODO: Add a limit (either here or on the backend).
-    const { center, radius, searchString } = this.state;
+    // TODO: Request at most the 3 taxonomies included in the MVP.
+    const {
+      center,
+      radius,
+      searchString,
+      filteredCategory,
+    } = this.state;
 
     getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
+      taxonomyId: filteredCategory && filteredCategory.id,
       searchString,
     })
       .then(locations => this.setState({ locations }))
       .catch(e => console.error('error', e));
   };
 
+  fetchCategories = () => {
+    // TODO: Potentially use an action (i.e. put in Redux state).
+    getTaxonomy()
+      .then((taxonomy) => {
+        const categories = taxonomy.filter(({ name }) =>
+          selectableCategoryNames.includes(name.trim().toLowerCase()));
+
+        this.setState({ categories });
+      })
+      .catch(e => console.error('Error fetching taxonomy', e));
+  };
+
   updateSearchString = (event) => {
     this.setState({ modifiedSearchString: event.target.value });
+  };
+
+  filterCategory = (category) => {
+    this.setState({ filteredCategory: category }, () => {
+      this.fetchLocations();
+    });
   };
 
   enterSearchMode = () => {
@@ -94,6 +129,11 @@ export default class MapPage extends Component {
     });
   };
 
+  openFilters = () => {
+    // eslint-disable-next-line no-alert
+    alert('Further filters coming soon.');
+  }
+
   // TODO: Should be a (presentational) component, possibly shared between MapView and MapPage.
   // TODO: Add the icon to the tab order or whatnot.
   renderSearchBar = () => (
@@ -104,7 +144,7 @@ export default class MapPage extends Component {
         left: 0,
         top: 0,
         right: 0,
-        zIndex: 2,
+        zIndex: 4,
       }}
     >
       <form className="input-group" style={{ padding: '.5em' }} onSubmit={this.searchLocations} >
@@ -158,7 +198,7 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderBottomBar = () => (
+  renderFilteredBottomBar = () => (
     <div
       className="d-flex justify-content-around"
       style={{
@@ -172,9 +212,31 @@ export default class MapPage extends Component {
       <Button primary onClick={this.clearResults}>
           CLEAR RESULTS
       </Button>
-      <Button secondary>
+      <Button secondary onClick={this.openFilters}>
           FILTER RESULTS
       </Button>
+    </div>
+  );
+
+  // TODO: Try avoiding inline functions in JSX.
+  // TODO: Style properly.
+  // TODO: Make sure to order same as selectableCategoryNames.
+  renderCategoriesSelector = () => this.state.categories && (
+    <div
+      className="d-flex justify-content-around"
+      style={{
+        position: 'absolute',
+        bottom: '1em',
+        left: '1em',
+        right: '1em',
+        zIndex: 2,
+      }}
+    >
+      {this.state.categories.map(category => (
+        <Button key={category.id} onClick={() => this.filterCategory(category)}>
+          {category.name}
+        </Button>
+      ))}
     </div>
   );
 
@@ -185,6 +247,7 @@ export default class MapPage extends Component {
         left: 0,
         top: 0,
         right: 0,
+        zIndex: 3,
         height: this.state.isEnteringSearchString ? '100%' : 0,
         transition: 'height 0.2s',
         backgroundColor: '#F8F8FC',
@@ -223,7 +286,7 @@ export default class MapPage extends Component {
               ))
             }
           </Map>
-          {isFiltering && this.renderBottomBar()}
+          {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
         </div>
       </div>
     );
