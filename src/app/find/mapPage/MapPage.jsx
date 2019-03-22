@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { getLocations, getTaxonomy } from '../../../services/api';
+import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
@@ -215,7 +216,7 @@ export default class MapPage extends Component {
 
   renderFilteringInfoBar = () => (
     <div
-      className="py-1"
+      className="p-1"
       style={{
         backgroundColor: 'white',
         position: 'absolute',
@@ -258,23 +259,32 @@ export default class MapPage extends Component {
     </div>
   );
 
-  // TODO: Style properly.
   renderCategoriesSelector = () => this.state.categories && (
     <div
-      className="d-flex justify-content-around"
+      className="p-2 rounded-top shadow-lg"
       style={{
         position: 'absolute',
-        bottom: '1em',
-        left: '1em',
-        right: '1em',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        background: 'white',
         zIndex: 2,
       }}
     >
-      {this.state.categories.map(category => (
-        <Button key={category.id} onClick={() => this.filterCategory(category)}>
-          {category.name}
-        </Button>
-      ))}
+      <h5 className="font-weight-bold my-2">Explore these types of services</h5>
+      <div className="d-flex justify-content-around">
+        {this.state.categories.map(category => (
+          <Button
+            primary
+            className="mx-0 p-0 d-flex flex-column align-items-center"
+            key={category.id}
+            onClick={() => this.filterCategory(category)}
+          >
+            <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
+            <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
+          </Button>
+        ))}
+      </div>
     </div>
   );
 

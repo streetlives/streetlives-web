@@ -1,7 +1,7 @@
-export default function getCategoryIcon(categoryName) {
+export function getCategoryIcon(categoryName) {
   switch (categoryName) {
     case 'Food':
-      return 'cutlery';
+      return 'utensils';
     case 'Shelter':
       return 'home';
     case 'Personal Care':
@@ -13,3 +13,7 @@ export default function getCategoryIcon(categoryName) {
       return 'ellipsis-h';
   }
 }
+
+export default {
+  getCategoryIcon,
+};
