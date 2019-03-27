@@ -8,6 +8,7 @@ export const getLocations = ({
   radius,
   searchString,
   taxonomyIds,
+  minResults,
 }) => {
   const params = {
     latitude,
@@ -20,6 +21,9 @@ export const getLocations = ({
   }
   if (taxonomyIds) {
     params.taxonomyId = taxonomyIds.join(',');
+  }
+  if (minResults) {
+    params.minResults = minResults;
   }
 
   return axios

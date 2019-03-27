@@ -9,11 +9,14 @@ import Icon from '../../../components/icon';
 import LocationInfoMarker from './LocationInfoMarker';
 
 const selectableCategoryNames = ['food', 'clothing', 'personal care'];
+const minSearchResults = 3;
 
 const debouncePeriod = 500;
 
 export default class MapPage extends Component {
   state = {
+    locations: null,
+    zoomedLocations: null,
     center: null,
     radius: null,
     isEnteringSearchString: false,
@@ -42,7 +45,8 @@ export default class MapPage extends Component {
 
   onBoundsChanged = debounce(({ center, radius }) => {
     this.setState({ center, radius }, () => {
-      this.fetchLocations();
+      this.fetchLocations()
+        .then(() => this.setState({ zoomedLocations: null }));
     });
   }, debouncePeriod);
 
@@ -51,9 +55,7 @@ export default class MapPage extends Component {
     (this.state.filteredCategory &&
       `places that provide ${this.state.filteredCategory.name.toLowerCase()}`);
 
-  fetchLocations = () => {
-    // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
-    // TODO: Add a limit (either here or on the backend).
+  fetchLocations = (minResults) => {
     const {
       center,
       radius,
@@ -77,8 +79,9 @@ export default class MapPage extends Component {
       radius: Math.floor(radius),
       taxonomyIds: includedCategories,
       searchString,
+      minResults,
     })
-      .then((locations) => {
+      .then(locations => new Promise((resolve) => {
         // Ignore stale responses.
         if (
           center !== this.state.center ||
@@ -86,11 +89,12 @@ export default class MapPage extends Component {
           searchString !== this.state.searchString ||
           filteredCategory !== this.state.filteredCategory
         ) {
+          resolve();
           return;
         }
 
-        this.setState({ locations });
-      })
+        this.setState({ locations }, () => resolve());
+      }))
       .catch(e => console.error('error', e));
   };
 
@@ -111,18 +115,22 @@ export default class MapPage extends Component {
       .catch(e => console.error('Error fetching taxonomy', e));
   };
 
+  searchLocations = () => {
+    this.setState({ isChangingFilters: true }, () => {
+      this.fetchLocations(minSearchResults)
+        .then(() => this.setState({
+          isChangingFilters: false,
+          zoomedLocations: this.state.locations.slice(0, minSearchResults),
+        }));
+    });
+  };
+
   updateSearchString = (event) => {
     this.setState({ modifiedSearchString: event.target.value });
   };
 
   filterCategory = (category) => {
-    this.setState({
-      filteredCategory: category,
-      isChangingFilters: true,
-    }, () => {
-      this.fetchLocations()
-        .then(() => this.setState({ isChangingFilters: false }));
-    });
+    this.setState({ filteredCategory: category }, this.searchLocations);
   };
 
   enterSearchMode = () => {
@@ -145,23 +153,15 @@ export default class MapPage extends Component {
     this.setState({
       searchString: null,
       filteredCategory: null,
-      isChangingFilters: true,
-    }, () => {
-      this.fetchLocations()
-        .then(() => this.setState({ isChangingFilters: false }));
-    });
+    }, this.searchLocations);
   };
 
-  searchLocations = () => {
+  submitSearchString = () => {
     this.setState({
       isEnteringSearchString: false,
       searchString: this.state.modifiedSearchString,
       modifiedSearchString: '',
-      isChangingFilters: true,
-    }, () => {
-      this.fetchLocations()
-        .then(() => this.setState({ isChangingFilters: false }));
-    });
+    }, this.searchLocations);
   };
 
   openFilters = () => {
@@ -182,7 +182,7 @@ export default class MapPage extends Component {
         zIndex: 4,
       }}
     >
-      <form className="input-group" style={{ padding: '.5em' }} onSubmit={this.searchLocations} >
+      <form className="input-group" style={{ padding: '.5em' }} onSubmit={this.submitSearchString} >
         {this.state.isEnteringSearchString && (
           <span
             style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
@@ -325,6 +325,7 @@ export default class MapPage extends Component {
           <Map
             onBoundsChanged={this.onBoundsChanged}
             onClick={this.onMapClick}
+            zoomedLocations={this.state.zoomedLocations}
           >
             {this.renderSearchOverlay()}
             {this.state.locations &&

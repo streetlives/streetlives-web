@@ -23,6 +23,7 @@ const MyMap = compose(
       this.setState({
         onMapMounted: (ref) => {
           mapRef = ref;
+          this.props.onMapMounted(ref);
         },
         onBoundsChanged: () => {
           if (!this.props.onBoundsChanged) {
@@ -113,10 +114,35 @@ class Map extends Component {
     );
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!window.google ||
+      this.props.zoomedLocations === nextProps.zoomedLocations ||
+      !nextProps.zoomedLocations) {
+      return;
+    }
+
+    const oldBounds = this.mapRef.getBounds();
+
+    const zoomedOutBounds = oldBounds;
+    nextProps.zoomedLocations.forEach((location) => {
+      zoomedOutBounds.extend(new window.google.maps.LatLng(
+        location.position.coordinates[1],
+        location.position.coordinates[0],
+      ));
+    });
+
+    this.mapRef.fitBounds(zoomedOutBounds, 0);
+  }
+
+  onMapMounted = (ref) => {
+    this.mapRef = ref;
+  };
+
   render() {
     return (
       <MyMap
         {...this.props}
+        onMapMounted={this.onMapMounted}
         userPosition={this.state.userPosition}
         center={this.props.center || this.state.userPosition || defaultCenter}
       />
@@ -126,6 +152,7 @@ class Map extends Component {
 
 Map.propTypes = {
   center: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
+  zoomedLocations: PropTypes.arrayOf(PropTypes.object),
   onBoundsChanged: PropTypes.func,
   onClick: PropTypes.func,
   children: PropTypes.node,
