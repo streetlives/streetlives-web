@@ -51,7 +51,7 @@ export default class MapPage extends Component {
     (this.state.filteredCategory &&
       `places that provide ${this.state.filteredCategory.name.toLowerCase()}`);
 
-  fetchLocations = (callback) => {
+  fetchLocations = () => {
     // TODO: Don't specify the radius, so it can be expanded if no results are nearby.
     // TODO: Add a limit (either here or on the backend).
     const {
@@ -64,14 +64,14 @@ export default class MapPage extends Component {
 
     if (!center || !categories) {
       // Can't fetch until we know which area and categories are relevant.
-      return;
+      return Promise.resolve();
     }
 
     const includedCategories = filteredCategory ?
       [filteredCategory.id] :
       categories.map(({ id }) => id);
 
-    getLocations({
+    return getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
@@ -86,13 +86,10 @@ export default class MapPage extends Component {
           searchString !== this.state.searchString ||
           filteredCategory !== this.state.filteredCategory
         ) {
-          if (callback) {
-            callback();
-          }
           return;
         }
 
-        this.setState({ locations }, callback);
+        this.setState({ locations });
       })
       .catch(e => console.error('error', e));
   };
@@ -123,7 +120,8 @@ export default class MapPage extends Component {
       filteredCategory: category,
       isChangingFilters: true,
     }, () => {
-      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
+      this.fetchLocations()
+        .then(() => this.setState({ isChangingFilters: false }));
     });
   };
 
@@ -149,7 +147,8 @@ export default class MapPage extends Component {
       filteredCategory: null,
       isChangingFilters: true,
     }, () => {
-      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
+      this.fetchLocations()
+        .then(() => this.setState({ isChangingFilters: false }));
     });
   };
 
@@ -160,7 +159,8 @@ export default class MapPage extends Component {
       modifiedSearchString: '',
       isChangingFilters: true,
     }, () => {
-      this.fetchLocations(() => this.setState({ isChangingFilters: false }));
+      this.fetchLocations()
+        .then(() => this.setState({ isChangingFilters: false }));
     });
   };
 
