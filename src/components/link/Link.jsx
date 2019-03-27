@@ -18,7 +18,7 @@ function Link({ onClick, children, className }) {
 
 Link.propTypes = {
   onClick: PropTypes.func.isRequired,
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
+  children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   className: PropTypes.string,
 };
 
