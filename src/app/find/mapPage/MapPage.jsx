@@ -30,6 +30,7 @@ export default class MapPage extends Component {
     isChangingFilters: false,
     isSpeechSupported: Object.prototype.hasOwnProperty.call(window, 'webkitSpeechRecognition'),
     isListening: false,
+    currentTranscript: '',
   };
 
   componentDidMount() {
@@ -197,22 +198,34 @@ export default class MapPage extends Component {
     this.recognition = new window.webkitSpeechRecognition();
 
     this.recognition.continuous = false;
-    this.recognition.interimResults = false;
+    this.recognition.interimResults = true;
 
     this.recognition.onstart = () => { this.setState({ isListening: true }); };
-    this.recognition.onend = () => { this.setState({ isListening: false }); };
 
     this.recognition.onresult = (event) => {
       let transcript = '';
       for (let i = 0; i < event.results.length; i += 1) {
         transcript += event.results[i][0].transcript;
       }
-      this.setState({ searchString: transcript }, this.searchLocations);
+      this.setState({ currentTranscript: transcript });
+    };
+
+    this.recognition.onend = () => {
+      if (this.state.currentTranscript) {
+        this.setState({ searchString: this.state.currentTranscript }, this.searchLocations);
+      }
+      this.setState({
+        isListening: false,
+        currentTranscript: '',
+      });
     };
 
     this.recognition.onerror = (event) => {
       this.recognition.stop();
-      this.setState({ isListening: false });
+      this.setState({
+        isListening: false,
+        currentTranscript: '',
+      });
     };
 
     this.recognition.start();
@@ -252,7 +265,7 @@ export default class MapPage extends Component {
           type="text"
           className="form-control"
           placeholder="Find what you need"
-          value={this.state.modifiedSearchString}
+          value={this.state.currentTranscript || this.state.modifiedSearchString}
           required
         />
         {this.state.isEnteringSearchString && (
@@ -331,19 +344,39 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderSpeechButton = () => (
-    <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
-      {this.state.isListening ? <ListeningIndicator /> : (
-        <Icon
-          onClick={this.startSpeechToText}
-          name="microphone"
-          className="border rounded-circle py-2 px-3 mb-2"
-          size="2x"
-          style={{ backgroundColor: '#F8E71C' }}
-        />
-      )}
-    </div>
-  );
+  renderSpeechElements = () => {
+    if (!this.state.isListening) {
+      return (
+        <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
+          <Icon
+            onClick={this.startSpeechToText}
+            name="microphone"
+            className="border rounded-circle py-2 px-3 mb-2"
+            size="2x"
+            style={{ backgroundColor: '#F8E71C' }}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 3,
+          backgroundColor: '#F8F8FC',
+        }}
+      >
+        <div style={{ position: 'relative', top: '50%' }}>
+          <ListeningIndicator />
+        </div>
+      </div>
+    );
+  };
 
   renderFilteredBottomBar = () => (
     <div
@@ -430,7 +463,7 @@ export default class MapPage extends Component {
               ))
             }
           </Map>
-          {this.state.isSpeechSupported && !isFiltering && this.renderSpeechButton()}
+          {this.state.isSpeechSupported && !isFiltering && this.renderSpeechElements()}
           {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
         </div>
       </div>
