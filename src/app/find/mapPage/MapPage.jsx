@@ -126,7 +126,17 @@ export default class MapPage extends Component {
   };
 
   updateSearchString = (event) => {
-    this.setState({ modifiedSearchString: event.target.value });
+    const newString = event.target.value;
+
+    const lowerString = newString.toLowerCase();
+    const suggestedCategory = newString ?
+      this.state.categories.find(category => category.name.toLowerCase().includes(lowerString)) :
+      null;
+
+    this.setState({
+      modifiedSearchString: newString,
+      suggestedCategoryForString: suggestedCategory,
+    });
   };
 
   filterCategory = (category) => {
@@ -138,6 +148,7 @@ export default class MapPage extends Component {
       this.setState({
         isEnteringSearchString: true,
         modifiedSearchString: '',
+        suggestedCategoryForString: null,
       });
     }
   };
@@ -146,6 +157,7 @@ export default class MapPage extends Component {
     this.setState({
       isEnteringSearchString: false,
       modifiedSearchString: '',
+      suggestedCategoryForString: null,
     });
   };
 
@@ -161,7 +173,19 @@ export default class MapPage extends Component {
       isEnteringSearchString: false,
       searchString: this.state.modifiedSearchString,
       modifiedSearchString: '',
+      suggestedCategoryForString: null,
     }, this.searchLocations);
+  };
+
+  filterSuggestedCategory = () => {
+    const category = this.state.suggestedCategoryForString;
+
+    this.setState({
+      isEnteringSearchString: false,
+      searchString: '',
+      modifiedSearchString: '',
+      suggestedCategoryForString: null,
+    }, () => this.filterCategory(category));
   };
 
   openFilters = () => {
@@ -173,8 +197,8 @@ export default class MapPage extends Component {
   // TODO: Add the icon to the tab order or whatnot.
   renderSearchBar = () => (
     <div
+      className="p-2"
       style={{
-        backgroundColor: '#323232',
         position: 'absolute',
         left: 0,
         top: 0,
@@ -182,7 +206,7 @@ export default class MapPage extends Component {
         zIndex: 4,
       }}
     >
-      <form className="input-group" style={{ padding: '.5em' }} onSubmit={this.submitSearchString} >
+      <form className="input-group border" onSubmit={this.submitSearchString} >
         {this.state.isEnteringSearchString && (
           <span
             style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
@@ -194,7 +218,7 @@ export default class MapPage extends Component {
         <input
           onChange={this.updateSearchString}
           onFocus={this.enterSearchMode}
-          style={{ border: 'none', borderRadius: 0 }}
+          style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
           type="text"
           className="form-control"
           placeholder="Find what you need"
@@ -211,6 +235,39 @@ export default class MapPage extends Component {
           </button>
         )}
       </form>
+    </div>
+  );
+
+  renderSearchOverlay = () => (
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        zIndex: 3,
+        height: this.state.isEnteringSearchString ? '100%' : 0,
+        transition: 'height 0.2s',
+        backgroundColor: '#F8F8FC',
+      }}
+    >
+      {this.state.suggestedCategoryForString && (
+        <div
+          className="font-weight-bold m-2 py-2 px-3 rounded shadow"
+          style={{
+            position: 'relative',
+            top: 50,
+            backgroundColor: 'blue',
+            color: 'white',
+          }}
+          onClick={this.filterSuggestedCategory}
+          onKeyDown={e => e.keyCode === 13 && this.filterSuggestedCategory()}
+          role="button"
+          tabIndex={0}
+        >
+          Show all places that provide {this.state.suggestedCategoryForString.name.toLowerCase()}
+        </div>
+      )}
     </div>
   );
 
@@ -286,21 +343,6 @@ export default class MapPage extends Component {
         ))}
       </div>
     </div>
-  );
-
-  renderSearchOverlay = () => (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 3,
-        height: this.state.isEnteringSearchString ? '100%' : 0,
-        transition: 'height 0.2s',
-        backgroundColor: '#F8F8FC',
-      }}
-    />
   );
 
   render() {
