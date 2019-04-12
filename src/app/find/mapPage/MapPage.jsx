@@ -253,7 +253,7 @@ export default class MapPage extends Component {
     >
       {this.state.suggestedCategoryForString && (
         <div
-          className="font-weight-bold m-2 py-2 px-3 rounded shadow"
+          className="font-weight-bold m-2 py-2 px-3 rounded shadow d-flex align-items-center"
           style={{
             position: 'relative',
             top: 50,
@@ -265,6 +265,11 @@ export default class MapPage extends Component {
           role="button"
           tabIndex={0}
         >
+          <Icon
+            name={getCategoryIcon(this.state.suggestedCategoryForString.name)}
+            size="lg"
+            className="mr-3"
+          />
           Show all places that provide {this.state.suggestedCategoryForString.name.toLowerCase()}
         </div>
       )}
