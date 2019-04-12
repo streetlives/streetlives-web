@@ -188,6 +188,10 @@ export default class MapPage extends Component {
     }, () => this.filterCategory(category));
   };
 
+  startListeningToVoice = () => {
+    // TODO: Implement, based on the implementation for comments.
+  };
+
   openFilters = () => {
     // eslint-disable-next-line no-alert
     alert('Further filters coming soon.');
@@ -301,6 +305,19 @@ export default class MapPage extends Component {
     </div>
   );
 
+  renderVoiceButton = () => (
+    <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
+      <Button
+        primary
+        compact
+        className="rounded-circle px-3"
+        onClick={this.startListeningToVoice}
+      >
+        <Icon name="microphone" size="2x" />
+      </Button>
+    </div>
+  );
+
   renderFilteredBottomBar = () => (
     <div
       className="d-flex justify-content-around"
@@ -386,6 +403,7 @@ export default class MapPage extends Component {
               ))
             }
           </Map>
+          {this.renderVoiceButton()}
           {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
         </div>
       </div>
