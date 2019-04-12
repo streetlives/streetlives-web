@@ -6,6 +6,7 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
+import ListeningIndicator from '../../../components/listeningIndicator';
 import LocationInfoMarker from './LocationInfoMarker';
 
 const selectableCategoryNames = ['food', 'clothing', 'personal care'];
@@ -27,6 +28,8 @@ export default class MapPage extends Component {
     filteredCategory: null,
     openLocationId: null,
     isChangingFilters: false,
+    isSpeechSupported: Object.prototype.hasOwnProperty.call(window, 'webkitSpeechRecognition'),
+    isListening: false,
   };
 
   componentDidMount() {
@@ -188,8 +191,31 @@ export default class MapPage extends Component {
     }, () => this.filterCategory(category));
   };
 
-  startListeningToVoice = () => {
-    // TODO: Implement, based on the implementation for comments.
+  startSpeechToText = () => {
+    // TODO: Avoid the duplication between this code and speech-to-text in comments.
+    // eslint-disable-next-line new-cap
+    this.recognition = new window.webkitSpeechRecognition();
+
+    this.recognition.continuous = false;
+    this.recognition.interimResults = false;
+
+    this.recognition.onstart = () => { this.setState({ isListening: true }); };
+    this.recognition.onend = () => { this.setState({ isListening: false }); };
+
+    this.recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i += 1) {
+        transcript += event.results[i][0].transcript;
+      }
+      this.setState({ searchString: transcript }, this.searchLocations);
+    };
+
+    this.recognition.onerror = (event) => {
+      this.recognition.stop();
+      this.setState({ isListening: false });
+    };
+
+    this.recognition.start();
   };
 
   openFilters = () => {
@@ -305,16 +331,17 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderVoiceButton = () => (
+  renderSpeechButton = () => (
     <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
-      <Button
-        primary
-        compact
-        className="rounded-circle px-3"
-        onClick={this.startListeningToVoice}
-      >
-        <Icon name="microphone" size="2x" />
-      </Button>
+      {this.state.isListening ? <ListeningIndicator /> : (
+        <Icon
+          onClick={this.startSpeechToText}
+          name="microphone"
+          className="border rounded-circle py-2 px-3 mb-2"
+          size="2x"
+          style={{ backgroundColor: '#F8E71C' }}
+        />
+      )}
     </div>
   );
 
@@ -403,7 +430,7 @@ export default class MapPage extends Component {
               ))
             }
           </Map>
-          {this.renderVoiceButton()}
+          {this.state.isSpeechSupported && !isFiltering && this.renderSpeechButton()}
           {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
         </div>
       </div>
