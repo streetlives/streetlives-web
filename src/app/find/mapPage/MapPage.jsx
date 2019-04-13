@@ -6,7 +6,7 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
-import ListeningIndicator from '../../../components/listeningIndicator';
+import Speech, { ListeningIndicator } from '../../../components/speech';
 import LocationInfoMarker from './LocationInfoMarker';
 
 const selectableCategoryNames = ['food', 'clothing', 'personal care'];
@@ -28,9 +28,6 @@ export default class MapPage extends Component {
     filteredCategory: null,
     openLocationId: null,
     isChangingFilters: false,
-    isSpeechSupported: Object.prototype.hasOwnProperty.call(window, 'webkitSpeechRecognition'),
-    isListening: false,
-    currentTranscript: '',
   };
 
   componentDidMount() {
@@ -181,6 +178,17 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
+  updateSearchStringFromSpeech = (searchString) => {
+    this.setState({ modifiedSearchString: searchString });
+  }
+
+  submitSearchFromSpeech = (text) => {
+    this.setState({
+      modifiedSearchString: '',
+      searchString: text,
+    }, this.searchLocations);
+  };
+
   filterSuggestedCategory = () => {
     const category = this.state.suggestedCategoryForString;
 
@@ -190,45 +198,6 @@ export default class MapPage extends Component {
       modifiedSearchString: '',
       suggestedCategoryForString: null,
     }, () => this.filterCategory(category));
-  };
-
-  startSpeechToText = () => {
-    // TODO: Avoid the duplication between this code and speech-to-text in comments.
-    // eslint-disable-next-line new-cap
-    this.recognition = new window.webkitSpeechRecognition();
-
-    this.recognition.continuous = false;
-    this.recognition.interimResults = true;
-
-    this.recognition.onstart = () => { this.setState({ isListening: true }); };
-
-    this.recognition.onresult = (event) => {
-      let transcript = '';
-      for (let i = 0; i < event.results.length; i += 1) {
-        transcript += event.results[i][0].transcript;
-      }
-      this.setState({ currentTranscript: transcript });
-    };
-
-    this.recognition.onend = () => {
-      if (this.state.currentTranscript) {
-        this.setState({ searchString: this.state.currentTranscript }, this.searchLocations);
-      }
-      this.setState({
-        isListening: false,
-        currentTranscript: '',
-      });
-    };
-
-    this.recognition.onerror = (event) => {
-      this.recognition.stop();
-      this.setState({
-        isListening: false,
-        currentTranscript: '',
-      });
-    };
-
-    this.recognition.start();
   };
 
   openFilters = () => {
@@ -344,39 +313,46 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderSpeechElements = () => {
-    if (!this.state.isListening) {
-      return (
-        <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
-          <Icon
-            onClick={this.startSpeechToText}
-            name="microphone"
-            className="border rounded-circle py-2 px-3 mb-2"
-            size="2x"
-            style={{ backgroundColor: '#F8E71C' }}
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 3,
-          backgroundColor: '#F8F8FC',
-        }}
-      >
-        <div style={{ position: 'relative', top: '50%' }}>
-          <ListeningIndicator />
-        </div>
-      </div>
-    );
-  };
+  renderSpeechElements = () => (
+    <Speech
+      onInterimText={this.updateSearchStringFromSpeech}
+      onGotText={this.submitSearchFromSpeech}
+    >
+      {({
+        isSpeechSupported,
+        isListening,
+        startSpeechToText,
+      }) => isSpeechSupported && (
+        isListening ? (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 3,
+              backgroundColor: '#F8F8FC',
+            }}
+          >
+            <div style={{ position: 'relative', top: '50%' }}>
+              <ListeningIndicator />
+            </div>
+          </div>
+        ) : (
+          <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
+            <Icon
+              onClick={startSpeechToText}
+              name="microphone"
+              className="border rounded-circle py-2 px-3 mb-2"
+              size="2x"
+              style={{ backgroundColor: '#F8E71C' }}
+            />
+          </div>
+        )
+      )}
+    </Speech>
+  );
 
   renderFilteredBottomBar = () => (
     <div
@@ -463,7 +439,7 @@ export default class MapPage extends Component {
               ))
             }
           </Map>
-          {this.state.isSpeechSupported && !isFiltering && this.renderSpeechElements()}
+          {!isFiltering && this.renderSpeechElements()}
           {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
         </div>
       </div>
