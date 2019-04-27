@@ -6,6 +6,7 @@ export default function About() {
   return (
     <div className="About-container">
       <div className="About-title-container">
+        <img className="About-logo" alt="streetlives logo" src="img/streetlives_logo.png" />
         <div className="About-headline">Streetlives is coming soon!</div>
         <div className="About-subheader">Streetlives is currently under development. For any questions or concerns, reach out to team@streetlives.nyc</div>
       </div>
