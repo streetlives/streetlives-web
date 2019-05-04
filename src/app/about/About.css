@@ -7,6 +7,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-size: 24px;
+  overflow-y: scroll;
 }
 
 .About-container p {
@@ -19,12 +20,8 @@
   text-decoration: underline;
 }
 
-.About-container {
-  overflow-y: scroll;
-}
-
-.About-title-container {
-  padding: 30px 100px 30px 100px;
+.About-banner {
+  padding: 50px 100px 50px 100px;
   background-color: black;
   color: white;
 }
@@ -42,38 +39,33 @@
 }
 
 .About-subheader {
-  margin-bottom: 50px;
   font-size: 36px;
   text-align: center;
 }
 
 .About {
-  padding: 100px;
+  padding: 0 100px 100px 100px;
   text-align: left;
   box-sizing: border-box;
   font-family: 'Open sans', sans-serif;
   line-height: 1.5;
 }
 
-.About h2 {
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 32px;
-  font-weight: bold;
-}
-
 .About-title {
   font-weight: bold;
-  font-size: 18px;
-  color: #333 ;
+  color: #333;
   line-height: normal;
-  margin-bottom: 30px;
-  text-transform: nonee;
+  margin: 50px 0;
+  text-transform: none;
 }
 
-.About h3{
+.About-section {
+  margin-bottom: 2em;
+}
+
+.About h3 {
   font-weight: lighter;
-  font-size: 32px;
+  font-size: 42px;
 }
 
 .About h4 {
@@ -81,7 +73,6 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin: 15px 0px;
 }
 
 .About a {
@@ -99,17 +90,19 @@
 }
 
 .About-Outreach .social-proof {
-  width: 150px;
-  margin: 0px 15px 0px 15px;
+  width: 220px;
+  margin: 30px 15px 0px 15px;
+  text-align: center;
 }
 
 .About-Outreach .social-proof img {
-  width: 150px;
+  max-width: 220px;
+  max-height: 100px;
 }
 
 @media screen and (max-width: 470px) {
-  .About {
-    padding: 20px;
+  .About-banner {
+    padding: 20px 20px 30px 20px;
   }
 
   .About-headline {
@@ -121,12 +114,23 @@
     font-size: 24px;
   }
 
-  .social-proof {
-    margin: 0px 0px 15px 0px;
+  .About {
+    padding: 0 20px 20px 20px;
+    font-size: 16px;
   }
 
-  .About {
-    font-size: 16px;
+  .About-title {
+    margin: 30px 0;
+  }
+
+  .About-Outreach .social-proof {
+    width: 150px;
+    margin: 0px 5px 15px 5px;
+  }
+
+  .About-Outreach .social-proof img {
+    max-width: 150px;
+    max-height: 100px;
   }
 
   .About h3 {
@@ -135,9 +139,5 @@
 
   .About h4 {
     font-size: 16px;
-  }
-
-  .About-title-container {
-    padding: 20px;
   }
 }
