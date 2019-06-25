@@ -16,15 +16,15 @@ const debouncePeriod = 500;
 
 export default class MapPage extends Component {
   state = {
+    categories: null,
     locations: null,
     zoomedLocations: null,
     center: null,
     radius: null,
-    categories: null,
-    searchString: '',
-    filteredCategory: null,
     openLocationId: null,
-    isChangingFilters: false,
+    isSearchingLocations: false,
+    searchString: '',
+    selectedCategory: null,
   };
 
   componentDidMount() {
@@ -50,8 +50,16 @@ export default class MapPage extends Component {
 
   getCurrentFilterString = () =>
     this.state.searchString ||
-    (this.state.filteredCategory &&
-      `places that provide ${this.state.filteredCategory.name.toLowerCase()}`);
+    (this.state.selectedCategory &&
+      `places that provide ${this.state.selectedCategory.name.toLowerCase()}`);
+
+  setSearchString = (searchString) => {
+    this.setState({ searchString }, this.searchLocations);
+  };
+
+  selectCategory = (category) => {
+    this.setState({ selectedCategory: category }, this.searchLocations);
+  };
 
   fetchLocations = (minResults) => {
     const {
@@ -59,7 +67,7 @@ export default class MapPage extends Component {
       radius,
       searchString,
       categories,
-      filteredCategory,
+      selectedCategory,
     } = this.state;
 
     if (!center || !categories) {
@@ -67,8 +75,8 @@ export default class MapPage extends Component {
       return Promise.resolve();
     }
 
-    const includedCategories = filteredCategory ?
-      [filteredCategory.id] :
+    const includedCategories = selectedCategory ?
+      [selectedCategory.id] :
       categories.map(({ id }) => id);
 
     return getLocations({
@@ -85,7 +93,7 @@ export default class MapPage extends Component {
           center !== this.state.center ||
           radius !== this.state.radius ||
           searchString !== this.state.searchString ||
-          filteredCategory !== this.state.filteredCategory
+          selectedCategory !== this.state.selectedCategory
         ) {
           resolve();
           return;
@@ -114,27 +122,19 @@ export default class MapPage extends Component {
   };
 
   searchLocations = () => {
-    this.setState({ isChangingFilters: true }, () => {
+    this.setState({ isSearchingLocations: true }, () => {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
-          isChangingFilters: false,
+          isSearchingLocations: false,
           zoomedLocations: this.state.locations.slice(0, minSearchResults),
         }));
     });
   };
 
-  filterCategory = (category) => {
-    this.setState({ filteredCategory: category }, this.searchLocations);
-  };
-
-  filterSearchString = (searchString) => {
-    this.setState({ searchString }, this.searchLocations);
-  };
-
   clearResults = () => {
     this.setState({
       searchString: null,
-      filteredCategory: null,
+      selectedCategory: null,
     }, this.searchLocations);
   };
 
@@ -155,7 +155,7 @@ export default class MapPage extends Component {
         zIndex: 2,
       }}
     >
-      {this.state.isChangingFilters ? (
+      {this.state.isSearchingLocations ? (
         <div>Loading results...</div>
       ) : (
         <div>
@@ -207,7 +207,7 @@ export default class MapPage extends Component {
             primary
             className="mx-0 p-0 d-flex flex-column align-items-center"
             key={category.id}
-            onClick={() => this.filterCategory(category)}
+            onClick={() => this.selectCategory(category)}
           >
             <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
             <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
@@ -223,8 +223,8 @@ export default class MapPage extends Component {
       <div className="Map">
         <Search
           suggestions={this.state.categories}
-          onSubmitString={this.filterSearchString}
-          onSubmitSuggestion={this.filterCategory}
+          onSubmitString={this.setSearchString}
+          onSubmitSuggestion={this.selectCategory}
         >
           {({ renderSearchBar, renderSearchOverlay, renderSpeechElements }) => (
             <div
@@ -238,7 +238,7 @@ export default class MapPage extends Component {
               }}
             >
               {
-                (isFiltering || this.state.isChangingFilters) ?
+                (isFiltering || this.state.isSearchingLocations) ?
                   this.renderFilteringInfoBar() :
                   renderSearchBar()
               }
