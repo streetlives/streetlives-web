@@ -6,8 +6,8 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
-import Speech, { ListeningIndicator } from '../../../components/speech';
 import LocationInfoMarker from './LocationInfoMarker';
+import Search from './Search';
 
 const selectableCategoryNames = ['food', 'clothing', 'personal care'];
 const minSearchResults = 3;
@@ -20,11 +20,8 @@ export default class MapPage extends Component {
     zoomedLocations: null,
     center: null,
     radius: null,
-    isEnteringSearchString: false,
-    searchString: '',
-    modifiedSearchString: '',
     categories: null,
-    suggestedCategoryForString: null,
+    searchString: '',
     filteredCategory: null,
     openLocationId: null,
     isChangingFilters: false,
@@ -126,40 +123,12 @@ export default class MapPage extends Component {
     });
   };
 
-  updateSearchString = (event) => {
-    const newString = event.target.value;
-
-    const lowerString = newString.toLowerCase();
-    const suggestedCategory = newString ?
-      this.state.categories.find(category => category.name.toLowerCase().includes(lowerString)) :
-      null;
-
-    this.setState({
-      modifiedSearchString: newString,
-      suggestedCategoryForString: suggestedCategory,
-    });
-  };
-
   filterCategory = (category) => {
     this.setState({ filteredCategory: category }, this.searchLocations);
   };
 
-  enterSearchMode = () => {
-    if (!this.state.isEnteringSearchString) {
-      this.setState({
-        isEnteringSearchString: true,
-        modifiedSearchString: '',
-        suggestedCategoryForString: null,
-      });
-    }
-  };
-
-  cancelSearchMode = () => {
-    this.setState({
-      isEnteringSearchString: false,
-      modifiedSearchString: '',
-      suggestedCategoryForString: null,
-    });
+  filterSearchString = (searchString) => {
+    this.setState({ searchString }, this.searchLocations);
   };
 
   clearResults = () => {
@@ -169,124 +138,10 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
-  submitSearchString = () => {
-    this.setState({
-      isEnteringSearchString: false,
-      searchString: this.state.modifiedSearchString,
-      modifiedSearchString: '',
-      suggestedCategoryForString: null,
-    }, this.searchLocations);
-  };
-
-  updateSearchStringFromSpeech = (searchString) => {
-    this.setState({ modifiedSearchString: searchString });
-  }
-
-  submitSearchFromSpeech = (text) => {
-    this.setState({
-      modifiedSearchString: '',
-      searchString: text,
-    }, this.searchLocations);
-  };
-
-  filterSuggestedCategory = () => {
-    const category = this.state.suggestedCategoryForString;
-
-    this.setState({
-      isEnteringSearchString: false,
-      searchString: '',
-      modifiedSearchString: '',
-      suggestedCategoryForString: null,
-    }, () => this.filterCategory(category));
-  };
-
   openFilters = () => {
     // eslint-disable-next-line no-alert
     alert('Further filters coming soon.');
   }
-
-  // TODO: Should be a (presentational) component, possibly shared between MapView and MapPage.
-  // TODO: Add the icon to the tab order or whatnot.
-  renderSearchBar = () => (
-    <div
-      className="p-2"
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 4,
-      }}
-    >
-      <form className="input-group border" onSubmit={this.submitSearchString} >
-        {this.state.isEnteringSearchString && (
-          <span
-            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
-            className="input-group-prepend input-group-text"
-          >
-            <Icon name="chevron-left" onClick={this.cancelSearchMode} style={{ color: 'white' }} />
-          </span>
-        )}
-        <input
-          onChange={this.updateSearchString}
-          onFocus={this.enterSearchMode}
-          style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
-          type="text"
-          className="form-control"
-          placeholder="Find what you need"
-          value={this.state.currentTranscript || this.state.modifiedSearchString}
-          required
-        />
-        {this.state.isEnteringSearchString && (
-          <button
-            type="submit"
-            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
-            className="input-group-text"
-          >
-            <Icon name="search" style={{ color: 'white' }} />
-          </button>
-        )}
-      </form>
-    </div>
-  );
-
-  renderSearchOverlay = () => (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 3,
-        height: this.state.isEnteringSearchString ? '100%' : 0,
-        transition: 'height 0.2s',
-        backgroundColor: '#F8F8FC',
-      }}
-    >
-      {this.state.suggestedCategoryForString && (
-        <div
-          className="font-weight-bold m-2 py-2 px-3 rounded shadow d-flex align-items-center"
-          style={{
-            position: 'relative',
-            top: 50,
-            backgroundColor: 'blue',
-            color: 'white',
-          }}
-          onClick={this.filterSuggestedCategory}
-          onKeyDown={e => e.keyCode === 13 && this.filterSuggestedCategory()}
-          role="button"
-          tabIndex={0}
-        >
-          <Icon
-            name={getCategoryIcon(this.state.suggestedCategoryForString.name)}
-            size="lg"
-            className="mr-3"
-          />
-          Show all places that provide {this.state.suggestedCategoryForString.name.toLowerCase()}
-        </div>
-      )}
-    </div>
-  );
 
   renderFilteringInfoBar = () => (
     <div
@@ -311,47 +166,6 @@ export default class MapPage extends Component {
         </div>
       )}
     </div>
-  );
-
-  renderSpeechElements = () => (
-    <Speech
-      onInterimText={this.updateSearchStringFromSpeech}
-      onGotText={this.submitSearchFromSpeech}
-    >
-      {({
-        isSpeechSupported,
-        isListening,
-        startSpeechToText,
-      }) => isSpeechSupported && (
-        isListening ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 3,
-              backgroundColor: '#F8F8FC',
-            }}
-          >
-            <div style={{ position: 'relative', top: '50%' }}>
-              <ListeningIndicator />
-            </div>
-          </div>
-        ) : (
-          <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
-            <Icon
-              onClick={startSpeechToText}
-              name="microphone"
-              className="border rounded-circle py-2 px-3 mb-2"
-              size="2x"
-              style={{ backgroundColor: '#F8E71C' }}
-            />
-          </div>
-        )
-      )}
-    </Speech>
   );
 
   renderFilteredBottomBar = () => (
@@ -407,41 +221,49 @@ export default class MapPage extends Component {
     const isFiltering = !!this.getCurrentFilterString();
     return (
       <div className="Map">
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1,
-          }}
+        <Search
+          suggestions={this.state.categories}
+          onSubmitString={this.filterSearchString}
+          onSubmitSuggestion={this.filterCategory}
         >
-          {
-            (isFiltering || this.state.isChangingFilters) ?
-              this.renderFilteringInfoBar() :
-              this.renderSearchBar()
-          }
-          <Map
-            onBoundsChanged={this.onBoundsChanged}
-            onClick={this.onMapClick}
-            zoomedLocations={this.state.zoomedLocations}
-          >
-            {this.renderSearchOverlay()}
-            {this.state.locations &&
-              this.state.locations.map(location => (
-                <LocationInfoMarker
-                  key={location.id}
-                  mapLocation={location}
-                  isOpen={location.id === this.state.openLocationId}
-                  onToggleInfo={this.onToggleMarkerInfo}
-                />
-              ))
-            }
-          </Map>
-          {!isFiltering && this.renderSpeechElements()}
-          {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
-        </div>
+          {({ renderSearchBar, renderSearchOverlay, renderSpeechElements }) => (
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 1,
+              }}
+            >
+              {
+                (isFiltering || this.state.isChangingFilters) ?
+                  this.renderFilteringInfoBar() :
+                  renderSearchBar()
+              }
+              <Map
+                onBoundsChanged={this.onBoundsChanged}
+                onClick={this.onMapClick}
+                zoomedLocations={this.state.zoomedLocations}
+              >
+                {renderSearchOverlay()}
+                {this.state.locations &&
+                  this.state.locations.map(location => (
+                    <LocationInfoMarker
+                      key={location.id}
+                      mapLocation={location}
+                      isOpen={location.id === this.state.openLocationId}
+                      onToggleInfo={this.onToggleMarkerInfo}
+                    />
+                  ))
+                }
+              </Map>
+              {!isFiltering && renderSpeechElements()}
+              {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}
+            </div>
+          )}
+        </Search>
       </div>
     );
   }
