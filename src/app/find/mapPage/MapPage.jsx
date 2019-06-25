@@ -23,8 +23,11 @@ export default class MapPage extends Component {
     radius: null,
     openLocationId: null,
     isSearchingLocations: false,
-    searchString: '',
-    selectedCategory: null,
+    isFilterModalOpen: false,
+    filters: {
+      searchString: null,
+      category: null,
+    },
   };
 
   componentDidMount() {
@@ -49,34 +52,47 @@ export default class MapPage extends Component {
   }, debouncePeriod);
 
   getCurrentFilterString = () =>
-    this.state.searchString ||
-    (this.state.selectedCategory &&
-      `places that provide ${this.state.selectedCategory.name.toLowerCase()}`);
+    this.state.filters.searchString ||
+    (this.state.filters.category &&
+      `places that provide ${this.state.filters.category.name.toLowerCase()}`);
 
   setSearchString = (searchString) => {
-    this.setState({ searchString }, this.searchLocations);
+    this.setState({
+      filters: {
+        ...this.state.filters,
+        searchString,
+      },
+    }, this.searchLocations);
   };
 
   selectCategory = (category) => {
-    this.setState({ selectedCategory: category }, this.searchLocations);
+    this.setState({
+      filters: {
+        ...this.state.filters,
+        category,
+      },
+    }, this.searchLocations);
   };
 
   fetchLocations = (minResults) => {
     const {
       center,
       radius,
-      searchString,
+      filters,
       categories,
-      selectedCategory,
     } = this.state;
+    const {
+      searchString,
+      category,
+    } = filters;
 
     if (!center || !categories) {
       // Can't fetch until we know which area and categories are relevant.
       return Promise.resolve();
     }
 
-    const includedCategories = selectedCategory ?
-      [selectedCategory.id] :
+    const includedCategories = category ?
+      [category.id] :
       categories.map(({ id }) => id);
 
     return getLocations({
@@ -92,8 +108,8 @@ export default class MapPage extends Component {
         if (
           center !== this.state.center ||
           radius !== this.state.radius ||
-          searchString !== this.state.searchString ||
-          selectedCategory !== this.state.selectedCategory
+          searchString !== this.state.filters.searchString ||
+          category !== this.state.filters.category
         ) {
           resolve();
           return;
@@ -132,10 +148,7 @@ export default class MapPage extends Component {
   };
 
   clearResults = () => {
-    this.setState({
-      searchString: null,
-      selectedCategory: null,
-    }, this.searchLocations);
+    this.setState({ filters: {} }, this.searchLocations);
   };
 
   openFilters = () => {
