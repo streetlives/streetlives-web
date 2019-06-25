@@ -53,10 +53,10 @@ export const getLocation = locationId => (dispatch) => {
 export const getTaxonomy = () => (dispatch) => {
   api
     .getTaxonomy()
-    .then(({ data }) =>
+    .then(taxonomy =>
       dispatch({
         type: GET_TAXONOMY_RESPONSE,
-        payload: data,
+        payload: taxonomy,
       }))
     .catch(e => console.error('error', e));
 };

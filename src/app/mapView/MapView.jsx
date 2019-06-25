@@ -6,45 +6,24 @@ import {
   getOrganizations,
   getOrganizationLocations,
 } from '../../services/api';
+import { getAddressForLocation } from '../../services/geocoding';
 import Map from '../../components/map';
 import Dropdown from '../../components/dropdown';
+import ExistingLocationMarker from './ExistingLocationMarker';
+import NewLocationMarker from './NewLocationMarker';
 
-const defaultCenter = { lat: 40.7831, lng: -73.9712 };
-const defaultZoom = 14;
-const minZoom = 11;
-const geolocationTimeout = 5000;
 const debouncePeriod = 500;
 
 export default class MapView extends Component {
   state = {
-    center: defaultCenter,
-    userPosition: null,
+    center: null,
     searchString: '',
     suggestions: [],
+    openLocationId: null,
+    newLocation: null,
   };
 
   componentDidMount() {
-    if (!navigator || !navigator.geolocation) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (userPosition) => {
-        const { coords } = userPosition;
-        const location = {
-          lat: coords.latitude,
-          lng: coords.longitude,
-        };
-
-        this.setState({
-          center: location,
-          userPosition: location,
-        });
-      },
-      e => console.error('Failed to get current position', e),
-      { timeout: geolocationTimeout },
-    );
-
     this.mapWrapper.addEventListener('touchstart', () => {
       this.searchInput.blur();
     }, true);
@@ -53,6 +32,37 @@ export default class MapView extends Component {
       this.searchInput.focus();
     }, true);
   }
+
+  onMapClick = (clickEvent) => {
+    getAddressForLocation(clickEvent.latLng)
+      .then((address) => {
+        const { formattedAddress, ...addressComponents } = address;
+
+        this.setState({
+          newLocation: {
+            position: { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] },
+            address: addressComponents,
+            formattedAddress,
+          },
+          openLocationId: null,
+        });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('Failed to get address for new location', err);
+      });
+  };
+
+  onToggleMarkerInfo = (toggledLocationId) => {
+    this.setState({
+      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
+      newLocation: null,
+    });
+  };
+
+  onNewLocationCancel = () => {
+    this.setState({ newLocation: null });
+  };
 
   onSearchChanged = (searchString) => {
     this.setState({ searchString }, () => {
@@ -106,7 +116,7 @@ export default class MapView extends Component {
             lng: coords[0],
           },
         });
-        this.map.onToggleMarkerInfo(firstLoc.id);
+        this.onToggleMarkerInfo(firstLoc.id);
       })
       .catch(e => console.error('error', e));
   }
@@ -120,6 +130,27 @@ export default class MapView extends Component {
       .then(locations => this.setState({ locations })) // TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
   };
+
+  renderLocationMarkers = () => (
+    <div>
+      {this.state.locations &&
+        this.state.locations.map(location => (
+          <ExistingLocationMarker
+            key={location.id}
+            mapLocation={location}
+            isOpen={location.id === this.state.openLocationId}
+            onToggleInfo={this.onToggleMarkerInfo}
+          />
+      ))}
+      {this.state.newLocation && (
+        <NewLocationMarker
+          key="new"
+          mapLocation={this.state.newLocation}
+          onClose={this.onNewLocationCancel}
+        />
+      )}
+    </div>
+  );
 
   render() {
     return (
@@ -192,29 +223,12 @@ export default class MapView extends Component {
           }}
         >
           <Map
-            ref={(m) => { this.map = m; }}
-            locations={this.state && this.state.locations}
-            options={{
-              minZoom,
-              disableDefaultUI: true,
-              gestureHandling: 'greedy',
-              clickableIcons: false,
-              styles: [
-                  {
-                      featureType: 'poi',
-                      elementType: 'labels',
-                      stylers: [
-                            { visibility: 'off' },
-                      ],
-                  },
-              ],
-            }}
-            defaultZoom={defaultZoom}
-            defaultCenter={defaultCenter}
             onBoundsChanged={this.onBoundsChanged}
+            onClick={this.onMapClick}
             center={this.state.center}
-            userPosition={this.state.userPosition}
-          />
+          >
+            {this.renderLocationMarkers()}
+          </Map>
         </div>
       </div>
     );

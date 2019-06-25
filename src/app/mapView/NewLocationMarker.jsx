@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { startCreatingNewLocation } from '../../actions';
-import LocationMarker from './LocationMarker';
-import './LocationMarker.css';
+import LocationMarker from '../../components/map/LocationMarker';
+import '../../components/map/LocationMarker.css';
 
 class NewLocationMarker extends Component {
   constructor(props) {

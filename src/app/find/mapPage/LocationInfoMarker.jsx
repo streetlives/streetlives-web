@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import LocationMarker from './LocationMarker';
-import './LocationMarker.css';
+import LocationMarker from '../../../components/map/LocationMarker';
+import '../../../components/map/LocationMarker.css';
 
 function renderPhone(phone) {
   const phoneLink = `tel:${phone.number}`;
@@ -37,7 +37,7 @@ function renderAddress(address) {
   );
 }
 
-class ExistingLocationMarker extends Component {
+class LocationInfoMarker extends Component {
   constructor(props) {
     super(props);
     this.handleYesClick = this.handleYesClick.bind(this);
@@ -49,7 +49,9 @@ class ExistingLocationMarker extends Component {
   }
 
   handleYesClick() {
-    this.props.history.push(`/location/${this.props.mapLocation.id}/recap`);
+    // this.props.history.push(`/location/${this.props.mapLocation.id}/recap`);
+    // eslint-disable-next-line no-alert
+    alert(`More information about ${this.props.mapLocation.Organization.name} coming soon.`);
   }
 
   render() {
@@ -81,11 +83,11 @@ class ExistingLocationMarker extends Component {
         </div>
         <br />
         <div>
-          Would you like to review, add, or edit<br /> information about this location?
+          Would you like to see more info<br /> about this location?
         </div>
       </LocationMarker>
     );
   }
 }
 
-export default withRouter(ExistingLocationMarker);
+export default withRouter(LocationInfoMarker);

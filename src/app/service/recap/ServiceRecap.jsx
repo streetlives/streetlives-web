@@ -3,13 +3,17 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { selectLocationData, selectOriginalLocationData, selectLocationError } from '../../../selectors/location';
+import {
+  selectLocationData,
+  selectOriginalLocationData,
+  selectLocationError,
+} from '../../../selectors/location';
 import { getTaxonomy } from '../../../selectors/taxonomy';
 import * as actions from '../../../actions';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
 import SectionHeader from '../../../components/sectionHeader';
-import getCategoryIcon from '../util/getCategoryIcon';
+import { getCategoryIcon } from '../../../services/iconography';
 import ThanksOverlay, { overlayStyles } from '../../locationForm/thanks/ThanksOverlay';
 import LoadingLabel from '../../../components/form/LoadingLabel';
 import ErrorLabel from '../../../components/form/ErrorLabel';

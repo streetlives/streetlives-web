@@ -25,6 +25,8 @@ import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
 import CommentsRouter from './comments/Router';
+// TODO: Move all the SSTT routes under /team, and make the end-user ones the main router.
+import FindRouter from './find/Router';
 import NotFound from './notFound/NotFound';
 import { store, history } from '../store/index';
 import config from '../config';
@@ -142,6 +144,10 @@ function App() {
             <Route
               path="/comments"
               component={withTracker(CommentsRouter)}
+            />
+            <Route
+              path="/find"
+              component={withTracker(FindRouter)}
             />
             <Route path="*" component={withTracker(NotFound)} />
           </Switch>

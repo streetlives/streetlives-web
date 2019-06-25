@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
-import ExistingLocationMarker from './ExistingLocationMarker';
-import NewLocationMarker from './NewLocationMarker';
-import { getAddressForLocation } from './geocodingUtil';
 import config from '../../config';
+
+const defaultCenter = { lat: 40.7831, lng: -73.9712 };
+const defaultZoom = 14;
+const minZoom = 11;
+const geolocationTimeout = 5000;
 
 const MyMap = compose(
   withProps({
@@ -20,8 +23,13 @@ const MyMap = compose(
       this.setState({
         onMapMounted: (ref) => {
           mapRef = ref;
+          this.props.onMapMounted(ref);
         },
         onBoundsChanged: () => {
+          if (!this.props.onBoundsChanged) {
+            return;
+          }
+
           const bounds = mapRef.getBounds();
           const center = bounds.getCenter();
           if (!bounds || !center) return;
@@ -29,6 +37,7 @@ const MyMap = compose(
             center,
             bounds.getSouthWest(),
           );
+
           this.props.onBoundsChanged({ bounds, center, radius });
         },
       });
@@ -39,7 +48,23 @@ const MyMap = compose(
 )(props => (
   <GoogleMap
     {...props}
-    onClick={props.onMapClick}
+    options={{
+      minZoom,
+      disableDefaultUI: true,
+      gestureHandling: 'greedy',
+      clickableIcons: false,
+      styles: [
+          {
+              featureType: 'poi',
+              elementType: 'labels',
+              stylers: [
+                    { visibility: 'off' },
+              ],
+          },
+      ],
+    }}
+    defaultZoom={defaultZoom}
+    defaultCenter={defaultCenter}
     ref={props.onMapMounted}
   >
     {!!props.userPosition &&
@@ -56,22 +81,7 @@ const MyMap = compose(
         }}
       />
     }
-    {props.locations &&
-      props.locations.map(location => (
-        <ExistingLocationMarker
-          key={location.id}
-          mapLocation={location}
-          isOpen={location.id === props.openLocationId}
-          onToggleInfo={props.onToggleMarkerInfo}
-        />
-      ))}
-    {props.newLocation && (
-      <NewLocationMarker
-        key="new"
-        mapLocation={props.newLocation}
-        onClose={props.onNewLocationCancel}
-      />
-    )}
+    {props.children}
   </GoogleMap>
 ));
 
@@ -79,56 +89,73 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      openLocationId: null,
-      newLocation: null,
+      userPosition: null,
     };
-    this.onToggleMarkerInfo = this.onToggleMarkerInfo.bind(this);
-    this.onMapClick = this.onMapClick.bind(this);
-    this.onNewLocationCancel = this.onNewLocationCancel.bind(this);
   }
 
-  onToggleMarkerInfo(toggledLocationId) {
-    this.setState({
-      openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
-      newLocation: null,
+  componentDidMount() {
+    if (!navigator || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (userPosition) => {
+        const { coords } = userPosition;
+        const location = {
+          lat: coords.latitude,
+          lng: coords.longitude,
+        };
+
+        this.setState({ userPosition: location });
+      },
+      // eslint-disable-next-line no-console
+      e => console.error('Failed to get current position', e),
+      { timeout: geolocationTimeout },
+    );
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!window.google ||
+      this.props.zoomedLocations === nextProps.zoomedLocations ||
+      !nextProps.zoomedLocations) {
+      return;
+    }
+
+    const oldBounds = this.mapRef.getBounds();
+
+    const zoomedOutBounds = oldBounds;
+    nextProps.zoomedLocations.forEach((location) => {
+      zoomedOutBounds.extend(new window.google.maps.LatLng(
+        location.position.coordinates[1],
+        location.position.coordinates[0],
+      ));
     });
+
+    this.mapRef.fitBounds(zoomedOutBounds, 0);
   }
 
-  onMapClick(clickEvent) {
-    getAddressForLocation(clickEvent.latLng)
-      .then((address) => {
-        const { formattedAddress, ...addressComponents } = address;
-
-        this.setState({
-          newLocation: {
-            position: { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] },
-            address: addressComponents,
-            formattedAddress,
-          },
-          openLocationId: null,
-        });
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error('Failed to get address for new location', err);
-      });
-  }
-
-  onNewLocationCancel() {
-    this.setState({ newLocation: null });
-  }
+  onMapMounted = (ref) => {
+    this.mapRef = ref;
+  };
 
   render() {
-    return (<MyMap
-      {...this.props}
-      openLocationId={this.state.openLocationId}
-      onToggleMarkerInfo={this.onToggleMarkerInfo}
-      onBoundsChanged={this.props.onBoundsChanged}
-      newLocation={this.state.newLocation}
-      onNewLocationCancel={this.onNewLocationCancel}
-      onMapClick={this.onMapClick}
-    />);
+    return (
+      <MyMap
+        {...this.props}
+        onMapMounted={this.onMapMounted}
+        userPosition={this.state.userPosition}
+        center={this.props.center || this.state.userPosition || defaultCenter}
+      />
+    );
   }
 }
+
+Map.propTypes = {
+  center: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
+  zoomedLocations: PropTypes.arrayOf(PropTypes.object),
+  onBoundsChanged: PropTypes.func,
+  onClick: PropTypes.func,
+  children: PropTypes.node,
+};
 
 export default Map;
