@@ -9,7 +9,7 @@ const FilterSelector = ({
   selectedValue,
 }) => (
   <div>
-    <Header size="medium" className="text-left">
+    <Header size="medium" className="text-left px-2">
       {title}
     </Header>
     <Selector fluid direction="row">
