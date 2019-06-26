@@ -1,6 +1,6 @@
 import filters from './filters';
 
-const categories = {
+export const categories = {
   food: 'food',
   clothing: 'clothing',
   personalCare: 'personal care',
@@ -11,6 +11,10 @@ export const selectableCategoryNames = [
   categories.clothing,
   categories.personalCare,
 ];
+
+export const selectableSubcategoryNames = {
+  [categories.food]: ['soup kitchen', 'food pantry'],
+};
 
 const categoryFilterModals = {
   [categories.food]: filters.FoodFiltersModal,
@@ -24,6 +28,8 @@ export const getFilterModalForCategory = (category) => {
 };
 
 export default {
+  categories,
   selectableCategoryNames,
+  selectableSubcategoryNames,
   getFilterModalForCategory,
 };
