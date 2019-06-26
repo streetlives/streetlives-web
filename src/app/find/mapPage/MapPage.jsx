@@ -8,8 +8,8 @@ import Button from '../../../components/button';
 import Icon from '../../../components/icon';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
+import { selectableCategoryNames, getFilterModalForCategory } from './categories';
 
-const selectableCategoryNames = ['food', 'clothing', 'personal care'];
 const minSearchResults = 3;
 
 const debouncePeriod = 500;
@@ -56,23 +56,18 @@ export default class MapPage extends Component {
     (this.state.filters.category &&
       `places that provide ${this.state.filters.category.name.toLowerCase()}`);
 
-  setSearchString = (searchString) => {
+  setFilters = (newFilters) => {
     this.setState({
+      isFilterModalOpen: false,
       filters: {
         ...this.state.filters,
-        searchString,
+        ...newFilters,
       },
     }, this.searchLocations);
   };
 
-  selectCategory = (category) => {
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        category,
-      },
-    }, this.searchLocations);
-  };
+  setSearchString = searchString => this.setFilters({ searchString });
+  selectCategory = category => this.setFilters({ category });
 
   fetchLocations = (minResults) => {
     const {
@@ -151,10 +146,13 @@ export default class MapPage extends Component {
     this.setState({ filters: {} }, this.searchLocations);
   };
 
-  openFilters = () => {
-    // eslint-disable-next-line no-alert
-    alert('Further filters coming soon.');
+  openFilterModal = () => {
+    this.setState({ isFilterModalOpen: true });
   }
+
+  closeFilterModal = () => {
+    this.setState({ isFilterModalOpen: false });
+  };
 
   renderFilteringInfoBar = () => (
     <div
@@ -195,9 +193,11 @@ export default class MapPage extends Component {
       <Button primary onClick={this.clearResults}>
           CLEAR RESULTS
       </Button>
-      <Button secondary onClick={this.openFilters}>
+      {this.state.filters.category && (
+        <Button secondary onClick={this.openFilterModal}>
           FILTER RESULTS
-      </Button>
+        </Button>
+      )}
     </div>
   );
 
@@ -230,10 +230,31 @@ export default class MapPage extends Component {
     </div>
   );
 
+  renderFiltersModal = () => {
+    const { category } = this.state.filters;
+
+    if (!category) {
+      return null;
+    }
+
+    const CategoryFiltersModal = getFilterModalForCategory(category);
+
+    return (
+      <CategoryFiltersModal
+        category={category}
+        defaultValues={this.state.filters}
+        onSubmit={this.setFilters}
+        onClose={this.closeFilterModal}
+      />
+    );
+  };
+
   render() {
     const isFiltering = !!this.getCurrentFilterString();
+
     return (
       <div className="Map">
+        {this.state.isFilterModalOpen && this.renderFiltersModal()}
         <Search
           suggestions={this.state.categories}
           onSubmitString={this.setSearchString}
