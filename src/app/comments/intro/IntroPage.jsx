@@ -7,7 +7,6 @@ function IntroPage(props) {
   return (
     <IntroComponent
       name={props.organizationName}
-      className="flex-grow-1 h-100"
       footer={(
         <small>
           Comments are anonymous unless you choose to share identifying information.
