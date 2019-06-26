@@ -1,25 +1,12 @@
 import React, { Component } from 'react';
 import FiltersModal from './FiltersModal';
 import FilterSelector from './FilterSelector';
+import { openOptions, referralOptions, clientOptions } from './commonFilters';
 
 const kindOptions = [
   { label: 'Any', value: null },
   { label: 'Everyday', value: 'everyday' },
   { label: 'Job interview', value: 'interview' },
-];
-const openOptions = [
-  { label: 'Open & closed', value: null },
-  { label: 'Open Now', value: true },
-];
-const referralOptions = [
-  { label: 'Any', value: null },
-  { label: 'Not required', value: false },
-  { label: 'Required', value: true },
-];
-const clientOptions = [
-  { label: 'Any', value: null },
-  { label: 'Not required', value: false },
-  { label: 'Required', value: true },
 ];
 
 class ClothingFiltersModal extends Component {
