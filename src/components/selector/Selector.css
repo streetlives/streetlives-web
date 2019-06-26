@@ -1,11 +1,24 @@
-.Selector > .Option {
+.Selector.Selector-column > .Option {
   margin-bottom: 10px;
 }
-
-.Selector > .Option.disable-padding {
-  margin-bottom: 0px;
+.Selector.Selector-row > .Option {
+  margin-right: 10px;
 }
 
-.Selector.Selector-fluid > .Option {
+.Selector.Selector-column > .Option.disable-padding {
+  margin-bottom: 0px;
+}
+.Selector.Selector-row > .Option.disable-padding {
+  margin-right: 0px;
+}
+
+.Selector.Selector-column.Selector-fluid > .Option {
   width: 100%;
+}
+.Selector.Selector-row.Selector-fluid > .Option {
+  flex: 1;
+}
+
+.Selector.Selector-row {
+  display: flex;
 }

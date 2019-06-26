@@ -5,7 +5,14 @@ import Icon from '../../icon';
 import './Option.css';
 
 function Option({
-  active, align = 'left', children, onClick, disabled, disablePadding, hide,
+  active,
+  align = 'left',
+  children,
+  onClick,
+  disabled,
+  disablePadding,
+  disableCheckmark,
+  hide,
 }) {
   const classNames = cx('Option d-flex justify-content-between align-items-center', {
     'Option-active': active,
@@ -19,7 +26,7 @@ function Option({
   return (
     <button className={classNames} onClick={!disabled ? onClick : () => {}} disabled={disabled}>
       <div className="w-100">{children}</div>
-      {active && <Icon name="check" />}
+      {active && !disableCheckmark && <Icon name="check" />}
     </button>
   );
 }

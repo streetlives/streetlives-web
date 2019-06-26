@@ -4,9 +4,15 @@ import './Selector.css';
 
 import Option from './option/Option';
 
-function Selector({ fluid, children }) {
+function Selector({
+  fluid,
+  direction = 'column',
+  children,
+}) {
   const classNames = cx('Selector', {
     'Selector-fluid': fluid,
+    'Selector-column': direction === 'column',
+    'Selector-row': direction === 'row',
   });
 
   return <div className={classNames}>{children}</div>;
