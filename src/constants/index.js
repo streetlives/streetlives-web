@@ -22,3 +22,8 @@ export const SERVICE_GROUPS = [
   ['Veterans'],
   ['Organization clients only'],
 ];
+
+export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
+  clothesPurpose: 'clothesPurpose',
+  hasHivNutrition: 'hasHivNutrition',
+};

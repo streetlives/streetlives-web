@@ -79,6 +79,8 @@ export default class MapPage extends Component {
     const {
       searchString,
       category,
+      subcategoryId,
+      ...additionalFilters
     } = filters;
 
     if (!center || !categories) {
@@ -86,25 +88,32 @@ export default class MapPage extends Component {
       return Promise.resolve();
     }
 
-    const includedCategories = category ?
-      [category.id] :
-      categories.map(({ id }) => id);
+    let includedCategories;
+    if (subcategoryId) {
+      includedCategories = [subcategoryId];
+    } else if (category) {
+      includedCategories = [category.id];
+    } else {
+      includedCategories = categories.map(({ id }) => id);
+    }
 
     return getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
-      taxonomyIds: includedCategories,
-      searchString,
       minResults,
+      searchString,
+      serviceFilters: {
+        ...additionalFilters,
+        taxonomyIds: includedCategories,
+      },
     })
       .then(locations => new Promise((resolve) => {
         // Ignore stale responses.
         if (
           center !== this.state.center ||
           radius !== this.state.radius ||
-          searchString !== this.state.filters.searchString ||
-          category !== this.state.filters.category
+          filters !== this.state.filters
         ) {
           resolve();
           return;

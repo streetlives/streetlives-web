@@ -14,7 +14,7 @@ class ClothingFiltersModal extends Component {
     filterValues: {
       clothingKind: null,
       openNow: null,
-      referralLetter: null,
+      referralRequired: null,
       clientsOnly: null,
       ...this.props.defaultValues,
     },
@@ -56,8 +56,8 @@ class ClothingFiltersModal extends Component {
         <FilterSelector
           title="Referral letter"
           options={referralOptions}
-          onSelect={referralLetter => this.setFilterValues({ referralLetter })}
-          selectedValue={filterValues.referralLetter}
+          onSelect={referralRequired => this.setFilterValues({ referralRequired })}
+          selectedValue={filterValues.referralRequired}
         />
         <FilterSelector
           title="Client of the organization"

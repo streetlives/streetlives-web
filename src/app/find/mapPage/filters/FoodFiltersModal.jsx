@@ -14,7 +14,7 @@ class FoodFiltersModal extends Component {
     filterValues: {
       openNow: null,
       hivNutrition: null,
-      foodSubcategory: null,
+      subcategoryId: null,
       ...this.props.defaultValues,
     },
   };
@@ -49,8 +49,8 @@ class FoodFiltersModal extends Component {
         <FilterSelector
           title="Kind"
           options={subcategoryOptions}
-          onSelect={foodSubcategory => this.setFilterValues({ foodSubcategory })}
-          selectedValue={filterValues.foodSubcategory}
+          onSelect={subcategoryId => this.setFilterValues({ subcategoryId })}
+          selectedValue={filterValues.subcategoryId}
         />
         <div className="border-bottom text-left py-2 px-3">
           <Checkbox

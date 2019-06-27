@@ -1,14 +1,22 @@
 import axios from 'axios';
 import config from '../config';
+import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../constants';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
   latitude,
   longitude,
   radius,
-  searchString,
-  taxonomyIds,
   minResults,
+  searchString,
+  serviceFilters: {
+    taxonomyIds,
+    openNow,
+    referralRequired,
+    clientsOnly,
+    clothingKind,
+    hivNutrition,
+  },
 }) => {
   const params = {
     latitude,
@@ -24,6 +32,28 @@ export const getLocations = ({
   }
   if (minResults) {
     params.minResults = minResults;
+  }
+  if (openNow) {
+    params.openAt = (new Date()).toISOString();
+  }
+  if (referralRequired != null) {
+    params.referralRequired = referralRequired;
+  }
+  if (clientsOnly != null) {
+    params.membership = clientsOnly;
+  }
+
+  const attributes = [];
+  if (clothingKind) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesPurpose);
+    attributes.push(clothingKind);
+  }
+  if (hivNutrition != null) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.hasHivNutrition);
+    attributes.push(hivNutrition);
+  }
+  if (attributes.length) {
+    params.taxonomySpecificAttributes = attributes;
   }
 
   return axios
