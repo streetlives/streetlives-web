@@ -202,12 +202,12 @@ export default class MapPage extends Component {
     const onClick = filters.category ? this.openFilterModal : this.toggleOpenNow;
 
     let text;
-    if (areModalFiltersApplied) {
-      text = 'Filters applied';
-    } else if (filters.category) {
-      text = 'Filter results';
-    } else {
+    if (!filters.category) {
       text = 'Open now';
+    } else if (areModalFiltersApplied) {
+      text = 'Filters applied';
+    } else {
+      text = 'Filter results';
     }
 
     return (
