@@ -69,6 +69,8 @@ export default class MapPage extends Component {
   setSearchString = searchString => this.setFilters({ searchString });
   selectCategory = category => this.setFilters({ category });
 
+  toggleOpenNow = () => this.setFilters({ openNow: this.state.filters.openNow ? null : true });
+
   fetchLocations = (minResults) => {
     const {
       center,
@@ -146,7 +148,7 @@ export default class MapPage extends Component {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
           isSearchingLocations: false,
-          zoomedLocations: this.state.locations.slice(0, minSearchResults),
+          zoomedLocations: this.state.locations && this.state.locations.slice(0, minSearchResults),
         }));
     });
   };
@@ -188,25 +190,50 @@ export default class MapPage extends Component {
     </div>
   );
 
+  renderFiltersButton = () => {
+    const { filters } = this.state;
+    const excludedFilters = ['searchString', 'category'];
+    const areModalFiltersApplied = Object.keys(filters)
+      .filter(key => !excludedFilters.includes(key) && this.state.filters[key] != null)
+      .length > 0;
+
+    const type = areModalFiltersApplied ? 'secondary' : 'primary';
+    const iconName = filters.category ? 'sliders-h' : 'clock';
+    const onClick = filters.category ? this.openFilterModal : this.toggleOpenNow;
+
+    let text;
+    if (areModalFiltersApplied) {
+      text = 'Filters applied';
+    } else if (filters.category) {
+      text = 'Filter results';
+    } else {
+      text = 'Open now';
+    }
+
+    return (
+      <Button onClick={onClick} half className="mx-2" {...{ [type]: true }}>
+        <Icon name={iconName} className="mr-2" />
+        {text}
+      </Button>
+    );
+  };
+
   renderFilteredBottomBar = () => (
     <div
       className="d-flex justify-content-around"
       style={{
         position: 'absolute',
         bottom: '1em',
-        left: '1em',
-        right: '1em',
+        left: 0,
+        right: 0,
         zIndex: 2,
       }}
     >
-      <Button primary onClick={this.clearResults}>
-          CLEAR RESULTS
+      <Button primary onClick={this.clearResults} half className="mx-2">
+        <Icon name="times-circle" className="mr-2" />
+        Go to home
       </Button>
-      {this.state.filters.category && (
-        <Button secondary onClick={this.openFilterModal}>
-          FILTER RESULTS
-        </Button>
-      )}
+      {this.renderFiltersButton()}
     </div>
   );
 
