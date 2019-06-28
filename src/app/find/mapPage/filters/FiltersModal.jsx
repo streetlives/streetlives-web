@@ -30,7 +30,15 @@ const FiltersModal = ({
       {children}
     </div>
     <div className="p-3 fixed-bottom">
-      <Button onClick={onSubmit} primary fluid>
+      <Button onClick={onSubmit} primary fluid className="position-relative">
+        <Icon
+          name="check"
+          style={{
+            position: 'absolute',
+            left: 16,
+            lineHeight: 'inherit',
+          }}
+        />
         Done
       </Button>
     </div>
