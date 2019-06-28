@@ -14,6 +14,12 @@ const minSearchResults = 3;
 
 const debouncePeriod = 500;
 
+const initialFiltersState = {
+  searchString: null,
+  category: null,
+  advancedFilters: {},
+};
+
 export default class MapPage extends Component {
   state = {
     categories: null,
@@ -24,10 +30,7 @@ export default class MapPage extends Component {
     openLocationId: null,
     isSearchingLocations: false,
     isFilterModalOpen: false,
-    filters: {
-      searchString: null,
-      category: null,
-    },
+    filters: initialFiltersState,
   };
 
   componentDidMount() {
@@ -51,10 +54,29 @@ export default class MapPage extends Component {
     });
   }, debouncePeriod);
 
-  getCurrentFilterString = () =>
-    this.state.filters.searchString ||
-    (this.state.filters.category &&
-      `places that provide ${this.state.filters.category.name.toLowerCase()}`);
+  getAdvancedFilterValues = () =>
+    Object.values(this.state.filters.advancedFilters).filter(option => option != null);
+
+  getCurrentFilterString = () => {
+    const { searchString, category } = this.state.filters;
+
+    if (searchString) {
+      return searchString;
+    }
+
+    if (!category) {
+      return null;
+    }
+
+    const chainStrings = strs => (strs.length < 2 ?
+      strs[0] :
+      `${strs.slice(0, strs.length - 1).join(', ')} and ${strs[strs.length - 1]}`);
+
+    return chainStrings([
+      `places that provide ${category.name.toLowerCase()}`,
+      ...this.getAdvancedFilterValues().map(({ description }) => description),
+    ]);
+  };
 
   setFilters = (newFilters) => {
     this.setState({
@@ -66,10 +88,21 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
-  setSearchString = searchString => this.setFilters({ searchString });
-  selectCategory = category => this.setFilters({ category });
+  setAdvancedFilters = newFilters => this.setFilters({
+    advancedFilters: {
+      ...this.state.filters.advancedFilters,
+      ...newFilters,
+    },
+  });
 
-  toggleOpenNow = () => this.setFilters({ openNow: this.state.filters.openNow ? null : true });
+  setSearchString = searchString => this.setFilters({ searchString });
+  setCategory = category => this.setFilters({ category });
+
+  toggleOpenNow = () => this.setAdvancedFilters({
+    openNow: this.state.filters.advancedFilters.openNow ?
+      null :
+      { value: true, description: 'that are open now' },
+  });
 
   fetchLocations = (minResults) => {
     const {
@@ -81,8 +114,7 @@ export default class MapPage extends Component {
     const {
       searchString,
       category,
-      subcategoryId,
-      ...additionalFilters
+      advancedFilters,
     } = filters;
 
     if (!center || !categories) {
@@ -91,8 +123,8 @@ export default class MapPage extends Component {
     }
 
     let includedCategories;
-    if (subcategoryId) {
-      includedCategories = [subcategoryId];
+    if (advancedFilters.subcategoryId) {
+      includedCategories = [advancedFilters.subcategoryId.value];
     } else if (category) {
       includedCategories = [category.id];
     } else {
@@ -106,7 +138,12 @@ export default class MapPage extends Component {
       minResults,
       searchString,
       serviceFilters: {
-        ...additionalFilters,
+        ...Object.keys(advancedFilters)
+          .filter(key => advancedFilters[key] != null)
+          .reduce((activeFilters, key) => ({
+            ...activeFilters,
+            [key]: advancedFilters[key].value,
+          }), {}),
         taxonomyIds: includedCategories,
       },
     })
@@ -154,7 +191,7 @@ export default class MapPage extends Component {
   };
 
   clearResults = () => {
-    this.setState({ filters: {} }, this.searchLocations);
+    this.setFilters(initialFiltersState);
   };
 
   openFilterModal = () => {
@@ -192,10 +229,8 @@ export default class MapPage extends Component {
 
   renderFiltersButton = () => {
     const { filters } = this.state;
-    const excludedFilters = ['searchString', 'category'];
-    const areModalFiltersApplied = Object.keys(filters)
-      .filter(key => !excludedFilters.includes(key) && this.state.filters[key] != null)
-      .length > 0;
+
+    const areModalFiltersApplied = this.getAdvancedFilterValues().length > 0;
 
     const type = areModalFiltersApplied ? 'secondary' : 'primary';
     const iconName = filters.category ? 'sliders-h' : 'clock';
@@ -256,7 +291,7 @@ export default class MapPage extends Component {
             primary
             className="mx-0 p-0 d-flex flex-column align-items-center"
             key={category.id}
-            onClick={() => this.selectCategory(category)}
+            onClick={() => this.setCategory(category)}
           >
             <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
             <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
@@ -278,8 +313,8 @@ export default class MapPage extends Component {
     return (
       <CategoryFiltersModal
         category={category}
-        defaultValues={this.state.filters}
-        onSubmit={this.setFilters}
+        defaultValues={this.state.filters.advancedFilters}
+        onSubmit={this.setAdvancedFilters}
         onClose={this.closeFilterModal}
       />
     );
@@ -294,7 +329,7 @@ export default class MapPage extends Component {
         <Search
           suggestions={this.state.categories}
           onSubmitString={this.setSearchString}
-          onSubmitSuggestion={this.selectCategory}
+          onSubmitSuggestion={this.setCategory}
         >
           {({ renderSearchBar, renderSearchOverlay, renderSpeechElements }) => (
             <div

@@ -12,9 +12,9 @@ const filterSelectableSubcategories = subcategories =>
 class FoodFiltersModal extends Component {
   state = {
     filterValues: {
-      openNow: null,
-      hivNutrition: null,
       subcategoryId: null,
+      hivNutrition: null,
+      openNow: null,
       ...this.props.defaultValues,
     },
   };
@@ -34,10 +34,11 @@ class FoodFiltersModal extends Component {
     const { onClose, category } = this.props;
     const { filterValues } = this.state;
 
-    const relevantSubcategories = filterSelectableSubcategories(category.children);
+    const subcategories = filterSelectableSubcategories(category.children);
     const subcategoryOptions = [
       { label: 'Any', value: null },
-      ...relevantSubcategories.map(({ name, id }) => ({ label: name, value: id })),
+      ...subcategories.map(({ name, id }) =>
+        ({ label: name, value: id, description: `have a ${name.toLowerCase()}` })),
     ];
 
     return (
@@ -50,13 +51,15 @@ class FoodFiltersModal extends Component {
           title="Kind"
           options={subcategoryOptions}
           onSelect={subcategoryId => this.setFilterValues({ subcategoryId })}
-          selectedValue={filterValues.subcategoryId}
+          selectedOption={filterValues.subcategoryId}
         />
         <div className="border-bottom text-left py-2 px-3">
           <Checkbox
             name="hivNutrition"
             label="Must have HIV+ nutrition"
-            onChange={checked => this.setFilterValues({ hivNutrition: checked ? true : null })}
+            onChange={checked => this.setFilterValues({
+              hivNutrition: checked ? { value: true, description: 'have HIV+ nutrition' } : null,
+            })}
             checked={!!filterValues.hivNutrition}
           />
         </div>
@@ -64,7 +67,7 @@ class FoodFiltersModal extends Component {
           title="Opening hours"
           options={openOptions}
           onSelect={openNow => this.setFilterValues({ openNow })}
-          selectedValue={filterValues.openNow}
+          selectedOption={filterValues.openNow}
         />
       </FiltersModal>
     );

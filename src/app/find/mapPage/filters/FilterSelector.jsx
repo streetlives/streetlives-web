@@ -6,7 +6,7 @@ const FilterSelector = ({
   title,
   options,
   onSelect,
-  selectedValue,
+  selectedOption,
 }) => (
   <div>
     <Header size="medium" className="text-left px-2">
@@ -16,8 +16,10 @@ const FilterSelector = ({
       {options.map(option => (
         <Selector.Option
           key={option.label}
-          onClick={() => onSelect(option.value)}
-          active={selectedValue === option.value}
+          onClick={() => (option.value != null ? onSelect(option) : onSelect(null))}
+          active={selectedOption == null ?
+            option.value == null :
+            selectedOption.value === option.value}
           disablePadding
           disableCheckmark
           align="center"

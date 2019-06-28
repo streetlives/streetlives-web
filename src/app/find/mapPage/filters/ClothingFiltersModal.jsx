@@ -5,8 +5,8 @@ import { openOptions, referralOptions, clientOptions } from './commonFilters';
 
 const kindOptions = [
   { label: 'Any', value: null },
-  { label: 'Everyday', value: 'everyday' },
-  { label: 'Job interview', value: 'interview' },
+  { label: 'Everyday', value: 'everyday', description: 'for everyday use' },
+  { label: 'Job interview', value: 'interview', description: 'for interviews' },
 ];
 
 class ClothingFiltersModal extends Component {
@@ -45,25 +45,25 @@ class ClothingFiltersModal extends Component {
           title="Kind"
           options={kindOptions}
           onSelect={clothingKind => this.setFilterValues({ clothingKind })}
-          selectedValue={filterValues.clothingKind}
+          selectedOption={filterValues.clothingKind}
         />
         <FilterSelector
           title="Opening hours"
           options={openOptions}
           onSelect={openNow => this.setFilterValues({ openNow })}
-          selectedValue={filterValues.openNow}
+          selectedOption={filterValues.openNow}
         />
         <FilterSelector
           title="Referral letter"
           options={referralOptions}
           onSelect={referralRequired => this.setFilterValues({ referralRequired })}
-          selectedValue={filterValues.referralRequired}
+          selectedOption={filterValues.referralRequired}
         />
         <FilterSelector
           title="Client of the organization"
           options={clientOptions}
           onSelect={clientsOnly => this.setFilterValues({ clientsOnly })}
-          selectedValue={filterValues.clientsOnly}
+          selectedOption={filterValues.clientsOnly}
         />
       </FiltersModal>
     );
