@@ -26,3 +26,9 @@
 .Option.Option-hide {
   display:none !important;
 }
+
+.Option.Option-active > .Icon {
+  top: 14px;
+  right: 10px;
+  position: absolute;
+}
