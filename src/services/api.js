@@ -16,7 +16,7 @@ export const getLocations = ({
     clientsOnly,
     clothingKind,
     hivNutrition,
-  },
+  } = {},
 }) => {
   const params = {
     latitude,
