@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import './Icon.css';
 
 function Icon({
   name,
@@ -10,7 +9,7 @@ function Icon({
   className,
   style,
 }) {
-  const classNames = cx(`fa fa-${name} Icon-${name}`, className, {
+  const classNames = cx(`fa fa-${name}`, className, {
     Icon: true,
     'fa-lg': size === 'lg',
     'fa-2x': size === '2x',
