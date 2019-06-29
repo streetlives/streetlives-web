@@ -1,3 +1,20 @@
-.Info {
-  /* box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); */
+@value primaryColor from "../../colors.css";
+
+.Info-solid > g > g > circle {
+  fill: primaryColor;
+}
+
+.Info-large {
+  width: 46px;
+  height: 46px;
+}
+
+.Info-medium {
+  width: 34px;
+  height: 34px;
+}
+
+.Info-small {
+  width: 26px;
+  height: 26px;
 }
