@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import FiltersModal from './FiltersModal';
 import FilterSelector from './FilterSelector';
-import { openOptions, referralOptions, clientOptions } from './commonFilters';
+import {
+  openOptions,
+  referralOptions,
+  referralExplanation,
+  clientOptions,
+  clientExplanation,
+} from './commonFilters';
 
 class PersonalCareFiltersModal extends Component {
   state = {
@@ -43,12 +49,14 @@ class PersonalCareFiltersModal extends Component {
         <FilterSelector
           title="Referral letter"
           options={referralOptions}
+          explanation={referralExplanation}
           onSelect={referralRequired => this.setFilterValues({ referralRequired })}
           selectedOption={filterValues.referralRequired}
         />
         <FilterSelector
           title="Client of the organization"
           options={clientOptions}
+          explanation={clientExplanation}
           onSelect={clientsOnly => this.setFilterValues({ clientsOnly })}
           selectedOption={filterValues.clientsOnly}
         />

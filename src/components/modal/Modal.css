@@ -8,3 +8,9 @@
   background-color: white;
   overflow: auto;
 }
+
+.Modal.Modal-compact {
+  top: 50%;
+  bottom: inherit;
+  transform: translateY(-70%);
+}
