@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import FiltersModal from './FiltersModal';
+import React from 'react';
 import FilterSelector from './FilterSelector';
 import {
   openOptions,
@@ -15,67 +14,35 @@ const kindOptions = [
   { label: 'Job interview', value: 'interview', description: 'for interviews' },
 ];
 
-class ClothingFiltersModal extends Component {
-  state = {
-    filterValues: {
-      clothingKind: null,
-      openNow: null,
-      referralRequired: null,
-      clientsOnly: null,
-      ...this.props.defaultValues,
-    },
-  };
-
-  setFilterValues = values => this.setState({
-    filterValues: {
-      ...this.state.filterValues,
-      ...values,
-    },
-  });
-
-  submit = () => {
-    this.props.onSubmit(this.state.filterValues);
-  };
-
-  render() {
-    const { onClose } = this.props;
-    const { filterValues } = this.state;
-
-    return (
-      <FiltersModal
-        title="Clothing Filters"
-        onSubmit={this.submit}
-        onClose={onClose}
-      >
-        <FilterSelector
-          title="Kind"
-          options={kindOptions}
-          onSelect={clothingKind => this.setFilterValues({ clothingKind })}
-          selectedOption={filterValues.clothingKind}
-        />
-        <FilterSelector
-          title="Opening hours"
-          options={openOptions}
-          onSelect={openNow => this.setFilterValues({ openNow })}
-          selectedOption={filterValues.openNow}
-        />
-        <FilterSelector
-          title="Referral letter"
-          options={referralOptions}
-          explanation={referralExplanation}
-          onSelect={referralRequired => this.setFilterValues({ referralRequired })}
-          selectedOption={filterValues.referralRequired}
-        />
-        <FilterSelector
-          title="Client of the organization"
-          options={clientOptions}
-          explanation={clientExplanation}
-          onSelect={clientsOnly => this.setFilterValues({ clientsOnly })}
-          selectedOption={filterValues.clientsOnly}
-        />
-      </FiltersModal>
-    );
-  }
-}
+const ClothingFiltersModal = ({ values, onChange }) => (
+  <div>
+    <FilterSelector
+      title="Kind"
+      options={kindOptions}
+      onSelect={clothingKind => onChange({ clothingKind })}
+      selectedOption={values.clothingKind}
+    />
+    <FilterSelector
+      title="Opening hours"
+      options={openOptions}
+      onSelect={openNow => onChange({ openNow })}
+      selectedOption={values.openNow}
+    />
+    <FilterSelector
+      title="Referral letter"
+      options={referralOptions}
+      explanation={referralExplanation}
+      onSelect={referralRequired => onChange({ referralRequired })}
+      selectedOption={values.referralRequired}
+    />
+    <FilterSelector
+      title="Client of the organization"
+      options={clientOptions}
+      explanation={clientExplanation}
+      onSelect={clientsOnly => onChange({ clientsOnly })}
+      selectedOption={values.clientsOnly}
+    />
+  </div>
+);
 
 export default ClothingFiltersModal;

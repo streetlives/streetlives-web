@@ -6,9 +6,10 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
+import FiltersModal from './filters/FiltersModal';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
-import { selectableCategoryNames, getFilterModalForCategory } from './categories';
+import { selectableCategoryNames } from './categories';
 
 const minSearchResults = 3;
 
@@ -301,31 +302,19 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderFiltersModal = () => {
-    const { category } = this.state.filters;
-
-    if (!category) {
-      return null;
-    }
-
-    const CategoryFiltersModal = getFilterModalForCategory(category);
-
-    return (
-      <CategoryFiltersModal
-        category={category}
-        defaultValues={this.state.filters.advancedFilters}
-        onSubmit={this.setAdvancedFilters}
-        onClose={this.closeFilterModal}
-      />
-    );
-  };
-
   render() {
     const isFiltering = !!this.getCurrentFilterString();
 
     return (
       <div className="Map">
-        {this.state.isFilterModalOpen && this.renderFiltersModal()}
+        {this.state.isFilterModalOpen && this.state.filters.category && (
+          <FiltersModal
+            category={this.state.filters.category}
+            defaultValues={this.state.filters.advancedFilters}
+            onSubmit={this.setAdvancedFilters}
+            onClose={this.closeFilterModal}
+          />
+        )}
         <Search
           suggestions={this.state.categories}
           onSubmitString={this.setSearchString}
