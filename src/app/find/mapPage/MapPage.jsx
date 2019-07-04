@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations, getTaxonomy } from '../../../services/api';
+import { getLocations } from '../../../services/api';
 import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
@@ -9,7 +9,6 @@ import Icon from '../../../components/icon';
 import FiltersModal from './filters/FiltersModal';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
-import { selectableCategoryNames } from './categories';
 
 const minSearchResults = 3;
 
@@ -22,7 +21,6 @@ const initialFiltersState = {
 
 export default class MapPage extends Component {
   state = {
-    categories: null,
     initialLocationsLoaded: false,
     locations: null,
     zoomedLocations: null,
@@ -35,11 +33,12 @@ export default class MapPage extends Component {
   };
 
   componentDidMount() {
-    this.fetchCategories();
+    this.props.fetchCategories();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.categoryName !== this.props.categoryName) {
+    if (nextProps.category !== this.props.category ||
+      nextProps.categories !== this.props.categories) {
       this.searchLocations();
     }
   }
@@ -66,15 +65,12 @@ export default class MapPage extends Component {
     });
   }, debouncePeriod);
 
-  getCategory = () => this.state.categories &&
-    this.state.categories.find(category => category.name === this.props.categoryName);
-
   getAdvancedFilterValues = () =>
     Object.values(this.state.filters.advancedFilters).filter(option => option != null);
 
   getCurrentFilterString = () => {
     const { searchString } = this.state.filters;
-    const category = this.getCategory();
+    const { category } = this.props;
 
     if (searchString) {
       return searchString;
@@ -120,12 +116,11 @@ export default class MapPage extends Component {
   });
 
   fetchLocations = (minResults) => {
-    const { categoryName } = this.props;
+    const { categories, category } = this.props;
     const {
       center,
       radius,
       filters,
-      categories,
     } = this.state;
     const {
       searchString,
@@ -136,8 +131,6 @@ export default class MapPage extends Component {
       // Can't fetch until we know which area and categories are relevant.
       return Promise.resolve();
     }
-
-    const category = this.getCategory();
 
     let includedCategories;
     if (advancedFilters.subcategoryId) {
@@ -170,7 +163,7 @@ export default class MapPage extends Component {
           center !== this.state.center ||
           radius !== this.state.radius ||
           filters !== this.state.filters ||
-          categoryName !== this.props.categoryName
+          category !== this.props.category
         ) {
           resolve();
           return;
@@ -182,23 +175,6 @@ export default class MapPage extends Component {
         }, () => resolve());
       }))
       .catch(e => console.error('error', e));
-  };
-
-  fetchCategories = () => {
-    // TODO: Potentially use an action (i.e. put in Redux state).
-    getTaxonomy()
-      .then((taxonomy) => {
-        const categories = taxonomy
-          .map(category => ({
-            ...category,
-            index: selectableCategoryNames.indexOf(category.name.trim().toLowerCase()),
-          }))
-          .filter(({ index }) => index !== -1)
-          .sort((category1, category2) => category1.index - category2.index);
-
-        this.setState({ categories }, this.searchLocations);
-      })
-      .catch(e => console.error('Error fetching taxonomy', e));
   };
 
   searchLocations = () => {
@@ -250,7 +226,7 @@ export default class MapPage extends Component {
   );
 
   renderFiltersButton = () => {
-    const category = this.getCategory();
+    const { category } = this.props;
 
     const areModalFiltersApplied = this.getAdvancedFilterValues().length > 0;
 
@@ -294,7 +270,7 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderCategoriesSelector = () => this.state.categories && (
+  renderCategoriesSelector = () => this.props.categories && (
     <div
       className="p-2 rounded-top shadow-lg"
       style={{
@@ -308,7 +284,7 @@ export default class MapPage extends Component {
     >
       <h5 className="font-weight-bold my-2">Explore these types of services</h5>
       <div className="d-flex justify-content-around">
-        {this.state.categories.map(category => (
+        {this.props.categories.map(category => (
           <Button
             primary
             className="mx-0 p-0 d-flex flex-column align-items-center"
@@ -325,7 +301,7 @@ export default class MapPage extends Component {
 
   render() {
     const isFiltering = !!this.getCurrentFilterString();
-    const category = this.getCategory();
+    const { category } = this.props;
 
     return (
       <div className="Map">
@@ -338,7 +314,7 @@ export default class MapPage extends Component {
           />
         )}
         <Search
-          suggestions={this.state.categories}
+          suggestions={this.props.categories}
           onSubmitString={this.setSearchString}
           onSubmitSuggestion={this.props.goToCategory}
         >
