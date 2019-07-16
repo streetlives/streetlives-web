@@ -3,14 +3,14 @@ import { Route, Switch } from 'react-router-dom';
 import NotFound from '../notFound/NotFound';
 
 import MapPageContainer from './mapPage/MapPageContainer';
-import QuestionFlow from './questionFlow/QuestionFlow';
+import QuestionFlowContainer from './questionFlow/QuestionFlowContainer';
 
 const MapPageRouter = ({ baseMatch }) => (
   <div>
     <Route component={MapPageContainer} />
     <Route
       path={`${baseMatch.path}/:categoryName/questions/:question?`}
-      component={QuestionFlow}
+      component={QuestionFlowContainer}
     />
   </div>
 );
