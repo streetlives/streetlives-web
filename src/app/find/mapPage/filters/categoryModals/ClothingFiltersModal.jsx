@@ -1,15 +1,27 @@
 import React from 'react';
-import FilterSelector from './FilterSelector';
+import FilterSelector from '../FilterSelector';
 import {
   openOptions,
   referralOptions,
   referralExplanation,
   clientOptions,
   clientExplanation,
-} from './commonFilters';
+} from '../commonFilters';
 
-const PersonalCareFiltersModal = ({ values, onChange }) => (
+const kindOptions = [
+  { label: 'Any', value: null },
+  { label: 'Everyday', value: 'everyday', description: 'for everyday use' },
+  { label: 'Job interview', value: 'interview', description: 'for interviews' },
+];
+
+const ClothingFiltersModal = ({ values, onChange }) => (
   <div>
+    <FilterSelector
+      title="Kind"
+      options={kindOptions}
+      onSelect={clothingKind => onChange({ clothingKind })}
+      selectedOption={values.clothingKind}
+    />
     <FilterSelector
       title="Opening hours"
       options={openOptions}
@@ -33,4 +45,4 @@ const PersonalCareFiltersModal = ({ values, onChange }) => (
   </div>
 );
 
-export default PersonalCareFiltersModal;
+export default ClothingFiltersModal;

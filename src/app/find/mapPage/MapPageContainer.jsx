@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
-import { selectableCategoryNames } from './categories';
+import { selectableCategoryNames } from '../categories';
 
 class MapPageContainer extends Component {
   state = {
