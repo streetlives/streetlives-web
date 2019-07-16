@@ -5,16 +5,21 @@ import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
 
-const parseQueryString = search => search
-  .slice(1)
-  .split('&')
-  .reduce((params, paramString) => {
-    const [param, value] = paramString.split('=');
-    return {
-      ...params,
-      [param]: decodeURIComponent(value),
-    };
-  }, {});
+const parseQueryString = (search) => {
+  if (!search) {
+    return {};
+  }
+  return search
+    .slice(1)
+    .split('&')
+    .reduce((params, paramString) => {
+      const [param, value] = paramString.split('=');
+      return {
+        ...params,
+        [param]: decodeURIComponent(value),
+      };
+    }, {});
+};
 
 class MapPageContainer extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -33,7 +38,7 @@ class MapPageContainer extends Component {
   state = {
     categories: null,
     eligibilityParams: {},
-    prevSearch: this.props.location.search,
+    prevSearch: null,
   };
 
   goHome = () => this.props.history.push('/find');
