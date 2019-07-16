@@ -17,6 +17,7 @@ function ZipcodeInput({
     <input
       type="number"
       value={value}
+      min={0}
       max={parseInt('9'.repeat(zipcodeDigits), 10)}
       onChange={(event) => {
         const zipcode = event.target.value.slice(0, zipcodeDigits);
