@@ -11,7 +11,7 @@ const Prompt = ({ categoryName, onConfirm, onSkip }) => (
       Do you want to answer a few questions and
       find places for {categoryName.toLowerCase()} just right for you?
     </Header>
-    <div className="p-3 fixed-bottom">
+    <div className="p-3 mx-2 fixed-bottom">
       <Button onClick={onConfirm} primary fluid className="position-relative">
         <Icon
           name="check"

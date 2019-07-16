@@ -4,10 +4,26 @@ import PhotoIdQuestion from './PhotoIdQuestion';
 import ZipcodeQuestion from './ZipcodeQuestion';
 
 const QuestionsInOrder = [
-  { param: 'clothesDemographic', component: ClothingForQuestion },
-  { param: 'gender', component: GenderQuestion },
-  { param: 'photoId', component: PhotoIdQuestion },
-  { param: 'zipcode', component: ZipcodeQuestion },
+  {
+    param: 'clothesDemographic',
+    component: ClothingForQuestion,
+    question: 'Who are the clothes for?',
+  },
+  {
+    param: 'gender',
+    component: GenderQuestion,
+    question: 'Which gender clothing do you prefer...?',
+  },
+  {
+    param: 'photoId',
+    component: PhotoIdQuestion,
+    question: 'Can you provide your photo ID when you go?',
+  },
+  {
+    param: 'zipcode',
+    component: ZipcodeQuestion,
+    question: 'Please provide the ZIP at your registered address',
+  },
 ];
 
 export default QuestionsInOrder;

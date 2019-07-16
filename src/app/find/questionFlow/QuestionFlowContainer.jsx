@@ -47,14 +47,24 @@ class QuestionFlowContainer extends Component {
     }
   };
 
-  answerQuestion = ({ parameter, answer }) => {
+  answerQuestion = ({ param, answer }) => {
     this.setState({
       answers: {
         ...this.state.answers,
-        [parameter]: answer,
+        [param]: answer,
       },
-    }, this.moveToNextQuestion);
+    }, this.goToNextQuestion);
   };
+
+  skipQuestion = () => {
+    const { param } = this.questions[this.state.questionIndex];
+    this.setState({
+      answers: {
+        ...this.state.answers,
+        [param]: undefined,
+      },
+    }, this.goToNextQuestion);
+  }
 
   quitFlow = () => this.goToResults({});
 
@@ -72,7 +82,7 @@ class QuestionFlowContainer extends Component {
         answers={this.state.answers}
         startQuestions={this.startQuestions}
         answerQuestion={this.answerQuestion}
-        goToNextQuestion={this.goToNextQuestion}
+        skipQuestion={this.skipQuestion}
         goBack={this.goBack}
         quitFlow={this.quitFlow}
       />

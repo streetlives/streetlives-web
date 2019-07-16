@@ -33,14 +33,14 @@ class QuestionFlow extends Component {
     }
 
     const QuestionComponent = currentQuestion.component;
-    const { param } = currentQuestion;
+    const { param, question } = currentQuestion;
 
     return (
-      <div className="px-3 mb-5">
+      <div>
+        <Header size="medium" className="text-left mb-5">{question}</Header>
         <QuestionComponent
-          param={param}
           value={answers[param]}
-          onAnswer={answerQuestion}
+          onAnswer={answer => answerQuestion({ param, answer })}
         />
       </div>
     );
@@ -83,7 +83,7 @@ class QuestionFlow extends Component {
       categoryName,
       hasAnsweredPrompt,
       startQuestions,
-      goToNextQuestion,
+      skipQuestion,
       quitFlow,
     } = this.props;
     const { isConfirmingQuit, isConfirmingSkip } = this.state;
@@ -116,12 +116,12 @@ class QuestionFlow extends Component {
             />
           )}
           {hasAnsweredPrompt && (
-            <div>
+            <div className="px-2 mb-5">
               {this.renderQuestion()}
-              <div className="p-3 fixed-bottom">
-                <Button onClick={goToNextQuestion} secondary fluid className="position-relative">
+              <div className="p-3 mx-2 fixed-bottom">
+                <Button onClick={skipQuestion} secondary fluid className="position-relative">
                   <Icon
-                    name="check"
+                    name="times"
                     style={{
                       position: 'absolute',
                       left: 16,
@@ -150,7 +150,7 @@ QuestionFlow.propTypes = {
   answers: PropTypes.objectOf(PropTypes.string).isRequired,
   startQuestions: PropTypes.func.isRequired,
   answerQuestion: PropTypes.func.isRequired,
-  goToNextQuestion: PropTypes.func.isRequired,
+  skipQuestion: PropTypes.func.isRequired,
   goBack: PropTypes.func.isRequired,
   quitFlow: PropTypes.func.isRequired,
 };
