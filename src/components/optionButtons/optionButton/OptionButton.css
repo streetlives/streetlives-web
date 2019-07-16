@@ -23,10 +23,10 @@
 
 .OptionButton > .OptionButtonChildren {
   text-align: center;
-  width: 100%;
+  width: 50%;
 }
 
 .OptionButton > .OptionButtonIcon {
-  left: 28px;
+  left: 8%;
   position: absolute;
 }

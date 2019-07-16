@@ -11,7 +11,7 @@ function Option({
   children,
   onClick,
 }) {
-  const classNames = cx('OptionButton d-flex justify-content-between align-items-center', {
+  const classNames = cx('OptionButton d-flex justify-content-center align-items-center', {
     'OptionButton-active': active,
   });
 
