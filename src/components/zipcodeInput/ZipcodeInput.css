@@ -1,0 +1,8 @@
+.ZipcodeInput {
+  height: 50px;
+  font-size: 1.5em;
+  padding: 10px;
+  letter-spacing: 15px;
+  text-align: center;
+  width: 0;
+}
