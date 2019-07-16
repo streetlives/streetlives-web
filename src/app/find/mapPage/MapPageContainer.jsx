@@ -5,6 +5,17 @@ import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
 
+const parseQueryString = search => search
+  .slice(1)
+  .split('&')
+  .reduce((params, paramString) => {
+    const [param, value] = paramString.split('=');
+    return {
+      ...params,
+      [param]: decodeURIComponent(value),
+    };
+  }, {});
+
 class MapPageContainer extends Component {
   state = {
     categories: null,
@@ -38,13 +49,15 @@ class MapPageContainer extends Component {
   render() {
     const { categoryName } = this.props.match.params;
     const { categories } = this.state;
-
     const category = categories && categories.find(c => c.name === categoryName);
+
+    const eligibilityParams = parseQueryString(this.props.history.location.search);
 
     return (
       <MapPage
         category={category}
         categories={categories}
+        eligibilityParams={eligibilityParams}
         fetchCategories={this.fetchCategories}
         goHome={this.goHome}
         goToCategory={this.goToCategory}

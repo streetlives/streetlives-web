@@ -21,7 +21,7 @@ class QuestionFlowContainer extends Component {
     const paramStrings = Object.keys(answers)
       .filter(param => answers[param] != null)
       .map(param => `${param}=${answers[param]}`);
-    const queryString = paramStrings.length ? `?${paramStrings.join(';')}` : '';
+    const queryString = paramStrings.length ? `?${paramStrings.join('&')}` : '';
     this.props.history.push(`/find/${categoryName}${queryString}`);
   };
 

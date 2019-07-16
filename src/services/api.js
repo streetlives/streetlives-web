@@ -12,9 +12,13 @@ export const getLocations = ({
   serviceFilters: {
     taxonomyIds,
     openNow,
+    zipcode,
     referralRequired,
+    photoId,
     clientsOnly,
+    gender,
     clothingKind,
+    clothesDemographic,
     hivNutrition,
   } = {},
 }) => {
@@ -39,14 +43,27 @@ export const getLocations = ({
   if (referralRequired != null) {
     params.referralRequired = referralRequired;
   }
+  if (photoId != null) {
+    params.photoIdRequired = photoId;
+  }
   if (clientsOnly != null) {
     params.membership = clientsOnly;
+  }
+  if (gender != null) {
+    params.gender = gender;
+  }
+  if (zipcode != null) {
+    params.servesZipcode = zipcode;
   }
 
   const attributes = [];
   if (clothingKind) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesPurpose);
     attributes.push(clothingKind);
+  }
+  if (clothesDemographic) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesDemographic);
+    attributes.push(clothesDemographic);
   }
   if (hivNutrition != null) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.hasHivNutrition);

@@ -116,7 +116,7 @@ export default class MapPage extends Component {
   });
 
   fetchLocations = (minResults) => {
-    const { categories, category } = this.props;
+    const { categories, category, eligibilityParams } = this.props;
     const {
       center,
       radius,
@@ -141,6 +141,13 @@ export default class MapPage extends Component {
       includedCategories = categories.map(({ id }) => id);
     }
 
+    const filtersObject = Object.keys(advancedFilters)
+      .filter(key => advancedFilters[key] != null)
+      .reduce((activeFilters, key) => ({
+        ...activeFilters,
+        [key]: advancedFilters[key].value,
+      }), {});
+
     return getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
@@ -148,12 +155,8 @@ export default class MapPage extends Component {
       minResults,
       searchString,
       serviceFilters: {
-        ...Object.keys(advancedFilters)
-          .filter(key => advancedFilters[key] != null)
-          .reduce((activeFilters, key) => ({
-            ...activeFilters,
-            [key]: advancedFilters[key].value,
-          }), {}),
+        ...eligibilityParams,
+        ...filtersObject,
         taxonomyIds: includedCategories,
       },
     })
