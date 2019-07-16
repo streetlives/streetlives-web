@@ -1,25 +1,10 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
+import qs from 'qs';
 import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
-
-const parseQueryString = (search) => {
-  if (!search) {
-    return {};
-  }
-  return search
-    .slice(1)
-    .split('&')
-    .reduce((params, paramString) => {
-      const [param, value] = paramString.split('=');
-      return {
-        ...params,
-        [param]: decodeURIComponent(value),
-      };
-    }, {});
-};
 
 class MapPageContainer extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -27,7 +12,7 @@ class MapPageContainer extends Component {
     const { prevSearch } = prevState;
     if (search !== prevSearch) {
       return {
-        eligibilityParams: parseQueryString(search),
+        eligibilityParams: qs.parse(search, { ignoreQueryPrefix: true }),
         prevSearch: search,
       };
     }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import config from '../config';
 import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../constants';
 import { getAuthToken } from './auth';
@@ -78,6 +79,7 @@ export const getLocations = ({
       url: `${config.baseApi}/locations`,
       method: 'get',
       params,
+      paramsSerializer: rawParams => qs.stringify(rawParams),
     })
     .then(result => result.data);
 };
