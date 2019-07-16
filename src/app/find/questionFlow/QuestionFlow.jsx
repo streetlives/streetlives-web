@@ -19,6 +19,11 @@ class QuestionFlow extends Component {
   confirmSkipFlow = () => this.setState({ isConfirmingSkip: true });
   closeConfirmation = () => this.setState({ isConfirmingQuit: false, isConfirmingSkip: false });
 
+  startQuestions = () => {
+    this.closeConfirmation();
+    this.props.startQuestions();
+  }
+
   renderQuestion = () => {
     const {
       questions,
@@ -82,7 +87,6 @@ class QuestionFlow extends Component {
     const {
       categoryName,
       hasAnsweredPrompt,
-      startQuestions,
       skipQuestion,
       quitFlow,
     } = this.props;
@@ -93,7 +97,7 @@ class QuestionFlow extends Component {
         {isConfirmingQuit &&
           <QuitFlowConfirmation onQuit={quitFlow} onClose={this.closeConfirmation} />}
         {isConfirmingSkip &&
-          <SkipFlowConfirmation onSkip={quitFlow} onAnswer={startQuestions} />}
+          <SkipFlowConfirmation onSkip={quitFlow} onAnswer={this.startQuestions} />}
 
         <div className="mx-3 mt-4 position-relative">
           {hasAnsweredPrompt && this.renderQuestionHeader()}
@@ -111,7 +115,7 @@ class QuestionFlow extends Component {
           {!hasAnsweredPrompt && (
             <Prompt
               categoryName={categoryName}
-              onConfirm={startQuestions}
+              onConfirm={this.startQuestions}
               onSkip={this.confirmSkipFlow}
             />
           )}
