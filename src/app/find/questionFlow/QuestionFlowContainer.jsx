@@ -12,7 +12,7 @@ class QuestionFlowContainer extends Component {
 
   componentDidMount() {
     if (!this.questions) {
-      this.goToResults();
+      this.goToResults({});
     }
   }
 
