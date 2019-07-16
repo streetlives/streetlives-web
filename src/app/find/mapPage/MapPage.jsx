@@ -36,9 +36,10 @@ export default class MapPage extends Component {
     this.props.fetchCategories();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.category !== this.props.category ||
-      nextProps.categories !== this.props.categories) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.category !== this.props.category ||
+      prevProps.categories !== this.props.categories ||
+      prevProps.eligibilityParams !== this.props.eligibilityParams) {
       this.searchLocations();
     }
   }

@@ -17,14 +17,29 @@ const parseQueryString = search => search
   }, {});
 
 class MapPageContainer extends Component {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { search } = nextProps.location;
+    const { prevSearch } = prevState;
+    if (search !== prevSearch) {
+      return {
+        eligibilityParams: parseQueryString(search),
+        prevSearch: search,
+      };
+    }
+
+    return null;
+  }
+
   state = {
     categories: null,
+    eligibilityParams: {},
+    prevSearch: this.props.location.search,
   };
 
   goHome = () => this.props.history.push('/find');
 
   goToCategoryResults = category =>
-    this.props.history.push(`/find/${category.name}${this.props.history.location.search}`);
+    this.props.history.push(`/find/${category.name}${this.props.location.search}`);
 
   goToCategory = category =>
     this.props.history.push(`/find/${category.name}/questions`);
@@ -48,10 +63,8 @@ class MapPageContainer extends Component {
 
   render() {
     const { categoryName } = this.props.match.params;
-    const { categories } = this.state;
+    const { categories, eligibilityParams } = this.state;
     const category = categories && categories.find(c => c.name === categoryName);
-
-    const eligibilityParams = parseQueryString(this.props.history.location.search);
 
     return (
       <MapPage
