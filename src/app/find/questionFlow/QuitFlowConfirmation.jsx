@@ -5,7 +5,7 @@ import Button from '../../../components/button';
 import Icon from '../../../components/icon';
 
 const QuitFlowConfirmation = ({ onQuit, onClose }) => (
-  <Modal compact className="text-left px-5 py-4">
+  <Modal compact className="text-left px-4 py-4">
     <Icon size="3x" name="exclamation-triangle" className="mt-4 mb-2" />
     <Header size="medium" className="mt-4">
       Are you sure you want to quit your search?

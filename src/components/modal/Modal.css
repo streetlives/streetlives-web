@@ -12,5 +12,5 @@
 .Modal.Modal-compact {
   top: 50%;
   bottom: inherit;
-  transform: translateY(-70%);
+  transform: translateY(-50%);
 }
