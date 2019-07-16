@@ -11,8 +11,8 @@ import { getService } from '../../../selectors/service';
 import * as actions from '../../../actions';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
+import ProgressBar from '../../../components/progressBar';
 
-import ProgressBar from '../../locationInfo/ProgressBar';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
 import LoadingLabel from '../../../components/form/LoadingLabel';
