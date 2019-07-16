@@ -151,7 +151,7 @@ QuestionFlow.propTypes = {
     param: PropTypes.string.isRequired,
   })).isRequired,
   questionIndex: PropTypes.number,
-  answers: PropTypes.objectOf(PropTypes.string).isRequired,
+  answers: PropTypes.objectOf(PropTypes.any).isRequired,
   startQuestions: PropTypes.func.isRequired,
   answerQuestion: PropTypes.func.isRequired,
   skipQuestion: PropTypes.func.isRequired,
