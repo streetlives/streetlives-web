@@ -24,7 +24,7 @@ export const SERVICE_GROUPS = [
 ];
 
 export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
-  clothesPurpose: 'clothesPurpose',
-  clothesDemographic: 'clothesDemographic',
+  clothingOccasion: 'clothingOccasion',
+  wearerAge: 'wearerAge',
   hasHivNutrition: 'hasHivNutrition',
 };

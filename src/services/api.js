@@ -19,7 +19,7 @@ export const getLocations = ({
     clientsOnly,
     gender,
     clothingKind,
-    clothesDemographic,
+    wearerAge,
     hivNutrition,
   } = {},
 }) => {
@@ -59,12 +59,12 @@ export const getLocations = ({
 
   const attributes = [];
   if (clothingKind) {
-    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesPurpose);
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothingOccasion);
     attributes.push(clothingKind);
   }
-  if (clothesDemographic) {
-    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesDemographic);
-    attributes.push(clothesDemographic);
+  if (wearerAge) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.wearerAge);
+    attributes.push(wearerAge);
   }
   if (hivNutrition != null) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.hasHivNutrition);

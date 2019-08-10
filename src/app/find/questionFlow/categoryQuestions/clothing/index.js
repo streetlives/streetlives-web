@@ -5,7 +5,7 @@ import ZipcodeQuestion from './ZipcodeQuestion';
 
 const QuestionsInOrder = [
   {
-    param: 'clothesDemographic',
+    param: 'wearerAge',
     component: ClothingForQuestion,
     question: 'Who are the clothes for?',
   },
