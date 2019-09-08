@@ -49,9 +49,7 @@ class LocationInfoMarker extends Component {
   }
 
   handleYesClick() {
-    // this.props.history.push(`/location/${this.props.mapLocation.id}/recap`);
-    // eslint-disable-next-line no-alert
-    alert(`More information about ${this.props.mapLocation.Organization.name} coming soon.`);
+    this.props.onShowLocationDetails(this.props.mapLocation.id);
   }
 
   render() {
