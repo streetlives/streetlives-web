@@ -90,10 +90,12 @@ const CategoryCard = ({ category, services, className }) => (
           {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
         </Header>
 
-        <div className="mb-3">
-          <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
-          <div className="ml-4 pl-1">{service.description}</div>
-        </div>
+        {service.description.length > 0 && (
+          <div className="mb-3">
+            <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
+            <div className="ml-4 pl-1">{service.description}</div>
+          </div>
+        )}
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
           <div className="mb-3">
