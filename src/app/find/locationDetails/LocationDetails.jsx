@@ -33,7 +33,7 @@ const renderPhone = (phone) => {
   // TODO: Handle other fields (extensions and such).
   const phoneLink = `tel:${phone.number}`;
   return (
-    <a href={phoneLink} key={phone.id}>
+    <a href={phoneLink}>
       {phone.number}
     </a>
   );
@@ -92,9 +92,20 @@ const renderLocation = (location) => {
           <div>
             <Header size="large">Phone Number</Header>
             {phones.map(phone => (
-              <div key={phone}>
+              <div key={phone.id}>
                 {renderPhone(phone)}
               </div>
+            ))}
+          </div>
+        )}
+
+        {location.AccessibilityForDisabilities.length > 0 && (
+          <div>
+            <Header size="large">Accessibility</Header>
+            {location.AccessibilityForDisabilities.map(accessibility => (
+              <p key={accessibility.id}>
+                {accessibility.details}
+              </p>
             ))}
           </div>
         )}
