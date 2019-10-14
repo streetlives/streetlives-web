@@ -4,6 +4,8 @@ import { DAYS } from '../../../constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import Header from '../../../components/header';
+import ServiceRestrictions from './ServiceRestrictions';
+import ServiceOfferings from './ServiceOfferings';
 
 // TODO: Should (parts of) this be a presentational component?
 
@@ -46,6 +48,42 @@ const renderSchedule = (schedule) => {
   });
 
   return `Open ${groupStrings.join(', ')}`;
+};
+
+const renderRestrictions = (eligibilities, requiredDocuments) => {
+  const isEligibilityRestricted = eligibilities && eligibilities.length &&
+    eligibilities[0].eligible_values[0] !== 'everyone';
+  const areDocumentsRequired = requiredDocuments && requiredDocuments.length;
+  if (!isEligibilityRestricted && !areDocumentsRequired) {
+    return null;
+  }
+
+  return (
+    <div className="mb-3">
+      <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
+      <div className="ml-4 pl-1">
+        <ServiceRestrictions
+          eligibilities={eligibilities}
+          requiredDocuments={requiredDocuments}
+        />
+      </div>
+    </div>
+  );
+};
+
+const renderOfferings = (taxonomySpecificAttributes) => {
+  if (!taxonomySpecificAttributes || !taxonomySpecificAttributes.length) {
+    return null;
+  }
+
+  return (
+    <div className="mb-3">
+      <Icon name="user" size="medium" className="float-left mt-1" />
+      <div className="ml-4 pl-1">
+        <ServiceOfferings attributes={taxonomySpecificAttributes} />
+      </div>
+    </div>
+  );
 };
 
 // TODO: Use components to avoid duplication (URL too).
@@ -92,10 +130,11 @@ const CategoryCard = ({ category, services, className }) => (
 
         {!!service.description && (
           <div className="mb-3">
-            <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
-            <div className="ml-4 pl-1">{service.description}</div>
+            {service.description}
           </div>
         )}
+
+        {renderRestrictions(service.Eligibilities, service.RequiredDocuments)}
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
           <div className="mb-3">
@@ -114,6 +153,8 @@ const CategoryCard = ({ category, services, className }) => (
             ))}
           </div>
         )}
+
+        {renderOfferings(service.ServiceTaxonomySpecificAttributes)}
       </div>
     ))}
   </div>
