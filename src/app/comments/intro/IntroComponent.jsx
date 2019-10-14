@@ -1,5 +1,4 @@
 import React from 'react';
-import cx from 'classnames';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 
@@ -8,12 +7,9 @@ function Intro({
   footer,
   buttonText,
   onClick,
-  className,
-  style,
 }) {
-  const classNames = cx('d-flex flex-column', className);
   return (
-    <div className={classNames} style={style}>
+    <div className="d-flex flex-column h-100">
       <div className="m-4 text-left font-weight-bold flex-grow-1">
         <Header size="large">
           WELCOME TO THE COMMENT PAGE FOR {name.toUpperCase()}!

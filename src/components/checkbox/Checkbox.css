@@ -1,0 +1,19 @@
+.Checkbox {
+  display: inline-block;
+}
+
+.Checkbox > .Box {
+  margin-right: 12px;
+}
+
+.Checkbox > .Label {
+  font-weight: initial;
+  font-size: initial;
+  letter-spacing: initial;
+  line-height: initial;
+  margin: 0;
+}
+
+.Checkbox-disabled {
+  opacity: 0.6;
+}

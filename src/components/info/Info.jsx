@@ -1,16 +1,24 @@
 import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import infoImage from './info.svg';
+import { ReactComponent as InfoSvg } from './info.svg';
 import './Info.css';
 
-function Icon({ onClick, className }) {
-  const classNames = cx('Info', className);
+function Icon({
+  onClick,
+  solid,
+  size,
+  className,
+}) {
+  const classNames = cx('Info', className, {
+    'Info-solid': solid,
+    'Info-large': size === 'large',
+    'Info-medium': size === 'medium',
+    'Info-small': size === 'small',
+  });
+
   return (
-    <input
-      type="image"
-      alt="info"
-      src={infoImage}
+    <InfoSvg
       className={classNames}
       onClick={onClick}
     />
@@ -19,11 +27,15 @@ function Icon({ onClick, className }) {
 
 Icon.propTypes = {
   onClick: PropTypes.func,
+  solid: PropTypes.bool,
+  size: PropTypes.string,
   className: PropTypes.string,
 };
 
 Icon.defaultProps = {
   className: '',
+  solid: false,
+  size: 'medium',
 };
 
 export default Icon;

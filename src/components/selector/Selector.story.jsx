@@ -53,6 +53,28 @@ const SelectedExample = (
   </div>
 );
 
+const RowExample = (
+  <div className="container-fluid">
+    <label className="w-100 mt-4" htmlFor="rowSelector">Row (Horizontal) Selector</label>
+    <Selector direction="row" id="rowSelector">
+      <Selector.Option>Overnight</Selector.Option>
+      <Selector.Option>Family shelter</Selector.Option>
+      <Selector.Option align="center">+ Add another service</Selector.Option>
+    </Selector>
+  </div>
+);
+
+const FluidRowExample = (
+  <div className="container-fluid">
+    <label className="w-100 mt-4" htmlFor="fluidRowSelector">Full width row</label>
+    <Selector fluid direction="row" id="fluidRowSelector">
+      <Selector.Option>Overnight</Selector.Option>
+      <Selector.Option>Family shelter</Selector.Option>
+      <Selector.Option align="center">+ Add another service</Selector.Option>
+    </Selector>
+  </div>
+);
+
 storiesOf('Selector', module)
   .add('Overview', () => [
     OptionExample,
@@ -60,6 +82,10 @@ storiesOf('Selector', module)
     DefaultExample,
     FluidExample,
     SelectedExample,
+    RowExample,
+    FluidRowExample,
   ])
   .add('Default example', () => DefaultExample)
-  .add('Full width example', () => FluidExample);
+  .add('Full width example', () => FluidExample)
+  .add('Horizontal (row direction) example', () => RowExample)
+  .add('Full width horizontal example', () => FluidRowExample);
