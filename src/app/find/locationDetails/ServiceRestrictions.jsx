@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../../../components/icon';
+import InfoItem from './InfoItem';
 
 const formatGender = (values) => {
   if (values.length !== 1) {
@@ -86,17 +86,14 @@ const ServiceRestrictions = ({ eligibilities = [], requiredDocuments = [] }) => 
   }
 
   return (
-    <div className="mb-3">
-      <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
-      <div className="ml-4 pl-1">
-        {formattedEligibilities && formattedEligibilities.map(eligibility => (
-          <div key={eligibility}>{eligibility}</div>
-        ))}
-        {formattedDocuments && formattedDocuments.map(document => (
-          <div key={document}>{formatDocument(document)}</div>
-        ))}
-      </div>
-    </div>
+    <InfoItem icon="exclamation-triangle">
+      {formattedEligibilities && formattedEligibilities.map(eligibility => (
+        <div key={eligibility}>{eligibility}</div>
+      ))}
+      {formattedDocuments && formattedDocuments.map(document => (
+        <div key={document}>{formatDocument(document)}</div>
+      ))}
+    </InfoItem>
   );
 };
 

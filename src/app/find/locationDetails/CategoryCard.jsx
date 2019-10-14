@@ -5,6 +5,7 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import Header from '../../../components/header';
 import PhoneLink from '../../../components/phoneLink';
+import InfoItem from './InfoItem';
 import ServiceRestrictions from './ServiceRestrictions';
 import ServiceOfferings from './ServiceOfferings';
 
@@ -51,7 +52,6 @@ const renderSchedule = (schedule) => {
   return `Open ${groupStrings.join(', ')}`;
 };
 
-// TODO: Could use a component/function for the icon + data lines, to avoid all this duplication.
 const CategoryCard = ({ category, services, className }) => (
   <div
     className={cx('shadow pb-2 px-3 position-relative', className)}
@@ -94,22 +94,14 @@ const CategoryCard = ({ category, services, className }) => (
         />
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
-          <div className="mb-3">
-            <Icon name="clock" size="medium" className="float-left mt-1" />
-            <div className="ml-4 pl-1">{renderSchedule(service.RegularSchedules)}</div>
-          </div>
+          <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
         )}
 
-        {service.Phones && service.Phones.length > 0 && (
-          <div className="mb-3">
-            {service.Phones.map(phone => (
-              <div key={phone.id}>
-                <Icon name="phone" size="medium" className="float-left mt-1" />
-                <div className="ml-4 pl-1"><PhoneLink {...phone} /></div>
-              </div>
-            ))}
-          </div>
-        )}
+        {service.Phones && service.Phones.map(phone => (
+          <InfoItem key={phone.id} icon="phone">
+            <PhoneLink {...phone} />
+          </InfoItem>
+        ))}
 
         <ServiceOfferings attributes={service.ServiceTaxonomySpecificAttributes} />
       </div>

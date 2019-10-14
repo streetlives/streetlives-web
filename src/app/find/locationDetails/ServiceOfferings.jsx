@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../../../components/icon';
+import InfoItem from './InfoItem';
 
 const formatWearerAge = values => (values.length ? `Clothing for ${values.join(', ')}` : null);
 
@@ -37,16 +37,13 @@ const ServiceOfferings = ({ attributes = [] }) => {
   }
 
   return (
-    <div className="mb-3">
-      <Icon name="user" size="medium" className="float-left mt-1" />
-      <div className="ml-4 pl-1">
-        {formattedAttributes && formattedAttributes.map(attribute => (
-          <div key={attribute}>
-            {attribute}
-          </div>
-        ))}
-      </div>
-    </div>
+    <InfoItem icon="user">
+      {formattedAttributes && formattedAttributes.map(attribute => (
+        <div key={attribute}>
+          {attribute}
+        </div>
+      ))}
+    </InfoItem>
   );
 };
 
