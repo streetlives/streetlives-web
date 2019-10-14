@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import config from '../config';
 import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../constants';
 import { getAuthToken } from './auth';
@@ -12,9 +13,13 @@ export const getLocations = ({
   serviceFilters: {
     taxonomyIds,
     openNow,
+    zipcode,
     referralRequired,
+    photoId,
     clientsOnly,
+    gender,
     clothingKind,
+    wearerAge,
     hivNutrition,
   } = {},
 }) => {
@@ -39,14 +44,27 @@ export const getLocations = ({
   if (referralRequired != null) {
     params.referralRequired = referralRequired;
   }
+  if (photoId != null) {
+    params.photoIdRequired = photoId;
+  }
   if (clientsOnly != null) {
     params.membership = clientsOnly;
+  }
+  if (gender != null) {
+    params.gender = gender;
+  }
+  if (zipcode != null) {
+    params.servesZipcode = zipcode;
   }
 
   const attributes = [];
   if (clothingKind) {
-    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothesPurpose);
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.clothingOccasion);
     attributes.push(clothingKind);
+  }
+  if (wearerAge) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.wearerAge);
+    attributes.push(wearerAge);
   }
   if (hivNutrition != null) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.hasHivNutrition);
@@ -61,6 +79,7 @@ export const getLocations = ({
       url: `${config.baseApi}/locations`,
       method: 'get',
       params,
+      paramsSerializer: rawParams => qs.stringify(rawParams),
     })
     .then(result => result.data);
 };

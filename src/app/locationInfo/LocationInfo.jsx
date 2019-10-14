@@ -7,11 +7,11 @@ import {
   selectLocationData,
 } from '../../selectors/location';
 import NavBar from '../NavBar';
-import ProgressBar from './ProgressBar';
 import Header from '../../components/header';
 import Button from '../../components/button';
 import routes from '../locationForm/routes';
 import { getLocation } from '../../actions';
+import ProgressBar from '../../components/progressBar';
 import LoadingLabel from '../../components/form/LoadingLabel';
 import ErrorLabel from '../../components/form/ErrorLabel';
 import FieldItem from './FieldItem';

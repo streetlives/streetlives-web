@@ -3,14 +3,7 @@ import Modal from '../../../../components/modal';
 import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import Header from '../../../../components/header';
-import { categories } from '../categories';
-import filters from './index';
-
-const categoryModalComponents = {
-  [categories.food]: filters.FoodFiltersModal,
-  [categories.clothing]: filters.ClothingFiltersModal,
-  [categories.personalCare]: filters.PersonalCareFiltersModal,
-};
+import categoryModals from './categoryModals';
 
 class FiltersModal extends Component {
   state = {
@@ -36,7 +29,7 @@ class FiltersModal extends Component {
       onClose,
     } = this.props;
 
-    const CategoryModal = categoryModalComponents[category.name.trim().toLowerCase()];
+    const CategoryModal = categoryModals[category.name.trim().toLowerCase()];
 
     return (
       <Modal className="pb-4">

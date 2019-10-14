@@ -1,8 +1,8 @@
 import React from 'react';
-import Checkbox from '../../../../components/checkbox';
-import FilterSelector from './FilterSelector';
-import { openOptions } from './commonFilters';
-import { categories, selectableSubcategoryNames } from '../categories';
+import Checkbox from '../../../../../components/checkbox';
+import FilterSelector from '../FilterSelector';
+import { openOptions } from '../commonFilters';
+import { categories, selectableSubcategoryNames } from '../../../categories';
 
 const filterSelectableSubcategories = subcategories =>
   subcategories.filter(({ name }) =>

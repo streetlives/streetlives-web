@@ -1,0 +1,17 @@
+.ZipcodeInput {
+  height: 50px;
+  font-size: 1.5em;
+  padding: 10px;
+  letter-spacing: 15px;
+  text-align: center;
+  width: 0;
+}
+
+.ZipcodeInput::-webkit-outer-spin-button,
+.ZipcodeInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.ZipcodeInput {
+  -moz-appearance: textfield;
+}

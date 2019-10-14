@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 
 import Button from '../../components/button';
 import Icon from '../../components/icon';
+import ProgressBar from '../../components/progressBar';
 
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';
-import ProgressBar from '../locationInfo/ProgressBar';
 import NotFound from '../notFound/NotFound';
 
 const getServiceUrl = (locationId, serviceId) => `/location/${locationId}/services/${serviceId}`;

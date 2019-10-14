@@ -1,0 +1,32 @@
+@value cardShadow: 0px 2px 4px rgba(0,0,0,0.15);
+@value primaryColor, borderGray, darkerGray from "../../../colors.css";
+
+.OptionButton {
+  background: white;
+  border: 1px solid borderGray;
+  box-sizing: border-box;
+  box-shadow: cardShadow;
+  border-radius: 2px;
+  color: darkerGray;
+  cursor: pointer;
+  padding: 18px 10px;
+  width: 100%;
+  position: relative;
+}
+
+.OptionButton.OptionButton-active {
+  background: darkerGray;
+  border: 1px solid darkerGray;
+  color: primaryColor;
+  font-weight: 300;
+}
+
+.OptionButton > .OptionButtonChildren {
+  text-align: center;
+  width: 50%;
+}
+
+.OptionButton > .OptionButtonIcon {
+  left: 8%;
+  position: absolute;
+}

@@ -1,0 +1,21 @@
+.ProgressBar {
+  background-color: #c4c4c4;
+  font-size: 14px;
+  text-align: left;
+  font-weight: lighter;
+  padding: 0.25rem;
+  position: relative;
+}
+
+.ProgressBar > .ProgressBarValue {
+  background-color: #F8E71C;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  position: absolute;
+}
+
+.ProgressBar > div > div > .ProgressBarText {
+  z-index: 1;
+}

@@ -1,14 +1,17 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import NotFound from '../notFound/NotFound';
+import { Route } from 'react-router-dom';
 
-import MapPage from './mapPage/MapPage';
+import MapPageContainer from './mapPage/MapPageContainer';
+import QuestionFlowContainer from './questionFlow/QuestionFlowContainer';
 
 export default function Router({ match }) {
   return (
-    <Switch>
-      <Route exact path={`${match.path}`} component={MapPage} />
-      <Route path="*" component={NotFound} />
-    </Switch>
+    <div>
+      <Route path={`${match.path}/:categoryName?`} component={MapPageContainer} />
+      <Route
+        path={`${match.path}/:categoryName/questions/:question?`}
+        component={QuestionFlowContainer}
+      />
+    </div>
   );
 }

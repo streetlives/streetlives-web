@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations, getTaxonomy } from '../../../services/api';
+import { getLocations } from '../../../services/api';
 import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
@@ -9,7 +9,6 @@ import Icon from '../../../components/icon';
 import FiltersModal from './filters/FiltersModal';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
-import { selectableCategoryNames } from './categories';
 
 const minSearchResults = 3;
 
@@ -17,13 +16,12 @@ const debouncePeriod = 500;
 
 const initialFiltersState = {
   searchString: null,
-  category: null,
   advancedFilters: {},
 };
 
 export default class MapPage extends Component {
   state = {
-    categories: null,
+    initialLocationsLoaded: false,
     locations: null,
     zoomedLocations: null,
     center: null,
@@ -35,7 +33,15 @@ export default class MapPage extends Component {
   };
 
   componentDidMount() {
-    this.fetchCategories();
+    this.props.fetchCategories();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.category !== this.props.category ||
+      prevProps.categories !== this.props.categories ||
+      prevProps.eligibilityParams !== this.props.eligibilityParams) {
+      this.searchLocations();
+    }
   }
 
   onMapClick = () => {
@@ -50,8 +56,13 @@ export default class MapPage extends Component {
 
   onBoundsChanged = debounce(({ center, radius }) => {
     this.setState({ center, radius }, () => {
-      this.fetchLocations()
-        .then(() => this.setState({ zoomedLocations: null }));
+      if (!this.state.initialLocationsLoaded) {
+        // Center found for the first time - do a visible search, zoom out if needed, etc.
+        this.searchLocations();
+      } else {
+        // User just moving the map - show locations if found, but don't zoom out or anything.
+        this.fetchLocations().then(() => this.setState({ zoomedLocations: null }));
+      }
     });
   }, debouncePeriod);
 
@@ -59,7 +70,8 @@ export default class MapPage extends Component {
     Object.values(this.state.filters.advancedFilters).filter(option => option != null);
 
   getCurrentFilterString = () => {
-    const { searchString, category } = this.state.filters;
+    const { searchString } = this.state.filters;
+    const { category } = this.props;
 
     if (searchString) {
       return searchString;
@@ -97,7 +109,6 @@ export default class MapPage extends Component {
   });
 
   setSearchString = searchString => this.setFilters({ searchString });
-  setCategory = category => this.setFilters({ category });
 
   toggleOpenNow = () => this.setAdvancedFilters({
     openNow: this.state.filters.advancedFilters.openNow ?
@@ -106,15 +117,14 @@ export default class MapPage extends Component {
   });
 
   fetchLocations = (minResults) => {
+    const { categories, category, eligibilityParams } = this.props;
     const {
       center,
       radius,
       filters,
-      categories,
     } = this.state;
     const {
       searchString,
-      category,
       advancedFilters,
     } = filters;
 
@@ -132,6 +142,13 @@ export default class MapPage extends Component {
       includedCategories = categories.map(({ id }) => id);
     }
 
+    const filtersObject = Object.keys(advancedFilters)
+      .filter(key => advancedFilters[key] != null)
+      .reduce((activeFilters, key) => ({
+        ...activeFilters,
+        [key]: advancedFilters[key].value,
+      }), {});
+
     return getLocations({
       latitude: center.lat(),
       longitude: center.lng(),
@@ -139,12 +156,8 @@ export default class MapPage extends Component {
       minResults,
       searchString,
       serviceFilters: {
-        ...Object.keys(advancedFilters)
-          .filter(key => advancedFilters[key] != null)
-          .reduce((activeFilters, key) => ({
-            ...activeFilters,
-            [key]: advancedFilters[key].value,
-          }), {}),
+        ...eligibilityParams,
+        ...filtersObject,
         taxonomyIds: includedCategories,
       },
     })
@@ -153,32 +166,19 @@ export default class MapPage extends Component {
         if (
           center !== this.state.center ||
           radius !== this.state.radius ||
-          filters !== this.state.filters
+          filters !== this.state.filters ||
+          category !== this.props.category
         ) {
           resolve();
           return;
         }
 
-        this.setState({ locations }, () => resolve());
+        this.setState({
+          initialLocationsLoaded: true,
+          locations,
+        }, () => resolve());
       }))
       .catch(e => console.error('error', e));
-  };
-
-  fetchCategories = () => {
-    // TODO: Potentially use an action (i.e. put in Redux state).
-    getTaxonomy()
-      .then((taxonomy) => {
-        const categories = taxonomy
-          .map(category => ({
-            ...category,
-            index: selectableCategoryNames.indexOf(category.name.trim().toLowerCase()),
-          }))
-          .filter(({ index }) => index !== -1)
-          .sort((category1, category2) => category1.index - category2.index);
-
-        this.setState({ categories }, this.fetchLocations);
-      })
-      .catch(e => console.error('Error fetching taxonomy', e));
   };
 
   searchLocations = () => {
@@ -193,6 +193,7 @@ export default class MapPage extends Component {
 
   clearResults = () => {
     this.setFilters(initialFiltersState);
+    this.props.goHome();
   };
 
   openFilterModal = () => {
@@ -229,16 +230,16 @@ export default class MapPage extends Component {
   );
 
   renderFiltersButton = () => {
-    const { filters } = this.state;
+    const { category } = this.props;
 
     const areModalFiltersApplied = this.getAdvancedFilterValues().length > 0;
 
     const type = areModalFiltersApplied ? 'secondary' : 'primary';
-    const iconName = filters.category ? 'sliders-h' : 'clock';
-    const onClick = filters.category ? this.openFilterModal : this.toggleOpenNow;
+    const iconName = category ? 'sliders-h' : 'clock';
+    const onClick = category ? this.openFilterModal : this.toggleOpenNow;
 
     let text;
-    if (!filters.category) {
+    if (!category) {
       text = 'Open now';
     } else if (areModalFiltersApplied) {
       text = 'Filters applied';
@@ -273,7 +274,7 @@ export default class MapPage extends Component {
     </div>
   );
 
-  renderCategoriesSelector = () => this.state.categories && (
+  renderCategoriesSelector = () => this.props.categories && (
     <div
       className="p-2 rounded-top shadow-lg"
       style={{
@@ -287,12 +288,12 @@ export default class MapPage extends Component {
     >
       <h5 className="font-weight-bold my-2">Explore these types of services</h5>
       <div className="d-flex justify-content-around">
-        {this.state.categories.map(category => (
+        {this.props.categories.map(category => (
           <Button
             primary
             className="mx-0 p-0 d-flex flex-column align-items-center"
             key={category.id}
-            onClick={() => this.setCategory(category)}
+            onClick={() => this.props.goToCategory(category)}
           >
             <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
             <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
@@ -304,21 +305,22 @@ export default class MapPage extends Component {
 
   render() {
     const isFiltering = !!this.getCurrentFilterString();
+    const { category } = this.props;
 
     return (
       <div className="Map">
-        {this.state.isFilterModalOpen && this.state.filters.category && (
+        {this.state.isFilterModalOpen && category && (
           <FiltersModal
-            category={this.state.filters.category}
+            category={category}
             defaultValues={this.state.filters.advancedFilters}
             onSubmit={this.setAdvancedFilters}
             onClose={this.closeFilterModal}
           />
         )}
         <Search
-          suggestions={this.state.categories}
+          suggestions={this.props.categories}
           onSubmitString={this.setSearchString}
-          onSubmitSuggestion={this.setCategory}
+          onSubmitSuggestion={this.props.goToCategory}
         >
           {({ renderSearchBar, renderSearchOverlay, renderSpeechElements }) => (
             <div
