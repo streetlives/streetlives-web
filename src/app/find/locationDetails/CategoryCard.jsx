@@ -9,8 +9,6 @@ import InfoItem from './InfoItem';
 import ServiceRestrictions from './ServiceRestrictions';
 import ServiceOfferings from './ServiceOfferings';
 
-// TODO: Should (parts of) this be a presentational component?
-
 const renderSchedule = (schedule) => {
   const dayNumberToName = weekday => DAYS[weekday - 1];
   const formatHours = (opens, closes) => `${opens.substring(0, 5)} to ${closes.substring(0, 5)}`;
