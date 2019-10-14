@@ -34,6 +34,8 @@ class MapPageContainer extends Component {
   goToCategory = category =>
     this.props.history.push(`/find/${category.name}/questions`);
 
+  goToLocationDetails = locationId => this.props.history.push(`/find/location/${locationId}`);
+
   fetchCategories = () => {
     // TODO: Use an action and put categories in Redux state.
     getTaxonomy()
@@ -65,6 +67,7 @@ class MapPageContainer extends Component {
         goHome={this.goHome}
         goToCategory={this.goToCategory}
         startQuestionFlow={this.startQuestionFlow}
+        goToLocationDetails={this.goToLocationDetails}
       />
     );
   }
