@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Modal from '../../../components/modal';
 import Header from '../../../components/header';
 import Icon from '../../../components/icon';
+import PhoneLink from '../../../components/phoneLink';
+import WebsiteLink from '../../../components/websiteLink';
 import CategoryCard from './CategoryCard';
 
 const groupByCategory = services => services.reduce((grouped, service) => {
@@ -24,26 +26,6 @@ const renderAddress = (address) => {
   return (
     <a href={directionsLink} target="_blank" rel="noopener noreferrer">
       {addressString}
-    </a>
-  );
-};
-
-// TODO: Use components to avoid duplication (URL too).
-const renderPhone = (phone) => {
-  // TODO: Handle other fields (extensions and such).
-  const phoneLink = `tel:${phone.number}`;
-  return (
-    <a href={phoneLink}>
-      {phone.number}
-    </a>
-  );
-};
-
-const renderUrl = (url) => {
-  const linkUrl = url.includes('//') ? url : `http://${url}`;
-  return (
-    <a href={linkUrl} target="_blank" rel="noopener noreferrer">
-      {url}
     </a>
   );
 };
@@ -84,7 +66,7 @@ const renderLocation = (location) => {
         {location.Organization.url && (
           <div>
             <Header size="large">Website</Header>
-            {renderUrl(location.Organization.url)}
+            <WebsiteLink url={location.Organization.url} />
           </div>
         )}
 
@@ -93,7 +75,7 @@ const renderLocation = (location) => {
             <Header size="large">Phone Number</Header>
             {phones.map(phone => (
               <div key={phone.id}>
-                {renderPhone(phone)}
+                <PhoneLink {...phone} />
               </div>
             ))}
           </div>

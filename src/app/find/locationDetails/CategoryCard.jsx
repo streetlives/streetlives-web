@@ -4,6 +4,7 @@ import { DAYS } from '../../../constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import Header from '../../../components/header';
+import PhoneLink from '../../../components/phoneLink';
 import ServiceRestrictions from './ServiceRestrictions';
 import ServiceOfferings from './ServiceOfferings';
 
@@ -48,17 +49,6 @@ const renderSchedule = (schedule) => {
   });
 
   return `Open ${groupStrings.join(', ')}`;
-};
-
-// TODO: Use components to avoid duplication (URL too).
-const renderPhone = (phone) => {
-  // TODO: Handle other fields (extensions and such).
-  const phoneLink = `tel:${phone.number}`;
-  return (
-    <a href={phoneLink} key={phone.id}>
-      {phone.number}
-    </a>
-  );
 };
 
 // TODO: Could use a component/function for the icon + data lines, to avoid all this duplication.
@@ -113,9 +103,9 @@ const CategoryCard = ({ category, services, className }) => (
         {service.Phones && service.Phones.length > 0 && (
           <div className="mb-3">
             {service.Phones.map(phone => (
-              <div key={phone.number}>
+              <div key={phone.id}>
                 <Icon name="phone" size="medium" className="float-left mt-1" />
-                <div className="ml-4 pl-1">{renderPhone(phone)}</div>
+                <div className="ml-4 pl-1"><PhoneLink {...phone} /></div>
               </div>
             ))}
           </div>

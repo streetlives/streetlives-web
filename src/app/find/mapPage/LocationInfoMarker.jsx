@@ -1,25 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import PhoneLink from '../../../components/phoneLink';
+import WebsiteLink from '../../../components/websiteLink';
 import LocationMarker from '../../../components/map/LocationMarker';
 import '../../../components/map/LocationMarker.css';
-
-function renderPhone(phone) {
-  const phoneLink = `tel:${phone.number}`;
-  return (
-    <a href={phoneLink} key={phone.id}>
-      {phone.number}
-    </a>
-  );
-}
-
-function renderUrl(url) {
-  const linkUrl = url.includes('//') ? url : `http://${url}`;
-  return (
-    <a href={linkUrl} target="_blank" rel="noopener noreferrer">
-      {url}
-    </a>
-  );
-}
 
 function renderAddress(address) {
   const {
@@ -76,8 +60,8 @@ class LocationInfoMarker extends Component {
             {mapLocation.name && <div>{mapLocation.name}</div>}
           </div>
           <div>{physicalAddresses.map(renderAddress)}</div>
-          <div>{organization.url && renderUrl(organization.url)}</div>
-          <div>{phones.map(renderPhone)}</div>
+          <div>{organization.url && <WebsiteLink url={organization.url} />}</div>
+          <div>{phones.map(phone => <PhoneLink key={phone.id} {...phone} />)}</div>
         </div>
         <br />
         <div>
