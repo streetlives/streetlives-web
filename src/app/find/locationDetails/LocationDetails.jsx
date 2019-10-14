@@ -104,7 +104,7 @@ const renderLocation = (location) => {
             <Header size="large">Accessibility</Header>
             {location.AccessibilityForDisabilities.map(accessibility => (
               <p key={accessibility.id}>
-                {accessibility.details}
+                {accessibility.details || accessibility.accessibility}
               </p>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../../../components/icon';
 
 const formatGender = (values) => {
   if (values.length !== 1) {
@@ -66,17 +67,37 @@ const formatDocument = (document) => {
   return `Requires ${documentDescriptions[documentName.toLowerCase()] || documentName}`;
 };
 
-const ServiceRestrictions = ({ eligibilities, requiredDocuments }) => (
-  <div>
-    {eligibilities && eligibilities.map(eligibility => (
-      <div key={eligibility.id}>
-        {formatEligibility(eligibility.EligibilityParameter.name, eligibility.eligible_values)}
+const ServiceRestrictions = ({ eligibilities = [], requiredDocuments = [] }) => {
+  const isEligibilityRestricted = eligibilities && eligibilities.length &&
+    eligibilities[0].eligible_values[0] !== 'everyone';
+  const areDocumentsRequired = requiredDocuments && requiredDocuments.length;
+  if (!isEligibilityRestricted && !areDocumentsRequired) {
+    return null;
+  }
+
+  const formattedEligibilities = eligibilities.map(eligibility => formatEligibility(
+    eligibility.EligibilityParameter.name,
+    eligibility.eligible_values,
+  )).filter(eligibility => eligibility != null);
+  const formattedDocuments = requiredDocuments.map(formatDocument).filter(doc => doc != null);
+
+  if (!formattedEligibilities.length && !formattedDocuments.length) {
+    return null;
+  }
+
+  return (
+    <div className="mb-3">
+      <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
+      <div className="ml-4 pl-1">
+        {formattedEligibilities && formattedEligibilities.map(eligibility => (
+          <div key={eligibility}>{eligibility}</div>
+        ))}
+        {formattedDocuments && formattedDocuments.map(document => (
+          <div key={document}>{formatDocument(document)}</div>
+        ))}
       </div>
-    ))}
-    {requiredDocuments && requiredDocuments.map(document => (
-      <div key={document.id}>{formatDocument(document)}</div>
-    ))}
-  </div>
-);
+    </div>
+  );
+};
 
 export default ServiceRestrictions;

@@ -1,8 +1,10 @@
 import React from 'react';
+import Icon from '../../../components/icon';
 
 const formatWearerAge = values => (values.length ? `Clothing for ${values.join(', ')}` : null);
 
-const formatClothingOccasion = values => (values.length ? `${values.join(', ')} clothing` : null);
+const formatClothingOccasion = values =>
+  (values.length ? `Provides ${values.join(', ')} clothing` : null);
 
 const formatHasHivNutrition = values => (
   (values.length === 1 && values[0] === 'true') ?
@@ -24,14 +26,28 @@ const formatAttribute = (attributeName, values) => {
   return `Offers ${values.join(', ')}`;
 };
 
-const ServiceOfferings = ({ attributes }) => (
-  <div>
-    {attributes && attributes.map(serviceAttribute => (
-      <div key={serviceAttribute.id}>
-        {formatAttribute(serviceAttribute.attribute.name, serviceAttribute.values)}
+const ServiceOfferings = ({ attributes = [] }) => {
+  const formattedAttributes = attributes.map(attribute => formatAttribute(
+    attribute.attribute.name,
+    attribute.values,
+  )).filter(attribute => attribute != null);
+
+  if (!formattedAttributes.length) {
+    return null;
+  }
+
+  return (
+    <div className="mb-3">
+      <Icon name="user" size="medium" className="float-left mt-1" />
+      <div className="ml-4 pl-1">
+        {formattedAttributes && formattedAttributes.map(attribute => (
+          <div key={attribute}>
+            {attribute}
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
-);
+    </div>
+  );
+};
 
 export default ServiceOfferings;

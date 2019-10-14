@@ -50,42 +50,6 @@ const renderSchedule = (schedule) => {
   return `Open ${groupStrings.join(', ')}`;
 };
 
-const renderRestrictions = (eligibilities, requiredDocuments) => {
-  const isEligibilityRestricted = eligibilities && eligibilities.length &&
-    eligibilities[0].eligible_values[0] !== 'everyone';
-  const areDocumentsRequired = requiredDocuments && requiredDocuments.length;
-  if (!isEligibilityRestricted && !areDocumentsRequired) {
-    return null;
-  }
-
-  return (
-    <div className="mb-3">
-      <Icon name="exclamation-triangle" size="medium" className="float-left mt-1" />
-      <div className="ml-4 pl-1">
-        <ServiceRestrictions
-          eligibilities={eligibilities}
-          requiredDocuments={requiredDocuments}
-        />
-      </div>
-    </div>
-  );
-};
-
-const renderOfferings = (taxonomySpecificAttributes) => {
-  if (!taxonomySpecificAttributes || !taxonomySpecificAttributes.length) {
-    return null;
-  }
-
-  return (
-    <div className="mb-3">
-      <Icon name="user" size="medium" className="float-left mt-1" />
-      <div className="ml-4 pl-1">
-        <ServiceOfferings attributes={taxonomySpecificAttributes} />
-      </div>
-    </div>
-  );
-};
-
 // TODO: Use components to avoid duplication (URL too).
 const renderPhone = (phone) => {
   // TODO: Handle other fields (extensions and such).
@@ -134,7 +98,10 @@ const CategoryCard = ({ category, services, className }) => (
           </div>
         )}
 
-        {renderRestrictions(service.Eligibilities, service.RequiredDocuments)}
+        <ServiceRestrictions
+          eligibilities={service.Eligibilities}
+          requiredDocuments={service.RequiredDocuments}
+        />
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
           <div className="mb-3">
@@ -154,7 +121,7 @@ const CategoryCard = ({ category, services, className }) => (
           </div>
         )}
 
-        {renderOfferings(service.ServiceTaxonomySpecificAttributes)}
+        <ServiceOfferings attributes={service.ServiceTaxonomySpecificAttributes} />
       </div>
     ))}
   </div>
