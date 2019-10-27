@@ -5,7 +5,7 @@ function PhoneLink({ number }) {
   // TODO: Handle other fields (extensions and such).
   const phoneLink = `tel:${number}`;
   return (
-    <a href={phoneLink}>
+    <a className="locationLinks" href={phoneLink}>
       {number}
     </a>
   );

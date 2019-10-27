@@ -1,17 +1,23 @@
+@value primaryColor from "../../colors.css";
+
 .ZipcodeInput {
-  height: 50px;
-  font-size: 1.5em;
-  padding: 10px;
-  letter-spacing: 15px;
-  text-align: center;
-  width: 0;
+	-moz-appearance: textfield;
+	height: 50px;
+	font-size: 1.1rem;
+	color: #323232;
+	padding: 10px;
+	letter-spacing: 10px;
+	text-align: center;
+	border: 2px solid primaryColor;
+	min-height: 50px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+
+
 }
 
 .ZipcodeInput::-webkit-outer-spin-button,
 .ZipcodeInput::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-.ZipcodeInput {
-  -moz-appearance: textfield;
 }

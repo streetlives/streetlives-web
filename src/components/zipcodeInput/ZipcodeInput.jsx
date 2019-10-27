@@ -15,6 +15,7 @@ function ZipcodeInput({
 
   return (
     <input
+      autofocus = "true"
       type="number"
       value={value}
       min={0}

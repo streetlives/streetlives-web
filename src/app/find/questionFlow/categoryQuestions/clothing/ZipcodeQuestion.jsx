@@ -14,6 +14,7 @@ class ZipcodeQuestion extends Component {
     isZipcodeValid: isValid,
   });
 
+
   submit = () => this.props.onAnswer(this.state.zipcodeDigits);
 
   render() {

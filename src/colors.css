@@ -7,5 +7,9 @@
 @value lightGray: #F0F0F0;
 @value mediumGray: #979797;
 
+
+@value blu_e: #1400ff;
+@value primaryColor: blu_e;
+
 @value yellow: #F8E71C;
-@value primaryColor: yellow;
+@value primaryColorYellow: yellow;

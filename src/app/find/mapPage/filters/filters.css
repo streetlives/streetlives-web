@@ -1,0 +1,69 @@
+@value primaryColor from "../../../../colors.css";
+
+.doneBtnContainer{
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	z-index: 1040;
+}
+
+.doneBtn{
+	border: 2px solid primaryColor;
+	background-color: #ffffff;
+	min-height: 56px;
+	width: 96%;
+	margin: 2%;
+	border-radius: 4px;
+	text-transform: capitalize;
+	color: primaryColor;
+	letter-spacing: 0px;
+	font-size: 1rem;
+	padding: 0px !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/*.iconContainer{
+	width: 56px;
+	height: 56px;
+	float: left;
+	background-color: red;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.checkmarkColored{
+	fill: primaryColor;
+}*/
+
+.modal_h1{
+	font-size: 1rem !important;
+	padding: 2rem 0rem 0.66rem 0rem;
+	margin: 0 !important;
+}
+
+.hivContainer {
+    width: 100%;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    border-bottom: 1px solid #dadada;
+    margin-top: 1vh;
+    display: flex;
+}
+
+input#hivNutrition-checkbox {
+    opacity: 1;
+    position: absolute;
+    cursor: pointer;
+    margin: 0 !important;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 11px;
+}
+
+.Label[for="hivNutrition-checkbox"]{
+	margin-left: 32px;
+	color: #333333;
+}

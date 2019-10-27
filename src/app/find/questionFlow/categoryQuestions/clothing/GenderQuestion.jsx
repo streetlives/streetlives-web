@@ -19,7 +19,7 @@ export default ({ value, onAnswer }) => (
         Female
       </OptionButtons.Option>
     </OptionButtons>
-    <div className="text-left border p-2">
+    <div className="explanationText">
       We apologize to those looking for a non-binary gender service.
       At this time most providers are only offering clothing closets for either
       male or female gender identities.

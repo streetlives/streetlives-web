@@ -5,6 +5,7 @@ import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
 import CategoryCard from './CategoryCard';
+import './locationDetails.css';
 
 const groupByCategory = services => services.reduce((grouped, service) => {
   if (!service.Taxonomies || !service.Taxonomies.length) {
@@ -24,7 +25,7 @@ const renderAddress = (address) => {
   const directionsLink =
     `https://www.google.com/maps/dir/?api=1&destination=${encodeURI(addressString)}`;
   return (
-    <a href={directionsLink} target="_blank" rel="noopener noreferrer">
+    <a className="locationLinks" href={directionsLink} target="_blank" rel="noopener noreferrer">
       {addressString}
     </a>
   );
@@ -35,7 +36,7 @@ const renderCategoriesLine = (services) => {
     ...currCategories,
     [service.Taxonomies[0].name]: true,
   }), {}));
-  return <div>{categories.join(' | ')}</div>;
+  return <div className="detailPageCategories">{categories.join(' & ')}</div>;
 };
 
 const renderLocation = (location) => {
@@ -60,22 +61,22 @@ const renderLocation = (location) => {
       <div className="text-left">
         {renderCategoriesLine(location.Services)}
 
-        <Header size="large">Address</Header>
+        <Header size="large" className="locationHeaders" >Address</Header>
         {renderAddress(location.address)}
 
         {location.Organization.url && (
           <div>
-            <Header size="large">Website</Header>
+            <Header size="large" className="locationHeaders">Website</Header>
             <WebsiteLink url={location.Organization.url} />
           </div>
         )}
 
         {phones.length > 0 && (
           <div>
-            <Header size="large">Phone Number</Header>
+            <Header size="large" className="locationHeaders">Phone Number</Header>
             {phones.map(phone => (
               <div key={phone.id}>
-                <PhoneLink {...phone} />
+                <PhoneLink className="locationLinks" {...phone} />
               </div>
             ))}
           </div>
@@ -83,16 +84,16 @@ const renderLocation = (location) => {
 
         {location.AccessibilityForDisabilities.length > 0 && (
           <div>
-            <Header size="large">Accessibility</Header>
+            <Header size="large" className="locationHeaders">Accessibility</Header>
             {location.AccessibilityForDisabilities.map(accessibility => (
-              <p key={accessibility.id}>
+              <p className="accessibilityText" key={accessibility.id}>
                 {accessibility.details || accessibility.accessibility}
               </p>
             ))}
           </div>
         )}
 
-        <Header size="large">Services Offered:</Header>
+        <Header size="large" className="locationHeaders">Services Offered:</Header>
         {Object.keys(servicesByCategory).map(category => (
           <CategoryCard
             key={category}

@@ -28,10 +28,11 @@ const FoodFiltersModal = ({
         onSelect={subcategoryId => onChange({ subcategoryId })}
         selectedOption={values.subcategoryId}
       />
-      <div className="border-bottom text-left py-2 px-3">
+      <div className="hivContainer">
         <Checkbox
           name="hivNutrition"
           label="Must have HIV+ nutrition"
+
           onChange={checked => onChange({
             hivNutrition: checked ? { value: true, description: 'have HIV+ nutrition' } : null,
           })}

@@ -8,6 +8,7 @@ import ProgressBar from '../../../components/progressBar';
 import Prompt from './Prompt';
 import SkipFlowConfirmation from './SkipFlowConfirmation';
 import QuitFlowConfirmation from './QuitFlowConfirmation';
+import './eligibilityQuestions.css'
 
 class QuestionFlow extends Component {
   state = {
@@ -42,7 +43,7 @@ class QuestionFlow extends Component {
 
     return (
       <div>
-        <Header size="medium" className="text-left mb-5">{question}</Header>
+        <Header size="medium" className="elegibilityQuestionTitle">{question}</Header>
         <QuestionComponent
           value={answers[param]}
           onAnswer={answer => answerQuestion({ param, answer })}
@@ -123,7 +124,7 @@ class QuestionFlow extends Component {
             <div className="px-2 mb-5">
               {this.renderQuestion()}
               <div className="p-3 mx-2 fixed-bottom">
-                <Button onClick={skipQuestion} secondary fluid className="position-relative">
+                <Button onClick={skipQuestion} fluid className="position-relative" className="Button-terciary">
                   <Icon
                     name="times"
                     style={{

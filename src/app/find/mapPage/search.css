@@ -1,0 +1,56 @@
+@value primaryColor from "../../../colors.css";
+
+.voice-to-text_btn{
+	position: absolute;;
+	bottom: 30vh;
+	right: 2vh;
+	display: flex;
+	align-content: center;
+}
+
+.voice-to-text_icon{
+	min-width: 60px;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background-color: primaryColor;
+    padding-top: 22%;
+    height: 0;
+    padding-bottom: 78%;
+}
+
+.backSearch{
+	min-width: 50px;
+	min-height: 50px;
+	display: flex;
+	align-content: center;
+	align-items: center;
+	background-color: #ffffff;
+	justify-content: center;
+	border-right: 2px solid rgba(20,0,255,0.5);
+}
+
+.backSearchChevron{
+	display: flex;
+	align-self: center;
+	fill:primaryColor;
+}
+
+.input-group{
+	border: 2px solid primaryColor;
+	border-radius: 2px;
+}
+
+.searchSubmit{
+	min-width: 50px;
+	min-height: 50px;
+	display: flex;
+	align-content: center;
+	align-items: center;
+	background-color: primaryColor;
+	justify-content: center;
+	border: none !important;
+}
+
+.searchIcon_white{
+	fill:#ffffff;
+}

@@ -15,10 +15,10 @@
 }
 
 .OptionButton.OptionButton-active {
-  background: darkerGray;
+  /*background: darkerGray;
   border: 1px solid darkerGray;
   color: primaryColor;
-  font-weight: 300;
+  font-weight: 300;*/
 }
 
 .OptionButton > .OptionButtonChildren {

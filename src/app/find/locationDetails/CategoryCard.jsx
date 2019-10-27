@@ -52,22 +52,17 @@ const renderSchedule = (schedule) => {
 
 const CategoryCard = ({ category, services, className }) => (
   <div
-    className={cx('shadow pb-2 px-3 position-relative', className)}
+    className="categoryCard"
     style={{
       backgroundColor: '#F8F8FC',
       border: '1px solid #DADADA',
     }}
   >
-    <div>
-      <Header size="large">{category}</Header>
+    <div className="serviceCategoryHeadersContainer">
+      <Header size="large" className="serviceCategoryHeaders">{category}</Header>
       <Icon
         name={getCategoryIcon(category)}
         size="2x"
-        style={{
-          position: 'absolute',
-          right: '0.7em',
-          top: '0.7em',
-        }}
       />
     </div>
 
@@ -76,12 +71,12 @@ const CategoryCard = ({ category, services, className }) => (
         key={service.id}
         style={{ borderBottom: i === services.length - 1 ? '0' : '1px solid #DADADA' }}
       >
-        <Header size="medium" className="mb-2">
+        <Header size="medium" className="specificServiceHeaders">
           {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
         </Header>
 
         {!!service.description && (
-          <div className="mb-3">
+          <div className="serviceDescription">
             {service.description}
           </div>
         )}
@@ -92,7 +87,7 @@ const CategoryCard = ({ category, services, className }) => (
         />
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
-          <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
+        <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
         )}
 
         {service.Phones && service.Phones.map(phone => (

@@ -9,6 +9,7 @@ import Icon from '../../../components/icon';
 import FiltersModal from './filters/FiltersModal';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
+import './mapPage.css'
 
 const minSearchResults = 3;
 
@@ -206,15 +207,7 @@ export default class MapPage extends Component {
 
   renderFilteringInfoBar = () => (
     <div
-      className="p-1"
-      style={{
-        backgroundColor: 'white',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 2,
-      }}
+      className="resultsBar"
     >
       {this.state.isSearchingLocations ? (
         <div>Loading results...</div>
@@ -248,7 +241,7 @@ export default class MapPage extends Component {
     }
 
     return (
-      <Button onClick={onClick} half className="mx-2" {...{ [type]: true }}>
+      <Button onClick={onClick} className="half_button" {...{ [type]: true }}>
         <Icon name={iconName} className="mr-2" />
         {text}
       </Button>
@@ -266,7 +259,7 @@ export default class MapPage extends Component {
         zIndex: 2,
       }}
     >
-      <Button primary onClick={this.clearResults} half className="mx-2">
+      <Button primary onClick={this.clearResults} className="half_button">
         <Icon name="times-circle" className="mr-2" />
         Go to home
       </Button>
@@ -275,28 +268,18 @@ export default class MapPage extends Component {
   );
 
   renderCategoriesSelector = () => this.props.categories && (
-    <div
-      className="p-2 rounded-top shadow-lg"
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: 'white',
-        zIndex: 2,
-      }}
-    >
-      <h5 className="font-weight-bold my-2">Explore these types of services</h5>
-      <div className="d-flex justify-content-around">
+    <div className="categoriesContainer">
+      <h5 className="categoriesTitle">Explore these types of services</h5>
+      <div className="buttonsContainer">
         {this.props.categories.map(category => (
           <Button
             primary
-            className="mx-0 p-0 d-flex flex-column align-items-center"
+            className="categoryButton"
             key={category.id}
             onClick={() => this.props.goToCategory(category)}
           >
             <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
-            <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
+            <small className="serviceCategory">{category.name}</small>
           </Button>
         ))}
       </div>

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 function WebsiteLink({ url }) {
   const linkUrl = url.includes('//') ? url : `http://${url}`;
   return (
-    <a href={linkUrl} target="_blank" rel="noopener noreferrer">
+    <a className="locationLinks" href={linkUrl} target="_blank" rel="noopener noreferrer">
       {url}
     </a>
   );

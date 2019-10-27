@@ -1,0 +1,90 @@
+@value primaryColor from "../../../colors.css";
+
+.locationLinks{
+	color: primaryColor;
+	border-bottom: 1px solid primaryColor; 
+	font-size: 0.85rem;
+	cursor: pointer;
+	padding: 2vh 0 0 0;
+}
+
+.locationHeaders{
+	font-size: 0.95rem !important;
+    line-height: 1.33rem;
+    margin: 4.5vh 0 0vh 0;
+    padding-top: 1.2vh;
+    width: 100%;
+    border-top: 1px solid #dadada;
+}
+
+.categoryCard{
+	background-color: #f8f8fc;
+	border: 1px solid #dadada !important;
+	padding: 4vw 4vw 0vw 4vw;
+	box-shadow: 0vw 2vw 2vw rgba(0,0,0,0.15) !important;
+	margin-bottom: 4vh;
+	margin-top: 2vh; 
+
+}
+
+.serviceCategoryHeadersContainer{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	align-content: center;
+}
+
+.serviceCategoryHeaders{
+    font-size: .85rem !important;
+    line-height: 1.33rem;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1.66px;
+    margin: 0 !important;
+    padding: 0 !important;
+
+}
+
+.specificServiceHeaders{
+	font-size: .85rem !important;
+    line-height: 1.33rem;
+    margin: 0 !important;
+    padding-top: 1.2vh;
+    width: 100%;
+}
+
+.serviceDescription{
+	font-size: 0.85rem;
+	line-height: 1.4rem;
+	padding: 2vh 0;
+}
+
+.detailPageCategories{
+	font-size: 0.8rem !important;
+	text-align: center;
+	font-weight: bold;
+	color:#4c4b4b;
+}
+
+.headerLocationName{
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+.accessibilityText{
+	font-size: 0.85rem;
+}
+
+.infoItem{
+	font-size: 0.85rem;
+	padding-top: 4px;
+	line-height: 1.2rem;
+	padding-bottom: 0.85rem;
+}
+
+.serviceSchedule{
+	font-size: 0.85rem !important;
+    border-top: 1px solid #d8d8ee;
+    padding-top: 2vh;
+    margin: 0 !important;
+}
