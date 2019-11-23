@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Input from '../../../components/input';
+import Header from 'components/header';
+import Button from 'components/button';
+import Input from 'components/input';
 
 function AdditionalInfo(props) {
   return (

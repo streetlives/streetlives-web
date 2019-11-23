@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ConfirmationOptions from 'components/form/ConfirmationOptions';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
-import ConfirmationOptions from '../../../components/form/ConfirmationOptions';
 
 function FormView(props) {
   return (

@@ -2,20 +2,19 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import ErrorLabel from '../../../components/form/ErrorLabel';
+import ErrorLabel from 'components/form/ErrorLabel';
 import {
   selectLocationError,
   selectLocationData,
-} from '../../../selectors/location';
-import { getService } from '../../../selectors/service';
-import * as actions from '../../../actions';
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import ProgressBar from '../../../components/progressBar';
-
+} from 'selectors/location';
+import { getService } from 'selectors/service';
+import * as actions from 'actions';
+import Header from 'components/header';
+import Button from 'components/button';
+import ProgressBar from 'components/progressBar';
+import LoadingLabel from 'components/form/LoadingLabel';
 import FieldItem from '../../locationInfo/FieldItem';
 import NavBar from '../../NavBar';
-import LoadingLabel from '../../../components/form/LoadingLabel';
 
 import { SERVICE_FIELDS } from '../../serviceForm/routes';
 

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { FormEdit } from 'components/form';
+import LoadingLabel from 'components/form/LoadingLabel';
+import { selectNewLocationData } from 'reducers/newLocation';
+import { doneCreatingNewLocation } from 'actions';
+import * as api from 'services/api';
 import NavBar from '../NavBar';
-import { FormEdit } from '../../components/form';
-import LoadingLabel from '../../components/form/LoadingLabel';
-import { selectNewLocationData } from '../../reducers/newLocation';
-import { doneCreatingNewLocation } from '../../actions';
-import * as api from '../../services/api';
 
 const LoadingView = () => (
   <div className="d-flex flex-column">

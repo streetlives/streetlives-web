@@ -2,12 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
+import { getService, getServiceWhoDoesItServe, getServiceId } from 'selectors/service';
+import { selectLocationError } from 'selectors/location';
+import * as actions from 'actions';
+import { Form } from 'components/form';
 import WhoDoesItServeEdit from './WhoDoesItServeEdit';
 import WhoDoesItServeView from './WhoDoesItServeView';
-import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../selectors/service';
-import { selectLocationError } from '../../../selectors/location';
-import * as actions from '../../../actions';
-import { Form } from '../../../components/form';
 import { isEditing } from './util';
 
 const FormComponent = compose(withProps({

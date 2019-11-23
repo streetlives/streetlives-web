@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData, selectLocationError } from '../../../selectors/location';
-import { updateOrganization, getLocation } from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
+import { selectLocationData, selectLocationError } from 'selectors/location';
+import { updateOrganization, getLocation } from 'actions';
+import { Form, FormEdit, FormView } from 'components/form';
 
 const WebsiteEdit = compose(withProps({
   headerText: "What is this organization's website?",
@@ -19,6 +19,10 @@ const Website = compose(withProps({
   EditComponent: WebsiteEdit,
 }))(props => <Form {...props} />);
 
+export const selectValue = locationData => (
+  locationData && locationData.Organization && locationData.Organization.url
+);
+
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
 
@@ -29,10 +33,6 @@ const mapStateToProps = (state, ownProps) => {
     resourceLoadError: selectLocationError(state, ownProps),
   };
 };
-
-export const selectValue = (locationData) => (
-  locationData && locationData.Organization && locationData.Organization.url
-);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newWebsite, organizationId, metaDataSection, fieldName) =>

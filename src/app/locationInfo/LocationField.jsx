@@ -4,8 +4,8 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
-import Badge from '../../components/badge';
-import Icon from '../../components/icon';
+import Badge from 'components/badge';
+import Icon from 'components/icon';
 import { FIELD_TYPES, getFieldType } from './utils';
 
 class LocationField extends Component {

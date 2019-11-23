@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router';
+import ProgressBar from 'components/progressBar';
+import Button from 'components/button';
+import Icon from 'components/icon';
 import NavBar from '../NavBar';
-import ProgressBar from '../../components/progressBar';
-import Button from '../../components/button';
-import Icon from '../../components/icon';
 import routes from './routes';
 import ThanksOverlay, { overlayStyles } from './thanks/ThanksOverlay';
 

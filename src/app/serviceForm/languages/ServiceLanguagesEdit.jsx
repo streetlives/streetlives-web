@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Selector from '../../../components/selector';
-import Icon from '../../../components/icon';
-import * as api from '../../../services/api';
+import Header from 'components/header';
+import Button from 'components/button';
+import Selector from 'components/selector';
+import Icon from 'components/icon';
+import * as api from 'services/api';
 
 import AddLanguageForm from './AddLanguageForm';
 

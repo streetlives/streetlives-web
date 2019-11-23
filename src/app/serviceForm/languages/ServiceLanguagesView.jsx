@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ConfirmationOptions from '../../../components/form/ConfirmationOptions';
+import ConfirmationOptions from 'components/form/ConfirmationOptions';
 
 const styles = {
   borderColor: '#EDEDED',

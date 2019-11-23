@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import Header from '../../../components/header';
-import Button from '../../../components/button';
-import Selector from '../../../components/selector';
-import Input from '../../../components/input';
-import { SERVICE_GROUPS } from '../../../constants';
+import Header from 'components/header';
+import Button from 'components/button';
+import Selector from 'components/selector';
+import Input from 'components/input';
+import { SERVICE_GROUPS } from 'constants';
 import { formatLabel, isEditing } from './util';
 import './WhoDoesItServeEditForm.css';
 

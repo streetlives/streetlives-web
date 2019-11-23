@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Input from '../../../components/input';
+import Input from 'components/input';
 import './OpeningHoursEditForm.css';
 
 export default class OpeningHoursEditForm extends Component {

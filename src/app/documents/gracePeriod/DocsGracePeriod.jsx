@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getDocuments, getDocumentGracePeriod } from '../../../selectors/document';
-import { getServiceId } from '../../../selectors/service';
-import { selectLocationError } from '../../../selectors/location';
+import { getDocuments, getDocumentGracePeriod } from 'selectors/document';
+import { getServiceId } from 'selectors/service';
+import { selectLocationError } from 'selectors/location';
 
-import * as actions from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
+import * as actions from 'actions';
+import { Form, FormEdit, FormView } from 'components/form';
 
 const EditComponent = compose(withProps({
   headerText: 'How long is the grace period?',

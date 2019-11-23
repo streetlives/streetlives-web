@@ -5,16 +5,16 @@ import { connect } from 'react-redux';
 import {
   selectLocationError,
   selectLocationData,
-} from '../../selectors/location';
+} from 'selectors/location';
+import Header from 'components/header';
+import Button from 'components/button';
+import { getLocation } from 'actions';
+import ProgressBar from 'components/progressBar';
+import LoadingLabel from 'components/form/LoadingLabel';
+import ErrorLabel from 'components/form/ErrorLabel';
 import NavBar from '../NavBar';
-import Header from '../../components/header';
-import Button from '../../components/button';
-import routes from '../locationForm/routes';
-import { getLocation } from '../../actions';
-import ProgressBar from '../../components/progressBar';
-import LoadingLabel from '../../components/form/LoadingLabel';
-import ErrorLabel from '../../components/form/ErrorLabel';
 import FieldItem from './FieldItem';
+import routes from '../locationForm/routes';
 
 const getServicesUrl = locationId => `/location/${locationId}/services`;
 
@@ -43,7 +43,12 @@ function getUpdatedAt(location, metaDataSection, fieldName) {
   return field ? field.last_action_date : null;
 }
 
-function ListItem({ route, linkTo, location, value }) {
+function ListItem({
+  route,
+  linkTo,
+  location,
+  value,
+}) {
   const { label, metaDataSection, fieldName } = route;
   const updatedAt = getUpdatedAt(location, metaDataSection, fieldName);
   return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} value={value} />;

@@ -2,12 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
+import { getService, getServiceOpeningHours, getServiceId } from 'selectors/service';
+import { selectLocationError } from 'selectors/location';
+import * as actions from 'actions';
+import { Form } from 'components/form';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
 import ServiceOpeningHoursView from './ServiceOpeningHoursView';
-import { getService, getServiceOpeningHours, getServiceId } from '../../../selectors/service';
-import { selectLocationError } from '../../../selectors/location';
-import * as actions from '../../../actions';
-import { Form } from '../../../components/form';
 
 const ViewComponent = compose(withProps({
   topText: 'OPENING HOURS',

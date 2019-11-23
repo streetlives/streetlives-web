@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
-import Button from '../../components/button';
-import Icon from '../../components/icon';
-import ProgressBar from '../../components/progressBar';
+import Button from 'components/button';
+import Icon from 'components/icon';
+import ProgressBar from 'components/progressBar';
 
 import DocumentFormRoutes, { DOCUMENT_FIELDS as routes } from './routes';
 import NavBar from '../NavBar';

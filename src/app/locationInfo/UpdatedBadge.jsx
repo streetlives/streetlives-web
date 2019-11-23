@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import cx from 'classnames';
 
-import Badge from '../../components/badge';
+import Badge from 'components/badge';
 import { FIELD_TYPES, getFieldType } from './utils';
 
 function UpdatedBadge({ updatedAt, value }) {
@@ -21,7 +21,12 @@ function UpdatedBadge({ updatedAt, value }) {
   const shouldVerify = fieldType === FIELD_TYPES.DANGER || fieldType === FIELD_TYPES.WARNING;
   const isMissing = fieldType === FIELD_TYPES.MISSING;
 
-  const timeAgoText = !isMissing ? (updatedAt ? `${moment(updatedAt).fromNow()}.` : '') : 'Missing info. Please add!';
+  let timeAgoText;
+  if (isMissing) {
+    timeAgoText = 'Missing info. Please add!';
+  } else {
+    timeAgoText = updatedAt ? `${moment(updatedAt).fromNow()}.` : '';
+  }
   const updatedAtText = shouldVerify ? `${timeAgoText} Please verify.` : timeAgoText;
 
   return (

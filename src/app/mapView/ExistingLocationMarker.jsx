@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import PhoneLink from '../../components/phoneLink';
-import WebsiteLink from '../../components/websiteLink';
-import LocationMarker from '../../components/map/LocationMarker';
-import '../../components/map/LocationMarker.css';
+import PhoneLink from 'components/phoneLink';
+import WebsiteLink from 'components/websiteLink';
+import LocationMarker from 'components/map/LocationMarker';
+import 'components/map/LocationMarker.css';
 
 function renderAddress(address) {
   const {

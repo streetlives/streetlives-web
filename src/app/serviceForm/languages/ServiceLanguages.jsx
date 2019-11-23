@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getService, getServiceLanguages, getServiceId } from '../../../selectors/service';
-import { selectLocationError } from '../../../selectors/location';
+import { getService, getServiceLanguages, getServiceId } from 'selectors/service';
+import { selectLocationError } from 'selectors/location';
 
-import * as actions from '../../../actions';
-import { Form } from '../../../components/form';
+import * as actions from 'actions';
+import { Form } from 'components/form';
 
 import ServiceLanguagesEdit from './ServiceLanguagesEdit';
 import ServiceLanguagesView from './ServiceLanguagesView';

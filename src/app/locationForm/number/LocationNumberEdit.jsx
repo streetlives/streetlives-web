@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Header from '../../../components/header';
-import Input from '../../../components/input';
-import Button from '../../../components/button';
+import Header from 'components/header';
+import Input from 'components/input';
+import Button from 'components/button';
 
 export default class LocationNumberEdit extends Component {
   constructor(props) {

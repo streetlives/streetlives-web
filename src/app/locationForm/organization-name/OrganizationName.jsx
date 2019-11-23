@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData, selectLocationError } from '../../../selectors/location';
-import { updateOrganization, getLocation } from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
+import { selectLocationData, selectLocationError } from 'selectors/location';
+import { updateOrganization, getLocation } from 'actions';
+import { Form, FormEdit, FormView } from 'components/form';
 
 const OrganizationNameEdit = compose(withProps({
   headerText: "What's this organizations's name?",
@@ -19,6 +19,12 @@ const OrganizationName = compose(withProps({
   EditComponent: OrganizationNameEdit,
 }))(props => <Form {...props} />);
 
+export const selectValue = locationData => (
+  locationData && locationData.Organization && locationData.Organization.name
+    ? locationData.Organization.name
+    : null
+);
+
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
   const locationError = selectLocationError(state, ownProps);
@@ -30,12 +36,6 @@ const mapStateToProps = (state, ownProps) => {
     resourceLoadError: locationError,
   };
 };
-
-export const selectValue = (locationData) => (
-  locationData && locationData.Organization && locationData.Organization.name
-    ? locationData.Organization.name
-    : null
-);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newOrganizationName, organizationId, metaDataSection, fieldName) =>

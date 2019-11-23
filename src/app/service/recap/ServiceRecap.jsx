@@ -7,16 +7,16 @@ import {
   selectLocationData,
   selectOriginalLocationData,
   selectLocationError,
-} from '../../../selectors/location';
-import { getTaxonomy } from '../../../selectors/taxonomy';
-import * as actions from '../../../actions';
-import Button from '../../../components/button';
-import Header from '../../../components/header';
-import SectionHeader from '../../../components/sectionHeader';
-import { getCategoryIcon } from '../../../services/iconography';
+} from 'selectors/location';
+import { getTaxonomy } from 'selectors/taxonomy';
+import * as actions from 'actions';
+import Button from 'components/button';
+import Header from 'components/header';
+import SectionHeader from 'components/sectionHeader';
+import { getCategoryIcon } from 'services/iconography';
+import LoadingLabel from 'components/form/LoadingLabel';
+import ErrorLabel from 'components/form/ErrorLabel';
 import ThanksOverlay, { overlayStyles } from '../../locationForm/thanks/ThanksOverlay';
-import LoadingLabel from '../../../components/form/LoadingLabel';
-import ErrorLabel from '../../../components/form/ErrorLabel';
 
 import NavBar from '../../NavBar';
 import ListItem from './ListItem';
@@ -101,9 +101,16 @@ class ServicesRecap extends Component {
               <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
               {services
                 .filter(service => service.categoryId === category.id)
-                .map(service => {
-                  const originalService = this.props.originalLocationData.Services.find( ({id}) => id === service.id );
-                  return <ListItem key={service.id} service={service} originalService={originalService} />;
+                .map((service) => {
+                  const originalService =
+                    this.props.originalLocationData.Services.find(({ id }) => id === service.id);
+                  return (
+                    <ListItem
+                      key={service.id}
+                      service={service}
+                      originalService={originalService}
+                    />
+                  );
                 })}
             </div>
           ))}

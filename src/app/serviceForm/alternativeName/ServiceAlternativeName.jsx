@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getService, getServiceNicknames, getServiceId } from '../../../selectors/service';
-import { selectLocationError } from '../../../selectors/location';
+import { getService, getServiceNicknames, getServiceId } from 'selectors/service';
+import { selectLocationError } from 'selectors/location';
 
-import * as actions from '../../../actions';
-import { Form, FormEdit, FormView } from '../../../components/form';
+import * as actions from 'actions';
+import { Form, FormEdit, FormView } from 'components/form';
 
 const EditComponent = compose(withProps({
   headerText: 'Does this service have an alternative name?',

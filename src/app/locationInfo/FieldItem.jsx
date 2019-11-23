@@ -2,13 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import Icon from '../../components/icon';
+import Icon from 'components/icon';
 
 import UpdatedBadge from './UpdatedBadge';
 
 import './FieldItem.css';
 
-function FieldItem({ title, updatedAt, linkTo, value }) {
+function FieldItem({
+  title,
+  updatedAt,
+  linkTo,
+  value,
+}) {
   return (
     <Link className="FieldItem border-top border-bottom" to={linkTo}>
       <div className="container p-4 text-left">

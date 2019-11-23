@@ -2,9 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 
-import { selectLocationData, selectLocationError } from '../../../selectors/location';
-import { updatePhone, getLocation, createPhone } from '../../../actions';
-import { Form, FormView } from '../../../components/form';
+import { selectLocationData, selectLocationError } from 'selectors/location';
+import { updatePhone, getLocation, createPhone } from 'actions';
+import { Form, FormView } from 'components/form';
 import LocationNumberEdit from './LocationNumberEdit';
 
 const getPhoneNumber = props =>
@@ -26,6 +26,10 @@ const LocationNumber = compose(withProps({
   EditComponent: LocationNumberEdit,
 }))(props => <Form {...props} />);
 
+export const selectValue = locationData => (
+  locationData && locationData.Phones && locationData.Phones[0]
+);
+
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
   const locationError = selectLocationError(state, ownProps);
@@ -38,10 +42,6 @@ const mapStateToProps = (state, ownProps) => {
     resourceLoadError: locationError,
   };
 };
-
-export const selectValue = (locationData) => (
-  locationData && locationData.Phones && locationData.Phones[0]
-)
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: ({ number, extension }, phoneId, metaDataSection, fieldName) =>
