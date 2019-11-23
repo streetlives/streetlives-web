@@ -7,8 +7,6 @@ import Amplify from 'aws-amplify';
 import { AmplifyTheme } from 'aws-amplify-react';
 import awsExports from './aws-exports';
 
-import withTracker from '../components/routing/withTracker';
-
 import { store, history } from '../store/index';
 
 import './App.css';
@@ -16,9 +14,12 @@ import './App.css';
 import About from './about/About';
 import NotFound from './notFound/NotFound';
 
-import TeamRouter from './team/Router';
-import CommentsRouter from './comments/Router';
-import FindRouter from './find/Router';
+import withTracker from '../components/routing/withTracker';
+import AsyncComponent from '../components/routing/AsyncComponent';
+
+const TeamRouter = AsyncComponent(() => import('./team/Router'));
+const CommentsRouter = AsyncComponent(() => import('./comments/Router'));
+const FindRouter = AsyncComponent(() => import('./find/Router'));
 
 history.listen((location, action) => {
   window.scrollTo(0, 0);
