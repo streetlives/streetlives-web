@@ -2,6 +2,14 @@ module.exports = {
   parser: 'babel-eslint',
   extends: 'airbnb',
 
+  settings: {
+    'import/resolver': {
+      node: {
+        paths: ['src'],
+      },
+    },
+  },
+
   env: {
     node: true,
     jest: true,
