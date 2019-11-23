@@ -1,3 +1,7 @@
+/*
+* Code taken from this guide:
+* https://serverless-stack.com/chapters/code-splitting-in-create-react-app.html
+*/
 import React, { Component } from 'react';
 
 export default function asyncComponent(importComponent) {
