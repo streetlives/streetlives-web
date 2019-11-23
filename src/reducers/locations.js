@@ -9,7 +9,7 @@ import {
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
 } from '../actions';
-import { DAYS } from '../constants';
+import { DAYS } from '../Constants';
 
 function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
   const { metadata } = location;
@@ -46,11 +46,11 @@ const locationsReducer = (state = {}, action) => {
     case GET_LOCATION_RESPONSE:
       if (action.payload) {
         const originalLocationId = `original/${action.payload.id}`;
-        return { 
-          ...state, 
+        return {
+          ...state,
           //tag initial download of location data so that we can use it for "session" logic
-          [originalLocationId]: state[originalLocationId] || action.payload, 
-          [action.payload.id]: action.payload 
+          [originalLocationId]: state[originalLocationId] || action.payload,
+          [action.payload.id]: action.payload
         };
       }
       break;

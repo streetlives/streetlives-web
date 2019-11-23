@@ -1,5 +1,5 @@
 import { selectLocationData } from './location';
-import { DAYS } from '../constants';
+import { DAYS } from '../Constants';
 
 export const getServiceId = props => props.match.params.serviceId;
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import config from '../config';
-import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../constants';
+import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../Constants';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
