@@ -30,11 +30,11 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export const selectValue = (locationData) => (
+export const selectValue = locationData => (
   locationData && locationData.address && locationData.address && locationData.address.street
     ? locationData.address.street
     : null
-)
+);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newAddress, _, metaDataSection, fieldName) =>

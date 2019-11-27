@@ -67,7 +67,7 @@ const renderLocation = (location) => {
         {location.Organization.url && (
           <div>
             <Header size="large" className="locationHeaders">Website</Header>
-            <WebsiteLink url={location.Organization.url} />
+            <WebsiteLink url={location.Organization.url} className="locationLinks" />
           </div>
         )}
 
@@ -76,7 +76,7 @@ const renderLocation = (location) => {
             <Header size="large" className="locationHeaders">Phone Number</Header>
             {phones.map(phone => (
               <div key={phone.id}>
-                <PhoneLink className="locationLinks" {...phone} />
+                <PhoneLink {...phone} className="locationLinks" />
               </div>
             ))}
           </div>

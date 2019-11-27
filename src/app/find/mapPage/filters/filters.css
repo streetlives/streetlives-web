@@ -19,26 +19,11 @@
 	letter-spacing: 0px;
 	font-size: 1rem;
 	padding: 0px !important;
-	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-/*.iconContainer{
-	width: 56px;
-	height: 56px;
-	float: left;
-	background-color: red;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.checkmarkColored{
-	fill: primaryColor;
-}*/
-
-.modal_h1{
+.filtersHeader{
 	font-size: 1rem !important;
 	padding: 2rem 0rem 0.66rem 0rem;
 	margin: 0 !important;

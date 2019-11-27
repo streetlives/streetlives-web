@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function PhoneLink({ number }) {
+function PhoneLink({ number, className }) {
   // TODO: Handle other fields (extensions and such).
   const phoneLink = `tel:${number}`;
   return (
-    <a className="locationLinks" href={phoneLink}>
+    <a className={className} href={phoneLink}>
       {number}
     </a>
   );

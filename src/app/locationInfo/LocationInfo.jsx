@@ -43,7 +43,9 @@ function getUpdatedAt(location, metaDataSection, fieldName) {
   return field ? field.last_action_date : null;
 }
 
-function ListItem({ route, linkTo, location, value }) {
+function ListItem({
+  route, linkTo, location, value,
+}) {
   const { label, metaDataSection, fieldName } = route;
   const updatedAt = getUpdatedAt(location, metaDataSection, fieldName);
   return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} value={value} />;

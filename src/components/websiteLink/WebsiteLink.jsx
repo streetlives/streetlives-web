@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function WebsiteLink({ url }) {
+function WebsiteLink({ url, className }) {
   const linkUrl = url.includes('//') ? url : `http://${url}`;
   return (
-    <a className="locationLinks" href={linkUrl} target="_blank" rel="noopener noreferrer">
+    <a className={className} href={linkUrl} target="_blank" rel="noopener noreferrer">
       {url}
     </a>
   );

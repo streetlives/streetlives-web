@@ -9,7 +9,7 @@ import Icon from '../../../components/icon';
 import FiltersModal from './filters/FiltersModal';
 import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
-import './mapPage.css'
+import './mapPage.css';
 
 const minSearchResults = 3;
 
@@ -227,7 +227,7 @@ export default class MapPage extends Component {
 
     const areModalFiltersApplied = this.getAdvancedFilterValues().length > 0;
 
-    const type = areModalFiltersApplied ? 'secondary' : 'primary';
+    const type = areModalFiltersApplied ? 'primary' : 'secondary';
     const iconName = category ? 'sliders-h' : 'clock';
     const onClick = category ? this.openFilterModal : this.toggleOpenNow;
 
@@ -241,7 +241,7 @@ export default class MapPage extends Component {
     }
 
     return (
-      <Button onClick={onClick} className="half_button" {...{ [type]: true }}>
+      <Button onClick={onClick} className="mapHalfButton" {...{ [type]: true }}>
         <Icon name={iconName} className="mr-2" />
         {text}
       </Button>
@@ -259,7 +259,7 @@ export default class MapPage extends Component {
         zIndex: 2,
       }}
     >
-      <Button primary onClick={this.clearResults} className="half_button">
+      <Button secondary onClick={this.clearResults} className="mapHalfButton">
         <Icon name="times-circle" className="mr-2" />
         Go to home
       </Button>

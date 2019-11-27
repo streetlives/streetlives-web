@@ -8,6 +8,7 @@ import PhoneLink from '../../../components/phoneLink';
 import InfoItem from './InfoItem';
 import ServiceRestrictions from './ServiceRestrictions';
 import ServiceOfferings from './ServiceOfferings';
+import './locationDetails.css';
 
 const renderSchedule = (schedule) => {
   const dayNumberToName = weekday => DAYS[weekday - 1];
@@ -59,7 +60,7 @@ const CategoryCard = ({ category, services, className }) => (
     }}
   >
     <div className="serviceCategoryHeadersContainer">
-      <Header size="large" className="serviceCategoryHeaders">{category}</Header>
+      <div className="serviceCategoryHeaders">{category}</div>
       <Icon
         name={getCategoryIcon(category)}
         size="2x"
@@ -69,11 +70,11 @@ const CategoryCard = ({ category, services, className }) => (
     {services.map((service, i) => (
       <div
         key={service.id}
-        style={{ borderBottom: i === services.length - 1 ? '0' : '1px solid #DADADA' }}
+        style={{ borderBottom: i === services.length - 1 ? '0' : '1px solid #DADADA', paddingBottom:'1.3vh' }}
       >
-        <Header size="medium" className="specificServiceHeaders">
+        <div size="medium" className="specificServiceHeaders">
           {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
-        </Header>
+        </div>
 
         {!!service.description && (
           <div className="serviceDescription">
@@ -87,12 +88,12 @@ const CategoryCard = ({ category, services, className }) => (
         />
 
         {service.RegularSchedules && service.RegularSchedules.length > 0 && (
-        <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
+          <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
         )}
 
         {service.Phones && service.Phones.map(phone => (
           <InfoItem key={phone.id} icon="phone">
-            <PhoneLink {...phone} />
+            <PhoneLink {...phone} className="locationLinks" />
           </InfoItem>
         ))}
 

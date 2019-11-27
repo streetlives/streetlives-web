@@ -6,14 +6,12 @@ export default ({ value, onAnswer }) => (
     <OptionButtons>
       <OptionButtons.Option
         iconName="male"
-        active={value === 'male'}
         onClick={() => onAnswer('male')}
       >
         Male
       </OptionButtons.Option>
       <OptionButtons.Option
         iconName="female"
-        active={value === 'female'}
         onClick={() => onAnswer('female')}
       >
         Female

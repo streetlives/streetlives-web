@@ -3,7 +3,7 @@ import Header from '../../../../components/header';
 import Selector from '../../../../components/selector';
 import Info from '../../../../components/info';
 import InfoModal from './InfoModal';
-import './filters.css'
+import './filters.css';
 
 class FilterSelector extends Component {
   state = {
@@ -28,7 +28,7 @@ class FilterSelector extends Component {
           <InfoModal title={title} text={explanation} onClose={this.toggleExplanation} />
         )}
         <div className="pl-2 d-flex justify-content-between align-items-end">
-          <Header size="medium" className="modal_h1">
+          <Header size="medium" className="filtersHeader">
             {title}
           </Header>
           {(explanation != null) && (

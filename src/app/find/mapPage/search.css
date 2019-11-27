@@ -1,6 +1,6 @@
 @value primaryColor from "../../../colors.css";
 
-.voice-to-text_btn{
+.voiceToText_btn{
 	position: absolute;;
 	bottom: 30vh;
 	right: 2vh;
@@ -8,7 +8,7 @@
 	align-content: center;
 }
 
-.voice-to-text_icon{
+.voiceToText_icon{
 	min-width: 60px;
     -webkit-border-radius: 50%;
     border-radius: 50%;

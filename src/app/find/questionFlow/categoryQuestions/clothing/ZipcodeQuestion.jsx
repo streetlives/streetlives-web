@@ -14,7 +14,6 @@ class ZipcodeQuestion extends Component {
     isZipcodeValid: isValid,
   });
 
-
   submit = () => this.props.onAnswer(this.state.zipcodeDigits);
 
   render() {
@@ -41,7 +40,6 @@ class ZipcodeQuestion extends Component {
           <OptionButtons.Option
             iconName="times"
             onClick={() => onAnswer(null)}
-            active={value === null}
           >
             Can’t provide ZIP at the moment
           </OptionButtons.Option>
