@@ -1,9 +1,7 @@
 import React from 'react';
-import cx from 'classnames';
 import { DAYS } from '../../../constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
-import Header from '../../../components/header';
 import PhoneLink from '../../../components/phoneLink';
 import InfoItem from './InfoItem';
 import ServiceRestrictions from './ServiceRestrictions';
