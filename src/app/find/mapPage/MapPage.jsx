@@ -278,7 +278,7 @@ export default class MapPage extends Component {
             key={category.id}
             onClick={() => this.props.goToCategory(category)}
           >
-            <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
+            <img src={`/icons/${category.name}.svg`} className="my-3" />
             <small className="serviceCategory">{category.name}</small>
           </Button>
         ))}

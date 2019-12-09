@@ -1,21 +1,21 @@
 @value primaryColor from "../../../colors.css";
 
 .voiceToText_btn{
-	position: absolute;;
+	background-color: blue;
+    min-height: 60px;
+    border-radius: 100%;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.55);
+    min-width: 60px;
+	position: absolute;
 	bottom: 30vh;
 	right: 2vh;
 	display: flex;
 	align-content: center;
+	align-items: center;
 }
 
 .voiceToText_icon{
-	min-width: 60px;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
-    background-color: primaryColor;
-    padding-top: 22%;
-    height: 0;
-    padding-bottom: 78%;
+	margin: 0 auto;
 }
 
 .backSearch{

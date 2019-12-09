@@ -124,9 +124,8 @@ class Search extends Component {
           </div>
         ) : (
           <div className="voiceToText_btn">
-            <Icon
+            <img src={`/icons/microphone.svg`}
               onClick={startSpeechToText}
-              name="microphone"
               className="voiceToText_icon"
               size="2x"
             />
