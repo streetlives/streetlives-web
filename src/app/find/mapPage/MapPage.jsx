@@ -6,8 +6,8 @@ import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
+import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
-import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
 
 const minSearchResults = 3;
@@ -346,12 +346,11 @@ export default class MapPage extends Component {
                 {renderSearchOverlay()}
                 {this.state.locations &&
                   this.state.locations.map(location => (
-                    <LocationInfoMarker
+                    <LocationMarker
                       key={location.id}
+                      id={location.id}
                       mapLocation={location}
-                      isOpen={location.id === this.state.openLocationId}
-                      onToggleInfo={this.onToggleMarkerInfo}
-                      onShowLocationDetails={goToLocationDetails}
+                      onClick={() => goToLocationDetails(location.id)}
                     />
                   ))
                 }
