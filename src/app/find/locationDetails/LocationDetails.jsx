@@ -4,6 +4,7 @@ import Header from '../../../components/header';
 import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
+import ErrorBoundary from '../../../components/errorBoundary';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
 
@@ -55,7 +56,7 @@ const renderLocation = (location) => {
   }
 
   return (
-    <div>
+    <div className="px-3 mb-5">
       <Header size="medium" className="mb-4">{location.Organization.name}</Header>
 
       <div className="text-left">
@@ -115,7 +116,7 @@ class LocationDetails extends Component {
   }
 
   render() {
-    const { location, goBack } = this.props;
+    const { location, locationError, goBack } = this.props;
 
     return (
       <Modal className="pb-4">
@@ -130,9 +131,14 @@ class LocationDetails extends Component {
             }}
           />
         </div>
-        <div className="px-3 mb-5">
-          {location && renderLocation(location)}
-        </div>
+        {locationError && (
+          <div className="d-flex align-items-center h-100">
+            Sorry, an error occurred loading data about this location.
+          </div>
+        )}
+        <ErrorBoundary>
+          {location ? renderLocation(location) : null}
+        </ErrorBoundary>
       </Modal>
     );
   }

@@ -1,4 +1,9 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import moment from 'moment';
+import cx from 'classnames';
+>>>>>>> origin/front-end-tweaks_2
 import { DAYS } from '../../../constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
@@ -10,7 +15,10 @@ import './locationDetails.css';
 
 const renderSchedule = (schedule) => {
   const dayNumberToName = weekday => DAYS[weekday - 1];
-  const formatHours = (opens, closes) => `${opens.substring(0, 5)} to ${closes.substring(0, 5)}`;
+
+  const formatHour = time => moment(time, 'HH:mm:ss').format('LT').replace(':00 ', ' ');
+  const formatHours = (opens, closes) => `${formatHour(opens)} to ${formatHour(closes)}`;
+
   const formatRange = ({ start, end }) => {
     if (end === start) {
       return dayNumberToName(start);
