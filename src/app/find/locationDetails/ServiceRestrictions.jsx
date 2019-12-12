@@ -91,7 +91,7 @@ const ServiceRestrictions = ({ eligibilities = [], requiredDocuments = [] }) => 
         <div key={eligibility}>{eligibility}</div>
       ))}
       {formattedDocuments && formattedDocuments.map(document => (
-        <div key={document}>{formatDocument(document)}</div>
+        <div key={document}>{document}</div>
       ))}
     </InfoItem>
   );
