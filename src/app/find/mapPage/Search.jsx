@@ -3,6 +3,8 @@ import Speech, { ListeningIndicator } from '../../../components/speech';
 import Icon from '../../../components/icon';
 import { getCategoryIcon } from '../../../services/iconography';
 
+const minCharsForSuggestions = 3;
+
 class Search extends Component {
   state = {
     isEnteringSearchString: false,
@@ -25,7 +27,7 @@ class Search extends Component {
     const newString = event.target.value;
 
     const lowerString = newString.toLowerCase();
-    const suggestedCategory = (newString && suggestions) ?
+    const suggestedCategory = (newString.length >= minCharsForSuggestions && suggestions) ?
       suggestions.find(suggestion => suggestion.name.toLowerCase().includes(lowerString)) :
       null;
 
