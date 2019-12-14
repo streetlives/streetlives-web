@@ -343,17 +343,35 @@ export default class MapPage extends Component {
                 onClick={this.onMapClick}
                 zoomedLocations={this.state.zoomedLocations}
               >
-                {renderSearchOverlay()}
-                {this.state.locations &&
-                  this.state.locations.map(location => (
-                    <LocationMarker
-                      key={location.id}
-                      id={location.id}
-                      mapLocation={location}
-                      onClick={() => goToLocationDetails(location.id)}
-                    />
-                  ))
-                }
+                {({ centerMap }) => (
+                  <div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: isFiltering ? 90 : 154,
+                        right: 25,
+                      }}
+                    >
+                      <Icon
+                        onClick={centerMap}
+                        name="crosshairs"
+                        circle
+                        size="2x"
+                      />
+                    </div>
+                    {renderSearchOverlay()}
+                    {this.state.locations &&
+                      this.state.locations.map(location => (
+                        <LocationMarker
+                          key={location.id}
+                          id={location.id}
+                          mapLocation={location}
+                          onClick={() => goToLocationDetails(location.id)}
+                        />
+                      ))
+                    }
+                  </div>
+                )}
               </Map>
               {!isFiltering && renderSpeechElements()}
               {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}

@@ -124,13 +124,12 @@ class Search extends Component {
             </div>
           </div>
         ) : (
-          <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
+          <div style={{ position: 'absolute', bottom: 210, right: 25 }}>
             <Icon
               onClick={startSpeechToText}
               name="microphone"
-              className="border rounded-circle py-2 px-3 mb-2"
               size="2x"
-              style={{ backgroundColor: '#F8E71C' }}
+              circle
             />
           </div>
         )
