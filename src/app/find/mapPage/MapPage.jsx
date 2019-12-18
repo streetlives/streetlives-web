@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
+import isMatch from 'lodash.ismatch';
 import { getLocations } from '../../../services/api';
 import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
@@ -102,12 +103,18 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
-  setAdvancedFilters = newFilters => this.setFilters({
-    advancedFilters: {
-      ...this.state.filters.advancedFilters,
-      ...newFilters,
-    },
-  });
+  setAdvancedFilters = (newFilters) => {
+    if (!isMatch(this.state.filters.advancedFilters, newFilters)) {
+      this.setFilters({
+        advancedFilters: {
+          ...this.state.filters.advancedFilters,
+          ...newFilters,
+        },
+      });
+    } else {
+      this.setState({ isFilterModalOpen: false });
+    }
+  };
 
   setSearchString = searchString => this.setFilters({ searchString });
 
@@ -201,10 +208,6 @@ export default class MapPage extends Component {
     this.setState({ isFilterModalOpen: true });
   }
 
-  closeFilterModal = () => {
-    this.setState({ isFilterModalOpen: false });
-  };
-
   renderFilteringInfoBar = () => (
     <div
       className="resultsBar"
@@ -297,7 +300,6 @@ export default class MapPage extends Component {
             category={category}
             defaultValues={this.state.filters.advancedFilters}
             onSubmit={this.setAdvancedFilters}
-            onClose={this.closeFilterModal}
           />
         )}
         <Search
