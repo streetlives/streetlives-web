@@ -101,8 +101,8 @@ class ServicesRecap extends Component {
               <SectionHeader title={category.name} icon={getCategoryIcon(category.name)} />
               {services
                 .filter(service => service.categoryId === category.id)
-                .map(service => {
-                  const originalService = this.props.originalLocationData.Services.find( ({id}) => id === service.id );
+                .map((service) => {
+                  const originalService = this.props.originalLocationData.Services.find(({ id }) => id === service.id);
                   return <ListItem key={service.id} service={service} originalService={originalService} />;
                 })}
             </div>

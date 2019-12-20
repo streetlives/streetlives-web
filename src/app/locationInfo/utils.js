@@ -8,7 +8,7 @@ export const FIELD_TYPES = {
   SUCCESS: 'success',
 };
 
-export function getFieldType(date,  value) {
+export function getFieldType(date, value) {
   if (!date && !value) {
     return FIELD_TYPES.MISSING;
   }

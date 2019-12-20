@@ -20,7 +20,7 @@ const routes = [
     label: 'Address',
     metaDataSection: 'address',
     fieldName: 'address_1',
-    selectValue: selectValueLocationAddress 
+    selectValue: selectValueLocationAddress, 
   },
   {
     urlFragment: 'questions/organization-name',
@@ -28,7 +28,7 @@ const routes = [
     label: 'Organization name',
     metaDataSection: 'organization',
     fieldName: 'name',
-    selectValue: selectValueOrganizationName  
+    selectValue: selectValueOrganizationName,  
   },
   {
     urlFragment: 'questions/location-name',
@@ -36,7 +36,7 @@ const routes = [
     label: 'Location name',
     metaDataSection: 'location',
     fieldName: 'name',
-    selectValue: selectValueLocationName   
+    selectValue: selectValueLocationName,   
   },
   {
     urlFragment: 'questions/location-description',
@@ -44,7 +44,7 @@ const routes = [
     label: 'Organization description',
     metaDataSection: 'organization',
     fieldName: 'description',
-    selectValue: selectValueOrganizationDescription 
+    selectValue: selectValueOrganizationDescription, 
   },
   {
     urlFragment: 'questions/phone-number',
@@ -52,7 +52,7 @@ const routes = [
     label: 'Phone number',
     metaDataSection: 'location',
     fieldName: 'phones',
-    selectValue: selectValueLocationNumber 
+    selectValue: selectValueLocationNumber, 
   },
   {
     urlFragment: 'questions/website',
@@ -60,7 +60,7 @@ const routes = [
     label: 'Website',
     metaDataSection: 'organization',
     fieldName: 'url',
-    selectValue: selectValueLocationWebsite 
+    selectValue: selectValueLocationWebsite, 
   },
 ];
 

@@ -1,16 +1,25 @@
 .Modal {
-  display: initial;
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  background-color: white;
-  overflow: auto;
+    display: initial;
+    position: fixed;
+    background-color: white;
+    overflow: auto;
+    border-radius: 20px 20px 0px 0px;
+    top: 4vh;
 }
 
 .Modal.Modal-compact {
-  top: 50%;
-  bottom: inherit;
-  transform: translateY(-50%);
+ 	top: 50%;
+    bottom: inherit;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-60%);
+    margin-top: 4vh;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    height: 80vh;
+    border-radius: 2vh;
+    box-shadow: 0px 1vh 0px 0px rgb(0,0,0), 0vh 20vh 10vh 25vh rgba(0,0,0,0.75);
+    background-color: #F8F8FC;
 }

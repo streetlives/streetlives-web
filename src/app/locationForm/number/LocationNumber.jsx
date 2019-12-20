@@ -39,9 +39,9 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export const selectValue = (locationData) => (
+export const selectValue = locationData => (
   locationData && locationData.Phones && locationData.Phones[0]
-)
+);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: ({ number, extension }, phoneId, metaDataSection, fieldName) =>

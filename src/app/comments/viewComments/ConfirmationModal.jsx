@@ -13,7 +13,6 @@ function ConfirmationModal({
 }) {
   return (
     <Modal>
-      <Icon name="exclamation-triangle" size="3x" className="mt-5" />
       <Header size="large" className="m-4 flex-grow-1">
         {prompt}
       </Header>

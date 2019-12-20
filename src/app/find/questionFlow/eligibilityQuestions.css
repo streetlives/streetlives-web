@@ -1,0 +1,21 @@
+.elegibilityQuestionTitle {
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.6rem;
+	text-align: center;
+	width: 100%;
+	padding-bottom: 0.6rem;
+}
+
+.skipQuestionBtn {
+    border: 2px solid #333333;
+    background-color: #ffffff;
+    color: #333333;
+    text-transform: unset;
+    letter-spacing: 0.4px;
+    min-height: 44px;
+}
+
+.skipQuestionBtn i {
+    padding-left: 16px;
+}

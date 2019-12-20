@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Modal from '../../../../components/modal';
-import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import Header from '../../../../components/header';
 import categoryModals from './categoryModals';
+import './filters.css';
 
 class FiltersModal extends Component {
   state = {
@@ -24,10 +24,7 @@ class FiltersModal extends Component {
   };
 
   render() {
-    const {
-      category,
-      onClose,
-    } = this.props;
+    const { category } = this.props;
 
     const CategoryModal = categoryModals[category.name.trim().toLowerCase()];
 
@@ -39,7 +36,7 @@ class FiltersModal extends Component {
           </Header>
           <Icon
             name="times"
-            onClick={onClose}
+            onClick={this.submit}
             style={{
               position: 'absolute',
               right: 0,
@@ -53,19 +50,6 @@ class FiltersModal extends Component {
             values={this.state.filterValues}
             onChange={this.setFilterValues}
           />
-        </div>
-        <div className="p-3 fixed-bottom">
-          <Button onClick={this.submit} primary fluid className="position-relative">
-            <Icon
-              name="check"
-              style={{
-                position: 'absolute',
-                left: 16,
-                lineHeight: 'inherit',
-              }}
-            />
-            Done
-          </Button>
         </div>
       </Modal>
     );

@@ -31,7 +31,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export const selectValue = (locationData) => (
+export const selectValue = locationData => (
   locationData && locationData.Organization && locationData.Organization.description
 );
 

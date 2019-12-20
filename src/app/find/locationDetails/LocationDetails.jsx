@@ -4,7 +4,9 @@ import Header from '../../../components/header';
 import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
+import ErrorBoundary from '../../../components/errorBoundary';
 import CategoryCard from './CategoryCard';
+import './locationDetails.css';
 
 const groupByCategory = services => services.reduce((grouped, service) => {
   if (!service.Taxonomies || !service.Taxonomies.length) {
@@ -24,7 +26,7 @@ const renderAddress = (address) => {
   const directionsLink =
     `https://www.google.com/maps/dir/?api=1&destination=${encodeURI(addressString)}`;
   return (
-    <a href={directionsLink} target="_blank" rel="noopener noreferrer">
+    <a className="locationLinks" href={directionsLink} target="_blank" rel="noopener noreferrer">
       {addressString}
     </a>
   );
@@ -35,7 +37,7 @@ const renderCategoriesLine = (services) => {
     ...currCategories,
     [service.Taxonomies[0].name]: true,
   }), {}));
-  return <div>{categories.join(' | ')}</div>;
+  return <div className="detailPageCategories">{categories.join(' & ')}</div>;
 };
 
 const renderLocation = (location) => {
@@ -54,28 +56,28 @@ const renderLocation = (location) => {
   }
 
   return (
-    <div>
+    <div className="px-3 mb-5">
       <Header size="medium" className="mb-4">{location.Organization.name}</Header>
 
       <div className="text-left">
         {renderCategoriesLine(location.Services)}
 
-        <Header size="large">Address</Header>
+        <Header size="large" className="locationHeaders" >Address</Header>
         {renderAddress(location.address)}
 
         {location.Organization.url && (
           <div>
-            <Header size="large">Website</Header>
-            <WebsiteLink url={location.Organization.url} />
+            <Header size="large" className="locationHeaders">Website</Header>
+            <WebsiteLink url={location.Organization.url} className="locationLinks" />
           </div>
         )}
 
         {phones.length > 0 && (
           <div>
-            <Header size="large">Phone Number</Header>
+            <Header size="large" className="locationHeaders">Phone Number</Header>
             {phones.map(phone => (
               <div key={phone.id}>
-                <PhoneLink {...phone} />
+                <PhoneLink {...phone} className="locationLinks" />
               </div>
             ))}
           </div>
@@ -83,16 +85,16 @@ const renderLocation = (location) => {
 
         {location.AccessibilityForDisabilities.length > 0 && (
           <div>
-            <Header size="large">Accessibility</Header>
+            <Header size="large" className="locationHeaders">Accessibility</Header>
             {location.AccessibilityForDisabilities.map(accessibility => (
-              <p key={accessibility.id}>
+              <p className="accessibilityText" key={accessibility.id}>
                 {accessibility.details || accessibility.accessibility}
               </p>
             ))}
           </div>
         )}
 
-        <Header size="large">Services Offered:</Header>
+        <Header size="large" className="locationHeaders">Services Offered:</Header>
         {Object.keys(servicesByCategory).map(category => (
           <CategoryCard
             key={category}
@@ -114,7 +116,7 @@ class LocationDetails extends Component {
   }
 
   render() {
-    const { location, goBack } = this.props;
+    const { location, locationError, goBack } = this.props;
 
     return (
       <Modal className="pb-4">
@@ -129,9 +131,14 @@ class LocationDetails extends Component {
             }}
           />
         </div>
-        <div className="px-3 mb-5">
-          {location && renderLocation(location)}
-        </div>
+        {locationError && (
+          <div className="d-flex align-items-center h-100">
+            Sorry, an error occurred loading data about this location.
+          </div>
+        )}
+        <ErrorBoundary>
+          {location ? renderLocation(location) : null}
+        </ErrorBoundary>
       </Modal>
     );
   }
