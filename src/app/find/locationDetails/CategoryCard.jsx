@@ -1,12 +1,5 @@
 import React from 'react';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 9108e044e86fe6388bdf6f012421d908b8944c4f
 import moment from 'moment';
-import cx from 'classnames';
->>>>>>> origin/front-end-tweaks_2
 import { DAYS } from '../../../constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';

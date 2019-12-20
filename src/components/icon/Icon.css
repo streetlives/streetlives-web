@@ -1,6 +1,7 @@
 @value primaryColor from "../../colors.css";
 
 .Icon.circle {
+  color:#ffffff;	
   background-color: primaryColor;
   border-radius: 50%;
   width: 1.5em;
