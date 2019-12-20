@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
+import isMatch from 'lodash.ismatch';
 import { getLocations } from '../../../services/api';
 import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
@@ -102,12 +103,18 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
-  setAdvancedFilters = newFilters => this.setFilters({
-    advancedFilters: {
-      ...this.state.filters.advancedFilters,
-      ...newFilters,
-    },
-  });
+  setAdvancedFilters = (newFilters) => {
+    if (!isMatch(this.state.filters.advancedFilters, newFilters)) {
+      this.setFilters({
+        advancedFilters: {
+          ...this.state.filters.advancedFilters,
+          ...newFilters,
+        },
+      });
+    } else {
+      this.setState({ isFilterModalOpen: false });
+    }
+  };
 
   setSearchString = searchString => this.setFilters({ searchString });
 
@@ -201,10 +208,6 @@ export default class MapPage extends Component {
     this.setState({ isFilterModalOpen: true });
   }
 
-  closeFilterModal = () => {
-    this.setState({ isFilterModalOpen: false });
-  };
-
   renderFilteringInfoBar = () => (
     <div
       className="resultsBar"
@@ -297,7 +300,6 @@ export default class MapPage extends Component {
             category={category}
             defaultValues={this.state.filters.advancedFilters}
             onSubmit={this.setAdvancedFilters}
-            onClose={this.closeFilterModal}
           />
         )}
         <Search
@@ -326,17 +328,35 @@ export default class MapPage extends Component {
                 onClick={this.onMapClick}
                 zoomedLocations={this.state.zoomedLocations}
               >
-                {renderSearchOverlay()}
-                {this.state.locations &&
-                  this.state.locations.map(location => (
-                    <LocationMarker
-                      key={location.id}
-                      id={location.id}
-                      mapLocation={location}
-                      onClick={() => goToLocationDetails(location.id)}
-                    />
-                  ))
-                }
+                {({ centerMap }) => (
+                  <div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: isFiltering ? '14vh' : '32vh',
+                        right: '2vh',
+                      }}
+                    >
+                      <Icon
+                        onClick={centerMap}
+                        name="crosshairs"
+                        circle
+                        size="2x"
+                      />
+                    </div>
+                    {renderSearchOverlay()}
+                    {this.state.locations &&
+                      this.state.locations.map(location => (
+                        <LocationMarker
+                          key={location.id}
+                          id={location.id}
+                          mapLocation={location}
+                          onClick={() => goToLocationDetails(location.id)}
+                        />
+                      ))
+                    }
+                  </div>
+                )}
               </Map>
               {!isFiltering && renderSpeechElements()}
               {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Modal from '../../../../components/modal';
-import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import Header from '../../../../components/header';
 import categoryModals from './categoryModals';
@@ -25,10 +24,7 @@ class FiltersModal extends Component {
   };
 
   render() {
-    const {
-      category,
-      onClose,
-    } = this.props;
+    const { category } = this.props;
 
     const CategoryModal = categoryModals[category.name.trim().toLowerCase()];
 
@@ -40,7 +36,7 @@ class FiltersModal extends Component {
           </Header>
           <Icon
             name="times"
-            onClick={onClose}
+            onClick={this.submit}
             style={{
               position: 'absolute',
               right: 0,
@@ -54,11 +50,6 @@ class FiltersModal extends Component {
             values={this.state.filterValues}
             onChange={this.setFilterValues}
           />
-        </div>
-        <div className="doneBtnContainer">
-          <Button onClick={this.submit} className="doneBtn">
-            Done
-          </Button>
         </div>
       </Modal>
     );
