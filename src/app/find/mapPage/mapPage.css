@@ -76,3 +76,32 @@
 	min-height: 50px;
 	box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
 }
+
+.locateMe {
+	width: 40%;
+    border: 0.5px solid rgba(0, 0, 255, .33);
+    border-radius: 2px;
+    height: 8vw;
+    background-color: rgba(255, 255, 255, .95);
+    box-shadow: 0px 4px 8px rgba(0,0,0, .2);
+    color: primaryColor;
+    left: 30%;
+    bottom: 37vh;
+    position: absolute;
+    display: flex;
+    align-items: center;
+  	justify-content: center;
+  	font-size: .75rem;
+    letter-spacing: .10rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding:  0.33rem;
+}
+
+.locateMe img{
+	padding-right: .5rem;
+}
+
+.locateMe p{
+	margin-top: 1.05rem;
+}

@@ -330,19 +330,16 @@ export default class MapPage extends Component {
               >
                 {({ centerMap }) => (
                   <div>
-                    <div
+                    <div className="locateMe"
                       style={{
                         position: 'absolute',
-                        bottom: isFiltering ? '14vh' : '32vh',
-                        right: '2vh',
+                        bottom: isFiltering ? '24vw' : '56vw',
                       }}
                     >
-                      <Icon
+                      <img src={`/icons/locateMeIcon.svg`}
                         onClick={centerMap}
-                        name="crosshairs"
-                        circle
-                        size="2x"
                       />
+                      <p>Locate me</p>
                     </div>
                     {renderSearchOverlay()}
                     {this.state.locations &&
