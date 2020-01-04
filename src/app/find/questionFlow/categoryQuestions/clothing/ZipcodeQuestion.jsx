@@ -18,7 +18,7 @@ class ZipcodeQuestion extends Component {
 
   render() {
     const { isZipcodeValid, zipcodeDigits } = this.state;
-    const { value, onAnswer } = this.props;
+    const { onAnswer } = this.props;
 
     return (
       <div>

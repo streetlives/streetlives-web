@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, withProps, lifecycle } from 'recompose';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
-import Icon from '../icon';
 import config from '../../config';
 
 const defaultCenter = { lat: 40.7831, lng: -73.9712 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import Modal from '../../../components/modal';
-import Icon from '../../../components/icon';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 

@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import isMatch from 'lodash.ismatch';
 import { getLocations } from '../../../services/api';
-import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
@@ -281,7 +280,7 @@ export default class MapPage extends Component {
             key={category.id}
             onClick={() => this.props.goToCategory(category)}
           >
-            <img src={`/icons/${category.name}.svg`} className="my-3" />
+            <img src={`/icons/${category.name}.svg`} className="my-3" alt={category.name} />
             <small className="serviceCategory">{category.name}</small>
           </Button>
         ))}
