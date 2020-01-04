@@ -126,13 +126,15 @@ class Search extends Component {
             </div>
           </div>
         ) : (
-          <Button className="voiceToText_btn" onClick={startSpeechToText} >
-            <img
-              src="/icons/microphone.svg"
-              className="voiceToText_icon"
-              alt="search through voice"
-            />
-          </Button>
+          <Icon
+            name="microphone"
+            custom
+            circle
+            size="2x"
+            alt="search through voice"
+            className="voiceToText"
+            onClick={startSpeechToText}
+          />
         )
       )}
     </Speech>
