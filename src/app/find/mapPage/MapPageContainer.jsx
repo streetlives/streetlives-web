@@ -34,7 +34,13 @@ class MapPageContainer extends Component {
   goToCategory = category =>
     this.props.history.push(`/find/${category.name}/questions`);
 
-  goToLocationDetails = locationId => this.props.history.push(`/find/location/${locationId}`);
+  goToLocationDetails = (locationId) => {
+    const { categoryName } = this.props.match.params;
+    const url = categoryName ?
+      `/find/${categoryName}/location/${locationId}` :
+      `/find/location/${locationId}`;
+    this.props.history.push(url);
+  }
 
   fetchCategories = () => {
     // TODO: Use an action and put categories in Redux state.
