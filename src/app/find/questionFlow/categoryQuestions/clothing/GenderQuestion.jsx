@@ -1,26 +1,46 @@
-import React from 'react';
+import React, { Component } from 'react';
 import OptionButtons from '../../../../../components/optionButtons';
+import TgncAlert from './TgncAlert';
 
-export default ({ value, onAnswer }) => (
-  <div>
-    <OptionButtons>
-      <OptionButtons.Option
-        iconName="male"
-        onClick={() => onAnswer('male')}
-      >
-        Male
-      </OptionButtons.Option>
-      <OptionButtons.Option
-        iconName="female"
-        onClick={() => onAnswer('female')}
-      >
-        Female
-      </OptionButtons.Option>
-    </OptionButtons>
-    <div className="explanationText">
-      We apologize to those looking for a non-binary gender service.
-      At this time most providers are only offering clothing closets for either
-      male or female gender identities.
-    </div>
-  </div>
-);
+class GenderQuestion extends Component {
+  state = { hasChosenTgnc: false };
+
+  render() {
+    const { onAnswer } = this.props;
+    const { hasChosenTgnc } = this.state;
+
+    return (
+      <div>
+        {hasChosenTgnc && (
+          <TgncAlert
+            onContinue={() => onAnswer('tgnc', { skipToEnd: true })}
+            onBack={() => this.setState({ hasChosenTgnc: false })}
+          />
+        )}
+
+        <OptionButtons>
+          <OptionButtons.Option
+            iconName="mars"
+            onClick={() => onAnswer('male')}
+          >
+            Male
+          </OptionButtons.Option>
+          <OptionButtons.Option
+            iconName="venus"
+            onClick={() => onAnswer('female')}
+          >
+            Female
+          </OptionButtons.Option>
+          <OptionButtons.Option
+            iconName="transgender"
+            onClick={() => this.setState({ hasChosenTgnc: true })}
+          >
+            TGNC
+          </OptionButtons.Option>
+        </OptionButtons>
+      </div>
+    );
+  }
+}
+
+export default GenderQuestion;

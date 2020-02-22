@@ -56,13 +56,18 @@ class QuestionFlowContainer extends Component {
 
   goBack = () => this.props.history.goBack();
 
-  answerQuestion = ({ param, answer, nextParam }) => {
+  answerQuestion = ({
+    param,
+    answer,
+    nextParam,
+    skipToEnd,
+  }) => {
     this.setState({
       answers: {
         ...this.state.answers,
         [param]: answer,
       },
-    }, () => this.goToNextQuestion(nextParam));
+    }, () => (skipToEnd ? this.goToResults(this.state.answers) : this.goToNextQuestion(nextParam)));
   };
 
   skipQuestion = () => {
