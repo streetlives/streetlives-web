@@ -46,7 +46,8 @@ class QuestionFlow extends Component {
         <Header size="medium" className="elegibilityQuestionTitle">{question}</Header>
         <QuestionComponent
           value={answers[param]}
-          onAnswer={answer => answerQuestion({ param, answer })}
+          onAnswer={(answer, { nextParam } = {}) =>
+            answerQuestion({ param, answer, nextParam })}
         />
       </div>
     );

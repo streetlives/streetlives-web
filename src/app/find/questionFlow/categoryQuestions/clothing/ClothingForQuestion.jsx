@@ -11,13 +11,13 @@ export default ({ value, onAnswer }) => (
     </OptionButtons.Option>
     <OptionButtons.Option
       iconName="users"
-      onClick={() => onAnswer(null)}
+      onClick={() => onAnswer(null, { nextParam: 'photoId' })}
     >
       Me and my kid(s)
     </OptionButtons.Option>
     <OptionButtons.Option
       iconName="child"
-      onClick={() => onAnswer('children')}
+      onClick={() => onAnswer('children', { nextParam: 'photoId' })}
     >
       Only my kid(s)
     </OptionButtons.Option>
