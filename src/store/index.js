@@ -1,10 +1,10 @@
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import thunk from 'redux-thunk';
-import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 import { routerReducer, routerMiddleware } from 'react-router-redux';
 import rootReducer from '../reducers';
 
-export const history = createHistory();
+export const history = createBrowserHistory();
 const enhancers = [];
 const middleware = [
   thunk,
