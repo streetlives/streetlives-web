@@ -8,7 +8,7 @@ const formatClothingOccasion = values =>
 
 const formatHasHivNutrition = values => (
   (values.length === 1 && values[0] === 'true') ?
-    'Provides HIV+ nutrition' :
+    'Includes PLHIV Nutrition program' :
     null
 );
 

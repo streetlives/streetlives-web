@@ -31,9 +31,11 @@ const FoodFiltersModal = ({
       <div className="hivContainer">
         <Checkbox
           name="hivNutrition"
-          label="Must have HIV+ nutrition"
+          label="Includes PLHIV Nutrition program"
           onChange={checked => onChange({
-            hivNutrition: checked ? { value: true, description: 'have HIV+ nutrition' } : null,
+            hivNutrition: checked ?
+              { value: true, description: 'include PLHIV Nutrition program' } :
+              null,
           })}
           checked={!!values.hivNutrition}
         />
