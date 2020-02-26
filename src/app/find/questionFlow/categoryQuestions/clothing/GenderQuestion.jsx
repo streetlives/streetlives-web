@@ -13,7 +13,7 @@ class GenderQuestion extends Component {
       <div>
         {hasChosenTgnc && (
           <TgncAlert
-            onContinue={() => onAnswer('tgnc', { skipToEnd: true })}
+            onContinue={() => onAnswer(true, { param: 'tgncClothing', skipToEnd: true })}
             onBack={() => this.setState({ hasChosenTgnc: false })}
           />
         )}

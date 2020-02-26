@@ -3,6 +3,12 @@ import InfoItem from './InfoItem';
 
 const formatWearerAge = values => (values.length ? `Clothing for ${values.join(', ')}` : null);
 
+const formatTgncClothing = values => (
+  (values.length === 1 && values[0] === 'true') ?
+    'TGNC affirmative experience' :
+    null
+);
+
 const formatClothingOccasion = values =>
   (values.length ? `Provides ${values.join(', ')} clothing` : null);
 
@@ -14,6 +20,7 @@ const formatHasHivNutrition = values => (
 
 const attributeFormatters = {
   wearerAge: formatWearerAge,
+  tgncClothing: formatTgncClothing,
   clothingOccasion: formatClothingOccasion,
   hasHivNutrition: formatHasHivNutrition,
 };

@@ -47,7 +47,7 @@ class QuestionFlow extends Component {
         <QuestionComponent
           value={answers[param]}
           onAnswer={(answer, additionalData) =>
-            answerQuestion({ ...additionalData, param, answer })}
+            answerQuestion({ param, answer, ...additionalData })}
         />
       </div>
     );
