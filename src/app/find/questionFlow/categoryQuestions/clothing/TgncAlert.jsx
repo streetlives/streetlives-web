@@ -11,10 +11,10 @@ const TgncAlert = ({ onContinue, onBack }) => (
       Just so you know
     </Header>
     <div className="my-4">
-      We apologize to those looking for a non-binary gender service. At this time most providers are
-      only offering clothing closets for either male or female gender identities.
-      <br />
-      You could zoom out to find more results on the map. Or go back to redo the search.
+      We apologize to those looking for non-binary gender services, at this time very few providers
+      offer clothing closets with an affirmative exprience for non-binary gender identities.
+      <br /><br />
+      If insufficient results appear, please search again using the binary gender options.
     </div>
     <Button onClick={onContinue} primary fluid className="mt-4 position-relative">
       <Icon
