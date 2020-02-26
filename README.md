@@ -4,6 +4,14 @@ Streetlives is a community-built platform for enabling people who are homeless o
 
 This repository contains the Streetlives web application, which provides an interface for accessing and interacting with the Streetlives data.
 
+The app consists of several parts (some may be split into their own apps/repos in the future):
+
+* GoGetta - the first, experimental version of the main user-facing app. Can be used to find services, but not yet to rate them nor provide extensive feedback
+
+* The Streetlives Street Team Tool (SSTT), which allows trusted users to update and create data about services
+
+* A comment-gathering tool, used in a pilot with a few service providers in NY looking to gather feedback from their users
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). You will find more information on how to perform tasks in the most recent version of their guide [here](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md).
 
