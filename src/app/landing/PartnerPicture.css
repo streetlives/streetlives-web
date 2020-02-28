@@ -1,0 +1,10 @@
+.PartnerPicture {
+  margin: 3vw;
+  width: 20vw;
+  text-align: center;
+}
+
+.PartnerPicture img {
+  max-width: 20vw;
+  max-height: 20vw;
+}

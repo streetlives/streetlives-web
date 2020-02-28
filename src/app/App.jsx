@@ -12,6 +12,7 @@ import ForgotPassword from './auth/ForgotPassword';
 import awsExports from './aws-exports';
 
 import withTracker from './withTracker';
+import LandingPage from './landing/LandingPage';
 import About from './about/About';
 import MapView from './mapView/MapView';
 import LocationRecap from './recap/Recap';
@@ -76,7 +77,8 @@ function App() {
       <div className="App">
         <ConnectedRouter history={history}>
           <Switch>
-            <Route exact path="/" component={withTracker(About)} />
+            <Route exact path="/" component={withTracker(LandingPage)} />
+            <Route exact path="/about" component={withTracker(About)} />
             <Route exact path="/team" component={withTracker(withAuth(MapView))} />
             {feedbackLocations.map(({ name, id }) => (
               <Route

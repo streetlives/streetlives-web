@@ -1,0 +1,203 @@
+@import url(//fonts.googleapis.com/css?family=Open+Sans);
+@value primaryColor from "../../colors.css";
+
+.LandingPage {
+  text-align: left;
+  box-sizing: border-box;
+  font-family: 'Open sans', sans-serif;
+  line-height: 1.5;
+  overflow-y: scroll;
+  scroll-snap-type: y proximity;
+  height: 100vh;
+}
+
+.LandingPage .Section {
+  scroll-snap-align: start;
+}
+
+.LandingPage .Intro {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.LandingPage .IntroTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: primaryColor;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.LandingPage .IntroTitle > img {
+  margin-right: 5px;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.LandingPage .IntroBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/intro.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #FFFFFF;
+  padding: 78px 0px 35px 0px;
+}
+
+.LandingPage .IntroBody > .IntroTop > h1 {
+  padding-bottom: 24px;
+}
+
+.LandingPage .IntroBody > .IntroTop > p {
+  font-size: 21px;
+}
+
+.LandingPage .IntroBody > .IntroBottom {
+  width: 100%;
+  text-align: center;
+}
+
+.LandingPage .Onboarding .Section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+}
+
+.LandingPage .Onboarding .Section:not(:last-child) {
+  height: 100vh;
+}
+
+.LandingPage .Onboarding .Section:last-child {
+  margin-bottom: 10vh;
+}
+
+.LandingPage .Onboarding .Section > img {
+  flex: 1;
+  width: 100%;
+  object-fit: cover;
+}
+
+.LandingPage .Onboarding .Section .OnboardingSectionNumber {
+  position: absolute;
+  z-index: -1;
+  top: -10px;
+  font-size: 40vh;
+  line-height: 80%;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.12);
+}
+
+.LandingPage .Onboarding .Section:nth-child(odd) .OnboardingSectionNumber {
+  right: 0px;
+}
+
+.LandingPage .Onboarding .Section:nth-child(even) .OnboardingSectionNumber {
+  left: 0px;
+}
+
+.LandingPage .Testimonials {
+  margin-top: 30px;
+  margin-bottom: 6px;
+  padding-top: 46px;
+  padding-bottom: 20px;
+  background-color: primaryColor;
+  color: #FFFFFF;
+  border-bottom-left-radius: 100% 5%;
+  border-bottom-right-radius: 100% 5%;
+  border-top-left-radius: 100% 5%;
+  border-top-right-radius: 100% 5%;
+}
+
+.LandingPage .Testimonials .TestimonialsTitle {
+  margin-bottom: 5px;
+}
+
+.LandingPage .Partners {
+  margin-top: 28px;
+  margin-bottom: 50px;
+}
+
+.LandingPage .Partners .PartnerPictures {
+  margin-top: 55px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.LandingPage .Feedback {
+  background-color: #000000;
+  color: #FFFFFF;
+  padding-top: 70px;
+  padding-bottom: 36px;
+  text-align: center;
+  border-top-left-radius: 100%;
+  border-top-right-radius: 100%;
+}
+
+.LandingPage .Feedback .FeedbackEmail {
+  background-color: #FFFFFF;
+  margin-left: 36px;
+  margin-right: 36px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.LandingPage h1 {
+  font-weight: bold;
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+.LandingPage h2 {
+  font-weight: bold;
+  margin: 0px 36px 24px 36px;
+}
+
+.LandingPage h3 {
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0px 36px 24px 36px;
+}
+
+.LandingPage p {
+  font-size: 15px;
+  margin: 0px 36px 24px 36px;
+}
+
+.LandingPage .Emphasis {
+  text-decoration: underline;
+  font-style: italic;
+}
+
+.GetStartedButton {
+  padding: 0px 10px 0px 10px;
+  width: 100%;
+}
+
+@media screen and (max-width: 470px) {
+  .LandingPage {
+    font-size: 15px;
+  }
+
+  .LandingPage h1 {
+    font-size: 30px;
+  }
+
+  .LandingPage h2 {
+    font-size: 20px;
+  }
+
+  .LandingPage h3 {
+    font-size: 11px;
+  }
+}
