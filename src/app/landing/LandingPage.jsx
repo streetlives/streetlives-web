@@ -45,11 +45,13 @@ class LandingPage extends Component {
           <div className="Section">
             <div className="OnboardingSectionNumber">1</div>
 
-            <h3>How it works</h3>
-            <h2>Search for what you need</h2>
-            <p>
-              GoGetta has New York’s most up-to-date community-verified provider information on:
-            </p>
+            <div className="OnboardingText">
+              <h3>How it works</h3>
+              <h2>Search for what you need</h2>
+              <p>
+                GoGetta has New York’s most up-to-date community-verified provider information on:
+              </p>
+            </div>
 
             <img
               src="img/landing_page/map.png"
@@ -60,11 +62,13 @@ class LandingPage extends Component {
           <div className="Section">
             <div className="OnboardingSectionNumber">2</div>
 
-            <h2>Find providers that will actually serve <span className="Emphasis">you</span></h2>
-            <p>
-              Answer a few questions and we will show you locations that cover your specific needs,
-              from age to gender to family situations.
-            </p>
+            <div className="OnboardingText">
+              <h2>Find providers that will actually serve <span className="Emphasis">you</span></h2>
+              <p>
+                Answer a few questions and we will show you locations that cover your specific
+                needs, from age to gender to family situations.
+              </p>
+            </div>
 
             <img src="img/landing_page/provider.png" alt="" />
           </div>
@@ -72,10 +76,12 @@ class LandingPage extends Component {
           <div className="Section">
             <div className="OnboardingSectionNumber">3</div>
 
-            <h2>You’re all set!</h2>
-            <p>
-              See the details of the services and go get what you need.
-            </p>
+            <div className="OnboardingText">
+              <h2>You’re all set!</h2>
+              <p>
+                See the details of the services and go get what you need.
+              </p>
+            </div>
           </div>
         </div>
 
