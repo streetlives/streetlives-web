@@ -23,7 +23,7 @@ class LandingPage extends Component {
       <div className="LandingPage">
         <div className="Intro Section">
           <div className="IntroTitle">
-            <img src="/img/streetlives_logo.png" alt="" />
+            <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
 
@@ -53,10 +53,18 @@ class LandingPage extends Component {
               </p>
             </div>
 
-            <img
-              src="img/landing_page/map.png"
-              alt="map showing food, clothing, and personal care markers"
-            />
+            <picture>
+              <source
+                className="OnboardingImage"
+                media="(min-aspect-ratio: 2/3)"
+                srcSet="img/landing_page/map_wide.png"
+              />
+              <img
+                className="OnboardingImage"
+                src="img/landing_page/map_narrow.png"
+                alt="map showing food, clothing, and personal care markers"
+              />
+            </picture>
           </div>
 
           <div className="Section">
@@ -70,7 +78,7 @@ class LandingPage extends Component {
               </p>
             </div>
 
-            <img src="img/landing_page/provider.png" alt="" />
+            <img className="OnboardingImage" src="img/landing_page/provider.png" alt="" />
           </div>
 
           <div className="Section">
