@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
+import isMatch from 'lodash.ismatch';
 import { getLocations } from '../../../services/api';
-import { getCategoryIcon } from '../../../services/iconography';
 import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
+import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
-import LocationInfoMarker from './LocationInfoMarker';
 import Search from './Search';
+import './mapPage.css';
 
 const minSearchResults = 3;
 
@@ -101,12 +102,18 @@ export default class MapPage extends Component {
     }, this.searchLocations);
   };
 
-  setAdvancedFilters = newFilters => this.setFilters({
-    advancedFilters: {
-      ...this.state.filters.advancedFilters,
-      ...newFilters,
-    },
-  });
+  setAdvancedFilters = (newFilters) => {
+    if (!isMatch(this.state.filters.advancedFilters, newFilters)) {
+      this.setFilters({
+        advancedFilters: {
+          ...this.state.filters.advancedFilters,
+          ...newFilters,
+        },
+      });
+    } else {
+      this.setState({ isFilterModalOpen: false });
+    }
+  };
 
   setSearchString = searchString => this.setFilters({ searchString });
 
@@ -200,21 +207,9 @@ export default class MapPage extends Component {
     this.setState({ isFilterModalOpen: true });
   }
 
-  closeFilterModal = () => {
-    this.setState({ isFilterModalOpen: false });
-  };
-
   renderFilteringInfoBar = () => (
     <div
-      className="p-1"
-      style={{
-        backgroundColor: 'white',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 2,
-      }}
+      className="resultsBar"
     >
       {this.state.isSearchingLocations ? (
         <div>Loading results...</div>
@@ -234,7 +229,7 @@ export default class MapPage extends Component {
 
     const areModalFiltersApplied = this.getAdvancedFilterValues().length > 0;
 
-    const type = areModalFiltersApplied ? 'secondary' : 'primary';
+    const type = areModalFiltersApplied ? 'primary' : 'secondary';
     const iconName = category ? 'sliders-h' : 'clock';
     const onClick = category ? this.openFilterModal : this.toggleOpenNow;
 
@@ -248,7 +243,7 @@ export default class MapPage extends Component {
     }
 
     return (
-      <Button onClick={onClick} half className="mx-2" {...{ [type]: true }}>
+      <Button onClick={onClick} className="mapHalfButton" {...{ [type]: true }}>
         <Icon name={iconName} className="mr-2" />
         {text}
       </Button>
@@ -266,7 +261,7 @@ export default class MapPage extends Component {
         zIndex: 2,
       }}
     >
-      <Button primary onClick={this.clearResults} half className="mx-2">
+      <Button secondary onClick={this.clearResults} className="mapHalfButton">
         <Icon name="times-circle" className="mr-2" />
         Go to home
       </Button>
@@ -275,28 +270,18 @@ export default class MapPage extends Component {
   );
 
   renderCategoriesSelector = () => this.props.categories && (
-    <div
-      className="p-2 rounded-top shadow-lg"
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: 'white',
-        zIndex: 2,
-      }}
-    >
-      <h5 className="font-weight-bold my-2">Explore these types of services</h5>
-      <div className="d-flex justify-content-around">
+    <div className="categoriesContainer">
+      <h5 className="categoriesTitle">Explore these types of services</h5>
+      <div className="buttonsContainer">
         {this.props.categories.map(category => (
           <Button
             primary
-            className="mx-0 p-0 d-flex flex-column align-items-center"
+            className="categoryButton"
             key={category.id}
             onClick={() => this.props.goToCategory(category)}
           >
-            <Icon name={getCategoryIcon(category.name)} size="3x" className="my-3" />
-            <small style={{ fontSize: '0.6em' }} className="mt-auto my-1">{category.name}</small>
+            <img src={`/icons/${category.name}.svg`} alt={category.name} />
+            <small className="serviceCategory">{category.name}</small>
           </Button>
         ))}
       </div>
@@ -314,7 +299,6 @@ export default class MapPage extends Component {
             category={category}
             defaultValues={this.state.filters.advancedFilters}
             onSubmit={this.setAdvancedFilters}
-            onClose={this.closeFilterModal}
           />
         )}
         <Search
@@ -330,7 +314,7 @@ export default class MapPage extends Component {
                 top: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 1,
+
               }}
             >
               {
@@ -343,18 +327,35 @@ export default class MapPage extends Component {
                 onClick={this.onMapClick}
                 zoomedLocations={this.state.zoomedLocations}
               >
-                {renderSearchOverlay()}
-                {this.state.locations &&
-                  this.state.locations.map(location => (
-                    <LocationInfoMarker
-                      key={location.id}
-                      mapLocation={location}
-                      isOpen={location.id === this.state.openLocationId}
-                      onToggleInfo={this.onToggleMarkerInfo}
-                      onShowLocationDetails={goToLocationDetails}
-                    />
-                  ))
-                }
+                {({ centerMap }) => (
+                  <div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: isFiltering ? '14vh' : '32vh',
+                        right: '2vh',
+                      }}
+                    >
+                      <Icon
+                        onClick={centerMap}
+                        name="crosshairs"
+                        circle
+                        size="2x"
+                      />
+                    </div>
+                    {renderSearchOverlay()}
+                    {this.state.locations &&
+                      this.state.locations.map(location => (
+                        <LocationMarker
+                          key={location.id}
+                          id={location.id}
+                          mapLocation={location}
+                          onClick={() => goToLocationDetails(location.id)}
+                        />
+                      ))
+                    }
+                  </div>
+                )}
               </Map>
               {!isFiltering && renderSpeechElements()}
               {isFiltering ? this.renderFilteredBottomBar() : this.renderCategoriesSelector()}

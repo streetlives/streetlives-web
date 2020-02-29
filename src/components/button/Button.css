@@ -1,4 +1,4 @@
-@value gray, darkBorder, yellow, darkerGray from "../../colors.css";
+@value gray, darkBorder, primaryColor, darkerGray from "../../colors.css";
 
 .Button {
   background: gray;
@@ -6,7 +6,7 @@
   color: black;
   font-size: 0.75em;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 0.2rem;
   min-width: 100px;
   padding: 12px;
   text-transform: uppercase;
@@ -17,28 +17,40 @@
 }
 
 .Button-primary {
-  background: yellow;
-  border: 1px solid yellow;
+  background: primaryColor;
+  border: 1px solid primaryColor;
+  color: #ffffff;
+  text-transform: capitalize !important;
+  letter-spacing: 0.05rem;
+  font-size: .85rem;
 }
 
 .Button-secondary {
-  background: darkerGray;
-  border: 1px solid darkerGray;
-  color: white;
+    background: #ffffff;
+    border: 2px solid primaryColor;
+    color: #1400ff;
+    text-transform: capitalize;
+    letter-spacing: 0.05rem;
+    font-size: .85rem;
 }
 
 .Button-fluid {
   width: 100%;
+  border-radius: 4px;
 }
 
 .Button-disabled {
-  opacity: 0.6;
+  background-color: #5041ff;
+  border: 0 !important;
+  letter-spacing: 0.05rem;
+  font-size: 0.75rem
 }
 
 .Button-basic {
   background: white;
   border-width: 3px;
   padding: 10px;
+  color: primaryColor;
 }
 
 .Button-basic.Button-secondary {
@@ -48,3 +60,5 @@
 .Button-half {
   width:50%
 }
+
+

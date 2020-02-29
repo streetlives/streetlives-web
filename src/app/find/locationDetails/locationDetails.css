@@ -1,0 +1,90 @@
+@value primaryColor from "../../../colors.css";
+
+.locationHeaders{
+	font-size: 0.95rem !important;
+    line-height: 1.33rem;
+    margin: 4.5vh 0 0vh 0;
+    padding-top: 1.2vh;
+    width: 100%;
+    border-top: 1px solid #dadada;
+}
+
+.categoryCard{
+	background-color: #f8f8fc;
+	border: 1px solid #dadada !important;
+	padding: 4vw 4vw 4vw 4vw;
+	box-shadow: 0vw 2vw 2vw rgba(0,0,0,0.15) !important;
+	margin-bottom: 4vh;
+	margin-top: 2vh; 
+
+}
+
+.serviceCategoryHeadersContainer{
+	font-size: .85rem !important;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	align-content: center;
+}
+
+.serviceCategoryHeaders{
+	font-weight: bold;
+    line-height: 1.33rem;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1.66px;
+    margin: 0 !important;
+    padding: 0 !important;
+
+}
+
+.specificServiceHeaders{
+    line-height: 1.33rem;
+    margin: 0 !important;
+    padding-top: 1.2vh;
+    width: 100%;
+}
+
+.categoryCard .serviceDescription{
+	line-height: 160%;
+    padding: 2vh 0;
+    font-size: 0.85rem;
+}
+
+.detailPageCategories{
+	font-size: 0.8rem !important;
+	text-align: center;
+	font-weight: bold;
+	color:#4c4b4b;
+}
+
+.accessibilityText{
+	font-size: 0.85rem;
+}
+
+.infoItem{
+	padding-top: 4px;
+    font-size: 0.85rem;
+    line-height: 160%;
+    padding-bottom: 0.45rem;
+}
+
+.infoItem:last-child{
+	padding-top: 4px;
+	line-height: 1.2rem;
+	padding-bottom: 0rem !important;
+}
+
+.serviceSchedule{
+    border-top: 1px solid #d8d8ee;
+    padding-top: 2vh;
+    margin: 0 !important;
+}
+
+.locationLinks{
+	color: primaryColor;
+	border-bottom: 1px solid primaryColor; 
+	font-size: 0.85rem;
+	cursor: pointer;
+	padding: 2vh 0 0 0;
+}

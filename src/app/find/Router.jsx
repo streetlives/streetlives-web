@@ -13,7 +13,12 @@ export default function Router({ match }) {
         path={`${match.path}/:categoryName/questions/:question?`}
         component={QuestionFlowContainer}
       />
+
       <Route path={`${match.path}/location/:locationId`} component={LocationDetailsContainer} />
+      <Route
+        path={`${match.path}/:categoryName/location/:locationId`}
+        component={LocationDetailsContainer}
+      />
     </div>
   );
 }

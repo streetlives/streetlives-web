@@ -112,8 +112,14 @@ export default function About() {
           <div className="social-proof">
             <a href="http://www.argolabs.org/"><img alt="argo labs logo" src="img/argo_logo.png" /></a>
           </div>
-          <div className="social-proof">
-            <a href="https://www.betterhealthadvisors.com/"><img alt="better health advisors logo" src="img/better_health_advisors_logo.png" /></a>
+          <div
+            className="social-proof"
+            style={{
+              backgroundColor: '#e35205',
+              padding: '10px 0px',
+            }}
+          >
+            <a href="https://www.ncsinc.org/"><img style={{ width: '80%' }} alt="neighborhood coalition for shelter logo" src="img/neighborhood_coalition_for_shelter_logo.svg" /></a>
           </div>
           <div className="social-proof">
             <a href="http://feedbacklabs.org/"><img alt="feedback labs logo" src="img/feedback_labs_logo.png" /></a>

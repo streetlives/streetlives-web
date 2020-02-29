@@ -20,6 +20,7 @@ export const getLocations = ({
     gender,
     clothingKind,
     wearerAge,
+    tgncClothing,
     hivNutrition,
   } = {},
 }) => {
@@ -65,6 +66,10 @@ export const getLocations = ({
   if (wearerAge) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.wearerAge);
     attributes.push(wearerAge);
+  }
+  if (tgncClothing) {
+    attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.tgncClothing);
+    attributes.push(tgncClothing);
   }
   if (hivNutrition != null) {
     attributes.push(TAXONOMY_SPECIFIC_ATTRIBUTES.hasHivNutrition);

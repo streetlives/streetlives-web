@@ -6,7 +6,7 @@ import Icon from '../../../components/icon';
 
 const SkipFlowConfirmation = ({ onSkip, onAnswer }) => (
   <Modal compact className="text-left px-4 py-4">
-    <Icon size="3x" name="exclamation-triangle" className="mt-4 mb-2" />
+    <Icon name="exclamation" custom />
     <Header size="medium" className="mt-4">
       Are you sure you want to skip all questions?
     </Header>

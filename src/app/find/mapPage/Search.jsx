@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import Speech, { ListeningIndicator } from '../../../components/speech';
 import Icon from '../../../components/icon';
+import Button from '../../../components/button';
 import { getCategoryIcon } from '../../../services/iconography';
+import './search.css';
+
+const minCharsForSuggestions = 3;
 
 class Search extends Component {
   state = {
@@ -25,7 +29,7 @@ class Search extends Component {
     const newString = event.target.value;
 
     const lowerString = newString.toLowerCase();
-    const suggestedCategory = (newString && suggestions) ?
+    const suggestedCategory = (newString.length >= minCharsForSuggestions && suggestions) ?
       suggestions.find(suggestion => suggestion.name.toLowerCase().includes(lowerString)) :
       null;
 
@@ -122,15 +126,15 @@ class Search extends Component {
             </div>
           </div>
         ) : (
-          <div style={{ position: 'absolute', bottom: 150, right: 25 }}>
-            <Icon
-              onClick={startSpeechToText}
-              name="microphone"
-              className="border rounded-circle py-2 px-3 mb-2"
-              size="2x"
-              style={{ backgroundColor: '#F8E71C' }}
-            />
-          </div>
+          <Icon
+            name="microphone"
+            custom
+            circle
+            size="2x"
+            alt="search through voice"
+            className="voiceToText"
+            onClick={startSpeechToText}
+          />
         )
       )}
     </Speech>
@@ -148,23 +152,21 @@ class Search extends Component {
         zIndex: 4,
       }}
     >
-      <form className="input-group border" onSubmit={this.submitSearchString} >
+      <form className="input-group" onSubmit={this.submitSearchString} >
         {this.state.isEnteringSearchString && (
-          <span
-            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
-            className="input-group-prepend input-group-text"
+          <Button
+            className="backSearch"
+            onClick={this.cancelSearchMode}
           >
-            <Icon
-              name="chevron-left"
-              onClick={this.cancelSearchMode}
-              style={{ color: 'white' }}
-            />
-          </span>
+            <img className="backSearchChevron" src="/icons/back.svg" alt="back" />
+          </Button>
         )}
         <input
           onChange={this.updateSearchString}
           onFocus={this.enterSearchMode}
-          style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}
+          style={{
+ border: 'none', borderRadius: 0, boxShadow: 'none', minHeight: '50px',
+}}
           type="text"
           className="form-control"
           placeholder="Find what you need"
@@ -174,10 +176,9 @@ class Search extends Component {
         {this.state.isEnteringSearchString && (
           <button
             type="submit"
-            style={{ backgroundColor: 'blue', border: 'none', borderRadius: 0 }}
-            className="input-group-text"
+            className="searchSubmit"
           >
-            <Icon name="search" style={{ color: 'white' }} />
+            <img src="/icons/search.svg" alt="search" />
           </button>
         )}
       </form>

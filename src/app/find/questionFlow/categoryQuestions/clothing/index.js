@@ -12,7 +12,7 @@ const QuestionsInOrder = [
   {
     param: 'gender',
     component: GenderQuestion,
-    question: 'Which gender clothing do you prefer...?',
+    question: 'Which gender clothing do you prefer?',
   },
   {
     param: 'photoId',

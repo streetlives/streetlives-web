@@ -40,6 +40,13 @@ const MyMap = compose(
 
           this.props.onBoundsChanged({ bounds, center, radius });
         },
+        centerMap: () => {
+          const { userPosition } = this.props;
+          if (userPosition) {
+            const coord = new window.google.maps.LatLng(userPosition.lat, userPosition.lng);
+            mapRef.panTo(coord);
+          }
+        },
       });
     },
   }),
@@ -81,7 +88,9 @@ const MyMap = compose(
         }}
       />
     }
-    {props.children}
+    {typeof props.children === 'function' ?
+      props.children({ centerMap: props.centerMap }) :
+      props.children}
   </GoogleMap>
 ));
 
@@ -155,7 +164,7 @@ Map.propTypes = {
   zoomedLocations: PropTypes.arrayOf(PropTypes.object),
   onBoundsChanged: PropTypes.func,
   onClick: PropTypes.func,
-  children: PropTypes.node,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 };
 
 export default Map;

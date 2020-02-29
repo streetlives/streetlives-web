@@ -48,9 +48,9 @@ const locationsReducer = (state = {}, action) => {
         const originalLocationId = `original/${action.payload.id}`;
         return {
           ...state,
-          //tag initial download of location data so that we can use it for "session" logic
+          // tag initial download of location data so that we can use it for "session" logic
           [originalLocationId]: state[originalLocationId] || action.payload,
-          [action.payload.id]: action.payload
+          [action.payload.id]: action.payload,
         };
       }
       break;

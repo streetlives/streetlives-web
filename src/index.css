@@ -8,3 +8,18 @@ button.default {
   background-color: rgba(0,0,0,0);
   border:none;
 }
+
+.explanationText{
+	background-color: #f8f8fc;
+	border: 1px solid #dadada;
+	font-size: 0.75rem;
+	font-weight: 300;
+	padding: 16px;
+	color: #333333;
+	line-height: 1.1rem;
+	border-radius: 1px;
+	text-align: left;
+}
+.mb-5{
+	margin-bottom: 5rem !important;
+}

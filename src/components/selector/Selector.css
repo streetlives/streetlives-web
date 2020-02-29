@@ -22,3 +22,7 @@
 .Selector.Selector-row {
   display: flex;
 }
+
+.Selector {
+	font-size: 0.75rem;
+}

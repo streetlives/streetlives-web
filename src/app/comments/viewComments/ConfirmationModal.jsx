@@ -1,6 +1,5 @@
 import React from 'react';
 import Modal from '../../../components/modal';
-import Icon from '../../../components/icon';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 
@@ -13,7 +12,6 @@ function ConfirmationModal({
 }) {
   return (
     <Modal>
-      <Icon name="exclamation-triangle" size="3x" className="mt-5" />
       <Header size="large" className="m-4 flex-grow-1">
         {prompt}
       </Header>

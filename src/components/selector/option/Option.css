@@ -15,9 +15,9 @@
 }
 
 .Option.Option-active {
-  background: darkerGray;
-  border: 1px solid darkerGray;
-  color: primaryColor;
+  background: primaryColor;
+  border: 1px solid primaryColor;
+  color: #ffffff;
   font-weight: 300;
 }
 .Option.Option-disabled {

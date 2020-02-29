@@ -5,9 +5,7 @@ import categoryQuestions from './categoryQuestions';
 
 class QuestionFlowContainer extends Component {
   state = {
-    questionIndex: null,
     answers: {},
-    hasAnsweredPrompt: false,
   };
 
   componentDidMount() {
@@ -15,6 +13,11 @@ class QuestionFlowContainer extends Component {
       this.goToResults({});
     }
   }
+
+  getCurrentQuestion = () => {
+    const { question } = this.props.match.params;
+    return question != null ? parseInt(question, 10) : null;
+  };
 
   goToResults = (answers) => {
     const { categoryName } = this.props.match.params;
@@ -27,37 +30,49 @@ class QuestionFlowContainer extends Component {
 
   questions = categoryQuestions[this.props.match.params.categoryName.trim().toLowerCase()];
 
-  startQuestions = () => this.setState({ hasAnsweredPrompt: true, questionIndex: 0 });
+  startQuestions = () => {
+    const { categoryName } = this.props.match.params;
+    this.props.history.push(`/find/${categoryName}/questions/0`);
+  }
 
-  goToNextQuestion = () => {
-    this.setState({ questionIndex: this.state.questionIndex + 1 }, () => {
-      const nextQuestion = this.questions[this.state.questionIndex];
-      if (!nextQuestion) {
-        this.goToResults(this.state.answers);
-      }
-    });
-  };
+  goToNextQuestion = (nextParam) => {
+    const { categoryName } = this.props.match.params;
+    const question = this.getCurrentQuestion();
 
-  goBack = () => {
-    const { questionIndex } = this.state;
-    if (questionIndex && questionIndex >= 1) {
-      this.setState({ questionIndex: questionIndex - 1 });
+    let nextQuestionIndex;
+    if (nextParam) {
+      nextQuestionIndex = this.questions.findIndex(({ param }) => param === nextParam);
     } else {
-      this.setState({ hasAnsweredPrompt: false });
+      nextQuestionIndex = parseInt(question, 10) + 1;
+    }
+
+    const nextQuestion = this.questions[nextQuestionIndex];
+    if (nextQuestion) {
+      this.props.history.push(`/find/${categoryName}/questions/${nextQuestionIndex}`);
+    } else {
+      this.goToResults(this.state.answers);
     }
   };
 
-  answerQuestion = ({ param, answer }) => {
+  goBack = () => this.props.history.goBack();
+
+  answerQuestion = ({
+    param,
+    answer,
+    nextParam,
+    skipToEnd,
+  }) => {
     this.setState({
       answers: {
         ...this.state.answers,
         [param]: answer,
       },
-    }, this.goToNextQuestion);
+    }, () => (skipToEnd ? this.goToResults(this.state.answers) : this.goToNextQuestion(nextParam)));
   };
 
   skipQuestion = () => {
-    const { param } = this.questions[this.state.questionIndex];
+    const question = this.getCurrentQuestion();
+    const { param } = this.questions[question];
     this.setState({
       answers: {
         ...this.state.answers,
@@ -73,13 +88,17 @@ class QuestionFlowContainer extends Component {
       return null;
     }
 
+    const { answers } = this.state;
+    const { categoryName } = this.props.match.params;
+    const question = this.getCurrentQuestion();
+
     return (
       <QuestionFlow
-        categoryName={this.props.match.params.categoryName}
+        categoryName={categoryName}
         questions={this.questions}
-        hasAnsweredPrompt={this.state.hasAnsweredPrompt}
-        questionIndex={this.state.questionIndex}
-        answers={this.state.answers}
+        hasAnsweredPrompt={question != null}
+        questionIndex={question}
+        answers={answers}
         startQuestions={this.startQuestions}
         answerQuestion={this.answerQuestion}
         skipQuestion={this.skipQuestion}
