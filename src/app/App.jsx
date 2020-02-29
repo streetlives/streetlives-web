@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
@@ -7,6 +7,7 @@ import Amplify from 'aws-amplify';
 import { AmplifyTheme } from 'aws-amplify-react';
 import awsExports from './aws-exports';
 
+import LoadingLabel from '../components/form/LoadingLabel';
 import { store, history } from '../store/index';
 
 import './App.css';
@@ -15,11 +16,10 @@ import About from './about/About';
 import NotFound from './notFound/NotFound';
 
 import withTracker from '../components/routing/withTracker';
-import AsyncComponent from '../components/routing/AsyncComponent';
 
-const TeamRouter = AsyncComponent(() => import('./team/Router'));
-const CommentsRouter = AsyncComponent(() => import('./comments/Router'));
-const FindRouter = AsyncComponent(() => import('./find/Router'));
+const TeamRouter = React.lazy(() => import('./team/Router'));
+const CommentsRouter = React.lazy(() => import('./comments/Router'));
+const FindRouter = React.lazy(() => import('./find/Router'));
 
 history.listen((location, action) => {
   window.scrollTo(0, 0);
@@ -40,21 +40,25 @@ function App() {
     <Provider store={store}>
       <div className="App">
         <ConnectedRouter history={history}>
-          <Switch>
-            <Route exact path="/" component={withTracker(About)} />
-            <Route path="/team" component={withTracker(TeamRouter)} />
-            {feedbackLocations.map(({ name, id }) => (
-              <Route
-                key={name}
-                exact
-                path={`/${name}`}
-                render={props => <Redirect to={`/comments/${id}`} />}
-              />
-            ))}
-            <Route path="/comments" component={withTracker(CommentsRouter)} />
-            <Route path="/find" component={withTracker(FindRouter)} />
-            <Route path="*" component={withTracker(NotFound)} />
-          </Switch>
+          <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
+            <Switch>
+              <Route exact path="/" component={withTracker(About)} />
+              <Route path="/team" component={withTracker(TeamRouter)} />
+              {feedbackLocations.map(({ name, id }) => (
+                <Route
+                  key={name}
+                  exact
+                  path={`/${name}`}
+                  render={props => <Redirect to={`/comments/${id}`} />}
+                />
+              ))}
+              <Route path="/comments" component={withTracker(CommentsRouter)} />
+              <Suspense fallback={<LoadingLabel>Loading over 1000 locations</LoadingLabel>}>
+                <Route path="/find" component={withTracker(FindRouter)} />
+              </Suspense>
+              <Route path="*" component={withTracker(NotFound)} />
+            </Switch>
+          </Suspense>
         </ConnectedRouter>
       </div>
     </Provider>
