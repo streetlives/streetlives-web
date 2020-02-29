@@ -2,9 +2,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData, selectLocationError } from 'selectors/location';
-import { updateLocation, getLocation } from 'actions';
-import { Form } from 'components/form';
+import { selectLocationData, selectLocationError } from '../../../../selectors/location';
+import { updateLocation, getLocation } from '../../../../actions';
+import { Form } from '../../../../components/form';
 import LocationNameView from './LocationNameView';
 import LocationNameEdit from './LocationNameEdit';
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
-import { selectLocationData, selectLocationError } from 'selectors/location';
-import { updateLocation, getLocation } from 'actions';
-import { Form, FormEdit, FormView } from 'components/form';
+import { selectLocationData, selectLocationError } from '../../../../selectors/location';
+import { updateLocation, getLocation } from '../../../../actions';
+import { Form, FormEdit, FormView } from '../../../../components/form';
 
 const EditComponent = compose(withProps({
   headerText: "What's this location's address?",

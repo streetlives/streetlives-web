@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import cx from 'classnames';
 
-import Badge from 'components/badge';
+import Badge from '../../../components/badge';
 import { FIELD_TYPES, getFieldType } from './utils';
 
 function UpdatedBadge({ updatedAt, value }) {

@@ -7,16 +7,16 @@ import {
   selectLocationData,
   selectOriginalLocationData,
   selectLocationError,
-} from 'selectors/location';
-import { getTaxonomy } from 'selectors/taxonomy';
-import * as actions from 'actions';
-import Button from 'components/button';
-import Header from 'components/header';
-import SectionHeader from 'components/sectionHeader';
-import { getCategoryIcon } from 'services/iconography';
-import LoadingLabel from 'components/form/LoadingLabel';
-import ErrorLabel from 'components/form/ErrorLabel';
-import NavBar from 'components/navBar';
+} from '../../../../selectors/location';
+import { getTaxonomy } from '../../../../selectors/taxonomy';
+import * as actions from '../../../../actions';
+import Button from '../../../../components/button';
+import Header from '../../../../components/header';
+import SectionHeader from '../../../../components/sectionHeader';
+import { getCategoryIcon } from '../../../../services/iconography';
+import LoadingLabel from '../../../../components/form/LoadingLabel';
+import ErrorLabel from '../../../../components/form/ErrorLabel';
+import NavBar from '../../../../components/navBar';
 import ThanksOverlay, { overlayStyles } from '../../locationForm/thanks/ThanksOverlay';
 import ListItem from './ListItem';
 

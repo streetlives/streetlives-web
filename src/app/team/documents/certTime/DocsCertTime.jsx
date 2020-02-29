@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
 
-import { getDocuments, getDocumentRecertificationTime } from 'selectors/document';
-import { getServiceId } from 'selectors/service';
-import { selectLocationError } from 'selectors/location';
+import { getDocuments, getDocumentRecertificationTime } from '../../../../selectors/document';
+import { getServiceId } from '../../../../selectors/service';
+import { selectLocationError } from '../../../../selectors/location';
 
-import * as actions from 'actions';
-import { Form, FormEdit, FormView } from 'components/form';
+import * as actions from '../../../../actions';
+import { Form, FormEdit, FormView } from '../../../../components/form';
 
 const EditComponent = compose(withProps({
   headerText: 'How often is the recertification?',

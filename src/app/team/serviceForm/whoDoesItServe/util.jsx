@@ -1,5 +1,5 @@
 import React from 'react';
-import { EVERYONE } from 'Constants';
+import { EVERYONE } from '../../../../Constants';
 
 const ifMinOrMaxAge = (minAge, maxAge) => (
   (minAge || maxAge) ?

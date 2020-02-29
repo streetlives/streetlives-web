@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
-import Button from 'components/button';
-import Icon from 'components/icon';
-import ProgressBar from 'components/progressBar';
-import NavBar from 'components/navBar';
+import Button from '../../../components/button';
+import Icon from '../../../components/icon';
+import ProgressBar from '../../../components/progressBar';
+import NavBar from '../../../components/navBar';
 
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
 import NotFound from '../../notFound/NotFound';

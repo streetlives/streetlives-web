@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import fuzzy from 'fuzzy';
 
-import Icon from 'components/icon';
-import Dropdown from 'components/dropdown';
+import Icon from '../../../../components/icon';
+import Dropdown from '../../../../components/dropdown';
 
 import './AddLanguageForm.css';
 

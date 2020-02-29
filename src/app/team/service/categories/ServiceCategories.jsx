@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import ErrorLabel from 'components/form/ErrorLabel';
-import { selectLocationData, selectLocationError } from 'selectors/location';
-import { getTaxonomy } from 'selectors/taxonomy';
-import { getServices } from 'selectors/service';
-import * as api from 'services/api';
-import * as actions from 'actions';
-import Header from 'components/header';
-import Accordion from 'components/accordion';
-import Button from 'components/button';
-import NavBar from 'components/navBar';
+import ErrorLabel from '../../../../components/form/ErrorLabel';
+import { selectLocationData, selectLocationError } from '../../../../selectors/location';
+import { getTaxonomy } from '../../../../selectors/taxonomy';
+import { getServices } from '../../../../selectors/service';
+import * as api from '../../../../services/api';
+import * as actions from '../../../../actions';
+import Header from '../../../../components/header';
+import Accordion from '../../../../components/accordion';
+import Button from '../../../../components/button';
+import NavBar from '../../../../components/navBar';
 import ServiceCategory from './ServiceCategory';
 
 const LoadingView = ({ locationId }) => (

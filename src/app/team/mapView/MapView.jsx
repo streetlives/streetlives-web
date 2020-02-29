@@ -5,10 +5,10 @@ import {
   getLocations,
   getOrganizations,
   getOrganizationLocations,
-} from 'services/api';
-import { getAddressForLocation } from 'services/geocoding';
-import Map from 'components/map';
-import Dropdown from 'components/dropdown';
+} from '../../../services/api';
+import { getAddressForLocation } from '../../../services/geocoding';
+import Map from '../../../components/map';
+import Dropdown from '../../../components/dropdown';
 import ExistingLocationMarker from './ExistingLocationMarker';
 import NewLocationMarker from './NewLocationMarker';
 

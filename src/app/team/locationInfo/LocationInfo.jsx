@@ -5,14 +5,14 @@ import { connect } from 'react-redux';
 import {
   selectLocationError,
   selectLocationData,
-} from 'selectors/location';
-import Header from 'components/header';
-import Button from 'components/button';
-import { getLocation } from 'actions';
-import ProgressBar from 'components/progressBar';
-import LoadingLabel from 'components/form/LoadingLabel';
-import ErrorLabel from 'components/form/ErrorLabel';
-import NavBar from 'components/navBar';
+} from '../../../selectors/location';
+import Header from '../../../components/header';
+import Button from '../../../components/button';
+import { getLocation } from '../../../actions';
+import ProgressBar from '../../../components/progressBar';
+import LoadingLabel from '../../../components/form/LoadingLabel';
+import ErrorLabel from '../../../components/form/ErrorLabel';
+import NavBar from '../../../components/navBar';
 import FieldItem from './FieldItem';
 import routes from '../locationForm/routes';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Icon from 'components/icon';
+import Icon from '../../../../components/icon';
 import { SERVICE_FIELDS } from '../../serviceForm/routes';
 import { DOCUMENT_FIELDS } from '../../documents/routes';
 

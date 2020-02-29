@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import Header from 'components/header';
-import Button from 'components/button';
-import Selector from 'components/selector';
-import Input from 'components/input';
-import { DAYS } from 'Constants';
+import Header from '../../../../components/header';
+import Button from '../../../../components/button';
+import Selector from '../../../../components/selector';
+import Input from '../../../../components/input';
+import { DAYS } from '../../../../Constants';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
 
 const NOTHING_ACTIVE = -1;

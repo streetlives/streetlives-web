@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import Accordion from 'components/accordion';
-import Selector from 'components/selector';
-import Button from 'components/button';
-import Input from 'components/input';
-import { getCategoryIcon } from 'services/iconography';
+import Accordion from '../../../../components/accordion';
+import Selector from '../../../../components/selector';
+import Button from '../../../../components/button';
+import Input from '../../../../components/input';
+import { getCategoryIcon } from '../../../../services/iconography';
 
 function getLabelForAddServiceButton(category) {
   const categoryName = category.name.toLowerCase().trim();

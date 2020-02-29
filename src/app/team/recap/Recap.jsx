@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import Button from 'components/button';
-import NavBar from 'components/navBar';
+import Button from '../../../components/button';
+import NavBar from '../../../components/navBar';
 
 function Recap({ history, match }) {
   return (

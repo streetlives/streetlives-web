@@ -2,9 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 
-import { selectLocationData, selectLocationError } from 'selectors/location';
-import { updatePhone, getLocation, createPhone } from 'actions';
-import { Form, FormView } from 'components/form';
+import { selectLocationData, selectLocationError } from '../../../../selectors/location';
+import { updatePhone, getLocation, createPhone } from '../../../../actions';
+import { Form, FormView } from '../../../../components/form';
 import LocationNumberEdit from './LocationNumberEdit';
 
 const getPhoneNumber = props =>
