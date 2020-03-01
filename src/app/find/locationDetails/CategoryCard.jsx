@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { DAYS } from '../../../constants';
+import { DAYS } from '../../../Constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';

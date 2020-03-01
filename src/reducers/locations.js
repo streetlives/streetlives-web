@@ -9,7 +9,7 @@ import {
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
 } from '../actions';
-import { DAYS } from '../constants';
+import { DAYS } from '../Constants';
 
 function constructUpdatedMetadata(location, metaDataSection, fieldName, dateString) {
   const { metadata } = location;
