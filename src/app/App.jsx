@@ -19,7 +19,8 @@ import withTracker from '../components/routing/withTracker';
 
 const TeamRouter = React.lazy(() => import('./team/Router'));
 const CommentsRouter = React.lazy(() => import('./comments/Router'));
-const FindRouter = React.lazy(() => import('./find/Router'));
+const findRouterPromise = import('./find/Router');
+const FindRouter = React.lazy(() => findRouterPromise);
 
 history.listen((location, action) => {
   window.scrollTo(0, 0);
