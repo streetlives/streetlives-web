@@ -46,7 +46,7 @@ function Recap({ history, match }) {
           fluid
           primary
           onClick={() =>
-            history.push(`/team/coronavirus/location/${match.params.locationId}/services/recap`)}
+            history.push(`/team/coronavirus/location/${match.params.locationId}/isClosed`)}
         >
           Got it
         </Button>

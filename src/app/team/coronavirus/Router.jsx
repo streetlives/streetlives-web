@@ -6,6 +6,8 @@ import withAuth from '../../../components/routing/withAuth';
 
 import MapView from './MapView';
 import Recap from './Recap';
+import IsLocationClosed from './IsLocationClosed';
+import ClosedInfo from './ClosedInfo';
 import ServiceRecap from '../service/recap/ServiceRecap';
 import ServiceFormContainer from './ServiceFormContainer';
 import NotFound from '../../notFound/NotFound';
@@ -23,8 +25,23 @@ function Router({ match }) {
       />
       <Route
         exact
+        path={`${match.path}/location/:locationId/isClosed`}
+        component={withTracker(withAuth(IsLocationClosed))}
+      />
+      <Route
+        exact
+        path={`${match.path}/location/:locationId/closedInfo`}
+        component={withTracker(withAuth(ClosedInfo))}
+      />
+      <Route
+        exact
         path={`${match.path}/location/:locationId/services/recap/:thanks?`}
-        render={props => <WrappedServiceRecap {...props} backTarget="/team/coronavirus" />}
+        render={props => (
+          <WrappedServiceRecap
+            {...props}
+            backTarget={`${match.path}/location/${props.match.params.locationId}/isClosed`}
+          />
+        )}
       />
       <Route
         exact
