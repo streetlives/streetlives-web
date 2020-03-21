@@ -5,6 +5,7 @@ import withTracker from '../../../components/routing/withTracker';
 import withAuth from '../../../components/routing/withAuth';
 
 import MapView from './MapView';
+import Recap from './Recap';
 import ServiceRecap from '../service/recap/ServiceRecap';
 import ServiceFormContainer from './ServiceFormContainer';
 import NotFound from '../../notFound/NotFound';
@@ -15,6 +16,11 @@ function Router({ match }) {
   return (
     <Switch>
       <Route exact path={`${match.path}/`} component={withTracker(withAuth(MapView))} />
+      <Route
+        exact
+        path={`${match.path}/location/:locationId`}
+        component={withTracker(withAuth(Recap))}
+      />
       <Route
         exact
         path={`${match.path}/location/:locationId/services/recap/:thanks?`}
