@@ -7,7 +7,7 @@ import withAuth from '../../../components/routing/withAuth';
 import MapView from './MapView';
 import Recap from './Recap';
 import IsLocationClosed from './IsLocationClosed';
-import ClosedInfo from './ClosedInfo';
+import ClosureInfo from './ClosureInfo';
 import ServiceRecap from '../service/recap/ServiceRecap';
 import ServiceFormContainer from './ServiceFormContainer';
 import NotFound from '../../notFound/NotFound';
@@ -30,8 +30,8 @@ function Router({ match }) {
       />
       <Route
         exact
-        path={`${match.path}/location/:locationId/closedInfo`}
-        component={withTracker(withAuth(ClosedInfo))}
+        path={`${match.path}/location/:locationId/closureInfo/:thanks?`}
+        component={withTracker(withAuth(ClosureInfo))}
       />
       <Route
         exact

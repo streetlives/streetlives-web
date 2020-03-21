@@ -29,7 +29,7 @@ class IsLocationClosed extends Component {
 
     const { pathname } = this.props.location;
     const locationUrl = pathname.slice(0, pathname.indexOf('/isClosed'));
-    this.props.history.push(`${locationUrl}/closedInfo`);
+    this.props.history.push(`${locationUrl}/closureInfo`);
   };
 
   render() {
@@ -56,13 +56,20 @@ class IsLocationClosed extends Component {
         <div className="row p-4 mb-3">
           Is this location still open during the Coronavirus pandemic?
         </div>
-        <div style={{ bottom: 12, position: 'fixed' }}>
-          <div className="row p-4">
+        <div
+          style={{
+            left: 0,
+            right: 0,
+            bottom: 12,
+            position: 'fixed',
+          }}
+        >
+          <div className="p-4">
             <Button onClick={this.selectOpen} primary fluid className="mt-2">
-              Yes, it’s open
+              YES, IT’S OPEN
             </Button>
             <Button onClick={this.selectClosed} primary basic fluid className="mt-2">
-              No, it’s closed
+              NO, IT’S CLOSED
             </Button>
           </div>
         </div>

@@ -59,7 +59,7 @@ const locationsReducer = (state = {}, action) => {
     case OPTIMISTIC_UPDATE_SERVICE:
       if (action.payload) {
         const {
-          metaDataSection, fieldName, locationId, params, serviceId,
+          metaDataSection, fieldName, locationId, params, serviceId, eventRelatedInfo,
         } = action.payload;
         const { documents = {} } = params;
         const location = state[locationId];
@@ -67,7 +67,12 @@ const locationsReducer = (state = {}, action) => {
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
         const {
-          Languages, DocumentsInfo, RequiredDocuments, RegularSchedules,
+          Languages,
+          DocumentsInfo,
+          RequiredDocuments,
+          RegularSchedules,
+          HolidaySchedules,
+          EventRelatedInfos,
         } = service;
 
         if (documents.proofs != null) {
@@ -81,6 +86,20 @@ const locationsReducer = (state = {}, action) => {
         let hours = null;
         if (params.hours) {
           hours = params.hours.map(({ opensAt, closesAt, weekday }) => ({
+            opens_at: `${opensAt}:00`,
+            closes_at: `${closesAt}:00`,
+            weekday: DAYS.indexOf(weekday) + 1,
+          }));
+        }
+        let irregularHours = null;
+        if (params.irregularHours) {
+          irregularHours = params.irregularHours.map(({
+            opensAt,
+            closesAt,
+            weekday,
+            ...otherProps
+          }) => ({
+            ...otherProps,
             opens_at: `${opensAt}:00`,
             closes_at: `${closesAt}:00`,
             weekday: DAYS.indexOf(weekday) + 1,
@@ -103,13 +122,17 @@ const locationsReducer = (state = {}, action) => {
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
                 Languages: params.languages || Languages,
                 DocumentsInfo: {
-                  recertification_time:
-                    documents.recertificationTime || (DocumentsInfo && DocumentsInfo.recertification_time),
-                  grace_period: documents.gracePeriod || (DocumentsInfo && DocumentsInfo.grace_period),
-                  additional_info: documents.additionalInfo || (DocumentsInfo && DocumentsInfo.additional_info),
+                  recertification_time: documents.recertificationTime ||
+                    (DocumentsInfo && DocumentsInfo.recertification_time),
+                  grace_period: documents.gracePeriod ||
+                    (DocumentsInfo && DocumentsInfo.grace_period),
+                  additional_info: documents.additionalInfo ||
+                    (DocumentsInfo && DocumentsInfo.additional_info),
                 },
                 RequiredDocuments,
                 RegularSchedules: hours || RegularSchedules,
+                HolidaySchedules: irregularHours || HolidaySchedules,
+                EventRelatedInfos: [eventRelatedInfo] || EventRelatedInfos,
               },
               ...Services.slice(serviceIdx + 1),
             ],
@@ -150,6 +173,7 @@ const locationsReducer = (state = {}, action) => {
           [id]: {
             ...location,
             ...params,
+            EventRelatedInfos: [params.eventRelatedInfo] || location.EventRelatedInfos,
             metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
           },
         };
