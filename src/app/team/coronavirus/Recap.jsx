@@ -22,15 +22,17 @@ function Recap({ history, match }) {
         className="text-white text-left font-weight-light"
       >
         <div className="container">
-          <div className="row p-4">
-            <img
-              src="/img/coronavirus.png"
-              alt=""
-            />
+          <div className="p-4">
+            <div>
+              <img
+                src="/img/coronavirus.png"
+                alt=""
+              />
+            </div>
 
-            <p className="mt-4">
+            <div className="mt-4">
               Please only enter/edit data that is relevant during the Coronavirus pandemic.
-            </p>
+            </div>
           </div>
         </div>
       </div>

@@ -59,9 +59,9 @@ const locationsReducer = (state = {}, action) => {
     case OPTIMISTIC_UPDATE_SERVICE:
       if (action.payload) {
         const {
-          metaDataSection, fieldName, locationId, params, serviceId, eventRelatedInfo,
+          metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
-        const { documents = {} } = params;
+        const { documents = {}, eventRelatedInfo } = params;
         const location = state[locationId];
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
@@ -132,7 +132,7 @@ const locationsReducer = (state = {}, action) => {
                 RequiredDocuments,
                 RegularSchedules: hours || RegularSchedules,
                 HolidaySchedules: irregularHours || HolidaySchedules,
-                EventRelatedInfos: [eventRelatedInfo] || EventRelatedInfos,
+                EventRelatedInfos: eventRelatedInfo ? [eventRelatedInfo] : EventRelatedInfos,
               },
               ...Services.slice(serviceIdx + 1),
             ],
