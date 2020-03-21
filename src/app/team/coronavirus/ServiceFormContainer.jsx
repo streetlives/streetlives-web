@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import ServiceFormRoutes, { SERVICE_FIELDS as routes } from './routes';
-import ServiceForm from './ServiceForm';
+import ServiceForm from '../serviceForm/ServiceForm';
 
 class ServiceFormContainer extends Component {
   constructor(props) {
@@ -18,16 +18,22 @@ class ServiceFormContainer extends Component {
   onNext = () => {
     const idx = this.getCurrentIndex();
     if (idx === routes.length - 1) {
-      this.props.history.push(`${this.getServiceUrl()}/documents`);
+      const route = routes[idx];
+      this.props.history.push(`${this.getServiceUrl()}${route.urlFragment}/thanks`);
     } else {
       const nextRoute = routes[this.getCurrentIndex() + 1];
       this.props.history.push(`${this.getServiceUrl()}${nextRoute.urlFragment}`);
     }
   };
 
+  onNextSection = () => {
+    const { locationId } = this.props.match.params;
+    this.props.history.push(`/team/coronavirus/location/${locationId}/services/recap`);
+  };
+
   getServiceUrl = () => {
     const { locationId, serviceId } = this.props.match.params;
-    return `/team/location/${locationId}/services/${serviceId}`;
+    return `/team/coronavirus/location/${locationId}/services/${serviceId}`;
   };
 
   getCurrentIndex = () => {
@@ -39,6 +45,8 @@ class ServiceFormContainer extends Component {
     const index = this.getCurrentIndex();
     const currentRoute = routes[index];
 
+    const showThanks = this.props.location.pathname.split('/').pop() === 'thanks';
+
     return (
       <ServiceForm
         onNext={this.onNext}
@@ -47,6 +55,8 @@ class ServiceFormContainer extends Component {
         currentIndex={index}
         currentRoute={currentRoute}
         totalRoutes={routes.length}
+        showThanks={showThanks}
+        onNextSection={this.onNextSection}
       >
         <ServiceFormRoutes onNext={this.onNext} />
       </ServiceForm>

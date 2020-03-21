@@ -34,7 +34,7 @@ class ServiceCategories extends Component {
     if (!this.props.taxonomy) {
       this.props.getTaxonomy();
     }
-    if (!this.props.location) {
+    if (!this.props.locationData) {
       const { locationId } = this.props.match.params;
       this.props.getLocation(locationId);
     }
@@ -79,10 +79,7 @@ class ServiceCategories extends Component {
     });
   };
 
-  onGoToRecap = () => {
-    const { locationId } = this.props.match.params;
-    this.props.history.push(`/team/location/${locationId}/services/recap`);
-  };
+  onGoToRecap = () => this.props.history.push(`${this.props.location.pathname}/recap`);
 
   onSubmit = () => {
     const { selected, newOtherServices } = this.state;
@@ -121,13 +118,13 @@ class ServiceCategories extends Component {
 
   render() {
     const { isLoading, selected } = this.state;
-    const { location, servicesByCategory, locationError } = this.props;
+    const { locationData, servicesByCategory, locationError } = this.props;
 
     if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 
-    if (!servicesByCategory || !location || isLoading) {
+    if (!servicesByCategory || !locationData || isLoading) {
       return <LoadingView locationId={this.props.match.params.locationId} />;
     }
 
@@ -198,7 +195,7 @@ const getServicesByCategory = (state, props) => {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-  location: selectLocationData(state, ownProps),
+  locationData: selectLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
   taxonomy: getTaxonomy(state),
   servicesByCategory: getServicesByCategory(state, ownProps),

@@ -6,11 +6,9 @@ import {
   getOrganizations,
   getOrganizationLocations,
 } from '../../../services/api';
-import { getAddressForLocation } from '../../../services/geocoding';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
-import ExistingLocationMarker from './ExistingLocationMarker';
-import NewLocationMarker from './NewLocationMarker';
+import ExistingLocationMarker from '../mapView/ExistingLocationMarker';
 
 const debouncePeriod = 500;
 
@@ -20,7 +18,6 @@ export default class MapView extends Component {
     searchString: '',
     suggestions: [],
     openLocationId: null,
-    newLocation: null,
   };
 
   componentDidMount() {
@@ -33,35 +30,10 @@ export default class MapView extends Component {
     }, true);
   }
 
-  onMapClick = (clickEvent) => {
-    getAddressForLocation(clickEvent.latLng)
-      .then((address) => {
-        const { formattedAddress, ...addressComponents } = address;
-
-        this.setState({
-          newLocation: {
-            position: { coordinates: [clickEvent.latLng.lng(), clickEvent.latLng.lat()] },
-            address: addressComponents,
-            formattedAddress,
-          },
-          openLocationId: null,
-        });
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error('Failed to get address for new location', err);
-      });
-  };
-
   onToggleMarkerInfo = (toggledLocationId) => {
     this.setState({
       openLocationId: this.state.openLocationId === toggledLocationId ? null : toggledLocationId,
-      newLocation: null,
     });
-  };
-
-  onNewLocationCancel = () => {
-    this.setState({ newLocation: null });
   };
 
   onSearchChanged = (searchString) => {
@@ -136,7 +108,7 @@ export default class MapView extends Component {
     if (currentUrl.endsWith('/')) {
       currentUrl = currentUrl.slice(0, currentUrl.length - 1);
     }
-    this.props.history.push(`${currentUrl}/location/${locationId}/recap`);
+    this.props.history.push(`${currentUrl}/location/${locationId}/services/recap`);
   }
 
   renderLocationMarkers = () => (
@@ -151,13 +123,6 @@ export default class MapView extends Component {
             onEnterLocation={this.editLocation}
           />
       ))}
-      {this.state.newLocation && (
-        <NewLocationMarker
-          key="new"
-          mapLocation={this.state.newLocation}
-          onClose={this.onNewLocationCancel}
-        />
-      )}
     </div>
   );
 

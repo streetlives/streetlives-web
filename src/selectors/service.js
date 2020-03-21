@@ -47,4 +47,21 @@ export const getServiceOpeningHours = (state, props) => (
   }))
 );
 
+export const getIrregularOpeningHours = (state, props) => (
+  (getService(state, props).HolidaySchedules || []).map(({
+    opens_at: opensAt,
+    closes_at: closesAt,
+    weekday,
+    ...otherProps
+  }) => ({
+    ...otherProps,
+    opensAt: parseTimeString(opensAt),
+    closesAt: parseTimeString(closesAt),
+    weekday: DAYS[weekday - 1],
+  }))
+);
+
 export const getServiceAdditionalInfo = (state, props) => getService(state, props).additional_info;
+
+export const getEventRelatedInfo = (state, props) =>
+  getService(state, props).EventRelatedInfos || [];

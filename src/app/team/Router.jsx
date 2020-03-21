@@ -10,11 +10,12 @@ import NewLocation from './newLocation/NewLocation';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';
 import ServiceCategories from './service/categories/ServiceCategories';
-import ServiceDetails from './service/details/ServiceDetails';
+import ServiceDetailsContainer from './service/details/ServiceDetailsContainer';
 import ServiceRecap from './service/recap/ServiceRecap';
 import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
+import CoronavirusServiceRouter from './coronavirus/Router';
 import NotFound from '../notFound/NotFound';
 
 function Router({ match }) {
@@ -54,7 +55,7 @@ function Router({ match }) {
       <Route
         exact
         path={`${match.path}/location/:locationId/services/:serviceId/`}
-        component={withTracker(withAuth(ServiceDetails))}
+        component={withTracker(withAuth(ServiceDetailsContainer))}
       />
       <Route
         exact
@@ -73,8 +74,14 @@ function Router({ match }) {
       />
       <Route
         exact
-        path={`${match.path}/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?`}
+        path={`${
+          match.path
+        }/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?`}
         component={withTracker(withAuth(DocsFormContainer))}
+      />
+      <Route
+        path={`${match.path}/coronavirus`}
+        component={withTracker(withAuth(CoronavirusServiceRouter))}
       />
       <Route path={`${match.path}/*`} component={withTracker(NotFound)} />
     </Switch>

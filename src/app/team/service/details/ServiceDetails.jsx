@@ -1,22 +1,11 @@
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import React from 'react';
 
 import ErrorLabel from '../../../../components/form/ErrorLabel';
-import {
-  selectLocationError,
-  selectLocationData,
-} from '../../../../selectors/location';
-import { getService } from '../../../../selectors/service';
-import * as actions from '../../../../actions';
 import Header from '../../../../components/header';
-import Button from '../../../../components/button';
 import ProgressBar from '../../../../components/progressBar';
 import LoadingLabel from '../../../../components/form/LoadingLabel';
 import NavBar from '../../../../components/navBar';
 import FieldItem from '../../locationInfo/FieldItem';
-
-import { SERVICE_FIELDS } from '../../serviceForm/routes';
 
 function ServiceHeader({ children }) {
   return (
@@ -47,70 +36,43 @@ function ListItem({ route, linkTo, service }) {
   return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
 }
 
-class ServiceDetails extends Component {
-  componentDidMount() {
-    if (Object.keys(this.props.service).length === 0) {
-      const { locationId } = this.props.match.params;
-      this.props.getLocation(locationId);
-    }
+const ServiceDetails = ({
+  service,
+  backButtonTarget,
+  getServiceUrl,
+  locationData,
+  locationError,
+  serviceFields,
+  children,
+}) => {
+  if (locationError) {
+    return <ErrorLabel errorMessage={locationError} />;
   }
 
-  onGoToDocs = () => {
-    this.props.history.push(`${this.getServiceUrl()}/documents`);
-  };
+  if (!locationData ||
+    Object.keys(locationData).length === 0 ||
+    !service ||
+    Object.keys(service).length === 0) {
+    return <LoadingView />;
+  }
 
-  getServiceUrl = () => {
-    const { locationId, serviceId } = this.props.match.params;
-    return `/team/location/${locationId}/services/${serviceId}`;
-  };
+  return (
+    <div className="text-left d-flex flex-column">
+      <NavBar backButtonTarget={backButtonTarget} title="Service Details" />
+      <ProgressBar step={0} steps={serviceFields.length} />
+      <ServiceHeader>Check all the {service.name} details</ServiceHeader>
 
-  render() {
-    const { service, locationData, locationError } = this.props;
-
-    if (locationError) {
-      return <ErrorLabel errorMessage={locationError} />;
-    }
-
-    if (!locationData ||
-      Object.keys(locationData).length === 0 ||
-      !service ||
-      Object.keys(service).length === 0) {
-      return <LoadingView />;
-    }
-
-    return (
-      <div className="text-left d-flex flex-column">
-        <NavBar
-          backButtonTarget={`/team/location/${this.props.match.params.locationId}/services`}
-          title="Service Details"
+      {serviceFields.map(field => (
+        <ListItem
+          key={field.label}
+          route={field}
+          linkTo={`${getServiceUrl()}${field.urlFragment}`}
+          service={service}
         />
-        <ProgressBar step={0} steps={SERVICE_FIELDS.length} />
-        <ServiceHeader>Check all the {service.name} details</ServiceHeader>
+      ))}
+      {children}
+    </div>
+  );
+};
 
-        {SERVICE_FIELDS.map(field => (
-          <ListItem
-            key={field.label}
-            route={field}
-            linkTo={`${this.getServiceUrl()}${field.urlFragment}`}
-            service={service}
-          />
-        ))}
-        <Button fluid primary onClick={this.onGoToDocs}>
-          Go to docs required
-        </Button>
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state, ownProps) => ({
-  service: getService(state, ownProps),
-  locationData: selectLocationData(state, ownProps),
-  locationError: selectLocationError(state, ownProps),
-});
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  getLocation: bindActionCreators(actions.getLocation, dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ServiceDetails);
+export default ServiceDetails;

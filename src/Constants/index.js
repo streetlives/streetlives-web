@@ -29,3 +29,7 @@ export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
   tgncClothing: 'tgncClothing',
   hasHivNutrition: 'hasHivNutrition',
 };
+
+export const OCCASIONS = {
+  COVID19: 'COVID19',
+};
