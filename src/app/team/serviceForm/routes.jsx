@@ -4,8 +4,10 @@ import { Route } from 'react-router-dom';
 import ServiceDescription from './description/ServiceDescription';
 import ServiceWhoDoesItServe from './whoDoesItServe/ServiceWhoDoesItServe';
 import ServiceLanguages from './languages/ServiceLanguages';
-import ServiceOpeningHours from './openingHours/ServiceOpeningHours';
-import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
+// import ServiceOpeningHours from './openingHours/ServiceOpeningHours';
+import CoronavirusOpeningHours from '../coronavirus/OpeningHours';
+// import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
+import CoronavirusOtherInfo from '../coronavirus/OtherInfo';
 
 const baseRoute = '/team/location/:locationId/services/:serviceId';
 
@@ -24,12 +26,19 @@ export const SERVICE_FIELDS = [
     RouteComponent: ServiceWhoDoesItServe,
     fieldName: 'who_does_it_serve',
   },
+  // {
+  //   label: 'Opening hours',
+  //   urlFragment: '/opening-hours',
+  //   metaDataSection: 'service',
+  //   RouteComponent: ServiceOpeningHours,
+  //   fieldName: 'hours',
+  // },
   {
-    label: 'Opening hours',
+    label: 'Opening hours (coronavirus)',
     urlFragment: '/opening-hours',
     metaDataSection: 'service',
-    RouteComponent: ServiceOpeningHours,
-    fieldName: 'hours',
+    RouteComponent: CoronavirusOpeningHours,
+    fieldName: 'irregularHours',
   },
   {
     label: 'Languages spoken',
@@ -38,12 +47,19 @@ export const SERVICE_FIELDS = [
     RouteComponent: ServiceLanguages,
     fieldName: 'languages',
   },
+  // {
+  //   label: 'Other information',
+  //   urlFragment: '/other-info',
+  //   metaDataSection: 'service',
+  //   RouteComponent: ServiceOtherInfo,
+  //   fieldName: 'additional_info',
+  // },
   {
-    label: 'Other information',
+    label: 'Other info (coronavirus)',
     urlFragment: '/other-info',
     metaDataSection: 'service',
-    RouteComponent: ServiceOtherInfo,
-    fieldName: 'additional_info',
+    RouteComponent: CoronavirusOtherInfo,
+    fieldName: 'eventRelatedInfo',
   },
 ];
 

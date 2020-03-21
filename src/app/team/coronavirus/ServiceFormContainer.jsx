@@ -36,8 +36,14 @@ class ServiceFormContainer extends Component {
     return `/team/coronavirus/location/${locationId}/services/${serviceId}`;
   };
 
+  getBackUrl = () => {
+    const { locationId } = this.props.match.params;
+    return `/team/coronavirus/location/${locationId}/services/recap`;
+  };
+
   getCurrentIndex = () => {
     const { fieldName } = this.props.match.params;
+    if (!fieldName) return 0;
     return routes.map(({ urlFragment }) => urlFragment.split('/').pop()).indexOf(fieldName);
   };
 
@@ -51,7 +57,7 @@ class ServiceFormContainer extends Component {
       <ServiceForm
         onNext={this.onNext}
         onBack={this.onBack}
-        serviceUrl={this.getServiceUrl()}
+        backButtonTarget={this.getBackUrl()}
         currentIndex={index}
         currentRoute={currentRoute}
         totalRoutes={routes.length}

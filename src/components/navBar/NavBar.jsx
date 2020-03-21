@@ -39,11 +39,7 @@ function NavBar({ title, history, backButtonTarget }) {
                 top: '.25em',
               }}
               className="default font-weight-light"
-              onClick={() => {
-                const { pathname } = history.location;
-                const mapUrl = pathname.slice(0, pathname.indexOf('/location/'));
-                history.push(mapUrl);
-              }}
+              onClick={() => history.push('/team/coronavirus')}
             >
               <i
                 style={{

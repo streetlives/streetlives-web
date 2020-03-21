@@ -59,9 +59,7 @@ class ServicesRecap extends Component {
   onNext = () => this.props.history.push(`${this.props.location.pathname}/thanks`);
 
   onThanksNext = () => {
-    const { pathname } = this.props.location;
-    const mapViewUrl = pathname.slice(0, pathname.indexOf('/location/'));
-    this.props.history.push(mapViewUrl);
+    this.props.history.push('/team/coronavirus');
   }
 
   onThanksBack = () => {

@@ -24,7 +24,7 @@ export const SERVICE_FIELDS = [
 ];
 
 export default function ServiceRoutes({ onNext }) {
-  return SERVICE_FIELDS.map(({
+  const routes = SERVICE_FIELDS.map(({
     RouteComponent, label, urlFragment, metaDataSection, fieldName,
   }) => (
     <Route
@@ -40,7 +40,30 @@ export default function ServiceRoutes({ onNext }) {
           onInputBlur={() => {}}
           onFieldVerified={onNext}
         />
-        )}
+      )}
     />
   ));
+
+  const defaultField = SERVICE_FIELDS[0];
+  const defaultRoute = (
+    <Route
+      key="defaultRoute"
+      path={baseRoute}
+      exact
+      onFieldVerified={onNext}
+      render={props => (
+        <defaultField.RouteComponent
+          {...props}
+          metaDataSection={defaultField.metaDataSection}
+          fieldName={defaultField.fieldName}
+          onInputFocus={() => {}}
+          onInputBlur={() => {}}
+          onFieldVerified={onNext}
+        />
+      )}
+    />
+  );
+  routes.push(defaultRoute);
+
+  return routes;
 }

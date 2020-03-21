@@ -6,7 +6,6 @@ import withAuth from '../../../components/routing/withAuth';
 
 import MapView from './MapView';
 import ServiceRecap from '../service/recap/ServiceRecap';
-import ServiceDetailsContainer from './ServiceDetailsContainer';
 import ServiceFormContainer from './ServiceFormContainer';
 import NotFound from '../../notFound/NotFound';
 
@@ -24,7 +23,7 @@ function Router({ match }) {
       <Route
         exact
         path={`${match.path}/location/:locationId/services/:serviceId/`}
-        component={withTracker(withAuth(ServiceDetailsContainer))}
+        component={withTracker(withAuth(ServiceFormContainer))}
       />
       <Route
         exact

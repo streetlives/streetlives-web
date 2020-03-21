@@ -43,7 +43,7 @@ class ServiceFormContainer extends Component {
       <ServiceForm
         onNext={this.onNext}
         onBack={this.onBack}
-        serviceUrl={this.getServiceUrl()}
+        backButtonTarget={this.getServiceUrl()}
         currentIndex={index}
         currentRoute={currentRoute}
         totalRoutes={routes.length}

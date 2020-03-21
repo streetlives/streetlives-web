@@ -16,7 +16,7 @@ const thanksContent =
 const ServiceForm = ({
   onNext,
   onBack,
-  serviceUrl,
+  backButtonTarget,
   currentIndex,
   currentRoute,
   totalRoutes,
@@ -33,7 +33,7 @@ const ServiceForm = ({
       <div style={overlayStyles(showThanks)}>
         <ThanksOverlay.GaussianBlur />
         <NavBar
-          backButtonTarget={serviceUrl}
+          backButtonTarget={backButtonTarget}
           title={currentRoute.label}
         />
         <ProgressBar step={currentIndex + 1} steps={totalRoutes} />
