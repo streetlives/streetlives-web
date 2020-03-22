@@ -26,7 +26,7 @@ const FormComponent = compose(withProps({
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
   value: getIrregularOpeningHours(state, ownProps)
-    .filter(({ occasion, closed }) => occasion === OCCASIONS.COVID19 && !closed),
+    .filter(({ occasion, closed }) => occasion === OCCASIONS.COVID19),
   id: getServiceId(ownProps),
   resourceLoadError: selectLocationError(state, ownProps),
 });

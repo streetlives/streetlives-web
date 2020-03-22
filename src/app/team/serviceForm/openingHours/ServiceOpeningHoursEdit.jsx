@@ -11,6 +11,7 @@ import OpeningHoursEditForm from './OpeningHoursEditForm';
 const NOTHING_ACTIVE = -1;
 const IS_247_ACTIVE = 0;
 const IS_NOT_247_ACTIVE = 1;
+const IS_CLOSED = 2;
 const MIDNIGHT = '00:00';
 const ELEVEN_FIFTY_NINE = '23:59';
 
@@ -18,6 +19,10 @@ const inputPlaceholder =
   'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
 
 function getActive(hours) {
+  if (hours.length > 0 && hours.filter(({ closed }) => !closed).length === 0) {
+    return IS_CLOSED;
+  }
+
   const is247 = DAYS.every(weekday => (
     hours &&
       hours.find(hour => (
@@ -60,14 +65,14 @@ class ServiceOpeningHours extends Component {
     this.state = {
       active: getActive(props.value),
       weekdaysOpen: {},
-      hours: props.value,
+      hours: props.value.filter(({ closed }) => !closed),
     };
   }
 
   componentWillReceiveProps(props) {
     if (props.value && props.value !== this.props.value) {
       this.setState({
-        hours: props.value,
+        hours: props.value.filter(({ closed }) => !closed),
         active: getActive(props.value),
       });
     }
@@ -81,6 +86,11 @@ class ServiceOpeningHours extends Component {
         closesAt: ELEVEN_FIFTY_NINE,
         weekday,
       }));
+    }
+    if (active === IS_CLOSED) {
+      newState.hours = [{
+        closed: true,
+      }];
     }
     this.setState(newState);
   }
@@ -157,6 +167,13 @@ class ServiceOpeningHours extends Component {
             <Header className="mb-3">When is this service available?</Header>
         }
         <Selector fluid>
+          <Selector.Option
+            hide={this.props.viewMode && active !== IS_CLOSED}
+            active={active === IS_CLOSED}
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_CLOSED)}
+          >
+            This service is <strong>closed</strong>
+          </Selector.Option>
           <Selector.Option
             hide={this.props.viewMode && active !== IS_247_ACTIVE}
             active={active === IS_247_ACTIVE}
