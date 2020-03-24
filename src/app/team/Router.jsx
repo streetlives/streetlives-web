@@ -5,7 +5,8 @@ import withTracker from '../../components/routing/withTracker';
 import withAuth from '../../components/routing/withAuth';
 
 import MapView from './mapView/MapView';
-import LocationRecap from './recap/Recap';
+// import LocationRecap from './recap/Recap';
+import LocationRecap from './coronavirus/Recap';
 import NewLocation from './newLocation/NewLocation';
 import LocationInfo from './locationInfo/LocationInfo';
 import LocationForm from './locationForm/LocationForm';

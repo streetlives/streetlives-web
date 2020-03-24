@@ -2,11 +2,11 @@ import React from 'react';
 import Button from '../../../components/button';
 import NavBar from '../../../components/navBar';
 
-function Recap({ history, match }) {
+function Recap({ history, match, location }) {
   return (
     <div className="d-flex flex-column">
       <NavBar
-        backButtonTarget="/team/coronavirus"
+        backButtonTarget={location.pathname.slice(0, location.pathname.indexOf('/location'))}
         title="Coronavirus Version"
       />
       <div
@@ -48,7 +48,10 @@ function Recap({ history, match }) {
           fluid
           primary
           onClick={() =>
-            history.push(`/team/coronavirus/location/${match.params.locationId}/isClosed`)}
+            history.push(`${location.pathname.slice(
+              0,
+              location.pathname.indexOf('/recap'),
+            )}/isClosed`)}
         >
           Got it
         </Button>
