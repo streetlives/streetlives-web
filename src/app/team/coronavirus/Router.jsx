@@ -13,6 +13,7 @@ import ServiceFormContainer from './ServiceFormContainer';
 import NotFound from '../../notFound/NotFound';
 
 const WrappedServiceRecap = withTracker(withAuth(ServiceRecap));
+const WrappedIsLocationClosed = withTracker(withAuth(IsLocationClosed));
 
 function Router({ match }) {
   return (
@@ -20,13 +21,18 @@ function Router({ match }) {
       <Route exact path={`${match.path}/`} component={withTracker(withAuth(MapView))} />
       <Route
         exact
-        path={`${match.path}/location/:locationId`}
+        path={`${match.path}/location/:locationId/recap`}
         component={withTracker(withAuth(Recap))}
       />
       <Route
         exact
         path={`${match.path}/location/:locationId/isClosed`}
-        component={withTracker(withAuth(IsLocationClosed))}
+        render={props => (
+          <WrappedIsLocationClosed
+            {...props}
+            nextUrl={`${match.path}/location/${props.match.params.locationId}/services/recap`}
+          />
+        )}
       />
       <Route
         exact

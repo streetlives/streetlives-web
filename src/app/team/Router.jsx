@@ -16,6 +16,8 @@ import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
 import CoronavirusServiceRouter from './coronavirus/Router';
+import IsLocationClosed from './coronavirus/IsLocationClosed';
+import ClosureInfo from './coronavirus/ClosureInfo';
 import NotFound from '../notFound/NotFound';
 
 function Router({ match }) {
@@ -36,6 +38,16 @@ function Router({ match }) {
         exact
         path={`${match.path}/location/:locationId/recap`}
         component={withTracker(withAuth(LocationRecap))}
+      />
+      <Route
+        exact
+        path={`${match.path}/location/:locationId/isClosed`}
+        component={withTracker(withAuth(IsLocationClosed))}
+      />
+      <Route
+        exact
+        path={`${match.path}/location/:locationId/closureInfo/:thanks?`}
+        component={withTracker(withAuth(ClosureInfo))}
       />
       <Route
         exact

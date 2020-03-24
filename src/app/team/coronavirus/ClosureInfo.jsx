@@ -26,14 +26,16 @@ const ClosureInfoView = compose(withProps({
 }))(props => <FormView {...props} />);
 
 const ClosureInfo = (props) => {
-  const showThanks = props.location.pathname.split('/').pop() === 'thanks';
+  const { pathname } = props.location;
+  const showThanks = pathname.split('/').pop() === 'thanks';
+  const backButtonTarget = `${pathname.slice(0, pathname.indexOf('/closureInfo'))}/isClosed`;
 
   return (
     <div className="text-left">
       <div style={overlayStyles(showThanks)}>
         <ThanksOverlay.GaussianBlur />
         <NavBar
-          backButtonTarget={`/team/coronavirus/location/${props.match.params.locationId}/isClosed`}
+          backButtonTarget={backButtonTarget}
           title="Closure info"
         />
         <div

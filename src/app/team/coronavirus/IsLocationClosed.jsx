@@ -18,23 +18,22 @@ class IsLocationClosed extends Component {
     }
   }
 
-  selectOpen = () => {
+  getLocationUrl = () => {
     const { pathname } = this.props.location;
-    const locationUrl = pathname.slice(0, pathname.indexOf('/isClosed'));
-    this.props.history.push(`${locationUrl}/services/recap`);
+    return pathname.slice(0, pathname.indexOf('/isClosed'));
   };
+
+  getBackButtonTarget = () => `${this.getLocationUrl()}/recap`;
+
+  selectOpen = () => this.props.history.push(this.props.nextUrl || this.getLocationUrl());
 
   selectClosed = () => {
     this.props.markClosed(this.props.locationData);
-
-    const { pathname } = this.props.location;
-    const locationUrl = pathname.slice(0, pathname.indexOf('/isClosed'));
-    this.props.history.push(`${locationUrl}/closureInfo`);
+    this.props.history.push(`${this.getLocationUrl()}/closureInfo`);
   };
 
   render() {
     const {
-      match,
       locationData,
       locationError,
     } = this.props;
@@ -50,11 +49,11 @@ class IsLocationClosed extends Component {
     return (
       <div className="text-left">
         <NavBar
-          backButtonTarget={`/team/coronavirus/location/${match.params.locationId}`}
+          backButtonTarget={this.getBackButtonTarget()}
           title="Location info"
         />
         <div className="row p-4 mb-3">
-          Is this location still open during the Coronavirus pandemic?
+          Is this location still open during the Coronavirus outbreak?
         </div>
         <div
           style={{
