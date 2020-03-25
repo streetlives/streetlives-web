@@ -20,20 +20,28 @@ function Icon({
     'fa-3x': size === '3x',
     fa: !custom,
     [`fa-${name}`]: !custom,
+  });
+
+  const containerClassNames = cx({
+    'Icon-container': true,
     circle,
   });
 
-  const props = {
+  const iconProps = {
     onClick,
     style,
     className: classNames,
   };
 
-  if (custom) {
-    return <img {...props} alt={alt} src={`/icons/${name}.svg`} />;
-  }
+  const icon = custom ?
+    <img {...iconProps} alt={alt} src={`/icons/${name}.svg`} /> :
+    <i {...iconProps} alt={alt} />;
 
-  return <i {...props} alt={alt} />;
+  return (
+    <div className={containerClassNames}>
+      {icon}
+    </div>
+  );
 }
 
 Icon.propTypes = {
