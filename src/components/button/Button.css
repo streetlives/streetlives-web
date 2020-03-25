@@ -12,6 +12,10 @@
   text-transform: uppercase;
 }
 
+.Button:focus {
+  outline-color: primaryColor;
+}
+
 .Button-compact {
   min-width: 0;
 }
@@ -60,5 +64,3 @@
 .Button-half {
   width:50%
 }
-
-

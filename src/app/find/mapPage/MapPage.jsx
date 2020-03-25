@@ -338,6 +338,7 @@ export default class MapPage extends Component {
                     >
                       <Icon
                         onClick={centerMap}
+                        custom
                         name="crosshairs"
                         circle
                         size="2x"
