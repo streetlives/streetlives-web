@@ -1,5 +1,9 @@
 @value primaryColor from "../../colors.css";
 
+.Icon-container {
+  display: inline-block;
+}
+
 .Icon-container.circle {
   color: #ffffff;
   box-shadow: 0px 4px 12px rgba(0,0,0,0.55);
