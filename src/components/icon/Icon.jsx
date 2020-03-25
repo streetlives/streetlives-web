@@ -13,7 +13,7 @@ function Icon({
   className,
   style,
 }) {
-  const classNames = cx(className, {
+  const classNames = cx(circle ? {} : className, {
     Icon: true,
     'fa-lg': size === 'lg',
     'fa-2x': size === '2x',
@@ -22,7 +22,7 @@ function Icon({
     [`fa-${name}`]: !custom,
   });
 
-  const containerClassNames = cx({
+  const containerClassNames = cx(circle ? className : {}, {
     'Icon-container': true,
     circle,
   });
@@ -36,6 +36,10 @@ function Icon({
   const icon = custom ?
     <img {...iconProps} alt={alt} src={`/icons/${name}.svg`} /> :
     <i {...iconProps} alt={alt} />;
+
+  if (!circle) {
+    return icon;
+  }
 
   return (
     <div className={containerClassNames}>
