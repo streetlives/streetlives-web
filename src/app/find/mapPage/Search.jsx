@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Speech, { ListeningIndicator } from '../../../components/speech';
+// import Speech, { ListeningIndicator } from '../../../components/speech';
 import Icon from '../../../components/icon';
 import Button from '../../../components/button';
 import { getCategoryIcon } from '../../../services/iconography';
@@ -99,46 +99,49 @@ class Search extends Component {
     </div>
   );
 
-  renderSpeechElements = () => (
-    <Speech
-      onInterimText={this.updateSearchStringFromSpeech}
-      onGotText={this.submitSearchString}
-    >
-      {({
-        isSpeechSupported,
-        isListening,
-        startSpeechToText,
-      }) => isSpeechSupported && (
-        isListening ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 3,
-              backgroundColor: '#F8F8FC',
-            }}
-          >
-            <div style={{ position: 'relative', top: '50%' }}>
-              <ListeningIndicator />
-            </div>
-          </div>
-        ) : (
-          <Icon
-            name="microphone"
-            custom
-            circle
-            size="2x"
-            alt="search through voice"
-            className="voiceToText"
-            onClick={startSpeechToText}
-          />
-        )
-      )}
-    </Speech>
-  );
+  // Since most users find search in its current form (no NLP etc) confusing when using speech,
+  // we're removing that option for now.
+  renderSpeechElements = () => null;
+  // renderSpeechElements = () => (
+  //   <Speech
+  //     onInterimText={this.updateSearchStringFromSpeech}
+  //     onGotText={this.submitSearchString}
+  //   >
+  //     {({
+  //       isSpeechSupported,
+  //       isListening,
+  //       startSpeechToText,
+  //     }) => isSpeechSupported && (
+  //       isListening ? (
+  //         <div
+  //           style={{
+  //             position: 'absolute',
+  //             left: 0,
+  //             top: 0,
+  //             right: 0,
+  //             bottom: 0,
+  //             zIndex: 3,
+  //             backgroundColor: '#F8F8FC',
+  //           }}
+  //         >
+  //           <div style={{ position: 'relative', top: '50%' }}>
+  //             <ListeningIndicator />
+  //           </div>
+  //         </div>
+  //       ) : (
+  //         <Icon
+  //           name="microphone"
+  //           custom
+  //           circle
+  //           size="2x"
+  //           alt="search through voice"
+  //           className="voiceToText"
+  //           onClick={startSpeechToText}
+  //         />
+  //       )
+  //     )}
+  //   </Speech>
+  // );
 
   // TODO: Add the icon to the tab order or whatnot.
   renderSearchBar = () => (
