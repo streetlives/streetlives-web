@@ -8,6 +8,7 @@ import { Form, FormEdit, FormView } from '../../../../components/form';
 const OrganizationDescriptionEdit = compose(withProps({
   headerText: 'How would you describe this organization?',
   placeholderText: 'Enter a description of the organization',
+  multiline: true,
 }))(props => <FormEdit {...props} />);
 
 const OrganizationDescriptionView = compose(withProps({
@@ -18,6 +19,10 @@ const OrganizationDescription = compose(withProps({
   ViewComponent: OrganizationDescriptionView,
   EditComponent: OrganizationDescriptionEdit,
 }))(props => <Form {...props} />);
+
+export const selectValue = locationData => (
+  locationData && locationData.Organization && locationData.Organization.description
+);
 
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
@@ -30,10 +35,6 @@ const mapStateToProps = (state, ownProps) => {
     resourceLoadError: locationError,
   };
 };
-
-export const selectValue = locationData => (
-  locationData && locationData.Organization && locationData.Organization.description
-);
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (newOrganizationDescription, organizationId, metaDataSection, fieldName) =>

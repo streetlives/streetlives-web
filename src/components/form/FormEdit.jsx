@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../header';
 import Button from '../button';
 import Input from '../input';
+import TextArea from '../textarea';
 
 class FormEdit extends Component {
   constructor(props) {
@@ -30,10 +31,11 @@ class FormEdit extends Component {
   }
 
   render() {
+    const InputComponent = this.props.multiline ? TextArea : Input;
     return (
       <div>
         <Header>{this.props.headerText}</Header>
-        <Input
+        <InputComponent
           fluid
           placeholder={this.props.placeholderText}
           defaultValue={this.props.value}

@@ -13,7 +13,8 @@ import { OCCASIONS } from '../../../Constants/';
 const EditComponent = compose(withProps({
   headerText: 'Any other information about operation of this service ' +
     'during the coronavirus outbreak?',
-  placeholderText: 'e.g. 4-5pm open only to ages 65+',
+  placeholderText: 'e.g. Open only to ages 65 and over every day at 4-5pm',
+  multiline: true,
 }))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({
