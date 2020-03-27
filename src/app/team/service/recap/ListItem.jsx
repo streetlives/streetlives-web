@@ -17,7 +17,7 @@ function getProgress(service, originalService) {
   const totalNumberOfFields = SERVICE_FIELDS.length + DOCUMENT_FIELDS.length;
   const fieldsWithUpdatedMetadata = SERVICE_FIELDS.concat(DOCUMENT_FIELDS).filter((route) => {
     const currentMetadata = getMetadataFromService(service, route);
-    const originalMetadata = getMetadataFromService(originalService, route);
+    const originalMetadata = originalService && getMetadataFromService(originalService, route);
     return (currentMetadata && currentMetadata.last_action_date) !==
               (originalMetadata && originalMetadata.last_action_date);
   }).length;
