@@ -5,6 +5,7 @@ import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
 import ErrorBoundary from '../../../components/errorBoundary';
+import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
 
@@ -41,6 +42,17 @@ const renderCategoriesLine = (services) => {
 };
 
 const renderLocation = (location) => {
+  const coronavirusInfo = location.EventRelatedInfos &&
+    location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
+  if (coronavirusInfo && coronavirusInfo.length) {
+    return (
+      <div className="px-3 mb-5">
+        <Header size="medium" className="mb-4">{location.Organization.name}</Header>
+        <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p>
+      </div>
+    );
+  }
+
   const servicesByCategory = groupByCategory(location.Services);
 
   const phones = [];
