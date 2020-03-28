@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import config from '../config';
-import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../Constants';
+import { TAXONOMY_SPECIFIC_ATTRIBUTES, OCCASIONS } from '../Constants';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
@@ -41,6 +41,7 @@ export const getLocations = ({
   }
   if (openNow) {
     params.openAt = (new Date()).toISOString();
+    params.occasion = OCCASIONS.COVID19;
   }
   if (referralRequired != null) {
     params.referralRequired = referralRequired;
