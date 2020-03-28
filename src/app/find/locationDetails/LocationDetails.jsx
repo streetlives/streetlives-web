@@ -9,16 +9,38 @@ import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
 
+const mapServiceToLastUpdate = (service) => {
+  const metadata = service.metadata.service;
+  const dates = metadata && metadata
+    .filter(field => field.last_action_date)
+    .map(field => new Date(field.last_action_date));
+
+  const lastUpdate = new Date((dates && dates.length) ? Math.max.apply(null, dates) : 0);
+  return { ...service, lastUpdate };
+};
+
 const groupByCategory = services => services.reduce((grouped, service) => {
   if (!service.Taxonomies || !service.Taxonomies.length) {
     return grouped;
   }
+
   const [category] = service.Taxonomies;
   const rootCategory = category.parent_name || category.name;
-  const currentCategoryServices = grouped[rootCategory];
+
+  const currentCategory = grouped[rootCategory];
+  const currentCategoryServices = currentCategory && currentCategory.services;
+  const currentLastUpdate = currentCategory && currentCategory.lastUpdate;
+
+  const groupLastUpdate = (currentLastUpdate && currentLastUpdate > service.lastUpdate) ?
+    currentLastUpdate :
+    service.lastUpdate;
+
   return {
     ...grouped,
-    [rootCategory]: currentCategoryServices ? [...currentCategoryServices, service] : [service],
+    [rootCategory]: {
+      services: currentCategoryServices ? [...currentCategoryServices, service] : [service],
+      lastUpdate: groupLastUpdate,
+    },
   };
 }, {});
 
@@ -53,7 +75,8 @@ const renderLocation = (location) => {
     );
   }
 
-  const servicesByCategory = groupByCategory(location.Services);
+  const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
+  const servicesByCategory = groupByCategory(servicesWithLastUpdate);
 
   const phones = [];
   if (location.Organization.Phones) {
@@ -107,14 +130,16 @@ const renderLocation = (location) => {
         )}
 
         <Header size="large" className="locationHeaders">Services Offered:</Header>
-        {Object.keys(servicesByCategory).map(category => (
-          <CategoryCard
-            key={category}
-            className="my-3"
-            category={category}
-            services={servicesByCategory[category]}
-          />
-        ))}
+        {Object.keys(servicesByCategory)
+          .sort((s1, s2) => servicesByCategory[s2].lastUpdate - servicesByCategory[s1].lastUpdate)
+          .map(category => (
+            <CategoryCard
+              key={category}
+              className="my-3"
+              category={category}
+              services={servicesByCategory[category].services}
+            />
+          ))}
       </div>
     </div>
   );

@@ -143,7 +143,9 @@ const CategoryCard = ({ category, services, className }) => (
       />
     </div>
 
-    {services.map((service, i) => renderService(service, i === services.length - 1))}
+    {services
+      .sort((service1, service2) => service2.lastUpdate - service1.lastUpdate)
+      .map((service, i) => renderService(service, i === services.length - 1))}
   </div>
 );
 
