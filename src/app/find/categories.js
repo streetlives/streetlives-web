@@ -2,12 +2,14 @@ export const categories = {
   food: 'food',
   clothing: 'clothing',
   personalCare: 'personal care',
+  shelter: 'shelter',
 };
 
 export const selectableCategoryNames = [
   categories.food,
   categories.clothing,
   categories.personalCare,
+  categories.shelter,
 ];
 
 export const selectableSubcategoryNames = {
