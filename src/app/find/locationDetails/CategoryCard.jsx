@@ -54,6 +54,9 @@ const renderSchedule = (schedule) => {
 };
 
 const renderService = (service, isLastItem) => {
+  const coronavirusInfo = service.EventRelatedInfos &&
+    service.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
+
   const schedule = service.HolidaySchedules &&
     service.HolidaySchedules.filter(({ occasion, closed }) => occasion === OCCASIONS.COVID19);
   const isScheduleKnown = schedule && schedule.length;
@@ -91,6 +94,12 @@ const renderService = (service, isLastItem) => {
       <div size="medium" className="specificServiceHeaders">
         {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
       </div>
+
+      {!!(coronavirusInfo && coronavirusInfo.length) && (
+        <InfoItem coronavirus icon="exclamation-triangle">
+          {coronavirusInfo[0].information}
+        </InfoItem>
+      )}
 
       {!!service.description && (
         <div className="serviceDescription">
