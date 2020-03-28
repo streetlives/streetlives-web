@@ -40,13 +40,14 @@
   line-height: 1.33rem;
   margin: 0 !important;
   padding-top: 1.2vh;
+  padding-bottom: 2vh;
   width: 100%;
   font-weight: bold;
 }
 
 .categoryCard .serviceDescription {
   line-height: 160%;
-  padding: 2vh 0;
+  padding-bottom: 2vh;
   font-size: 0.85rem;
 }
 
