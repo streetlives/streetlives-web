@@ -25,7 +25,10 @@ class IsLocationClosed extends Component {
 
   getBackButtonTarget = () => `${this.getLocationUrl()}/recap`;
 
-  selectOpen = () => this.props.history.push(this.props.nextUrl || this.getLocationUrl());
+  selectOpen = () => {
+    this.props.markOpen(this.props.locationData);
+    this.props.history.push(this.props.nextUrl || this.getLocationUrl());
+  };
 
   selectClosed = () => {
     this.props.markClosed(this.props.locationData);
@@ -92,6 +95,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
       metaDataSection: 'service',
       fieldName: 'irregularHours',
     }))),
+  markOpen: location => dispatch(actions.updateLocation(
+    location.id,
+    { eventRelatedInfo: { information: null, event: OCCASIONS.COVID19 } },
+    'location',
+    'eventRelatedInfo',
+  )),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(IsLocationClosed));
