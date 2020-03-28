@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { DAYS } from '../../../Constants';
+import { DAYS, OCCASIONS } from '../../../Constants';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
@@ -53,6 +53,71 @@ const renderSchedule = (schedule) => {
   return `Open ${groupStrings.join(', ')}`;
 };
 
+const renderService = (service, isLastItem) => {
+  const schedule = service.HolidaySchedules &&
+    service.HolidaySchedules.filter(({ occasion, closed }) => occasion === OCCASIONS.COVID19);
+  const isScheduleKnown = schedule && schedule.length;
+
+  let openDays;
+  if (isScheduleKnown) {
+    openDays = schedule.filter(({ closed }) => !closed);
+
+    if (!openDays.length) {
+      return (
+        <div
+          key={service.id}
+          style={{
+            borderBottom: isLastItem ? '0' : '1px solid #DADADA',
+            paddingBottom: '1.3vh',
+          }}
+        >
+          <div size="medium" className="specificServiceHeaders">
+            {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
+            <span className="coronavirusInfo"> (temporarily closed)</span>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div
+      key={service.id}
+      style={{
+        borderBottom: isLastItem ? '0' : '1px solid #DADADA',
+        paddingBottom: '1.3vh',
+      }}
+    >
+      <div size="medium" className="specificServiceHeaders">
+        {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
+      </div>
+
+      {!!service.description && (
+        <div className="serviceDescription">
+          {service.description}
+        </div>
+      )}
+
+      <ServiceRestrictions
+        eligibilities={service.Eligibilities}
+        requiredDocuments={service.RequiredDocuments}
+      />
+
+      {openDays && (
+        <InfoItem coronavirus icon="clock">{renderSchedule(openDays)}</InfoItem>
+      )}
+
+      {service.Phones && service.Phones.map(phone => (
+        <InfoItem key={phone.id} icon="phone">
+          <PhoneLink {...phone} className="locationLinks" />
+        </InfoItem>
+      ))}
+
+      <ServiceOfferings attributes={service.ServiceTaxonomySpecificAttributes} />
+    </div>
+  );
+};
+
 const CategoryCard = ({ category, services, className }) => (
   <div
     className="categoryCard"
@@ -69,39 +134,7 @@ const CategoryCard = ({ category, services, className }) => (
       />
     </div>
 
-    {services.map((service, i) => (
-      <div
-        key={service.id}
-        style={{ borderBottom: i === services.length - 1 ? '0' : '1px solid #DADADA', paddingBottom:'1.3vh' }}
-      >
-        <div size="medium" className="specificServiceHeaders">
-          {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
-        </div>
-
-        {!!service.description && (
-          <div className="serviceDescription">
-            {service.description}
-          </div>
-        )}
-
-        <ServiceRestrictions
-          eligibilities={service.Eligibilities}
-          requiredDocuments={service.RequiredDocuments}
-        />
-
-        {service.RegularSchedules && service.RegularSchedules.length > 0 && (
-          <InfoItem icon="clock">{renderSchedule(service.RegularSchedules)}</InfoItem>
-        )}
-
-        {service.Phones && service.Phones.map(phone => (
-          <InfoItem key={phone.id} icon="phone">
-            <PhoneLink {...phone} className="locationLinks" />
-          </InfoItem>
-        ))}
-
-        <ServiceOfferings attributes={service.ServiceTaxonomySpecificAttributes} />
-      </div>
-    ))}
+    {services.map((service, i) => renderService(service, i === services.length - 1))}
   </div>
 );
 
