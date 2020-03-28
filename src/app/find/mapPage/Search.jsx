@@ -140,7 +140,6 @@ class Search extends Component {
     </Speech>
   );
 
-  // TODO: Add the icon to the tab order or whatnot.
   renderSearchBar = () => (
     <div
       className="p-2"
@@ -165,8 +164,8 @@ class Search extends Component {
           onChange={this.updateSearchString}
           onFocus={this.enterSearchMode}
           style={{
- border: 'none', borderRadius: 0, boxShadow: 'none', minHeight: '50px',
-}}
+           border: 'none', borderRadius: 0, boxShadow: 'none', minHeight: '50px',
+          }}
           type="text"
           className="form-control"
           placeholder="Find what you need"
