@@ -16,5 +16,5 @@
 .Accordion .Item-active {
   background: darkerGray;
   border-bottom: 1px solid darkerGray;
-  color: primaryColor;
+  color: white;
 }
