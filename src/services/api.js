@@ -30,6 +30,8 @@ export const getLocations = ({
     radius,
   };
 
+  params.occasion = OCCASIONS.COVID19;
+
   if (searchString) {
     params.searchString = searchString;
   }
@@ -41,7 +43,6 @@ export const getLocations = ({
   }
   if (openNow) {
     params.openAt = (new Date()).toISOString();
-    params.occasion = OCCASIONS.COVID19;
   }
   if (referralRequired != null) {
     params.referralRequired = referralRequired;
