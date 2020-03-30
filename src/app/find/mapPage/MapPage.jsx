@@ -7,6 +7,7 @@ import Map from '../../../components/map';
 import Button from '../../../components/button';
 import Icon from '../../../components/icon';
 import LocationMarker from '../../../components/map/LocationMarker';
+import { OCCASIONS } from '../../../Constants';
 import FiltersModal from './filters/FiltersModal';
 import Search from './Search';
 import './mapPage.css';
@@ -162,6 +163,7 @@ export default class MapPage extends Component {
       radius: Math.floor(radius),
       minResults,
       searchString,
+      occasion: OCCASIONS.COVID19,
       serviceFilters: {
         ...eligibilityParams,
         ...filtersObject,

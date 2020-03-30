@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import config from '../config';
-import { TAXONOMY_SPECIFIC_ATTRIBUTES, OCCASIONS } from '../Constants';
+import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../Constants';
 import { getAuthToken } from './auth';
 
 export const getLocations = ({
@@ -10,6 +10,7 @@ export const getLocations = ({
   radius,
   minResults,
   searchString,
+  occasion,
   serviceFilters: {
     taxonomyIds,
     openNow,
@@ -30,8 +31,9 @@ export const getLocations = ({
     radius,
   };
 
-  params.occasion = OCCASIONS.COVID19;
-
+  if (occasion) {
+    params.occasion = occasion;
+  }
   if (searchString) {
     params.searchString = searchString;
   }
