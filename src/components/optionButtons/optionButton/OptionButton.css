@@ -17,7 +17,7 @@
 .OptionButton.OptionButton-active {
   background: darkerGray;
   border: 1px solid darkerGray;
-  color: primaryColor;
+  color: white;
   font-weight: 300;
 }
 

@@ -3,7 +3,7 @@
 .SectionHeader {
   border: none;
   background: darkerGray;
-  color: primaryColor;
+  color: white;
   border-bottom: 1px solid borderGray;
   box-sizing: border-box;
   padding: 10px;

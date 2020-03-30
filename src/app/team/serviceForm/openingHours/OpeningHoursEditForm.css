@@ -1,7 +1,7 @@
 .OpeningHoursEditForm {
-  background-color:#f0f0f0; 
-  margin-bottom:1.5em; 
-  margin-top:1.5em; 
+  background-color:#f0f0f0;
+  margin-bottom:1.5em;
+  margin-top:1.5em;
   border: 1px solid #ccc;
   position: relative;
 }
@@ -16,7 +16,7 @@
 }
 
 .OpeningHoursEditForm > button > i {
-  color: primaryColor;
+  color: white;
   background-color: black;
   padding: .5em;
   border-radius: 1em;
