@@ -19,6 +19,7 @@ const thanksContent =
 const ClosureInfoEdit = compose(withProps({
   headerText: 'Update about the closure?',
   placeholderText: 'e.g. Current clients should contact their case managers for more information',
+  multiline: true,
 }))(props => <FormEdit {...props} />);
 
 const ClosureInfoView = compose(withProps({
@@ -28,7 +29,10 @@ const ClosureInfoView = compose(withProps({
 const ClosureInfo = (props) => {
   const { pathname } = props.location;
   const showThanks = pathname.split('/').pop() === 'thanks';
+
   const backButtonTarget = `${pathname.slice(0, pathname.indexOf('/closureInfo'))}/isClosed`;
+  const backToEditTarget = pathname.slice(0, pathname.indexOf('/thanks'));
+  const backToMapTarget = pathname.slice(0, pathname.indexOf('/location'));
 
   return (
     <div className="text-left">
@@ -60,12 +64,8 @@ const ClosureInfo = (props) => {
           content={thanksContent}
           nextLabel="BACK TO THE MAP"
           backLabel="BACK TO EDIT"
-          onNextSection={() => props.history.push('/team/coronavirus')}
-          onBackSection={() => {
-            const { pathname } = props.location;
-            const serviceRecapUrl = pathname.slice(0, pathname.indexOf('/thanks'));
-            props.history.push(serviceRecapUrl);
-          }}
+          onNextSection={() => props.history.push(backToMapTarget)}
+          onBackSection={() => props.history.push(backToEditTarget)}
         />
       )}
     </div>
