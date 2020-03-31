@@ -6,7 +6,7 @@ import { updateOrganization, getLocation } from '../../../../actions';
 import { Form, FormEdit, FormView } from '../../../../components/form';
 
 const OrganizationNameEdit = compose(withProps({
-  headerText: "What's this organizations's name?",
+  headerText: "What's this organization's name?",
   placeholderText: 'Enter the name of the organization',
 }))(props => <FormEdit {...props} />);
 
