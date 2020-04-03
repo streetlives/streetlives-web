@@ -14,17 +14,17 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
             Forgotten password?<br />No worries.
           </h3>
           <p>
-            Enter the phone number you used to sign up to the Streetlives street team tool. We’ll
+            Enter your username for the Streetlives street team tool. We’ll
             send an SMS with a reactivation code to the phone number you used to sign up.
           </p>
         </Col>
       </Row>,
       <Row key={2}>
         <Col>
-          <label className="w-100" htmlFor="phone">Phone Number</label>
+          <label className="w-100" htmlFor="username">Username</label>
           <Input
             fluid
-            placeholder="Enter your phone number"
+            placeholder="Enter your username"
             id="username"
             key="username"
             name="username"
@@ -111,7 +111,7 @@ export default class StreetlivesForgotPassword extends ForgotPassword {
               className="default"
               onClick={() => this.changeState('signIn')}
             >
-                Back to Sign In
+              Back to Sign In
             </button>
           </Col>
         </Row>
