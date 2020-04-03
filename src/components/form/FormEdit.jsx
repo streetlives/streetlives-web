@@ -42,6 +42,7 @@ class FormEdit extends Component {
           onFocus={this.props.onInputFocus}
           onBlur={this.props.onInputBlur}
           onChange={this.onChange}
+          minRows={5}
         />
         <Button onClick={this.onSubmit} primary className="mt-3">
           OK
