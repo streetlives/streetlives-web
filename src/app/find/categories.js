@@ -12,6 +12,7 @@ export const selectableCategoryNames = [
 
 export const selectableSubcategoryNames = {
   [categories.food]: ['soup kitchen', 'food pantry'],
+  [categories.personalCare]: ['shower', 'toiletries', 'restrooms'],
 };
 
 export default {
