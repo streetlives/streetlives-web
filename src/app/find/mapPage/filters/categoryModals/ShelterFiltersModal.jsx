@@ -16,7 +16,7 @@ const ShelterFiltersModal = ({
   const subcategoryOptions = [
     { label: 'Any', value: null },
     ...subcategories.map(({ name, id }) =>
-      ({ label: name, value: id, description: `have a ${name.toLowerCase()}` })),
+      ({ label: name, value: id, description: `are for ${name.toLowerCase()}` })),
   ];
 
   return (
