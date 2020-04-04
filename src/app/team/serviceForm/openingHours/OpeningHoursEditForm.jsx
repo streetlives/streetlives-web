@@ -28,7 +28,7 @@ export default class OpeningHoursEditForm extends Component {
             <tbody>
               <tr>
                 <td style={{ paddingRight: '1em' }}>From:</td>
-                <td>
+                <td style={(hour && hour.opensAt) ? {} : { border: '1px solid red' }}>
                   <Input
                     value={(hour && hour.opensAt) || '00:00'}
                     type="time"
@@ -39,7 +39,7 @@ export default class OpeningHoursEditForm extends Component {
               </tr>
               <tr>
                 <td>To:</td>
-                <td>
+                <td style={(hour && hour.closesAt) ? {} : { border: '1px solid red' }}>
                   <Input
                     value={(hour && hour.closesAt) || '23:00'}
                     type="time"
@@ -47,6 +47,9 @@ export default class OpeningHoursEditForm extends Component {
                     onChange={e => onToChange('closesAt', hour, e.target.value)}
                   />
                 </td>
+                {!!(hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt) && (
+                  <td style={{ color: 'red', paddingLeft: '1em' }}>+1 day</td>
+                )}
               </tr>
             </tbody>
           </table>

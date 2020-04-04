@@ -41,6 +41,10 @@ function getActive(hours) {
   return NOTHING_ACTIVE;
 }
 
+function checkAllHoursValid(hours) {
+  return hours.every(hour => hour.opensAt != null && hour.closesAt != null);
+}
+
 function formatTime(time) {
   const m = moment(time, 'hh:mm');
   if (!m.isValid()) {
@@ -54,6 +58,30 @@ function formatHours(hours) {
   const s1 = formatTime(hours.opensAt);
   const s2 = formatTime(hours.closesAt);
   return s1 && s2 ? `${s1} to ${s2}` : '';
+}
+
+function splitOvernightHours(hours) {
+  const getNextWeekday = weekday => DAYS[(DAYS.indexOf(weekday) + 1) % DAYS.length];
+
+  return hours.reduce((splitHours, hour) => {
+    const isOvernight = hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt;
+    if (!isOvernight) {
+      return [...splitHours, hour];
+    }
+
+    const beforeMidnight = {
+      weekday: hour.weekday,
+      opensAt: hour.opensAt,
+      closesAt: ELEVEN_FIFTY_NINE,
+    };
+    const afterMidnight = {
+      weekday: getNextWeekday(hour.weekday),
+      opensAt: MIDNIGHT,
+      closesAt: hour.closesAt,
+    };
+
+    return [...splitHours, beforeMidnight, afterMidnight];
+  }, []);
 }
 
 class ServiceOpeningHours extends Component {
@@ -123,7 +151,7 @@ class ServiceOpeningHours extends Component {
   }
 
   updateValue = e => this.props.updateValue(
-    this.state.hours,
+    splitOvernightHours(this.state.hours),
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,
@@ -159,7 +187,9 @@ class ServiceOpeningHours extends Component {
   }
 
   render() {
-    const { active, weekdaysOpen } = this.state;
+    const { active, weekdaysOpen, hours } = this.state;
+    const allHoursValid = checkAllHoursValid(hours);
+
     return (
       <div className="w-100">
         {
@@ -196,7 +226,7 @@ class ServiceOpeningHours extends Component {
           </div>
         )}
         {active === IS_NOT_247_ACTIVE && (
-          <div>
+          <div className="mb-3">
             {
               !this.props.viewMode &&
                 <p> Select the days and times this service is available </p>
@@ -204,31 +234,36 @@ class ServiceOpeningHours extends Component {
             <Selector fluid>
               {
                 DAYS.map((day, i) => {
-                  const hours = this.state.hours.filter(time => time.weekday === day);
+                  const dayHours = hours.filter(time => time.weekday === day);
                   return [
                     <Selector.Option
                       key={`selector-${day}`}
                       disablePadding={weekdaysOpen[i]}
-                      active={!!hours.length}
-                      hide={this.props.viewMode && !hours.length}
+                      active={!!dayHours.length}
+                      hide={this.props.viewMode && !dayHours.length}
                       onClick={this.props.viewMode ? undefined : () => this.onWeekday(i)}
                     >
                       <div>{day}</div>
+                      {dayHours.some(hour => !hour.opensAt || !hour.closesAt) && (
+                        <div style={{ fontSize: '.8em' }}>
+                          Please enter From & To hours
+                        </div>
+                      )}
                       <div style={{ fontSize: '.8em' }}>
                         {
-                          hours
+                          dayHours
                             .sort((a, b) => a.opensAt < b.openAt)
                             .map(formatHours)
                             .join(' | ')
                         }
                       </div>
                     </Selector.Option>,
-                  ].concat(hours && hours.length ?
+                  ].concat(dayHours && dayHours.length ?
                     <OpeningHoursEditForm
                       startTabIndex={i}
                       key={`editForm-${day}`}
                       active={weekdaysOpen[i]}
-                      hours={hours}
+                      hours={dayHours}
                       onFromChange={this.onChange}
                       onToChange={this.onChange}
                       removeHour={this.removeHour}
@@ -241,15 +276,25 @@ class ServiceOpeningHours extends Component {
           </div>
         )}
         {
-          !this.props.viewMode &&
+          !this.props.viewMode && (
             <div>
-              <Button onClick={this.updateValue} primary disabled={active === -1} className="mt-3">
+              {!allHoursValid && (
+                <div style={{ color: '#A02733', fontSize: '0.8em' }}>
+                  Missing hours for some selected days
+                </div>
+              )}
+              <Button
+                onClick={this.updateValue}
+                primary
+                disabled={active === -1 || !allHoursValid}
+              >
                 OK
               </Button>&nbsp;
-              <Button onClick={this.props.onCancel} basic primary className="mt-3">
+              <Button onClick={this.props.onCancel} basic primary>
                 CANCEL
               </Button>
             </div>
+          )
         }
       </div>
     );
