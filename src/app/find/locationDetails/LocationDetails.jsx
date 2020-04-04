@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import Modal from '../../../components/modal';
 import Header from '../../../components/header';
 import Icon from '../../../components/icon';
@@ -9,14 +10,28 @@ import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
 
-const mapServiceToLastUpdate = (service) => {
-  const metadata = service.metadata.service;
+const getLatestActionDate = (metadata) => {
   const dates = metadata && metadata
     .filter(field => field.last_action_date)
     .map(field => new Date(field.last_action_date));
+  return new Date((dates && dates.length) ? Math.max(...dates) : 0);
+};
 
-  const lastUpdate = new Date((dates && dates.length) ? Math.max.apply(null, dates) : 0);
-  return { ...service, lastUpdate };
+const mapServiceToLastUpdate = (service) => {
+  const metadata = service.metadata.service;
+  return { ...service, lastUpdate: getLatestActionDate(metadata) };
+};
+
+const getLocationLastUpdate = (location, servicesWithLastUpdate) => {
+  const lastLocationUpdate = getLatestActionDate(location.metadata.location);
+  const serviceUpdates = servicesWithLastUpdate.map(({ lastUpdate }) => lastUpdate);
+
+  const latestUpdate = new Date(Math.max(lastLocationUpdate, ...serviceUpdates));
+  if (!latestUpdate.getTime()) {
+    return null;
+  }
+
+  return latestUpdate;
 };
 
 const groupByCategory = services => services.reduce((grouped, service) => {
@@ -71,6 +86,8 @@ const renderLocation = (location) => {
   const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
   const servicesByCategory = groupByCategory(servicesWithLastUpdate);
 
+  const locationLastUpdate = getLocationLastUpdate(location, servicesWithLastUpdate);
+
   const phones = [];
   if (location.Organization.Phones) {
     phones.push(...location.Organization.Phones);
@@ -85,12 +102,22 @@ const renderLocation = (location) => {
 
   return (
     <div className="px-3 mb-5">
-      <Header size="medium" className="mb-4 locationTitle">{location.Organization.name}</Header>
+      <Header size="medium" className="locationTitle">{location.Organization.name}</Header>
       {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
         <div className="text-left">
+          {locationLastUpdate && (
+            <div className="lastUpdateLine coronavirusInfo">
+              <Icon custom name="coronavirus" className="lastUpdateIcon" />
+              <div className="updateText">
+                Information during coronavirus pandemic was
+                <span className="updateTime"> updated {moment(locationLastUpdate).fromNow()}.</span>
+              </div>
+            </div>
+          )}
+
           {renderCategoriesLine(location.Services)}
 
-          <Header size="large" className="locationHeaders" >Address</Header>
+          <Header size="large" className="locationHeaders">Address</Header>
           {renderAddress(location.address)}
 
           {location.Organization.url && (

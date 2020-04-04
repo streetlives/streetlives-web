@@ -61,7 +61,8 @@
   font-size: 0.8rem !important;
   text-align: center;
   font-weight: bold;
-  color:#4c4b4b;
+  color: #4c4b4b;
+  margin-top: 1.3rem;
 }
 
 .accessibilityText {
@@ -98,4 +99,28 @@
 .coronavirusInfo {
   color: #A02733;
   font-weight: bold;
+}
+
+.lastUpdateLine {
+  font-size: 0.8rem;
+  margin-top: 0.7rem;
+}
+
+.lastUpdateLine .updateText {
+  margin-left: 1.7rem;
+  margin-right: 1.7rem;
+}
+
+.lastUpdateLine.coronavirusInfo {
+  font-weight: normal;
+}
+
+.lastUpdateLine.coronavirusInfo .updateTime {
+  font-weight: bold;
+}
+
+.lastUpdateLine .lastUpdateIcon {
+  float: left;
+  width: 1.2rem;
+  height: 1.2rem;
 }
