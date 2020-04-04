@@ -1,5 +1,11 @@
 @value primaryColor from "../../../colors.css";
 
+.locationTitle {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .locationHeaders {
   font-size: 0.95rem !important;
   line-height: 1.33rem;

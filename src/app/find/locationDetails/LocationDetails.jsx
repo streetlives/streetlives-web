@@ -66,14 +66,7 @@ const renderCategoriesLine = (services) => {
 const renderLocation = (location) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
-  if (coronavirusInfo && coronavirusInfo.length) {
-    return (
-      <div className="px-3 mb-5">
-        <Header size="medium" className="mb-4">{location.Organization.name}</Header>
-        <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p>
-      </div>
-    );
-  }
+  const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
 
   const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
   const servicesByCategory = groupByCategory(servicesWithLastUpdate);
@@ -92,55 +85,56 @@ const renderLocation = (location) => {
 
   return (
     <div className="px-3 mb-5">
-      <Header size="medium" className="mb-4">{location.Organization.name}</Header>
+      <Header size="medium" className="mb-4 locationTitle">{location.Organization.name}</Header>
+      {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
+        <div className="text-left">
+          {renderCategoriesLine(location.Services)}
 
-      <div className="text-left">
-        {renderCategoriesLine(location.Services)}
+          <Header size="large" className="locationHeaders" >Address</Header>
+          {renderAddress(location.address)}
 
-        <Header size="large" className="locationHeaders" >Address</Header>
-        {renderAddress(location.address)}
+          {location.Organization.url && (
+            <div>
+              <Header size="large" className="locationHeaders">Website</Header>
+              <WebsiteLink url={location.Organization.url} className="locationLinks" />
+            </div>
+          )}
 
-        {location.Organization.url && (
-          <div>
-            <Header size="large" className="locationHeaders">Website</Header>
-            <WebsiteLink url={location.Organization.url} className="locationLinks" />
-          </div>
-        )}
+          {phones.length > 0 && (
+            <div>
+              <Header size="large" className="locationHeaders">Phone Number</Header>
+              {phones.map(phone => (
+                <div key={phone.id}>
+                  <PhoneLink {...phone} className="locationLinks" />
+                </div>
+              ))}
+            </div>
+          )}
 
-        {phones.length > 0 && (
-          <div>
-            <Header size="large" className="locationHeaders">Phone Number</Header>
-            {phones.map(phone => (
-              <div key={phone.id}>
-                <PhoneLink {...phone} className="locationLinks" />
-              </div>
+          {location.AccessibilityForDisabilities.length > 0 && (
+            <div>
+              <Header size="large" className="locationHeaders">Accessibility</Header>
+              {location.AccessibilityForDisabilities.map(accessibility => (
+                <p className="accessibilityText" key={accessibility.id}>
+                  {accessibility.details || accessibility.accessibility}
+                </p>
+              ))}
+            </div>
+          )}
+
+          <Header size="large" className="locationHeaders">Services Offered:</Header>
+          {Object.keys(servicesByCategory)
+            .sort((s1, s2) => servicesByCategory[s2].lastUpdate - servicesByCategory[s1].lastUpdate)
+            .map(category => (
+              <CategoryCard
+                key={category}
+                className="my-3"
+                category={category}
+                services={servicesByCategory[category].services}
+              />
             ))}
-          </div>
-        )}
-
-        {location.AccessibilityForDisabilities.length > 0 && (
-          <div>
-            <Header size="large" className="locationHeaders">Accessibility</Header>
-            {location.AccessibilityForDisabilities.map(accessibility => (
-              <p className="accessibilityText" key={accessibility.id}>
-                {accessibility.details || accessibility.accessibility}
-              </p>
-            ))}
-          </div>
-        )}
-
-        <Header size="large" className="locationHeaders">Services Offered:</Header>
-        {Object.keys(servicesByCategory)
-          .sort((s1, s2) => servicesByCategory[s2].lastUpdate - servicesByCategory[s1].lastUpdate)
-          .map(category => (
-            <CategoryCard
-              key={category}
-              className="my-3"
-              category={category}
-              services={servicesByCategory[category].services}
-            />
-          ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
