@@ -15,6 +15,7 @@ export const selectableCategoryNames = [
 export const selectableSubcategoryNames = {
   [categories.food]: ['soup kitchen', 'food pantry'],
   [categories.shelter]: ['single adult', 'families'],
+  [categories.personalCare]: ['shower', 'toiletries', 'restrooms'],
 };
 
 export default {
