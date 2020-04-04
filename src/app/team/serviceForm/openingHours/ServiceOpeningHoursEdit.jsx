@@ -51,6 +51,30 @@ function formatHours(hours) {
   return s1 && s2 ? `${s1} to ${s2}` : '';
 }
 
+function splitOvernightHours(hours) {
+  const getNextWeekday = weekday => DAYS[(DAYS.indexOf(weekday) + 1) % DAYS.length];
+
+  return hours.reduce((splitHours, hour) => {
+    const isOvernight = hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt;
+    if (!isOvernight) {
+      return [...splitHours, hour];
+    }
+
+    const beforeMidnight = {
+      weekday: hour.weekday,
+      opensAt: hour.opensAt,
+      closesAt: ELEVEN_FIFTY_NINE,
+    };
+    const afterMidnight = {
+      weekday: getNextWeekday(hour.weekday),
+      opensAt: MIDNIGHT,
+      closesAt: hour.closesAt,
+    };
+
+    return [...splitHours, beforeMidnight, afterMidnight];
+  }, []);
+}
+
 class ServiceOpeningHours extends Component {
   constructor(props) {
     super(props);
@@ -113,7 +137,7 @@ class ServiceOpeningHours extends Component {
   }
 
   updateValue = e => this.props.updateValue(
-    this.state.hours,
+    splitOvernightHours(this.state.hours),
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,

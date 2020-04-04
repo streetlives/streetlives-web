@@ -47,6 +47,9 @@ export default class OpeningHoursEditForm extends Component {
                     onChange={e => onToChange('closesAt', hour, e.target.value)}
                   />
                 </td>
+                {!!(hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt) && (
+                  <td style={{ color: 'red', paddingLeft: '1em' }}>+1 day</td>
+                )}
               </tr>
             </tbody>
           </table>
