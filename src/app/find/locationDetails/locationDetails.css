@@ -1,5 +1,11 @@
 @value primaryColor from "../../../colors.css";
 
+.locationTitle {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .locationHeaders{
 	font-size: 0.95rem !important;
     line-height: 1.33rem;
@@ -15,7 +21,7 @@
 	padding: 4vw 4vw 4vw 4vw;
 	box-shadow: 0vw 2vw 2vw rgba(0,0,0,0.15) !important;
 	margin-bottom: 4vh;
-	margin-top: 2vh; 
+	margin-top: 2vh;
 
 }
 
@@ -83,7 +89,7 @@
 
 .locationLinks{
 	color: primaryColor;
-	border-bottom: 1px solid primaryColor; 
+	border-bottom: 1px solid primaryColor;
 	font-size: 0.85rem;
 	cursor: pointer;
 	padding: 2vh 0 0 0;

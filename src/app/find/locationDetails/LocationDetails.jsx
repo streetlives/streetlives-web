@@ -57,7 +57,7 @@ const renderLocation = (location) => {
 
   return (
     <div className="px-3 mb-5">
-      <Header size="medium" className="mb-4">{location.Organization.name}</Header>
+      <Header size="medium" className="mb-4 locationTitle">{location.Organization.name}</Header>
 
       <div className="text-left">
         {renderCategoriesLine(location.Services)}
