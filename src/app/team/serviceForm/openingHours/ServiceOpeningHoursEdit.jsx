@@ -42,7 +42,7 @@ function getActive(hours) {
 }
 
 function checkAllHoursValid(hours) {
-  return hours.every(hour => hour.opensAt != null && hour.closesAt != null);
+  return hours.every(hour => hour.closed || (hour.opensAt != null && hour.closesAt != null));
 }
 
 function formatTime(time) {
