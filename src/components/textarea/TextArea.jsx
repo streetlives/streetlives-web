@@ -12,6 +12,7 @@ function TextArea({
   onChange,
   autoFocus,
   value,
+  defaultValue,
   className,
 }) {
   const classNames = cx('TextArea', className, {
@@ -27,6 +28,7 @@ function TextArea({
       maxRows={maxRows}
       autoFocus={autoFocus}
       value={value}
+      defaultValue={defaultValue}
       onChange={onChange}
     />
   );
