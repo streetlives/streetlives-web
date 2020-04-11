@@ -63,7 +63,7 @@ class ServiceLanguages extends Component {
       this.props.metaDataSection,
       this.props.fieldName,
     );
-    this.props.onSubmit();
+    this.props.onSubmit(newValues);
   };
 
   render() {
