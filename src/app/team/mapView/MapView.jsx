@@ -220,7 +220,7 @@ export default class MapView extends Component {
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
               className="form-control"
-              placeholder="Type the address, or drop a pin"
+              placeholder="Type the organization name or drop a pin"
               required
             />
           </div>
