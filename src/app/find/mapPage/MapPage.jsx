@@ -125,7 +125,7 @@ export default class MapPage extends Component {
   });
 
   fetchLocations = (minResults) => {
-    const { categories, category, eligibilityParams } = this.props;
+    const { category, eligibilityParams } = this.props;
     const {
       center,
       radius,
@@ -136,18 +136,16 @@ export default class MapPage extends Component {
       advancedFilters,
     } = filters;
 
-    if (!center || !categories) {
-      // Can't fetch until we know which area and categories are relevant.
+    if (!center) {
+      // Can't fetch until we know which area is relevant.
       return Promise.resolve();
     }
 
-    let includedCategories;
+    let includedCategories = null;
     if (advancedFilters.subcategoryId) {
       includedCategories = [advancedFilters.subcategoryId.value];
     } else if (category) {
       includedCategories = [category.id];
-    } else {
-      includedCategories = categories.map(({ id }) => id);
     }
 
     const filtersObject = Object.keys(advancedFilters)
@@ -167,7 +165,7 @@ export default class MapPage extends Component {
       serviceFilters: {
         ...eligibilityParams,
         ...filtersObject,
-        taxonomyIds: includedCategories,
+        ...(includedCategories ? { taxonomyIds: includedCategories } : {}),
       },
     })
       .then(locations => new Promise((resolve) => {
