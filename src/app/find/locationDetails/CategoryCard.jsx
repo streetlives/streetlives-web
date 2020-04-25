@@ -81,7 +81,7 @@ const renderService = (service, isLastItem) => {
     >
       <div size="medium" className="specificServiceHeaders">
         {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
-        {isClosed && <span className="coronavirusInfo"> (temporarily closed)</span>}
+        {isClosed && <span className="coronavirusInfo"> (suspended)</span>}
       </div>
 
       {!!(coronavirusInfo && coronavirusInfo.length) && (
