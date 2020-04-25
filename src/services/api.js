@@ -4,6 +4,8 @@ import config from '../config';
 import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../Constants';
 import { getAuthToken } from './auth';
 
+const MAX_RADIUS = 50000;
+
 export const getLocations = ({
   latitude,
   longitude,
@@ -27,7 +29,7 @@ export const getLocations = ({
   const params = {
     latitude,
     longitude,
-    radius,
+    radius: Math.min(radius, MAX_RADIUS),
   };
 
   if (searchString) {
