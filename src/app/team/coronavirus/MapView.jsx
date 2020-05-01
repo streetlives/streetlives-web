@@ -1,16 +1,13 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import {
-  getLocations,
-  getOrganizations,
-  getOrganizationLocations,
-} from '../../../services/api';
+import { getLocations } from '../../../services/api';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
 import ExistingLocationMarker from '../mapView/ExistingLocationMarker';
 
 const debouncePeriod = 500;
+const minSearchLength = 3;
 
 export default class MapView extends Component {
   state = {
@@ -38,7 +35,7 @@ export default class MapView extends Component {
 
   onSearchChanged = (searchString) => {
     this.setState({ searchString }, () => {
-      if (searchString) {
+      if (searchString && searchString.trim().length >= minSearchLength) {
         this.onSuggestionsFetchRequested({ searchString });
       } else {
         this.onSuggestionsClearRequested();
@@ -51,14 +48,14 @@ export default class MapView extends Component {
   }, debouncePeriod);
 
   onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
-    getOrganizations(searchString)
-      .then((organizations) => {
+    getLocations({ organizationName: searchString })
+      .then((locations) => {
         const searchStringAtTimeOfResponse = this.state.searchString;
         const searchResponseStillValid =
           searchStringAtTimeOfResponse && searchStringAtTimeOfResponse.indexOf(searchString) !== -1;
 
         if (searchResponseStillValid) {
-          this.setState({ suggestions: organizations });
+          this.setState({ suggestions: locations });
         }
       })
       .catch(e => console.error('error', e));
@@ -70,27 +67,17 @@ export default class MapView extends Component {
     });
   };
 
-  handleSuggestionClick = (organization) => {
-    getOrganizationLocations(organization.id)
-      .then((locations) => {
-        if (!locations.length) return;
-        const locationsWithOrganization = locations.map(loc => ({
-          ...loc,
-          Organization: organization,
-        })); // TODO: add orgranization to locations
-        const firstLoc = locationsWithOrganization[0];
-        const coords = firstLoc.position.coordinates; // TODO: focus all
-        this.searchInput.value = '';
-        this.setState({
-          suggestions: [],
-          center: {
-            lat: coords[1],
-            lng: coords[0],
-          },
-        });
-        this.onToggleMarkerInfo(firstLoc.id);
-      })
-      .catch(e => console.error('error', e));
+  handleSuggestionClick = (location) => {
+    const coords = location.position.coordinates;
+    this.searchInput.value = '';
+    this.setState({
+      suggestions: [],
+      center: {
+        lat: coords[1],
+        lng: coords[0],
+      },
+    });
+    this.onToggleMarkerInfo(location.id);
   }
 
   fetchLocations = (center, radius) => {
@@ -148,10 +135,10 @@ export default class MapView extends Component {
           <div style={{ pointerEvents: 'auto' }}>
             {
               this.state.suggestions && <Dropdown options={
-                this.state.suggestions.map(organization => ({
-                  id: organization.id,
-                  label: organization.name,
-                  onClick: () => this.handleSuggestionClick(organization),
+                this.state.suggestions.map(loc => ({
+                  id: loc.id,
+                  label: `${loc.Organization.name}${loc.name ? ` - ${loc.name}` : ''}`,
+                  onClick: () => this.handleSuggestionClick(loc),
                 }))}
               />
             }
