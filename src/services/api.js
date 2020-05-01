@@ -12,6 +12,7 @@ export const getLocations = ({
   radius,
   minResults,
   searchString,
+  organizationName,
   serviceFilters: {
     taxonomyIds,
     openNow,
@@ -29,36 +30,18 @@ export const getLocations = ({
   const params = {
     latitude,
     longitude,
-    radius: Math.min(radius, MAX_RADIUS),
+    minResults,
+    searchString,
+    organizationName,
+    radius: radius != null ? Math.min(radius, MAX_RADIUS) : undefined,
+    taxonomyId: taxonomyIds != null ? taxonomyIds.join(',') : undefined,
+    openAt: openNow ? (new Date()).toISOString() : undefined,
+    referralRequired: referralRequired != null ? referralRequired : undefined,
+    photoIdRequired: photoId != null ? photoId : undefined,
+    membership: clientsOnly != null ? clientsOnly : undefined,
+    gender: gender != null ? gender : undefined,
+    servesZipcode: zipcode != null ? zipcode : undefined,
   };
-
-  if (searchString) {
-    params.searchString = searchString;
-  }
-  if (taxonomyIds) {
-    params.taxonomyId = taxonomyIds.join(',');
-  }
-  if (minResults) {
-    params.minResults = minResults;
-  }
-  if (openNow) {
-    params.openAt = (new Date()).toISOString();
-  }
-  if (referralRequired != null) {
-    params.referralRequired = referralRequired;
-  }
-  if (photoId != null) {
-    params.photoIdRequired = photoId;
-  }
-  if (clientsOnly != null) {
-    params.membership = clientsOnly;
-  }
-  if (gender != null) {
-    params.gender = gender;
-  }
-  if (zipcode != null) {
-    params.servesZipcode = zipcode;
-  }
 
   const attributes = [];
   if (clothingKind) {
@@ -197,32 +180,6 @@ export const updateService = updateResource.bind(this, {
   pathPrefix: 'services',
   method: 'patch',
 });
-
-export const getOrganizations = searchString =>
-  getAuthToken()
-    .then(idJwtToken =>
-      axios
-        .request({
-          url: `${config.baseApi}/organizations?searchString=${searchString}`,
-          method: 'get',
-          headers: {
-            Authorization: idJwtToken,
-          },
-        }))
-    .then(result => result.data);
-
-export const getOrganizationLocations = organizationId =>
-  getAuthToken()
-    .then(idJwtToken =>
-      axios
-        .request({
-          url: `${config.baseApi}/organizations/${organizationId}/locations`,
-          method: 'get',
-          headers: {
-            Authorization: idJwtToken,
-          },
-        }))
-    .then(result => result.data);
 
 export const getComments = ({ locationId }) =>
   axios
