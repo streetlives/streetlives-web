@@ -8,7 +8,9 @@ export default class LocationNumberEdit extends Component {
     super(props);
 
     const [areaCode, firstThree, lastFour] =
-      props.value && props.value.number ? props.value.number.split('.') : ['', '', ''];
+      props.value && props.value.number ?
+        props.value.number.split(/[. )(-]+/).filter(d => d) :
+        ['', '', ''];
     this.state = {
       areaCode,
       firstThree,
