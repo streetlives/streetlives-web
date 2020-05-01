@@ -10,6 +10,11 @@ import ServiceOfferings from './ServiceOfferings';
 import './locationDetails.css';
 
 const renderSchedule = (schedule) => {
+  if (schedule.length === 7 &&
+    schedule.every(day => day.opens_at === '00:00:00' && day.closes_at === '23:59:00')) {
+    return 'Open 24/7';
+  }
+
   const dayNumberToName = weekday => DAYS[weekday - 1];
 
   const formatHour = time => moment(time, 'HH:mm:ss').format('LT').replace(':00 ', ' ');
