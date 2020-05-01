@@ -1,7 +1,7 @@
 @value primaryColor from "../../../colors.css";
 
 .locationTitle {
-  width: 90%;
+  width: 85%;
   margin-left: auto;
   margin-right: auto;
 }
