@@ -80,7 +80,7 @@ const CategoryCard = ({ category, services, className }) => (
         style={{ borderBottom: i === services.length - 1 ? '0' : '1px solid #DADADA', paddingBottom:'1.3vh' }}
       >
         <div size="medium" className="specificServiceHeaders">
-          {service.Taxonomies[0].parent_name ? service.Taxonomies[0].name : service.name}
+          {service.name || service.Taxonomies[0].name}
         </div>
 
         {!!service.description && (
