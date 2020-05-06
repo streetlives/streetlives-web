@@ -24,6 +24,11 @@
   margin-top: 2vh;
 }
 
+.collapsed {
+  display: none;
+  overflow: hidden;
+}
+
 .serviceCategoryHeadersContainer {
   font-size: .85rem !important;
   display: flex;
@@ -40,6 +45,7 @@
   letter-spacing: 1.66px;
   margin: 0 !important;
   padding: 0 !important;
+  cursor: pointer;
 }
 
 .specificServiceHeaders {

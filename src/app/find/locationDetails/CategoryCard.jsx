@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
 import moment from 'moment';
 import { DAYS, OCCASIONS } from '../../../Constants';
 import { getCategoryIcon } from '../../../services/iconography';
@@ -125,26 +125,45 @@ const renderService = (service, isLastItem) => {
   );
 };
 
-const CategoryCard = ({ category, services, className }) => (
-  <div
-    className="categoryCard"
-    style={{
-      backgroundColor: '#F8F8FC',
-      border: '1px solid #DADADA',
-    }}
-  >
-    <div className="serviceCategoryHeadersContainer">
-      <div className="serviceCategoryHeaders">{category}</div>
-      <Icon
-        name={getCategoryIcon(category)}
-        size="2x"
-      />
-    </div>
+class CategoryCard extends Component {
+  state = {
+    collapsed: false
+  }
 
-    {services
-      .sort((service1, service2) => service2.lastUpdate - service1.lastUpdate)
-      .map((service, i) => renderService(service, i === services.length - 1))}
-  </div>
-);
+  handleCollapse = () => {
+    this.setState({ collapsed: !this.state.collapsed })
+  }
+
+  render() {
+    const { category, services, className } = this.props;
+
+    return (
+      <div
+        className="categoryCard"
+        style={{
+          backgroundColor: '#F8F8FC',
+          border: '1px solid #DADADA',
+        }}
+      >
+        <div
+          className="serviceCategoryHeadersContainer"
+          onClick={this.handleCollapse}
+        >
+          <div className="serviceCategoryHeaders">{category}</div>
+          <Icon
+            name={getCategoryIcon(category)}
+            size="2x"
+          />
+        </div>
+
+        <div className={this.state.collapsed ? 'collapsed' : ''}>
+          {services
+            .sort((service1, service2) => service2.lastUpdate - service1.lastUpdate)
+            .map((service, i) => renderService(service, i === services.length - 1))}
+        </div>
+      </div>
+    )
+  }
+};
 
 export default CategoryCard;
