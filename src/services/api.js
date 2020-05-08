@@ -249,8 +249,8 @@ export const removeComment = comment =>
     }));
 
 export const postErrorReport = ({ locationId, errorReport }) =>
-  getAuthToken() // Remove authorization requirement for posting new error reports?
-    .then(idJwtToken => axios.request({
+  axios
+    .request({
       url: `${config.baseApi}/errorreports`,
       method: 'post',
       data: {
@@ -259,8 +259,5 @@ export const postErrorReport = ({ locationId, errorReport }) =>
         services: errorReport.services,
         content: errorReport.content,
       },
-      headers: {
-        Authorization: idJwtToken,
-      },
-    }))
+    })
     .then(result => result.data);
