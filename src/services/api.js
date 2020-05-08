@@ -248,18 +248,6 @@ export const removeComment = comment =>
       },
     }));
 
-/* ------ Error Report API functions -------- */
-export const getErrorReports = ({ locationId }) =>
-  axios
-    .request({
-      url: `${config.baseApi}/errorreports`,
-      method: 'get',
-      params: {
-        locationId,
-      },
-    })
-    .then(result => result.data);
-
 export const postErrorReport = ({ locationId, errorReport }) =>
   getAuthToken() // Remove authorization requirement for posting new error reports?
     .then(idJwtToken => axios.request({
@@ -276,13 +264,3 @@ export const postErrorReport = ({ locationId, errorReport }) =>
       },
     }))
     .then(result => result.data);
-
-export const deleteErrorReport = errorReport =>
-  getAuthToken()
-    .then(idJwtToken => axios.request({
-      url: `${config.baseApi}/errorreports/${errorReport.id}`,
-      method: 'delete',
-      headers: {
-        Authorization: idJwtToken,
-      },
-    }));
