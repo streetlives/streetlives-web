@@ -26,7 +26,6 @@ class NewErrorReportForm extends Component {
   }
 
   componentDidMount() {
-    console.log('Component mounting with props:', this.props);
     if (!this.props.locationData) {
       this.props.getLocation(this.props.match.params.locationId);
     }
@@ -42,10 +41,15 @@ class NewErrorReportForm extends Component {
     this.setState({ errorReportText: text });
   }
 
-  onErrorReportServicesChanged(service) {
-    console.log('onErrorReportServicesChanged triggered with', service);
-    // handle generalLocationError
-    this.setState({ errorReportServices: [], errorReportGeneralLocationError: false }); // FIX
+  onErrorReportServicesChanged(value) {
+    this.setState((state) => {
+      const errorReportServices = state.errorReportServices.includes(value)
+        ? state.errorReportServices.filter(service => service !== value)
+        : [...state.errorReportServices, value];
+      return {
+        errorReportServices,
+      };
+    });
   }
 
   onErrorReportGeneralLocationErrorChanged(value) {
@@ -53,27 +57,31 @@ class NewErrorReportForm extends Component {
   }
 
   onErrorReportFinished() {
-    console.log('onErrorReportFinished triggered.');
     this.setState({ isErrorReportFinished: true });
   }
 
-  onErrorReportSubmitted(info) {
+  onErrorReportSubmitted() {
     console.log('onErrorReportSubmitted triggered.');
+
+    const { errorReportText, errorReportGeneralLocationError, errorReportServices } = this.state;
+
     this.props.postErrorReport(
-      this.state.errorReportText,
-      this.state.errorReportGeneralLocationError,
-      this.state.errorReportServices,
+      errorReportText,
+      errorReportGeneralLocationError,
+      errorReportServices,
     );
   }
 
   render() {
-    const { locationData, isPostingErrorReport, locationError } = this.props;
+    const { isPostingErrorReport, locationError } = this.props;
 
     if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
     }
 
-    if (/* !locationData || */ isPostingErrorReport) {
+    // Comments component checks for (!locationData || isPostingErrorReport)
+    // Not sure what the !locationData check was doing specifically
+    if (isPostingErrorReport) {
       return (
         <LoadingLabel>
           <span>Adding error report...</span>
@@ -86,7 +94,7 @@ class NewErrorReportForm extends Component {
         <ErrorReportServices
           match={this.props.match}
           generalLocationError={this.state.errorReportGeneralLocationError}
-          services={this.state.errorReportServices}
+          errorReportServices={this.state.errorReportServices}
           onServiceChange={this.onErrorReportServicesChanged}
           onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
           onSubmit={this.onErrorReportFinished}
@@ -97,7 +105,7 @@ class NewErrorReportForm extends Component {
     return (
       <ErrorReportText
         match={this.props.match}
-        value={this.state.errorReportText}
+        errorReportText={this.state.errorReportText}
         onChange={this.onErrorReportTextChanged}
         onSubmit={this.onErrorReportSubmitted}
       />
