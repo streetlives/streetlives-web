@@ -30,13 +30,13 @@ export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
 export const REMOVE_COMMENT_ERROR = 'REMOVE_COMMENT_ERROR';
 
 // Added for error reports
-export const GET_ERRORREPORT_RESPONSE = 'GET_ERRORREPORT_RESPONSE';
-export const POST_ERRORREPORT_REQUEST = 'POST_ERRORREPORT_REQUEST';
-export const POST_ERRORREPORT_SUCCESS = 'POST_ERRORREPORT_SUCCESS';
-export const POST_ERRORREPORT_ERROR = 'POST_ERRORREPORT_ERROR';
-export const DELETE_ERRORREPORT_REQUEST = 'DELETE_ERRORREPORT_REQUEST';
-export const DELETE_ERRORREPORT_SUCCESS = 'DELETE_ERRORREPORT_SUCCESS';
-export const DELETE_ERRORREPORT_ERROR = 'DELETE_ERRORREPORT_ERROR';
+export const GET_ERROR_REPORT_RESPONSE = 'GET_ERROR_REPORT_RESPONSE';
+export const POST_ERROR_REPORT_REQUEST = 'POST_ERROR_REPORT_REQUEST';
+export const POST_ERROR_REPORT_SUCCESS = 'POST_ERROR_REPORT_SUCCESS';
+export const POST_ERROR_REPORT_ERROR = 'POST_ERROR_REPORT_ERROR';
+export const DELETE_ERROR_REPORT_REQUEST = 'DELETE_ERROR_REPORT_REQUEST';
+export const DELETE_ERROR_REPORT_SUCCESS = 'DELETE_ERROR_REPORT_SUCCESS';
+export const DELETE_ERROR_REPORT_ERROR = 'DELETE_ERROR_REPORT_ERROR';
 
 export const getLocation = locationId => (dispatch) => {
   dispatch({
@@ -365,7 +365,7 @@ export const getErrorReports = locationId => (dispatch) => {
     })
     .then(data =>
       dispatch({
-        type: GET_ERRORREPORT_RESPONSE,
+        type: GET_ERROR_REPORT_RESPONSE,
         payload: {
           locationId,
           errorReport: data,
@@ -376,11 +376,11 @@ export const getErrorReports = locationId => (dispatch) => {
 
 export const postErrorReport = (locationId, errorReport) => (dispatch) => {
   const params = { locationId, errorReport };
-  dispatch({ type: POST_ERRORREPORT_REQUEST, payload: params });
+  dispatch({ type: POST_ERROR_REPORT_REQUEST, payload: params });
   api.postErrorReport({ locationId, errorReport })
     .then((postedErrorReport) => {
       dispatch({
-        type: POST_ERRORREPORT_SUCCESS,
+        type: POST_ERROR_REPORT_SUCCESS,
         payload: {
           locationId,
           errorReport: postedErrorReport,
@@ -388,18 +388,18 @@ export const postErrorReport = (locationId, errorReport) => (dispatch) => {
       });
     })
     .catch((err) => {
-      dispatch({ type: POST_ERRORREPORT_ERROR, payload: { ...params, err } });
+      dispatch({ type: POST_ERROR_REPORT_ERROR, payload: { ...params, err } });
     });
 };
 
 export const removeErrorReport = ({ locationId, errorReport }) => (dispatch) => {
   const params = { locationId, errorReport };
-  dispatch({ type: DELETE_ERRORREPORT_REQUEST, payload: params });
+  dispatch({ type: DELETE_ERROR_REPORT_REQUEST, payload: params });
   api.deleteErrorReport(errorReport)
     .then(() => {
-      dispatch({ type: DELETE_ERRORREPORT_SUCCESS, payload: params });
+      dispatch({ type: DELETE_ERROR_REPORT_SUCCESS, payload: params });
     })
     .catch((err) => {
-      dispatch({ type: DELETE_ERRORREPORT_ERROR, payload: { ...params, err } });
+      dispatch({ type: DELETE_ERROR_REPORT_ERROR, payload: { ...params, err } });
     });
 };
