@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import Button from '../../../components/button';
 import Heart from '../../../components/heart';
+import withErrorReportsForm from '../withErrorReportsForm';
 
-export default class Thanks extends Component {
+class Thanks extends Component {
   constructor(props) {
     super(props);
     this.goToViewLocation = this.goToViewLocation.bind(this);
@@ -39,3 +40,5 @@ export default class Thanks extends Component {
     );
   }
 }
+
+export default withErrorReportsForm(Thanks);
