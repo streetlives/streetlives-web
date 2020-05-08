@@ -1,28 +1,28 @@
 import {
-  GET_ERRORREPORT_RESPONSE,
-  POST_ERRORREPORT_REQUEST,
-  POST_ERRORREPORT_SUCCESS,
-  POST_ERRORREPORT_ERROR,
-  DELETE_ERRORREPORT_REQUEST,
-  // DELETE_ERRORREPORT_SUCCESS, // deletion rolled back if error only
-  DELETE_ERRORREPORT_ERROR,
+  GET_ERROR_REPORT_RESPONSE,
+  POST_ERROR_REPORT_REQUEST,
+  POST_ERROR_REPORT_SUCCESS,
+  POST_ERROR_REPORT_ERROR,
+  DELETE_ERROR_REPORT_REQUEST,
+  // DELETE_ERROR_REPORT_SUCCESS, // deletion rolled back if error only
+  DELETE_ERROR_REPORT_ERROR,
 } from '../actions';
 
 export const errorReportsReducer = (state = { isPosting: false }, action) => {
   switch (action.type) {
-    case GET_ERRORREPORT_RESPONSE:
+    case GET_ERROR_REPORT_RESPONSE:
       return {
         ...state,
         [action.payload.locationId]: action.payload.errorReports,
       };
 
-    case POST_ERRORREPORT_REQUEST:
+    case POST_ERROR_REPORT_REQUEST:
       return {
         ...state,
         isPosting: true,
       };
 
-    case POST_ERRORREPORT_SUCCESS: {
+    case POST_ERROR_REPORT_SUCCESS: {
       const { locationId, errorReport } = action.payload;
       const oldErrorReports = state[locationId] || [];
       return {
@@ -35,13 +35,13 @@ export const errorReportsReducer = (state = { isPosting: false }, action) => {
       };
     }
 
-    case POST_ERRORREPORT_ERROR:
+    case POST_ERROR_REPORT_ERROR:
       return {
         ...state,
         isPosting: false,
       };
 
-    case DELETE_ERRORREPORT_REQUEST: {
+    case DELETE_ERROR_REPORT_REQUEST: {
       const { locationId, errorReport } = action.payload;
       const errorReports = state[locationId] || [];
       const errorReportIndex = errorReports.indexOf(errorReport);
@@ -60,7 +60,7 @@ export const errorReportsReducer = (state = { isPosting: false }, action) => {
       };
     }
 
-    case DELETE_ERRORREPORT_ERROR:
+    case DELETE_ERROR_REPORT_ERROR:
       return {
         ...state,
         [`last/${action.payload.locationId}`]: null,
