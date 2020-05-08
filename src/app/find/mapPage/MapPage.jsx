@@ -214,13 +214,13 @@ export default class MapPage extends Component {
       {this.state.isSearchingLocations ? (
         <div>Loading results...</div>
       ) : (
-        <div>
-          Showing results for
-          <span className="font-weight-bold ml-1">
-            {this.getCurrentFilterString()}
-          </span>
-        </div>
-      )}
+          <div>
+            Showing results for
+            <span className="font-weight-bold ml-1">
+              {this.getCurrentFilterString()}
+            </span>
+          </div>
+        )}
     </div>
   );
 

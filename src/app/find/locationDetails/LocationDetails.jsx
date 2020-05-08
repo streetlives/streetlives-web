@@ -78,7 +78,23 @@ const renderCategoriesLine = (services) => {
   return <div className="detailPageCategories">{categories.join(' & ')}</div>;
 };
 
-const renderLocation = (location) => {
+// returns an array of sorted category names with preference for search option and last update, in that order
+const sortedCategoryNames = (categories, searchCategoryName) => {
+  return Object.keys(categories).sort((categoryNameA, categoryNameB) => {
+    // searched category should always go on top
+    if (categoryNameA === searchCategoryName) {
+      return -1;
+    }
+    if (categoryNameB === searchCategoryName) {
+      return 1;
+    }
+
+    // otherwise sort categories initially by date last updated
+    return categories[categoryNameB].lastUpdate - categories[categoryNameA].lastUpdate;
+  });
+};
+
+const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
@@ -150,13 +166,13 @@ const renderLocation = (location) => {
           )}
 
           <Header size="large" className="locationHeaders">Services Offered:</Header>
-          {Object.keys(servicesByCategory)
-            .sort((s1, s2) => servicesByCategory[s2].lastUpdate - servicesByCategory[s1].lastUpdate)
+          {sortedCategoryNames(servicesByCategory, searchCategory)
             .map(category => (
               <CategoryCard
                 key={category}
                 className="my-3"
                 category={category}
+                isSearchCategory={searchCategory === category}
                 services={servicesByCategory[category].services}
               />
             ))}
@@ -175,6 +191,7 @@ class LocationDetails extends Component {
 
   render() {
     const { location, locationError, goBack } = this.props;
+    const searchCategory = this.props.match.params.categoryName;
 
     return (
       <Modal className="pb-4">
@@ -195,7 +212,7 @@ class LocationDetails extends Component {
           </div>
         )}
         <ErrorBoundary>
-          {location ? renderLocation(location) : null}
+          {location ? renderLocation(location, searchCategory) : null}
         </ErrorBoundary>
       </Modal>
     );
