@@ -56,8 +56,8 @@ const renderSchedule = (schedule) => {
   return `Open ${groupStrings.join(', ')}`;
 };
 
-function ShelterService({ service, selectedCategory, showOnMount }) {
-  const [isShown, setIsShown] = useState(showOnMount);
+function ServiceSection({ service, showOnMount }) {
+  const [isExpanded, setIsExpanded] = useState(showOnMount);
 
   const coronavirusInfo =
     service.EventRelatedInfos &&
@@ -81,7 +81,7 @@ function ShelterService({ service, selectedCategory, showOnMount }) {
   const handleKeyPress = (e) => {
     // toggle service info on 'enter' key
     if (e.keyCode === 13) {
-      setIsShown(!isShown);
+      setIsExpanded(!isExpanded);
     }
   };
 
@@ -90,24 +90,26 @@ function ShelterService({ service, selectedCategory, showOnMount }) {
   return (
     <div
       key={service.id}
-      className="shelterService"
+      className="serviceSection"
     >
       <div
         size="medium"
         className="specificServiceHeaders"
-        onClick={() => setIsShown(!isShown)}
+        onClick={() => setIsExpanded(!isExpanded)}
         onKeyDown={handleKeyPress}
         role="button"
         tabIndex="0"
       >
         {(!isClosed || hasCoronavirusInfo) &&
-          <Icon name={isShown ? 'chevron-down' : 'chevron-right'} size="sm" />
+          <span className="expandArrow">
+            <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} size="sm" />
+          </span>
         }
         {service.name || service.Taxonomies[0].name}
         {isClosed && <span className="coronavirusInfo"> (suspended)</span>}
       </div>
 
-      {isShown &&
+      {isExpanded &&
         <div className="serviceDetails">
           {hasCoronavirusInfo && (
             <InfoItem coronavirus icon="exclamation-triangle">
@@ -150,4 +152,4 @@ function ShelterService({ service, selectedCategory, showOnMount }) {
   );
 }
 
-export default ShelterService;
+export default ServiceSection;

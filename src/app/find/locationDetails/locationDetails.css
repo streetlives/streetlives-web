@@ -24,11 +24,11 @@
   margin-top: 2vh;
 }
 
-.shelterService:last-of-type {
+.serviceSection:last-of-type {
   border-bottom: none;
 }
 
-.shelterService i {
+.serviceSection .expandArrow {
   display: inline-block;
   margin-right: 10px;
 }
@@ -40,7 +40,7 @@
   padding: 2vh 3vw;
 }
 
-.serviceCategoryHeadersContainer i {
+.serviceCategoryHeadersContainer .categoryIcon {
   display: inline-block;
   margin-right: 10px;
 }

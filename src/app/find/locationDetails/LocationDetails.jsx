@@ -172,7 +172,7 @@ const renderLocation = (location, searchCategory) => {
                 key={category}
                 className="my-3"
                 category={category}
-                isSearchCategory={searchCategory === category}
+                isInitiallyExpanded={searchCategory === category}
                 services={servicesByCategory[category].services}
               />
             ))}
@@ -190,8 +190,12 @@ class LocationDetails extends Component {
   }
 
   render() {
-    const { location, locationError, goBack } = this.props;
-    const searchCategory = this.props.match.params.categoryName;
+    const {
+      location,
+      locationError,
+      goBack,
+      searchCategory,
+    } = this.props;
 
     return (
       <Modal className="pb-4">

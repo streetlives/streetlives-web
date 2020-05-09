@@ -12,6 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
   location: selectLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
+  searchCategory: ownProps.match.params.categoryName,
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationDetails));

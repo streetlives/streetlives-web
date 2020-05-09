@@ -1,40 +1,36 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { getCategoryIcon } from '../../../services/iconography';
 import Icon from '../../../components/icon';
 import './locationDetails.css';
-import ShelterService from './ShelterService';
+import ServiceSection from './ServiceSection';
 
 // this card contains a category (e.g. Food) and displays
 // all services that a shelter provides within that category
-class CategoryCard extends Component {
-  state = {
-    collapsed: false,
-  }
-
-  handleCollapse = () => {
-    this.setState({ collapsed: !this.state.collapsed });
-  }
-
-  render() {
-    const { category, services, isSearchCategory } = this.props;
-
-    return (
-      <div className="categoryCard">
-        <div className="serviceCategoryHeadersContainer">
+function CategoryCard({ category, services, isInitiallyExpanded }) {
+  return (
+    <div className="categoryCard">
+      <div className="serviceCategoryHeadersContainer">
+        <span className="categoryIcon">
           <Icon
             name={getCategoryIcon(category)}
             size="lg"
           />
-          <div className="serviceCategoryHeaders">{category}</div>
-        </div>
-        <div>
-          {services
-            .sort((service1, service2) => service2.lastUpdate - service1.lastUpdate)
-            .map(service => <ShelterService service={service} selectedCategory={false} key={service.id} showOnMount={isSearchCategory} />)}
-        </div>
+        </span>
+        <div className="serviceCategoryHeaders">{category}</div>
       </div>
-    );
-  }
+      <div>
+        {services
+          .sort((service1, service2) => service2.lastUpdate - service1.lastUpdate)
+          .map(service => (
+            <ServiceSection
+              service={service}
+              key={service.id}
+              showOnMount={isInitiallyExpanded}
+            />
+          ))}
+      </div>
+    </div>
+  );
 }
 
 export default CategoryCard;
