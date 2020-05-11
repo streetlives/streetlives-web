@@ -16,6 +16,7 @@ export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
 export const OPTIMISTIC_CREATE_PHONE = 'OPTIMISTIC_CREATE_PHONE';
+export const OPTIMISTIC_DELETE_PHONE = 'OPTIMISTIC_DELETE_PHONE';
 export const CREATE_PHONE_SUCCESS = 'CREATE_PHONE_SUCCESS';
 export const START_CREATING_NEW_LOCATION = 'START_CREATING_NEW_LOCATION';
 export const DONE_CREATING_NEW_LOCATION = 'DONE_CREATING_NEW_LOCATION';
@@ -121,6 +122,24 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
+export const deletePhone = id => (dispatch) => {
+  dispatch({
+    type: OPTIMISTIC_DELETE_PHONE,
+    payload: {
+      id,
+    },
+  });
+
+  return api
+    .deletePhone({
+      id,
+    })
+    .catch((e) => {
+      // no need to track
+      console.error('error', e);
+    });
+};
+
 export const updatePhone = (
   locationId,
   phoneId,
@@ -139,7 +158,7 @@ export const updatePhone = (
       fieldName,
     },
   });
-  api
+  return api
     .updatePhone({
       id: phoneId,
       params,
@@ -176,7 +195,7 @@ export const createPhone = (
       fieldName,
     },
   });
-  api
+  return api
     .createPhone({
       id: locationId,
       params,

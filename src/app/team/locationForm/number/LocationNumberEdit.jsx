@@ -1,21 +1,30 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+
+import { connect } from 'react-redux';
+
+import { getPhoneNumber } from '../../../../selectors/location';
+import { updatePhone, createPhone } from '../../../../actions';
+
 import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 
-export default class LocationNumberEdit extends Component {
+class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
 
     const [areaCode, firstThree, lastFour] =
-      props.value && props.value.number ?
-        props.value.number.split(/[. )(-]+/).filter(d => d) :
+      props.phone && props.phone.number ?
+        props.phone.number.split(/[. )(-]+/).filter(d => d) :
         ['', '', ''];
+
     this.state = {
       areaCode,
       firstThree,
       lastFour,
-      extension: (props.value && props.value.extension) || '',
+      extension: (props.phone && props.phone.extension) || '',
+      type: (props.phone && props.phone.type) || '',
     };
 
     this.keyToMaxDigits = {
@@ -25,8 +34,22 @@ export default class LocationNumberEdit extends Component {
     };
 
     this.onSubmit = this.onSubmit.bind(this);
+    this.onCancel = this.onCancel.bind(this);
     Object.keys(this.state).forEach((k) => {
       this[`onChange_${k}`] = this.onChange.bind(this, k);
+    });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const [areaCode, firstThree, lastFour] =
+      nextProps.phone && nextProps.phone.number ? nextProps.phone.number.split('.') : ['', '', ''];
+
+    this.setState({
+      areaCode,
+      firstThree,
+      lastFour,
+      extension: (nextProps.phone && nextProps.phone.extension) || '',
+      type: (nextProps.phone && nextProps.phone.type) || '',
     });
   }
 
@@ -37,19 +60,29 @@ export default class LocationNumberEdit extends Component {
     this.setState({ [key]: value });
   }
 
-  onSubmit(e) {
+  async onSubmit(e) {
     e.preventDefault();
     const number = [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.');
-    this.props.updateValue(
-      {
-        number,
-        extension: this.state.extension || null,
-      },
-      this.props.id,
-      this.props.metaDataSection,
-      this.props.fieldName,
+
+    const params = {
+      number,
+      extension: this.state.extension || null,
+    };
+
+    if (this.state.type) {
+      params.type = this.state.type;
+    }
+
+    await this.props.updateValue(
+      params,
+      this.props.phoneId,
     );
-    this.props.onSubmit(number);
+
+    this.props.history.push({ pathname: '../phone-number' });
+  }
+
+  onCancel() {
+    this.props.history.push({ pathname: '../phone-number' });
   }
 
   render() {
@@ -103,9 +136,18 @@ export default class LocationNumberEdit extends Component {
           value={this.state.extension}
           onChange={this.onChange_extension}
         />
+
+        <Input
+          placeholder="Type (e.g. Main Office, Hotline, Spanish, etc)"
+          fluid
+          value={this.state.type}
+          onChange={this.onChange_type}
+          required
+        />
+
         <div>
           <input type="submit" className="Button Button-primary mt-3" value="OK" />&nbsp;
-          <Button onClick={this.props.onCancel} basic primary className="mt-3">
+          <Button onClick={this.onCancel} basic primary className="mt-3">
             CANCEL
           </Button>
         </div>
@@ -113,3 +155,20 @@ export default class LocationNumberEdit extends Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  phone: getPhoneNumber(state, ownProps),
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  updateValue: (params, phoneId) =>
+    dispatch((phoneId ? updatePhone : createPhone)(
+      ownProps.match.params.locationId,
+      phoneId,
+      params,
+      'location',
+      'phones',
+    )),
+});
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationNumberEdit));

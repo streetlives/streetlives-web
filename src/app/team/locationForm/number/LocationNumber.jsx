@@ -1,60 +1,44 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { compose, withProps } from 'recompose';
+import { Route, Switch } from 'react-router-dom';
 
-import { selectLocationData, selectLocationError } from '../../../../selectors/location';
-import { updatePhone, getLocation, createPhone } from '../../../../actions';
-import { Form, FormView } from '../../../../components/form';
+import { getLocation } from '../../../../actions';
+
 import LocationNumberEdit from './LocationNumberEdit';
+import LocationNumberView from './LocationNumberView';
 
-const getPhoneNumber = props =>
-  props.value &&
-  props.value.number &&
-  `${props.value.number.replace(/\./g, '-')}${
-    props.value.extension ? ` ext.${props.value.extension}` : ''
-  }`;
-
-const LocationNumberView = compose(withProps({
-  topText: 'LOCATION PHONE NUMBER',
-}))((props) => {
-  const o = { ...props, value: getPhoneNumber(props) };
-  return <FormView {...o} />;
-});
-
-const LocationNumber = compose(withProps({
-  ViewComponent: LocationNumberView,
-  EditComponent: LocationNumberEdit,
-}))(props => <Form {...props} />);
+import './PhoneNumber.css';
 
 export const selectValue = locationData => (
-  locationData && locationData.Phones && locationData.Phones[0]
+  locationData && locationData.Phones
 );
 
-const mapStateToProps = (state, ownProps) => {
-  const locationData = selectLocationData(state, ownProps);
-  const locationError = selectLocationError(state, ownProps);
-  const phone = selectValue(locationData);
+class LocationNumber extends Component {
+  componentDidMount() {
+    this.props.fetchResourceData();
+  }
 
-  return {
-    resourceData: locationData,
-    value: phone,
-    id: phone && phone.id,
-    resourceLoadError: locationError,
-  };
-};
+  render() {
+    const { match, onFieldVerified } = this.props;
+
+    return (
+      <Switch>
+        <Route exact path={`${match.path}/new`} component={LocationNumberEdit} />
+        <Route exact path={`${match.path}/:phoneId`} component={LocationNumberEdit} />
+        <Route
+          exact
+          path={`${match.path}/`}
+          render={props => <LocationNumberView {...props} onConfirm={onFieldVerified} />}
+        />
+      </Switch>
+    );
+  }
+}
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: ({ number, extension }, phoneId, metaDataSection, fieldName) =>
-    dispatch((phoneId ? updatePhone : createPhone)(
-      ownProps.match.params.locationId,
-      phoneId,
-      { number, extension },
-      metaDataSection,
-      fieldName,
-    )),
-  fetchResourceData: (locationId) => {
-    dispatch(getLocation(locationId));
+  fetchResourceData: () => {
+    dispatch(getLocation(ownProps.match.params.locationId));
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationNumber);
+export default connect(null, mapDispatchToProps)(LocationNumber);
