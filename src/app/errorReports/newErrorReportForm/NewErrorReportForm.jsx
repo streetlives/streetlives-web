@@ -6,7 +6,7 @@ import { selectLocationError, selectLocationData } from '../../../selectors/loca
 import LoadingLabel from '../../../components/form/LoadingLabel';
 import ErrorLabel from '../../../components/form/ErrorLabel';
 import ErrorReportText from './ErrorReportText';
-import ErrorReportServices from './ErrorReportServices';
+import ErrorReportInformationSelect from './ErrorReportInformationSelect';
 
 class NewErrorReportForm extends Component {
   constructor(props) {
@@ -60,6 +60,8 @@ class NewErrorReportForm extends Component {
     this.setState({ isErrorReportFinished: true });
   }
 
+  // Need to make sure submission failures are correctly handled
+  // (and client isn't sent to Thankyou route)
   onErrorReportSubmitted() {
     console.log('onErrorReportSubmitted triggered.');
 
@@ -91,7 +93,7 @@ class NewErrorReportForm extends Component {
 
     if (!this.state.isErrorReportFinished) {
       return (
-        <ErrorReportServices
+        <ErrorReportInformationSelect
           match={this.props.match}
           generalLocationError={this.state.errorReportGeneralLocationError}
           errorReportServices={this.state.errorReportServices}
