@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { postErrorReport, getLocation } from '../../../actions';
-import { selectIsPostingErrorReport } from '../../../reducers';
-import { selectLocationError, selectLocationData } from '../../../selectors/location';
-import LoadingLabel from '../../../components/form/LoadingLabel';
-import ErrorLabel from '../../../components/form/ErrorLabel';
+import { postErrorReport, getLocation } from '../../actions';
+import { selectIsPostingErrorReport } from '../../reducers';
+import { selectLocationError, selectLocationData } from '../../selectors/location';
+import LoadingLabel from '../../components/form/LoadingLabel';
+import ErrorLabel from '../../components/form/ErrorLabel';
 import ErrorReportText from './ErrorReportText';
 import ErrorReportInformationSelect from './ErrorReportInformationSelect';
 

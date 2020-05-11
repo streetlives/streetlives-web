@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Button from '../../../components/button';
-import Heart from '../../../components/heart';
-import withErrorReportsForm from '../withErrorReportsForm';
+import Button from '../../components/button';
+import Heart from '../../components/heart';
+import withErrorReportsForm from './withErrorReportsForm';
 
 class Thanks extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class Thanks extends Component {
 
   render() {
     return (
-      <div className="container pb-5 pt-2 px-4 d-flex flex-column justify-content-between h-100">
+      <div>
         <div className="content text-left">
           <p>
             <Heart width="100" height="100" />
@@ -29,12 +29,15 @@ class Thanks extends Component {
             Thank you.
           </p>
         </div>
-        <div className="actions">
-          <div className="mt-4">
-            <Button className="mt-4" primary fluid onClick={this.goToViewLocation}>
-              DONE
-            </Button>
-          </div>
+        <div className="mx-4">
+          <Button
+            className="mx-4"
+            primary
+            fluid
+            onClick={this.goToViewLocation}
+          >
+            Done
+          </Button>
         </div>
       </div>
     );
