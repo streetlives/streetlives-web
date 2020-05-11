@@ -15,14 +15,14 @@ class NewErrorReportForm extends Component {
       errorReportText: '',
       errorReportGeneralLocationError: false,
       errorReportServices: [],
-      isErrorReportFinished: false,
+      isOnErrorReportTextScreen: false,
     };
 
     // eslint-disable-next-line max-len
     this.onErrorReportGeneralLocationErrorChanged = this.onErrorReportGeneralLocationErrorChanged.bind(this);
     this.onErrorReportTextChanged = this.onErrorReportTextChanged.bind(this);
     this.onErrorReportServicesChanged = this.onErrorReportServicesChanged.bind(this);
-    this.onErrorReportFinished = this.onErrorReportFinished.bind(this);
+    this.onErrorReportTextScreen = this.onErrorReportTextScreen.bind(this);
     this.onErrorReportSubmitted = this.onErrorReportSubmitted.bind(this);
   }
 
@@ -57,8 +57,8 @@ class NewErrorReportForm extends Component {
     this.setState({ errorReportGeneralLocationError: value });
   }
 
-  onErrorReportFinished() {
-    this.setState({ isErrorReportFinished: true });
+  onErrorReportTextScreen() {
+    this.setState({ isOnErrorReportTextScreen: true });
   }
 
   onErrorReportSubmitted() {
@@ -92,7 +92,7 @@ class NewErrorReportForm extends Component {
       );
     }
 
-    if (!this.state.isErrorReportFinished) {
+    if (!this.state.isOnErrorReportTextScreen) {
       return (
         <ErrorReportInformationSelect
           match={this.props.match}
@@ -100,7 +100,7 @@ class NewErrorReportForm extends Component {
           errorReportServices={this.state.errorReportServices}
           onServiceChange={this.onErrorReportServicesChanged}
           onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
-          onSubmit={this.onErrorReportFinished}
+          onSubmit={this.onErrorReportTextScreen}
         />
       );
     }
