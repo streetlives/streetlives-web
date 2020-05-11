@@ -102,7 +102,7 @@ function ServiceSection({ service, showOnMount }) {
       >
         {(!isClosed || hasCoronavirusInfo) &&
           <span className="expandArrow">
-            <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} size="sm" />
+            <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} />
           </span>
         }
         {service.name || service.Taxonomies[0].name}

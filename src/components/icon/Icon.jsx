@@ -15,7 +15,6 @@ function Icon({
 }) {
   const classNames = cx(circle ? {} : className, {
     Icon: true,
-    'fa-sm': size === 'sm',
     'fa-lg': size === 'lg',
     'fa-2x': size === '2x',
     'fa-3x': size === '3x',
