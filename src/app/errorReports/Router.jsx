@@ -2,8 +2,8 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import NotFound from '../notFound/NotFound';
 
-import Thanks from './thanks/Thanks';
-import NewErrorReportForm from './newErrorReportForm/NewErrorReportForm';
+import Thanks from './Thanks';
+import NewErrorReportForm from './NewErrorReportForm';
 
 export default function Router({ match }) {
   return (
