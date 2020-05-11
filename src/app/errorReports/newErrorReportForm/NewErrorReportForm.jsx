@@ -18,9 +18,10 @@ class NewErrorReportForm extends Component {
       isErrorReportFinished: false,
     };
 
+    // eslint-disable-next-line max-len
+    this.onErrorReportGeneralLocationErrorChanged = this.onErrorReportGeneralLocationErrorChanged.bind(this);
     this.onErrorReportTextChanged = this.onErrorReportTextChanged.bind(this);
     this.onErrorReportServicesChanged = this.onErrorReportServicesChanged.bind(this);
-    this.onErrorReportGeneralLocationErrorChanged = this.onErrorReportGeneralLocationErrorChanged.bind(this);
     this.onErrorReportFinished = this.onErrorReportFinished.bind(this);
     this.onErrorReportSubmitted = this.onErrorReportSubmitted.bind(this);
   }
@@ -60,12 +61,12 @@ class NewErrorReportForm extends Component {
     this.setState({ isErrorReportFinished: true });
   }
 
-  // Need to make sure submission failures are correctly handled
-  // (and client isn't sent to Thankyou route)
   onErrorReportSubmitted() {
-    console.log('onErrorReportSubmitted triggered.');
-
-    const { errorReportText, errorReportGeneralLocationError, errorReportServices } = this.state;
+    const {
+      errorReportText,
+      errorReportGeneralLocationError,
+      errorReportServices,
+    } = this.state;
 
     this.props.postErrorReport(
       errorReportText,
