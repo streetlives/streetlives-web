@@ -10,7 +10,7 @@ class Thanks extends Component {
   }
 
   goToViewLocation() {
-    this.props.history.push(`/find/location/${this.props.match.params.locationId}/view`);
+    this.props.history.push(`/find/location/${this.props.match.params.locationId}`);
   }
 
   render() {
