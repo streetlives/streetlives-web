@@ -220,7 +220,7 @@ export default class MapPage extends Component {
             {this.getCurrentFilterString()}
           </span>
         </div>
-        )}
+      )}
     </div>
   );
 
