@@ -18,24 +18,37 @@
 .categoryCard {
   background-color: #f8f8fc;
   border: 1px solid #dadada !important;
-  padding: 4vw 4vw 4vw 4vw;
+  border-radius: 2px;
   box-shadow: 0vw 2vw 2vw rgba(0,0,0,0.15) !important;
   margin-bottom: 4vh;
   margin-top: 2vh;
 }
 
+.serviceSection:last-of-type {
+  border-bottom: none;
+}
+
+.serviceSection .expandArrow {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 .serviceCategoryHeadersContainer {
   font-size: .85rem !important;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  align-content: center;
+  padding: 2vh 3vw;
+}
+
+.serviceCategoryHeadersContainer .categoryIcon {
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .serviceCategoryHeaders {
+  display: inline-block;
   font-weight: bold;
   line-height: 1.33rem;
-  width: 100%;
   text-transform: uppercase;
   letter-spacing: 1.66px;
   margin: 0 !important;
@@ -45,10 +58,15 @@
 .specificServiceHeaders {
   line-height: 1.33rem;
   margin: 0 !important;
-  padding-top: 1.2vh;
-  padding-bottom: 2vh;
+  border-top: 1px solid #DADADA;
+  padding: 2vh 7vw;
   width: 100%;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.serviceDetails > div {
+  padding: 1.3vh 7vw;
 }
 
 .categoryCard .serviceDescription {
@@ -99,6 +117,7 @@
 .coronavirusInfo {
   color: #A02733;
   font-weight: bold;
+  padding-bottom: .45rem;
 }
 
 .lastUpdateLine {
