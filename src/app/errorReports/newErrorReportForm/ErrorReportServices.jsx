@@ -5,19 +5,6 @@ import Button from '../../../components/button';
 import Checkbox from '../../../components/checkbox';
 import withErrorReportsForm from '../withErrorReportsForm';
 
-/*
-
-function Checkbox({
-  name,
-  label,
-  checked,
-  onChange,
-  className,
-  disabled = undefined,
-})
-
-*/
-
 class ErrorReportServices extends Component {
   constructor(props) {
     super(props);
@@ -61,7 +48,7 @@ class ErrorReportServices extends Component {
                 <Checkbox
                   key={service.id}
                   name={service.id}
-                  label={`${service.name} service`} //  || service.Taxonomies[0].name || service.Taxonomies[0].parent_name
+                  label={`${service.name} service`}
                   checked={errorReportServices.includes(service.id)}
                   onChange={() => this.onServiceChange(service.id)}
                 />
