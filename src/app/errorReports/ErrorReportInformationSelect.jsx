@@ -74,12 +74,17 @@ const ErrorReportInformationSelect = (props) => {
 };
 
 ErrorReportInformationSelect.propTypes = {
-  locationData: PropTypes.instanceOf(Object),
+  locationData: PropTypes.shape({
+    Services: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+    })),
+  }),
   onServiceChange: PropTypes.func.isRequired,
   onGeneralLocationChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   generalLocationError: PropTypes.bool.isRequired,
-  errorReportServices: PropTypes.instanceOf(Array),
+  errorReportServices: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default withErrorReportsForm(ErrorReportInformationSelect);
