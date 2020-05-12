@@ -48,31 +48,16 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
   goBack: () => ownProps.history.goBack(),
+  goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
 });
 
-export default function withErrorReportForm(WrappedComponent, { hideInfoLink } = {}) {
+export default function withErrorReportForm(WrappedComponent) {
   class ErrorReportContainer extends Component {
-    constructor(props) {
-      super(props);
-      this.state = { isShowingInfo: false };
-
-      // this.onShowInfo = this.onShowInfo.bind(this);
-      // this.onHideInfo = this.onHideInfo.bind(this);
-    }
-
     componentDidMount() {
       if (!this.props.locationData) {
         this.props.getLocation(this.props.match.params.locationId);
       }
     }
-
-    // onShowInfo() {
-    //   this.setState({ isShowingInfo: true });
-    // }
-
-    // onHideInfo() {
-    //   this.setState({ isShowingInfo: false });
-    // }
 
     render() {
       const { locationData, locationError, goBack } = this.props;
