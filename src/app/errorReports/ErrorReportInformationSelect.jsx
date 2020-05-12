@@ -13,6 +13,7 @@ const ErrorReportInformationSelect = (props) => {
     onGeneralLocationChange,
     onServiceChange,
     onSubmit,
+    goToViewLocation,
   } = props;
 
   return (
@@ -64,7 +65,7 @@ const ErrorReportInformationSelect = (props) => {
         <Button
           secondary
           fluid
-          onClick={() => console.log('Cancel button triggered. Still need to implement function.')}
+          onClick={goToViewLocation}
         >
           Cancel
         </Button>
