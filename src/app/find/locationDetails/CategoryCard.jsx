@@ -5,7 +5,7 @@ import './locationDetails.css';
 import ServiceSection from './ServiceSection';
 
 // this card contains a category (e.g. Food) and displays
-// all services that a shelter provides within that category
+// all services that the location provides within that category
 function CategoryCard({ category, services, isInitiallyExpanded }) {
   return (
     <div className="categoryCard">
