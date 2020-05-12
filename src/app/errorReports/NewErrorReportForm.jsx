@@ -38,8 +38,8 @@ class NewErrorReportForm extends Component {
     }
   }
 
-  onErrorReportTextChanged(text) {
-    this.setState({ errorReportText: text });
+  onErrorReportTextChanged(event) {
+    this.setState({ errorReportText: event.target.value });
   }
 
   onErrorReportServicesChanged(value) {

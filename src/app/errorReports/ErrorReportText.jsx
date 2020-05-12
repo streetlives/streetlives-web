@@ -10,6 +10,7 @@ const ErrorReportText = (props) => {
     errorReportText,
     onChange,
     onSubmit,
+    goToViewLocation,
   } = props;
 
   return (
@@ -46,7 +47,7 @@ const ErrorReportText = (props) => {
         </div>
         <div className="mx-4">
           <Button
-            onClick={() => console.log('Cancel button triggered. Still need to implement function.')}
+            onClick={goToViewLocation}
             secondary
             fluid
           >
