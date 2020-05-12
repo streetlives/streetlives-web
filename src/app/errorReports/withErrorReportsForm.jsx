@@ -8,7 +8,6 @@ import {
 } from '../../selectors/location';
 import Modal from '../../components/modal';
 import Icon from '../../components/icon';
-// import Info from '../../components/info';
 import ErrorLabel from '../../components/form/ErrorLabel';
 import LoadingLabel from '../../components/form/LoadingLabel';
 
@@ -47,7 +46,6 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
-  goBack: () => ownProps.history.goBack(),
   goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
 });
 
@@ -60,7 +58,7 @@ export default function withErrorReportForm(WrappedComponent) {
     }
 
     render() {
-      const { locationData, locationError, goBack } = this.props;
+      const { locationData, locationError, goToViewLocation } = this.props;
 
       if (locationError) {
         return <ErrorLabel errorMessage={locationError} />;
@@ -76,7 +74,7 @@ export default function withErrorReportForm(WrappedComponent) {
             <div className="mx-3 mt-4 position-relative">
               <Icon
                 name="times"
-                onClick={goBack}
+                onClick={goToViewLocation}
                 style={{
                   position: 'absolute',
                   right: 0,
