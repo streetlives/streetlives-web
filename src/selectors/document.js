@@ -5,9 +5,8 @@ export const getDocuments = (state, props) => getService(state, props).Documents
 export const getRequiredDocuments = (state, props) =>
   getService(state, props).RequiredDocuments || [];
 
-// TODO Replace whenever form supports multiple proofs
-export const getFirstProof = (state, props) =>
-  (getRequiredDocuments(state, props)[0] || {}).document;
+export const getRequiredProofs = (state, props) =>
+  (getService(state, props).documents || {}).proofs || [];
 
 export const getDocumentRecertificationTime = (state, props) =>
   getDocuments(state, props).recertification_time;

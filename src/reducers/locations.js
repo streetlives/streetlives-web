@@ -69,18 +69,15 @@ const locationsReducer = (state = {}, action) => {
         const {
           Languages,
           DocumentsInfo,
-          RequiredDocuments,
           RegularSchedules,
           HolidaySchedules,
           EventRelatedInfos,
         } = service;
 
-        if (documents.proofs != null) {
-          // TODO: Update when form support multiple proofs
-          // eslint-disable-next-line prefer-destructuring
-          const proof = { ...RequiredDocuments[0], document: documents.proofs[0] };
+        let { RequiredDocuments } = service;
 
-          RequiredDocuments[0] = proof;
+        if (documents.proofs != null) {
+          RequiredDocuments = documents.proofs.map(p => ({ document: p }));
         }
 
         let hours = null;
