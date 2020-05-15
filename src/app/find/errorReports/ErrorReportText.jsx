@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Header from '../../components/header';
-import Button from '../../components/button';
-import TextArea from '../../components/textarea';
+import Header from '../../../components/header';
+import Button from '../../../components/button';
+import TextArea from '../../../components/textarea';
 import withErrorReportsForm from './withErrorReportsForm';
 
 const ErrorReportText = (props) => {

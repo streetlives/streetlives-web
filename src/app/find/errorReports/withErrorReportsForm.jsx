@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { getLocation } from '../../actions';
+import { getLocation } from '../../../actions';
 import {
   selectLocationData,
   selectLocationError,
-} from '../../selectors/location';
-import Modal from '../../components/modal';
-import Icon from '../../components/icon';
-import ErrorLabel from '../../components/form/ErrorLabel';
-import LoadingLabel from '../../components/form/LoadingLabel';
+} from '../../../selectors/location';
+import Modal from '../../../components/modal';
+import Icon from '../../../components/icon';
+import ErrorLabel from '../../../components/form/ErrorLabel';
+import LoadingLabel from '../../../components/form/LoadingLabel';
 
 const fullScreenStyles = {
   position: 'absolute',
