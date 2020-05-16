@@ -78,6 +78,16 @@ const renderCategoriesLine = (services) => {
   return <div className="detailPageCategories">{categories.join(' & ')}</div>;
 };
 
+const renderFpcAttribution = () => (
+  <div className="fpcAttribution">
+    Visit the Hunter College NYC Food Policy Center’s{' '}
+    <a href="https://www.nycfoodpolicy.org/food/" target="_blank" rel="noopener noreferrer">
+      NYC Neighborhood Food Resource Guides
+    </a>
+    {' '}for more local information
+  </div>
+);
+
 // returns an array of sorted category names with preference for search option and last update,
 // in that order
 const sortedCategoryNames = (categories, searchCategoryName) =>
@@ -104,6 +114,10 @@ const renderLocation = (location, searchCategory) => {
 
   const locationLastUpdate = getLocationLastUpdate(location, servicesWithLastUpdate);
 
+  const didFpcContribute = location.metadata.sources.some(source => source.includes('FPC'))
+    || location.Services.some(service =>
+      service.metadata.sources.some(source => source.includes('FPC')));
+
   const phones = [];
   if (location.Organization.Phones) {
     phones.push(...location.Organization.Phones);
@@ -117,7 +131,7 @@ const renderLocation = (location, searchCategory) => {
   }
 
   return (
-    <div className="px-3 mb-5">
+    <div className="px-3 mb-4">
       {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
         <div className="text-left">
           {locationLastUpdate && (
@@ -175,6 +189,8 @@ const renderLocation = (location, searchCategory) => {
                 services={servicesByCategory[category].services}
               />
             ))}
+
+          {didFpcContribute && renderFpcAttribution()}
         </div>
       )}
     </div>
