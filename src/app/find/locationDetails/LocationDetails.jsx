@@ -184,8 +184,20 @@ const renderLocation = (location, searchCategory) => {
 
 class LocationDetails extends Component {
   componentDidMount() {
+    document.addEventListener('keydown', this.escFunction, false);
     if (!this.props.location) {
       this.props.fetchLocation();
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.escFunction, false);
+  }
+
+  escFunction = (event) => {
+    const escKeyCode = 27;
+    if (event.keyCode === escKeyCode) {
+      this.props.goBack();
     }
   }
 
