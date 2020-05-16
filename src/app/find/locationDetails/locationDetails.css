@@ -117,12 +117,6 @@
   padding-bottom: 0.45rem;
 }
 
-.infoItem:last-child {
-  padding-top: 4px;
-  line-height: 1.2rem;
-  padding-bottom: 0rem !important;
-}
-
 .serviceSchedule {
   border-top: 1px solid #d8d8ee;
   padding-top: 2vh;
@@ -140,7 +134,6 @@
 .coronavirusInfo {
   color: #A02733;
   font-weight: bold;
-  padding-bottom: .45rem;
   white-space: pre-wrap;
 }
 
