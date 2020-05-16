@@ -91,7 +91,7 @@ function ServiceSection({ service, showOnMount }) {
 
   if (hasCoronavirusInfo) {
     serviceDetails.push((
-      <InfoItem coronavirus icon="exclamation-triangle">
+      <InfoItem key="coronavirusInfo" coronavirus icon="exclamation-triangle">
         {coronavirusInfo[0].information}
       </InfoItem>
     ));
@@ -108,7 +108,7 @@ function ServiceSection({ service, showOnMount }) {
 
     if (description) {
       serviceDetails.push((
-        <div className="serviceDescription">{description}</div>
+        <div key="description" className="serviceDescription">{description}</div>
       ));
     }
 
@@ -116,6 +116,7 @@ function ServiceSection({ service, showOnMount }) {
       || (requiredDocuments && requiredDocuments.length)) {
       serviceDetails.push((
         <ServiceRestrictions
+          key="restrictions"
           eligibilities={eligibilities}
           requiredDocuments={requiredDocuments}
         />
@@ -124,7 +125,7 @@ function ServiceSection({ service, showOnMount }) {
 
     if (openDays) {
       serviceDetails.push((
-        <InfoItem coronavirus icon="clock">
+        <InfoItem key="schedule" coronavirus icon="clock">
           {renderSchedule(openDays)}
         </InfoItem>
       ));
@@ -140,9 +141,7 @@ function ServiceSection({ service, showOnMount }) {
 
     if (taxonomySpecificAttributes && taxonomySpecificAttributes.length) {
       serviceDetails.push((
-        <ServiceOfferings
-          attributes={taxonomySpecificAttributes}
-        />
+        <ServiceOfferings key="offerings" attributes={taxonomySpecificAttributes} />
       ));
     }
   }
