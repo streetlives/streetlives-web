@@ -118,6 +118,7 @@
   color: #A02733;
   font-weight: bold;
   padding-bottom: .45rem;
+  white-space: pre-wrap;
 }
 
 .lastUpdateLine {
