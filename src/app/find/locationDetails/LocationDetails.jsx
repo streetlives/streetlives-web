@@ -118,7 +118,6 @@ const renderLocation = (location, searchCategory) => {
 
   return (
     <div className="px-3 mb-5">
-      <Header size="medium" className="locationTitle">{location.Organization.name}</Header>
       {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
         <div className="text-left">
           {locationLastUpdate && (
@@ -133,19 +132,19 @@ const renderLocation = (location, searchCategory) => {
 
           {renderCategoriesLine(location.Services)}
 
-          <Header size="large" className="locationHeaders">Address</Header>
+          <Header size="large" className="locationFieldHeader">Address</Header>
           {renderAddress(location.address)}
 
           {location.Organization.url && (
             <div>
-              <Header size="large" className="locationHeaders">Website</Header>
+              <Header size="large" className="locationFieldHeader">Website</Header>
               <WebsiteLink url={location.Organization.url} className="locationLinks" />
             </div>
           )}
 
           {phones.length > 0 && (
             <div>
-              <Header size="large" className="locationHeaders">Phone Number</Header>
+              <Header size="large" className="locationFieldHeader">Phone Number</Header>
               {phones.map(phone => (
                 <div key={phone.id}>
                   <PhoneLink {...phone} className="locationLinks" />
@@ -156,7 +155,7 @@ const renderLocation = (location, searchCategory) => {
 
           {location.AccessibilityForDisabilities.length > 0 && (
             <div>
-              <Header size="large" className="locationHeaders">Accessibility</Header>
+              <Header size="large" className="locationFieldHeader">Accessibility</Header>
               {location.AccessibilityForDisabilities.map(accessibility => (
                 <p className="accessibilityText" key={accessibility.id}>
                   {accessibility.details || accessibility.accessibility}
@@ -165,7 +164,7 @@ const renderLocation = (location, searchCategory) => {
             </div>
           )}
 
-          <Header size="large" className="locationHeaders">Services Offered:</Header>
+          <Header size="large" className="locationFieldHeader">Services Offered:</Header>
           {sortedCategoryNames(servicesByCategory, searchCategory)
             .map(category => (
               <CategoryCard
@@ -209,19 +208,23 @@ class LocationDetails extends Component {
       searchCategory,
     } = this.props;
 
+    const headerContent = (
+      <div>
+        <Icon
+          className="locationCloseButton"
+          name="times"
+          onClick={goBack}
+        />
+        <Header size="medium" className="locationTitle">
+          {location ? location.Organization.name : 'Loading...'}
+        </Header>
+      </div>
+    );
+
     return (
       <Modal className="pb-4">
-        <div className="mx-3 mt-4 position-relative">
-          <Icon
-            name="times"
-            onClick={goBack}
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: '0.2em',
-            }}
-          />
-        </div>
+        <div className="locationHeader">{headerContent}</div>
+        <div className="locationHeaderCopyToAvoidCoveringBody">{headerContent}</div>
         {locationError && (
           <div className="d-flex align-items-center h-100">
             Sorry, an error occurred loading data about this location.

@@ -1,12 +1,33 @@
-@value primaryColor from "../../../colors.css";
+@value primaryColor, gray from "../../../colors.css";
+
+.locationHeader {
+  background-color: gray;
+  position: fixed;
+  width: 100%;
+}
+.locationHeader, .locationHeaderCopyToAvoidCoveringBody {
+  padding-top: 17px;
+  padding-bottom: 6px;
+}
+.locationHeaderCopyToAvoidCoveringBody {
+  visibility: hidden;
+}
+
+.locationCloseButton {
+  position: absolute;
+  right: 17px;
+}
 
 .locationTitle {
   width: 85%;
   margin-left: auto;
   margin-right: auto;
+  font-size: 17px;
+  font-weight: bold;
+  margin-top: 0;
 }
 
-.locationHeaders {
+.locationFieldHeader {
   font-size: 0.95rem !important;
   line-height: 1.33rem;
   margin: 4.5vh 0 0vh 0;
