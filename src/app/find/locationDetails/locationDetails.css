@@ -62,6 +62,8 @@
   padding: 2vh 7vw;
   width: 100%;
   font-weight: bold;
+}
+.specificServiceHeaders.expandableHeaders {
   cursor: pointer;
 }
 

@@ -85,7 +85,67 @@ function ServiceSection({ service, showOnMount }) {
     }
   };
 
+  const serviceDetails = [];
+
   const hasCoronavirusInfo = Boolean(coronavirusInfo && coronavirusInfo.length);
+
+  if (hasCoronavirusInfo) {
+    serviceDetails.push((
+      <InfoItem coronavirus icon="exclamation-triangle">
+        {coronavirusInfo[0].information}
+      </InfoItem>
+    ));
+  }
+
+  if (!isClosed) {
+    const {
+      description,
+      Eligibilities: eligibilities,
+      RequiredDocuments: requiredDocuments,
+      Phones: phones,
+      ServiceTaxonomySpecificAttributes: taxonomySpecificAttributes,
+    } = service;
+
+    if (description) {
+      serviceDetails.push((
+        <div className="serviceDescription">{description}</div>
+      ));
+    }
+
+    if ((eligibilities && eligibilities.length)
+      || (requiredDocuments && requiredDocuments.length)) {
+      serviceDetails.push((
+        <ServiceRestrictions
+          eligibilities={eligibilities}
+          requiredDocuments={requiredDocuments}
+        />
+      ));
+    }
+
+    if (openDays) {
+      serviceDetails.push((
+        <InfoItem coronavirus icon="clock">
+          {renderSchedule(openDays)}
+        </InfoItem>
+      ));
+    }
+
+    if (phones && phones.length) {
+      serviceDetails.push(phones.map(phone => (
+        <InfoItem key={phone.id} icon="phone">
+          <PhoneLink {...phone} className="locationLinks" />
+        </InfoItem>
+      )));
+    }
+
+    if (taxonomySpecificAttributes && taxonomySpecificAttributes.length) {
+      serviceDetails.push((
+        <ServiceOfferings
+          attributes={taxonomySpecificAttributes}
+        />
+      ));
+    }
+  }
 
   return (
     <div
@@ -93,14 +153,17 @@ function ServiceSection({ service, showOnMount }) {
       className="serviceSection"
     >
       <div
-        size="medium"
-        className="specificServiceHeaders"
-        onClick={() => setIsExpanded(!isExpanded)}
-        onKeyDown={handleKeyPress}
-        role="button"
-        tabIndex="0"
+        {...(serviceDetails.length ? {
+          className: 'specificServiceHeaders expandableHeaders',
+          onClick: () => setIsExpanded(!isExpanded),
+          onKeyDown: handleKeyPress,
+          role: 'button',
+          tabIndex: '0',
+        } : {
+          className: 'specificServiceHeaders',
+        })}
       >
-        {(!isClosed || hasCoronavirusInfo) &&
+        {(serviceDetails.length > 0) &&
           <span className="expandArrow">
             <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} />
           </span>
@@ -111,41 +174,7 @@ function ServiceSection({ service, showOnMount }) {
 
       {isExpanded &&
         <div className="serviceDetails">
-          {hasCoronavirusInfo && (
-            <InfoItem coronavirus icon="exclamation-triangle">
-              {coronavirusInfo[0].information}
-            </InfoItem>
-          )}
-
-          {!isClosed && (
-            <div>
-              {!!service.description && (
-                <div className="serviceDescription">{service.description}</div>
-              )}
-
-              <ServiceRestrictions
-                eligibilities={service.Eligibilities}
-                requiredDocuments={service.RequiredDocuments}
-              />
-
-              {openDays && (
-                <InfoItem coronavirus icon="clock">
-                  {renderSchedule(openDays)}
-                </InfoItem>
-              )}
-
-              {service.Phones &&
-                service.Phones.map(phone => (
-                  <InfoItem key={phone.id} icon="phone">
-                    <PhoneLink {...phone} className="locationLinks" />
-                  </InfoItem>
-                ))}
-
-              <ServiceOfferings
-                attributes={service.ServiceTaxonomySpecificAttributes}
-              />
-            </div>
-          )}
+          {serviceDetails}
         </div>
       }
     </div>
