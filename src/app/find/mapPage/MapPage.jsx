@@ -9,6 +9,7 @@ import Icon from '../../../components/icon';
 import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
 import Search from './Search';
+import ResultsBar from './ResultsBar';
 import './mapPage.css';
 
 const minSearchResults = 3;
@@ -23,7 +24,7 @@ const initialFiltersState = {
 export default class MapPage extends Component {
   state = {
     initialLocationsLoaded: false,
-    locations: null,
+    locations: [],
     zoomedLocations: null,
     center: null,
     radius: null,
@@ -207,23 +208,6 @@ export default class MapPage extends Component {
     this.setState({ isFilterModalOpen: true });
   }
 
-  renderFilteringInfoBar = () => (
-    <div
-      className="resultsBar"
-    >
-      {this.state.isSearchingLocations ? (
-        <div>Loading results...</div>
-      ) : (
-        <div>
-          Showing results for
-          <span className="font-weight-bold ml-1">
-            {this.getCurrentFilterString()}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-
   renderFiltersButton = () => {
     const { category } = this.props;
 
@@ -318,9 +302,15 @@ export default class MapPage extends Component {
               }}
             >
               {
-                (isFiltering || this.state.isSearchingLocations) ?
-                  this.renderFilteringInfoBar() :
-                  renderSearchBar()
+                (isFiltering || this.state.isSearchingLocations) ? (
+                  <ResultsBar
+                    isSearching={this.state.isSearchingLocations}
+                    filterString={this.getCurrentFilterString()}
+                    hasResults={!!this.state.locations.length}
+                    filters={this.state.filters}
+                    clearResults={this.clearResults} 
+                  />
+                ) : renderSearchBar()
               }
               <Map
                 onBoundsChanged={this.onBoundsChanged}
