@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import TextArea from '../../../components/textarea';
-import withErrorReportsForm from './withErrorReportsForm';
+// import withErrorReportsForm from './withErrorReportsForm';
 
 const ErrorReportText = (props) => {
   const {
@@ -65,4 +65,4 @@ ErrorReportText.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-export default withErrorReportsForm(ErrorReportText, { hideInfoLink: true });
+export default ErrorReportText;

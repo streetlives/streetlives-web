@@ -19,7 +19,7 @@ import withTracker from '../components/routing/withTracker';
 
 const TeamRouter = React.lazy(() => import('./team/Router'));
 const CommentsRouter = React.lazy(() => import('./comments/Router'));
-const ErrorReportsRouter = React.lazy(() => import('./errorReports/Router'));
+// const ErrorReportsRouter = React.lazy(() => import('./errorReports/Router'));
 const findRouterPromise = import('./find/Router');
 const FindRouter = React.lazy(() => findRouterPromise);
 
@@ -55,7 +55,7 @@ function App() {
                 />
               ))}
               <Route path="/comments" component={withTracker(CommentsRouter)} />
-              <Route path="/errorreports" component={withTracker(ErrorReportsRouter)} />
+              {/* <Route path="/errorreports" component={withTracker(ErrorReportsRouter)} /> */}
               <Suspense fallback={<LoadingLabel>Loading over 1000 locations</LoadingLabel>}>
                 <Route path="/find" component={withTracker(FindRouter)} />
               </Suspense>

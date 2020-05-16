@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../../components/button';
-import Heart from '../../components/heart';
-import withErrorReportsForm from './withErrorReportsForm';
+import Button from '../../../components/button';
+import Heart from '../../../components/heart';
+// import withErrorReportsForm from './withErrorReportsForm';
 
 const Thanks = (props) => {
   const { goToViewLocation } = props;
@@ -35,4 +35,4 @@ const Thanks = (props) => {
   );
 };
 
-export default withErrorReportsForm(Thanks);
+export default Thanks;

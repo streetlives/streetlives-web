@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Header from '../../components/header';
-import Button from '../../components/button';
-import Checkbox from '../../components/checkbox';
-import withErrorReportsForm from './withErrorReportsForm';
+import Header from '../../../components/header';
+import Button from '../../../components/button';
+import Checkbox from '../../../components/checkbox';
+// import withErrorReportsForm from './withErrorReportsForm';
 
 const ErrorReportInformationSelect = (props) => {
   const {
@@ -88,4 +88,4 @@ ErrorReportInformationSelect.propTypes = {
   errorReportServices: PropTypes.arrayOf(PropTypes.string),
 };
 
-export default withErrorReportsForm(ErrorReportInformationSelect);
+export default ErrorReportInformationSelect;
