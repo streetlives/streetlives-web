@@ -78,9 +78,10 @@ const renderCategoriesLine = (services) => {
   return <div className="detailPageCategories">{categories.join(' & ')}</div>;
 };
 
-// returns an array of sorted category names with preference for search option and last update, in that order
-const sortedCategoryNames = (categories, searchCategoryName) => {
-  return Object.keys(categories).sort((categoryNameA, categoryNameB) => {
+// returns an array of sorted category names with preference for search option and last update,
+// in that order
+const sortedCategoryNames = (categories, searchCategoryName) =>
+  Object.keys(categories).sort((categoryNameA, categoryNameB) => {
     // searched category should always go on top
     if (categoryNameA === searchCategoryName) {
       return -1;
@@ -92,7 +93,6 @@ const sortedCategoryNames = (categories, searchCategoryName) => {
     // otherwise sort categories initially by date last updated
     return categories[categoryNameB].lastUpdate - categories[categoryNameA].lastUpdate;
   });
-};
 
 const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
