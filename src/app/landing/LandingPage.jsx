@@ -36,7 +36,7 @@ class LandingPage extends Component {
             <div className="IntroTop">
               <h1>Get what <span className="Emphasis">you</span> need</h1>
               <p>
-                Find food, clothing, personal care, shelter, and other services that are 
+                Find food, clothing, personal care, shelter, and other services that are{' '}
                 <strong>verified by the community</strong> and right for you.
               </p>
               <div className="IntroTop arrow">
