@@ -5,7 +5,7 @@ import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
 import './LandingPage.css';
 
-const feedbackEmail = 'trust@gogetta.nyc';
+const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
   getStarted = () => {
@@ -16,11 +16,17 @@ class LandingPage extends Component {
     this.contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  scrollToContentTop = () => {
+    console.log('oeuoeu')
+    this.contentRefTop.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   contentRef = React.createRef();
+  contentRefTop = React.createRef();
 
   render() {
     return (
-      <div className="LandingPage">
+      <div className="LandingPage" ref={this.contentRefTop}>
         <div className="Intro Section">
           <div className="IntroTitle">
             <img src="/img/gogetta_logo.svg" alt="" />
@@ -31,14 +37,15 @@ class LandingPage extends Component {
             <div className="IntroTop">
               <h1>Get what <span className="Emphasis">you</span> need</h1>
               <p>
-                Find food, clothing, personal care, and shelter services that are right for you.
+                Find food, clothing, personal care, shelter, and other services that are 
+                <strong>verified by the community</strong> and right for you.
               </p>
               <div className="IntroTop arrow">
                 <Icon name="chevron-down" size="2x" onClick={this.scrollToContent} />
               </div>
             </div>
             <div className="IntroBottom">
-              <GetStartedButton onClick={this.getStarted} />
+              <GetStartedButton onClick={this.getStarted} primary fluid />
             </div>
           </div>
         </div>
@@ -50,8 +57,8 @@ class LandingPage extends Component {
             <div className="OnboardingText">
               <h3>How it works</h3>
               <h2>Search for what you need</h2>
-              <p>
-                GoGetta has New York’s most up-to-date community-verified provider information on:
+              <p className="text-lighter">
+                GoGetta has New York’s most up-to-date service information on food, personal care, shelter, and clothing.
               </p>
             </div>
 
@@ -59,7 +66,7 @@ class LandingPage extends Component {
               <source
                 className="OnboardingImage"
                 media="(min-aspect-ratio: 2/3)"
-                srcSet="img/landing_page/map_wide.png"
+                srcSet="img/landing_page/map_tablet.png"
               />
               <img
                 className="OnboardingImage"
@@ -74,9 +81,8 @@ class LandingPage extends Component {
 
             <div className="OnboardingText">
               <h2>Find providers that will actually serve <span className="Emphasis">you</span></h2>
-              <p>
-                Answer a few questions or filter and we will show you locations that cover your specific needs, 
-                from age to gender to family situations.
+              <p className="text-lighter">
+                Filter or answer a few questions and we will show you locations that meet your specific needs, from age to gender to family situations.
               </p>
             </div>
 
@@ -88,11 +94,10 @@ class LandingPage extends Component {
 
             <div className="OnboardingText">
               <h2>You’re all set!</h2>
-              <p>
-                See the details of the services, go get what you need.
-                We don’t keep personal data, so your privacy is protected.
+              <p className="text-lighter">
+                See the service details, go get what you need. We don’t keep your personal data, so your privacy is protected.
               </p>
-              <GetStartedButton onClick={this.getStarted} />
+              <GetStartedButton onClick={this.getStarted} primary fluid />
             </div>
 
             <picture>
@@ -106,7 +111,7 @@ class LandingPage extends Component {
         </div>
 
         <div className="Testimonials Section">
-          <div>
+          <div className="TestimonialsInner">
             <h3 className="TestimonialsTitle">GoGettas are saying</h3>
             <Testimonial
               img="img/landing_page/testimonial_jeffrey.png"
@@ -124,16 +129,16 @@ class LandingPage extends Component {
               text="Boom! I go in and there’s all this information."
             />
           </div>
-          <GetStartedButton onClick={this.getStarted} className="btnWhite" />
+          <GetStartedButton onClick={this.getStarted} fluid className="btnWhite" />
         </div>
         <div className="Partners Section">
           <h3>Collaboration</h3>
           <h2>Love for the help we’ve had to create GoGetta!</h2>
           <div className="PartnerPictures">
             <PartnerPicture
-              link="https://aws.amazon.com/"
-              alt="aws logo"
-              src="img/partners/aws_logo.png"
+              link="http://www.aliforneycenter.org/"
+              alt="Ali Forney logo"
+              src="img/partners/ali_forney_logo.png"
             />
             <PartnerPicture
               link="https://www.breadandlife.org/"
@@ -183,7 +188,7 @@ class LandingPage extends Component {
             <PartnerPicture
               link="https://www1.nyc.gov/site/dhs/index.page"
               alt="nyc dhs logo"
-              src="img/partners/nyc_dhs_logo.png"
+              src="img/partners/nyc_logo.png"
             />
             <PartnerPicture
               link="http://www.law.nyu.edu/"
@@ -206,9 +211,9 @@ class LandingPage extends Component {
               src="img/partners/holy_apostles_logo.png"
             />
             <PartnerPicture
-              link="http://www.aliforneycenter.org/"
-              alt="Ali Forney logo"
-              src="img/partners/ali_forney_logo.png"
+              link="https://aws.amazon.com/"
+              alt="aws logo"
+              src="img/partners/aws_logo.png"
             />
             <PartnerPicture
               link="https://www.usdigitalresponse.org/"
@@ -216,8 +221,8 @@ class LandingPage extends Component {
               src="img/partners/us_digital_response_logo.png"
             />
           </div>
-          <p>Food service information provided with the help of Hunter College NYC Food Policy Center.</p>
-          <p>For more information, visit:</p>
+          <p className="text-lighter">Food service information provided with the help of Hunter College NYC Food Policy Center.</p>
+          <p className="text-lighter">For more information, visit:</p>
           <p>
             <a href="https://www.nycfoodpolicy.org/food">https://www.nycfoodpolicy.org/food</a>
           </p>
@@ -240,6 +245,10 @@ class LandingPage extends Component {
           <p>Tell us what you think at:</p>
           <div className="FeedbackEmail">
             <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
+          </div>
+          <div className="arrowUp" >
+            <Icon name="chevron-up" size="2x" onClick={this.scrollToContentTop} />
+            <p>Back to top</p>
           </div>
         </div>
       </div>
