@@ -24,7 +24,7 @@ const initialFiltersState = {
 export default class MapPage extends Component {
   state = {
     initialLocationsLoaded: false,
-    locations: [],
+    locations: null,
     zoomedLocations: null,
     center: null,
     radius: null,
@@ -32,6 +32,7 @@ export default class MapPage extends Component {
     isSearchingLocations: false,
     isFilterModalOpen: false,
     filters: initialFiltersState,
+    hasResults: false,
   };
 
   componentDidMount() {
@@ -193,6 +194,7 @@ export default class MapPage extends Component {
     this.setState({ isSearchingLocations: true }, () => {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
+          hasResults: this.state.locations && this.state.locations.length,
           isSearchingLocations: false,
           zoomedLocations: this.state.locations && this.state.locations.slice(0, minSearchResults),
         }));
@@ -306,9 +308,9 @@ export default class MapPage extends Component {
                   <ResultsBar
                     isSearching={this.state.isSearchingLocations}
                     filterString={this.getCurrentFilterString()}
-                    hasResults={!!this.state.locations.length}
+                    hasResults={this.state.hasResults}
                     filters={this.state.filters}
-                    clearResults={this.clearResults} 
+                    clearResults={this.clearResults}
                   />
                 ) : renderSearchBar()
               }
