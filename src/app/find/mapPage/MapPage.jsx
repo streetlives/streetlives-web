@@ -162,7 +162,7 @@ export default class MapPage extends Component {
       radius: Math.floor(radius),
       minResults,
       searchString,
-      basicMapOnly: true,
+      locationFieldsOnly: true,
       serviceFilters: {
         ...eligibilityParams,
         ...filtersObject,

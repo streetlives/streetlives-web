@@ -13,7 +13,7 @@ export const getLocations = ({
   minResults,
   searchString,
   organizationName,
-  basicMapOnly,
+  locationFieldsOnly,
   serviceFilters: {
     taxonomyIds,
     openNow,
@@ -34,7 +34,7 @@ export const getLocations = ({
     minResults,
     searchString,
     organizationName,
-    basicMapOnly,
+    locationFieldsOnly,
     radius: radius != null ? Math.min(radius, MAX_RADIUS) : undefined,
     taxonomyId: taxonomyIds != null ? taxonomyIds.join(',') : undefined,
     openAt: openNow ? (new Date()).toISOString() : undefined,
