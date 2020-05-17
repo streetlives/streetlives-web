@@ -308,7 +308,7 @@ export default class MapPage extends Component {
                   <ResultsBar
                     isSearching={this.state.isSearchingLocations}
                     filterString={this.getCurrentFilterString()}
-                    hasResults={this.state.hasResults}
+                    hasResults={!!this.state.hasResults}
                     filters={this.state.filters}
                     clearResults={this.clearResults}
                   />
