@@ -1,26 +1,18 @@
+/* eslint-disable max-len */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import { Route, Redirect, Switch, BrowserRouter as Router } from 'react-router-dom';
 import { postErrorReport, getLocation } from '../../../actions';
-import { selectIsPostingErrorReport } from '../../../reducers';
 import { selectLocationError, selectLocationData } from '../../../selectors/location';
 import LoadingLabel from '../../../components/form/LoadingLabel';
+import NotFound from '../../notFound/NotFound';
 import ErrorLabel from '../../../components/form/ErrorLabel';
 import Modal from '../../../components/modal';
 import Icon from '../../../components/icon';
-// import ErrorReportText from './ErrorReportText';
-// import ErrorReportInformationSelect from './ErrorReportInformationSelect';
-import ErrorReportRoutes from './Router';
-
-// Remove this style, if no longer needed
-const fullScreenStyles = {
-  position: 'absolute',
-  top: '0',
-  left: '0',
-  width: '100%',
-  height: '100%',
-  overflow: 'auto',
-};
+import ErrorReportText from './ErrorReportText';
+import ErrorReportInformationSelect from './ErrorReportInformationSelect';
+import Thanks from './Thanks';
 
 const LoadingView = ({ message }) => (
   <div className="m-4">
@@ -34,17 +26,16 @@ class ErrorReportContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      errorReportInformation: {
+        errorReportGeneralLocationError: false,
+        errorReportServices: [],
+      },
       errorReportText: '',
-      errorReportGeneralLocationError: false,
-      errorReportServices: [],
-      // isOnErrorReportTextScreen: false, // control with Router
     };
 
-    // eslint-disable-next-line max-len
     this.onErrorReportGeneralLocationErrorChanged = this.onErrorReportGeneralLocationErrorChanged.bind(this);
     this.onErrorReportTextChanged = this.onErrorReportTextChanged.bind(this);
     this.onErrorReportServicesChanged = this.onErrorReportServicesChanged.bind(this);
-    // this.onErrorReportTextScreen = this.onErrorReportTextScreen.bind(this);
     this.onErrorReportSubmitted = this.onErrorReportSubmitted.bind(this);
   }
 
@@ -54,65 +45,63 @@ class ErrorReportContainer extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.isPostingErrorReport && !this.props.isPostingErrorReport) {
-      this.props.history.push(`/find/location/${this.props.match.params.locationId}/thanks`);
-    }
-  }
-
   onErrorReportTextChanged(event) {
     this.setState({ errorReportText: event.target.value });
   }
 
   onErrorReportServicesChanged(value) {
-    this.setState((state) => {
-      const errorReportServices = state.errorReportServices.includes(value)
-        ? state.errorReportServices.filter(service => service !== value)
-        : [...state.errorReportServices, value];
-      return {
-        errorReportServices,
-      };
+    const newErrorReportInformation = { ...this.state.errorReportInformation };
+
+    const newErrorReportServices = newErrorReportInformation.errorReportServices.includes(value)
+      ? newErrorReportInformation.errorReportServices.filter(service => service !== value)
+      : [...newErrorReportInformation.errorReportServices, value];
+
+    newErrorReportInformation.errorReportServices = newErrorReportServices;
+
+    this.setState({
+      errorReportInformation: newErrorReportInformation,
     });
   }
 
   onErrorReportGeneralLocationErrorChanged(value) {
-    this.setState({ errorReportGeneralLocationError: value });
+    const newErrorReportInformation = { ...this.state.errorReportInformation };
+
+    newErrorReportInformation.errorReportGeneralLocationError = value;
+
+    this.setState({
+      errorReportInformation: newErrorReportInformation,
+    });
   }
 
-  // onErrorReportTextScreen() {
-  //   this.setState({ isOnErrorReportTextScreen: true });
-  // }
-
   onErrorReportSubmitted() {
-    const {
-      errorReportText,
-      errorReportGeneralLocationError,
-      errorReportServices,
-    } = this.state;
+    const data = {
+      generalLocationError: this.state.errorReportInformation.errorReportGeneralLocationError,
+      services: this.state.errorReportInformation.errorReportServices,
+    };
 
-    this.props.postErrorReport(
-      errorReportText,
-      errorReportGeneralLocationError,
-      errorReportServices,
-    );
+    if (this.state.errorReportText !== '') {
+      data.content = this.state.errorReportText;
+    }
+
+    this.props.postErrorReport(data);
   }
 
   render() {
     const {
       locationData,
-      isPostingErrorReport,
       locationError,
       goToViewLocation,
+      goToErrorReportText,
+
     } = this.props;
+
+    const {
+      errorReportGeneralLocationError,
+      errorReportServices,
+    } = this.state.errorReportInformation;
 
     if (locationError) {
       return <ErrorLabel errorMessage={locationError} />;
-    }
-
-    if (isPostingErrorReport) {
-      return (
-        <LoadingView message="Adding error report..." />
-      );
     }
 
     if (!locationData) {
@@ -120,50 +109,83 @@ class ErrorReportContainer extends Component {
     }
 
     return (
-      <div style={fullScreenStyles}>
-        <Modal>
-          <div className="mx-3 mt-4 position-relative">
-            <Icon
-              name="times"
-              onClick={goToViewLocation}
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: '0.2em',
-              }}
-            />
-          </div>
-          <ErrorReportRoutes {...this.props} />
-        </Modal>
-      </div>
+      <Router>
+        <div>
+          <Modal>
+            <div className="mx-3 mt-4 position-relative">
+              <Icon
+                name="times"
+                onClick={goToViewLocation}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '0.2em',
+                }}
+              />
+            </div>
+            <Switch>
+              <Redirect exact from={`${this.props.match.path}/`} to={`${this.props.match.path}/services`} />
+              <Route
+                exact
+                path={`${this.props.match.path}/text`}
+                render={() => (
+                  <ErrorReportText
+                    match={this.props.match}
+                    errorReportText={this.state.errorReportText}
+                    onChange={this.onErrorReportTextChanged}
+                    onSubmit={this.onErrorReportSubmitted}
+                    goToViewLocation={goToViewLocation}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path={`${this.props.match.path}/thanks`}
+                render={() => (
+                  <Thanks
+                    goToViewLocation={goToViewLocation}
+                  />
+                )}
+              />
+              <Route
+                exact
+                name="servicesScreen"
+                path={`${this.props.match.path}/services`}
+                render={() => (
+                  <ErrorReportInformationSelect
+                    locationData={locationData}
+                    match={this.props.match}
+                    generalLocationError={errorReportGeneralLocationError}
+                    errorReportServices={errorReportServices}
+                    onServiceChange={this.onErrorReportServicesChanged}
+                    onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
+                    onSubmit={goToErrorReportText}
+                    goToViewLocation={goToViewLocation}
+                  />
+                )}
+              />
+              <Route path="*" component={NotFound} />
+            </Switch>
+          </Modal>
+        </div>
+      </Router>
     );
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const locationData = selectLocationData(state, ownProps);
-  const locationError = selectLocationError(state, ownProps);
-  const isPostingErrorReport = selectIsPostingErrorReport(state);
-
-  if (!locationData) {
-    return { locationError };
-  }
-
-  return {
-    locationData,
-    locationError,
-    isPostingErrorReport,
-    organizationName: locationData.Organization.name,
-    organizationId: locationData.Organization.id,
-  };
-};
+const mapStateToProps = (state, ownProps) => ({
+  locationData: selectLocationData(state, ownProps),
+  locationError: selectLocationError(state, ownProps),
+});
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: locationId => dispatch(getLocation(locationId)),
   goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
-  postErrorReport: (content, generalLocationError, services) => dispatch(postErrorReport(
+  goToErrorReportText: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/text`),
+  goToThanks: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/thanks`),
+  postErrorReport: data => dispatch(postErrorReport(
     ownProps.match.params.locationId,
-    { content, generalLocationError, services },
+    data,
   )),
 });
 

@@ -1,14 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Button from '../../../components/button';
 import Heart from '../../../components/heart';
-// import withErrorReportsForm from './withErrorReportsForm';
 
 const Thanks = (props) => {
   const { goToViewLocation } = props;
 
   return (
     <div>
-      <div className="content text-left">
+      <div className="mx-4 mb-3 text-left">
         <p>
           <Heart width="100" height="100" />
         </p>
@@ -23,7 +23,6 @@ const Thanks = (props) => {
       </div>
       <div className="mx-4">
         <Button
-          className="mx-4"
           primary
           fluid
           onClick={goToViewLocation}
@@ -33,6 +32,10 @@ const Thanks = (props) => {
       </div>
     </div>
   );
+};
+
+Thanks.propTypes = {
+  goToViewLocation: PropTypes.func.isRequired,
 };
 
 export default Thanks;

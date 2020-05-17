@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Checkbox from '../../../components/checkbox';
-// import withErrorReportsForm from './withErrorReportsForm';
 
 const ErrorReportInformationSelect = (props) => {
   const {
@@ -12,7 +12,6 @@ const ErrorReportInformationSelect = (props) => {
     generalLocationError,
     onGeneralLocationChange,
     onServiceChange,
-    onSubmit,
     goToViewLocation,
   } = props;
 
@@ -48,18 +47,21 @@ const ErrorReportInformationSelect = (props) => {
           ))}
         </div>
       </div>
+
       <div className="mx-4 mb-1">
-        <Button
-          primary
-          fluid
-          onClick={onSubmit}
-        >
-          {
-            (!generalLocationError && !errorReportServices.length)
-              ? 'Skip'
-              : 'Next'
-          }
-        </Button>
+        <Link to={`${props.match.url}/text`}>
+          <Button
+            primary
+            fluid
+            onClick={() => {} /* URL navigation handled by Link component wrapper */}
+          >
+            {
+              (!generalLocationError && !errorReportServices.length)
+                ? 'Skip'
+                : 'Next'
+            }
+          </Button>
+        </Link>
       </div>
       <div className="mx-4">
         <Button
@@ -80,12 +82,17 @@ ErrorReportInformationSelect.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
     })),
-  }),
+  }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      locationId: PropTypes.string,
+    }),
+  }).isRequired,
+  errorReportServices: PropTypes.arrayOf(PropTypes.string),
+  generalLocationError: PropTypes.bool.isRequired,
   onServiceChange: PropTypes.func.isRequired,
   onGeneralLocationChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  generalLocationError: PropTypes.bool.isRequired,
-  errorReportServices: PropTypes.arrayOf(PropTypes.string),
+  goToViewLocation: PropTypes.func.isRequired,
 };
 
 export default ErrorReportInformationSelect;
