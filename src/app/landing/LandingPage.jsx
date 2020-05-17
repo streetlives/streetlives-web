@@ -17,18 +17,17 @@ class LandingPage extends Component {
   };
 
   scrollToContentTop = () => {
-    console.log('oeuoeu')
-    this.contentRefTop.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   contentRef = React.createRef();
-  contentRefTop = React.createRef();
+  topRef = React.createRef();
 
   render() {
     return (
-      <div className="LandingPage" ref={this.contentRefTop}>
+      <div className="LandingPage">
         <div className="Intro Section">
-          <div className="IntroTitle">
+          <div className="IntroTitle" ref={this.topRef}>
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
