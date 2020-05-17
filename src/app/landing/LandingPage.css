@@ -4,7 +4,6 @@
 .LandingPage {
   text-align: left;
   box-sizing: border-box;
-  font-family: 'Open sans', sans-serif;
   line-height: 1.5;
   overflow-y: scroll;
   scroll-snap-type: y proximity;
@@ -42,7 +41,8 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/intro.png') no-repeat center center fixed;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1.png') no-repeat center center fixed;
+  background-position: 30% 0%;
   background-size: cover;
   color: #FFFFFF;
   padding: 15vh 0px 10vh 0px;
@@ -54,6 +54,10 @@
 
 .LandingPage .IntroBody > .IntroTop > p {
   font-size: 21px;
+}
+
+.LandingPage .IntroBody > .IntroTop > .arrow {
+  text-align: center;
 }
 
 .LandingPage .IntroBody > .IntroBottom {
@@ -94,7 +98,7 @@
   position: absolute;
   z-index: -1;
   top: -10px;
-  font-size: 40vh;
+  font-size: 42vh;
   line-height: 80%;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.12);
@@ -109,16 +113,11 @@
 }
 
 .LandingPage .Testimonials {
-  margin-top: 30px;
   margin-bottom: 6px;
   padding-top: 46px;
   padding-bottom: 20px;
   background-color: primaryColor;
   color: #FFFFFF;
-  border-bottom-left-radius: 100% 5%;
-  border-bottom-right-radius: 100% 5%;
-  border-top-left-radius: 100% 5%;
-  border-top-right-radius: 100% 5%;
 }
 
 .LandingPage .Testimonials .TestimonialsTitle {
@@ -139,14 +138,24 @@
   justify-content: center;
 }
 
+.LandingPage .AboutUs {
+  background-color: #1400ff;
+  padding: 45px 32px;
+  color: #fff;
+  line-height: 24px;
+}
+
+.LandingPage .AboutUs .about-logo {
+  display: flex;
+  margin: 45px auto 0 auto;
+  width: 145px;
+}
+
 .LandingPage .Feedback {
   background-color: #000000;
   color: #FFFFFF;
-  padding-top: 70px;
-  padding-bottom: 36px;
-  text-align: center;
-  border-top-left-radius: 100%;
-  border-top-right-radius: 100%;
+  padding: 45px 32px;
+  text-align: left;
 }
 
 .LandingPage .Feedback .FeedbackEmail {
@@ -190,6 +199,16 @@
 .GetStartedButton {
   padding: 0px 10px 0px 10px;
   width: 100%;
+}
+
+.GetStartedButton button {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.45);
+  font-size: 17px;
+  height: 44px;
+}
+
+.GetStartedButton .btn-white {
+  background-color: white;
 }
 
 @media screen and (max-width: 470px) {

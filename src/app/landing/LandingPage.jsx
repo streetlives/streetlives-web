@@ -31,11 +31,13 @@ class LandingPage extends Component {
             <div className="IntroTop">
               <h1>Get what <span className="Emphasis">you</span> need</h1>
               <p>
-                Find food, clothing and personal care services just right for you
+                Find food, clothing, personal care, and shelter services that are right for you.
               </p>
+              <div className="IntroTop arrow">
+                <Icon name="chevron-down" size="2x" onClick={this.scrollToContent} />
+              </div>
             </div>
             <div className="IntroBottom">
-              <Icon name="chevron-down" size="2x" onClick={this.scrollToContent} />
               <GetStartedButton onClick={this.getStarted} />
             </div>
           </div>
@@ -73,12 +75,12 @@ class LandingPage extends Component {
             <div className="OnboardingText">
               <h2>Find providers that will actually serve <span className="Emphasis">you</span></h2>
               <p>
-                Answer a few questions and we will show you locations that cover your specific
-                needs, from age to gender to family situations.
+                Answer a few questions or filter and we will show you locations that cover your specific needs, 
+                from age to gender to family situations.
               </p>
             </div>
 
-            <img className="OnboardingImage" src="img/landing_page/provider.png" alt="" />
+            <img className="OnboardingImage" src="img/landing_page/welcome.png" alt="" />
           </div>
 
           <div className="Section">
@@ -87,70 +89,149 @@ class LandingPage extends Component {
             <div className="OnboardingText">
               <h2>You’re all set!</h2>
               <p>
-                See the details of the services and go get what you need.
+                See the details of the services, go get what you need.
+                We don’t keep personal data, so your privacy is protected.
               </p>
+              <GetStartedButton onClick={this.getStarted} />
             </div>
+
+            <picture>
+              <img
+                className="OnboardingImage"
+                src="img/landing_page/step3.png"
+                alt=""
+              />
+            </picture>
           </div>
         </div>
 
-        <GetStartedButton onClick={this.getStarted} />
-
         <div className="Testimonials Section">
-          <h3 className="TestimonialsTitle">GoGettas are saying</h3>
-          <Testimonial
-            img="img/landing_page/testimonial_jeffrey.png"
-            name="Jeffrey"
-            text="I know this information is good, it’s from people like me"
-          />
-          <Testimonial
-            img="img/landing_page/testimonial_kenia.png"
-            name="Kenia"
-            text="Usually, if I need something, I ask. But this is faster, easier, better."
-          />
-          <Testimonial
-            img="img/landing_page/testimonial_gayle.png"
-            name="Gayle"
-            text="Boom! I go in and there’s all this information."
-          />
+          <div>
+            <h3 className="TestimonialsTitle">GoGettas are saying</h3>
+            <Testimonial
+              img="img/landing_page/testimonial_jeffrey.png"
+              name="Jeffrey"
+              text="I know this information is good, it’s from people like me"
+            />
+            <Testimonial
+              img="img/landing_page/testimonial_kenia.png"
+              name="Kenia"
+              text="Usually, if I need something, I ask. But this is faster, easier, better."
+            />
+            <Testimonial
+              img="img/landing_page/testimonial_gayle.png"
+              name="Gayle"
+              text="Boom! I go in and there’s all this information."
+            />
+          </div>
+          <GetStartedButton onClick={this.getStarted} className="btnWhite" />
         </div>
-
-        <GetStartedButton onClick={this.getStarted} />
-
         <div className="Partners Section">
-          <h3>Our partners</h3>
-          <h2>Love to our partners!</h2>
-
+          <h3>Collaboration</h3>
+          <h2>Love for the help we’ve had to create GoGetta!</h2>
           <div className="PartnerPictures">
             <PartnerPicture
               link="https://aws.amazon.com/"
               alt="aws logo"
-              src="img/aws_logo.png"
+              src="img/partners/aws_logo.png"
+            />
+            <PartnerPicture
+              link="https://www.breadandlife.org/"
+              alt="St. Johns' logo"
+              src="img/partners/st_john_logo.png"
             />
             <PartnerPicture
               link="https://www.careforthehomeless.org/"
               alt="care for the homeless logo"
-              src="img/care_for_the_homeless_logo.png"
+              src="img/partners/care_for_the_homeless_logo.png"
+            />
+            <PartnerPicture
+              link="https://civichall.org/"
+              alt="Civic Hall logo"
+              src="img/partners/civic_hall_logo.svg"
+            />
+            <PartnerPicture
+              link="http://www.edalliance.org/"
+              alt="Education Alliance logo"
+              src="img/partners/educational_alliance_logo.png"
+            />
+            <PartnerPicture
+              link="https://www.nycfoodpolicy.org/"
+              alt="NYC Food Policy logo"
+              src="img/partners/hunter_college.png"
+            />
+            <PartnerPicture
+              link="https://www.infoxchange.org/au/"
+              alt="InfoXChange logo"
+              src="img/partners/infoxchange_logo.png"
+            />
+            <PartnerPicture
+              link="http://minnow.io/"
+              alt="Minnow logo"
+              src="img/partners/minnow_logo.png"
             />
             <PartnerPicture
               link="http://neighborstogether.org/"
               alt="neighbors together logo"
-              src="img/neighbors_together_logo.png"
+              src="img/partners/neighbors_together_logo.png"
             />
             <PartnerPicture
-              link="http://www.law.nyu.edu/"
-              alt="nyu law logo"
-              src="img/nyu_law_logo.png"
-            />
-            <PartnerPicture
-              link="https://openreferral.org/"
-              alt="open referral logo"
-              src="img/openreferral_logo.png"
+              link="https://www.ncsinc.org/"
+              alt="Neighborhood Coalition For Shelter logo"
+              src="img/partners/neighborhood_coalition_for_shelter_logo.png"
             />
             <PartnerPicture
               link="https://www1.nyc.gov/site/dhs/index.page"
               alt="nyc dhs logo"
-              src="img/nyc_dhs_logo.png"
+              src="img/partners/nyc_dhs_logo.png"
             />
+            <PartnerPicture
+              link="http://www.law.nyu.edu/"
+              alt="nyu law logo"
+              src="img/partners/nyu_law_logo.png"
+            />
+            <PartnerPicture
+              link="https://opencollective.com/streetlives"
+              alt="Open Collective logo"
+              src="img/partners/open_collective_logo.png"
+            />
+            <PartnerPicture
+              link="https://openreferral.org/"
+              alt="open referral logo"
+              src="img/partners/openreferral_logo.png"
+            />
+            <PartnerPicture
+              link="https://holyapostlessoupkitchen.org/"
+              alt="Holy Apostles logo"
+              src="img/partners/holy_apostles_logo.png"
+            />
+            <PartnerPicture
+              link="http://www.aliforneycenter.org/"
+              alt="Ali Forney logo"
+              src="img/partners/ali_forney_logo.png"
+            />
+            <PartnerPicture
+              link="https://www.usdigitalresponse.org/"
+              alt="US Digital Response logo"
+              src="img/partners/us_digital_response_logo.png"
+            />
+          </div>
+          <p>Food service information provided with the help of Hunter College NYC Food Policy Center.</p>
+          <p>For more information, visit:</p>
+          <p>
+            <a href="https://www.nycfoodpolicy.org/food">https://www.nycfoodpolicy.org/food</a>
+          </p>
+        </div>
+        <div className="AboutUs Section">
+          <h3>Who we are</h3>
+          <div>
+            <p>GoGetta is a Streetlives product. Streetlives is a US non-profit under our fiscal host the Open Collective Foundation.</p>
+            <p>
+              We build technology with communities considered vulnerable, New York social service providers, and other system stakeholders in a whole-of-community partnership.
+            </p>
+          </div>
+          <div>
+            <img src="img/streetlives_text_logo.png" alt="Streetlives logo" className="about-logo" />
           </div>
         </div>
 
