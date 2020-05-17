@@ -41,7 +41,7 @@ class ErrorReportContainer extends Component {
 
   componentDidMount() {
     if (!this.props.locationData) {
-      this.props.getLocation(this.props.match.params.locationId);
+      this.props.getLocation();
     }
   }
 
@@ -176,7 +176,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getLocation: locationId => dispatch(getLocation(locationId)),
+  getLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
   goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
   postErrorReport: data => dispatch(postErrorReport(
     ownProps.match.params.locationId,
