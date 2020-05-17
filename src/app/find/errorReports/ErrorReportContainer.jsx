@@ -91,8 +91,6 @@ class ErrorReportContainer extends Component {
       locationData,
       locationError,
       goToViewLocation,
-      goToErrorReportText,
-
     } = this.props;
 
     const {
@@ -159,7 +157,6 @@ class ErrorReportContainer extends Component {
                     errorReportServices={errorReportServices}
                     onServiceChange={this.onErrorReportServicesChanged}
                     onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
-                    onSubmit={goToErrorReportText}
                     goToViewLocation={goToViewLocation}
                   />
                 )}
@@ -181,8 +178,6 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: locationId => dispatch(getLocation(locationId)),
   goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
-  goToErrorReportText: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/text`),
-  goToThanks: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/thanks`),
   postErrorReport: data => dispatch(postErrorReport(
     ownProps.match.params.locationId,
     data,
