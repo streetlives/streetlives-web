@@ -14,6 +14,7 @@ export const getLocations = ({
   searchString,
   organizationName,
   occasion,
+  locationFieldsOnly,
   serviceFilters: {
     taxonomyIds,
     openNow,
@@ -33,6 +34,7 @@ export const getLocations = ({
     longitude,
     organizationName,
     occasion,
+    locationFieldsOnly,
     searchString: searchString || undefined,
     minResults: minResults || undefined,
     radius: radius != null ? Math.min(radius, MAX_RADIUS) : undefined,

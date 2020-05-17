@@ -162,6 +162,7 @@ export default class MapPage extends Component {
       minResults,
       searchString,
       occasion: OCCASIONS.COVID19,
+      locationFieldsOnly: true,
       serviceFilters: {
         ...eligibilityParams,
         ...filtersObject,
