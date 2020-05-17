@@ -9,6 +9,7 @@ import Icon from '../../../components/icon';
 import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
 import Search from './Search';
+import ResultsBar from './ResultsBar';
 import './mapPage.css';
 
 const minSearchResults = 3;
@@ -31,6 +32,7 @@ export default class MapPage extends Component {
     isSearchingLocations: false,
     isFilterModalOpen: false,
     filters: initialFiltersState,
+    hasResults: false,
   };
 
   componentDidMount() {
@@ -193,6 +195,7 @@ export default class MapPage extends Component {
     this.setState({ isSearchingLocations: true }, () => {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
+          hasResults: this.state.locations && this.state.locations.length,
           isSearchingLocations: false,
           zoomedLocations: this.state.locations && this.state.locations.slice(0, minSearchResults),
         }));
@@ -207,23 +210,6 @@ export default class MapPage extends Component {
   openFilterModal = () => {
     this.setState({ isFilterModalOpen: true });
   }
-
-  renderFilteringInfoBar = () => (
-    <div
-      className="resultsBar"
-    >
-      {this.state.isSearchingLocations ? (
-        <div>Loading results...</div>
-      ) : (
-        <div>
-          Showing results for
-          <span className="font-weight-bold ml-1">
-            {this.getCurrentFilterString()}
-          </span>
-        </div>
-      )}
-    </div>
-  );
 
   renderFiltersButton = () => {
     const { category } = this.props;
@@ -319,9 +305,15 @@ export default class MapPage extends Component {
               }}
             >
               {
-                (isFiltering || this.state.isSearchingLocations) ?
-                  this.renderFilteringInfoBar() :
-                  renderSearchBar()
+                (isFiltering || this.state.isSearchingLocations) ? (
+                  <ResultsBar
+                    isSearching={this.state.isSearchingLocations}
+                    filterString={this.getCurrentFilterString()}
+                    hasResults={!!this.state.hasResults}
+                    filters={this.state.filters}
+                    clearResults={this.clearResults}
+                  />
+                ) : renderSearchBar()
               }
               <Map
                 onBoundsChanged={this.onBoundsChanged}
