@@ -43,7 +43,11 @@ const ErrorReportText = (props) => {
               primary
               fluid
             >
-              Done
+              {
+                errorReportText
+                  ? 'Done'
+                  : 'Skip'
+              }
             </Button>
           </Link>
         </div>
