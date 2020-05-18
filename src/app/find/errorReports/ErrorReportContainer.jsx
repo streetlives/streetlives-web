@@ -134,7 +134,6 @@ class ErrorReportContainer extends Component {
               path={`${this.props.match.path}/text`}
               render={() => (
                 <ErrorReportText
-                  match={this.props.match}
                   errorReportText={this.state.errorReportText}
                   onChange={this.onErrorReportTextChanged}
                   onSubmit={this.onErrorReportSubmitted}
