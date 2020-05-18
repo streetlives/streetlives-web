@@ -67,9 +67,6 @@ ErrorReportText.propTypes = {
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   goToViewLocation: PropTypes.func.isRequired,
-  match: PropTypes.shape({
-    url: PropTypes.string,
-  }).isRequired,
 };
 
 export default ErrorReportText;
