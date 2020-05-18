@@ -244,8 +244,8 @@ class LandingPage extends Component {
           <div className="FeedbackEmail">
             <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
           </div>
-          <div className="arrowUp" >
-            <Icon name="chevron-up" size="2x" onClick={this.scrollToContentTop} />
+          <div className="arrowUp" onClick={this.scrollToContentTop}>
+            <Icon name="chevron-up" size="2x" />
             <p>Back to top</p>
           </div>
         </div>
