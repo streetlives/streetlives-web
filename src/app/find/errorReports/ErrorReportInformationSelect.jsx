@@ -11,7 +11,6 @@ const ErrorReportInformationSelect = (props) => {
     generalLocationError,
     onGeneralLocationChange,
     onServiceChange,
-    goToViewLocation,
     onSubmit,
   } = props;
 
@@ -61,15 +60,6 @@ const ErrorReportInformationSelect = (props) => {
           }
         </Button>
       </div>
-      <div className="mx-4">
-        <Button
-          secondary
-          fluid
-          onClick={goToViewLocation}
-        >
-          Cancel
-        </Button>
-      </div>
     </div>
   );
 };
@@ -85,7 +75,6 @@ ErrorReportInformationSelect.propTypes = {
   generalLocationError: PropTypes.bool.isRequired,
   onServiceChange: PropTypes.func.isRequired,
   onGeneralLocationChange: PropTypes.func.isRequired,
-  goToViewLocation: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 

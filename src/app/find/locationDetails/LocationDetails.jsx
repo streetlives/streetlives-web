@@ -240,17 +240,20 @@ class LocationDetails extends Component {
     );
 
     return (
-      <Modal className="pb-4">
-        <div className="locationHeader">{headerContent}</div>
-        <div className="locationHeaderCopyToAvoidCoveringBody">{headerContent}</div>
-        {locationError && (
-          <div className="d-flex align-items-center h-100">
-            Sorry, an error occurred loading data about this location.
-          </div>
-        )}
-        <ErrorBoundary>
-          {location ? renderLocation(location, searchCategory) : null}
-        </ErrorBoundary>
+      <Modal className="pb-4 locationModal">
+        <div className="locationModalTop">
+          <div className="locationHeader">{headerContent}</div>
+          <div className="locationHeaderCopyToAvoidCoveringBody">{headerContent}</div>
+          {locationError && (
+            <div className="d-flex align-items-center h-100">
+              Sorry, an error occurred loading data about this location.
+            </div>
+          )}
+
+          <ErrorBoundary>
+            {location ? renderLocation(location, searchCategory) : null}
+          </ErrorBoundary>
+        </div>
 
         {location && (
           <div className="px-3 mb-4">
@@ -258,12 +261,12 @@ class LocationDetails extends Component {
               secondary
               fluid
               onClick={goToErrorReport}
+              className="reportErrorButton"
             >
               Report Errors
             </Button>
           </div>
         )}
-
       </Modal>
     );
   }

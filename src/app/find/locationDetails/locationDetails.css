@@ -1,4 +1,4 @@
-@value primaryColor, gray from "../../../colors.css";
+@value primaryColor, gray, darkerGray from "../../../colors.css";
 
 .locationHeader {
   background-color: gray;
@@ -27,6 +27,15 @@
   font-size: 17px;
   font-weight: bold;
   margin-top: 0;
+}
+
+.locationModal {
+  display: flex;
+  flex-direction: column;
+}
+
+.locationModalTop {
+  flex: 1;
 }
 
 .locationFieldHeader {
@@ -161,6 +170,11 @@
   float: left;
   width: 1.2rem;
   height: 1.2rem;
+}
+
+.reportErrorButton {
+  border-color: darkerGray;
+  color: darkerGray;
 }
 
 .fpcAttribution {

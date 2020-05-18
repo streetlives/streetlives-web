@@ -137,7 +137,6 @@ class ErrorReportContainer extends Component {
                   errorReportText={this.state.errorReportText}
                   onChange={this.onErrorReportTextChanged}
                   onSubmit={this.onErrorReportSubmitted}
-                  goToViewLocation={goToViewLocation}
                 />
               )}
             />
@@ -160,7 +159,6 @@ class ErrorReportContainer extends Component {
                   errorReportServices={errorReportServices}
                   onServiceChange={this.onErrorReportServicesChanged}
                   onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
-                  goToViewLocation={goToViewLocation}
                   onSubmit={goToErrorReportTextScreen}
                 />
               )}
