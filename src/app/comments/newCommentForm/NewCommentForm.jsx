@@ -13,11 +13,11 @@ class NewCommentForm extends Component {
     super(props);
     this.state = {
       commentText: '',
-      isErrorReportFinalScreen: false,
+      isCommentFinished: false,
     };
 
     this.onCommentTextChanged = this.onCommentTextChanged.bind(this);
-    this.onErrorReportFinalScreen = this.onErrorReportFinalScreen.bind(this);
+    this.onCommentFinished = this.onCommentFinished.bind(this);
     this.onCommentSubmitted = this.onCommentSubmitted.bind(this);
   }
 
@@ -37,8 +37,8 @@ class NewCommentForm extends Component {
     this.setState({ commentText: text });
   }
 
-  onErrorReportFinalScreen() {
-    this.setState({ isErrorReportFinalScreen: true });
+  onCommentFinished() {
+    this.setState({ isCommentFinished: true });
   }
 
   onCommentSubmitted(info) {
@@ -64,13 +64,13 @@ class NewCommentForm extends Component {
       );
     }
 
-    if (!this.state.isErrorReportFinalScreen) {
+    if (!this.state.isCommentFinished) {
       return (
         <CommentText
           match={this.props.match}
           value={this.state.commentText}
           onChange={this.onCommentTextChanged}
-          onSubmit={this.onErrorReportFinalScreen}
+          onSubmit={this.onCommentFinished}
         />
       );
     }
