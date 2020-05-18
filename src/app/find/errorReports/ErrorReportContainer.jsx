@@ -157,13 +157,12 @@ class ErrorReportContainer extends Component {
               render={() => (
                 <ErrorReportInformationSelect
                   locationData={locationData}
-                  match={this.props.match}
                   generalLocationError={errorReportGeneralLocationError}
                   errorReportServices={errorReportServices}
                   onServiceChange={this.onErrorReportServicesChanged}
                   onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
                   goToViewLocation={goToViewLocation}
-                  goToErrorReportTextScreen={goToErrorReportTextScreen}
+                  onSubmit={goToErrorReportTextScreen}
                 />
               )}
             />

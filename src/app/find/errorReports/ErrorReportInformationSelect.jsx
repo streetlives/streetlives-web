@@ -12,7 +12,7 @@ const ErrorReportInformationSelect = (props) => {
     onGeneralLocationChange,
     onServiceChange,
     goToViewLocation,
-    goToErrorReportTextScreen,
+    onSubmit,
   } = props;
 
   return (
@@ -52,7 +52,7 @@ const ErrorReportInformationSelect = (props) => {
         <Button
           primary
           fluid
-          onClick={goToErrorReportTextScreen}
+          onClick={onSubmit}
         >
           {
             (!generalLocationError && !errorReportServices.length)
@@ -81,16 +81,12 @@ ErrorReportInformationSelect.propTypes = {
       name: PropTypes.string,
     })),
   }).isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      locationId: PropTypes.string,
-    }),
-  }).isRequired,
   errorReportServices: PropTypes.arrayOf(PropTypes.string),
   generalLocationError: PropTypes.bool.isRequired,
   onServiceChange: PropTypes.func.isRequired,
   onGeneralLocationChange: PropTypes.func.isRequired,
   goToViewLocation: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export default ErrorReportInformationSelect;
