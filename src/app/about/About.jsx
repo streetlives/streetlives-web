@@ -116,9 +116,10 @@ export default function About() {
             className="social-proof"
             style={{
               padding: '10px 0px',
+              backgroundColor: '#e35205',
             }}
           >
-            <a href="https://www.ncsinc.org/"><img style={{ width: '80%' }} alt="neighborhood coalition for shelter logo" src="img/partners/neighborhood_coalition_for_shelter_logo.png" /></a>
+            <a href="https://www.ncsinc.org/"><img style={{ width: '80%' }} alt="neighborhood coalition for shelter logo" src="img/partners/neighborhood_coalition_for_shelter_logo.svg" /></a>
           </div>
           <div className="social-proof">
             <a href="http://feedbacklabs.org/"><img alt="feedback labs logo" src="img/partners/feedback_labs_logo.png" /></a>
