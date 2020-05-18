@@ -249,3 +249,17 @@ export const removeComment = comment =>
         Authorization: idJwtToken,
       },
     }));
+
+export const postErrorReport = ({ locationId, errorReport }) =>
+  axios
+    .request({
+      url: `${config.baseApi}/errorreports`,
+      method: 'post',
+      data: {
+        locationId,
+        generalLocationError: errorReport.generalLocationError,
+        services: errorReport.services,
+        content: errorReport.content,
+      },
+    })
+    .then(result => result.data);
