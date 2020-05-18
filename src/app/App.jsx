@@ -54,7 +54,7 @@ function App() {
                 />
               ))}
               <Route path="/comments" component={withTracker(CommentsRouter)} />
-              <Suspense fallback={<LoadingLabel>Loading over 1000 locations</LoadingLabel>}>
+              <Suspense fallback={<LoadingLabel>Loading locations</LoadingLabel>}>
                 <Route path="/find" component={withTracker(FindRouter)} />
               </Suspense>
               <Route path="*" component={withTracker(NotFound)} />
