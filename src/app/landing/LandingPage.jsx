@@ -84,7 +84,7 @@ class LandingPage extends Component {
                 Filter or answer a few questions and we will show you locations that meet your specific needs, from age to gender to family situations.
               </p>
             </div>
-            <img className="OnboardingImage" src="img/landing_page/welcome.png" alt="" />
+            <img className="OnboardingImage" src="img/landing_page/welcome.jpg" alt="" />
           </div>
 
           <div className="Section">
