@@ -6,6 +6,7 @@ import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
 import ErrorBoundary from '../../../components/errorBoundary';
+import Button from '../../../components/button';
 import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
@@ -221,6 +222,7 @@ class LocationDetails extends Component {
       location,
       locationError,
       goBack,
+      goToErrorReport,
       searchCategory,
     } = this.props;
 
@@ -249,6 +251,19 @@ class LocationDetails extends Component {
         <ErrorBoundary>
           {location ? renderLocation(location, searchCategory) : null}
         </ErrorBoundary>
+
+        {location && (
+          <div className="px-3 mb-4">
+            <Button
+              secondary
+              fluid
+              onClick={goToErrorReport}
+            >
+              Report Errors
+            </Button>
+          </div>
+        )}
+
       </Modal>
     );
   }
