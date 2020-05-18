@@ -105,7 +105,7 @@ const sortedCategoryNames = (categories, searchCategoryName) =>
     return categories[categoryNameB].lastUpdate - categories[categoryNameA].lastUpdate;
   });
 
-const renderLocation = (location, searchCategory, goToErrorReport) => {
+const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
@@ -191,16 +191,6 @@ const renderLocation = (location, searchCategory, goToErrorReport) => {
               />
             ))}
 
-          <div>
-            <Button
-              secondary
-              fluid
-              onClick={goToErrorReport}
-            >
-              Report Errors
-            </Button>
-          </div>
-
           {didFpcContribute && renderFpcAttribution()}
         </div>
       )}
@@ -259,8 +249,21 @@ class LocationDetails extends Component {
           </div>
         )}
         <ErrorBoundary>
-          {location ? renderLocation(location, searchCategory, goToErrorReport) : null}
+          {location ? renderLocation(location, searchCategory) : null}
         </ErrorBoundary>
+
+        {location && (
+          <div className="px-3 mb-4">
+            <Button
+              secondary
+              fluid
+              onClick={goToErrorReport}
+            >
+              Report Errors
+            </Button>
+          </div>
+        )}
+
       </Modal>
     );
   }
