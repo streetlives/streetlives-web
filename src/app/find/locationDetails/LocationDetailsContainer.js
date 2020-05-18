@@ -6,6 +6,7 @@ import LocationDetails from './LocationDetails';
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   goBack: () => ownProps.history.goBack(),
+  goToErrorReport: () => ownProps.history.push(`${ownProps.match.url}errorreports`),
   fetchLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
 });
 

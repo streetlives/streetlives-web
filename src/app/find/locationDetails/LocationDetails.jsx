@@ -6,6 +6,7 @@ import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
 import ErrorBoundary from '../../../components/errorBoundary';
+import Button from '../../../components/button';
 import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
@@ -104,7 +105,7 @@ const sortedCategoryNames = (categories, searchCategoryName) =>
     return categories[categoryNameB].lastUpdate - categories[categoryNameA].lastUpdate;
   });
 
-const renderLocation = (location, searchCategory) => {
+const renderLocation = (location, searchCategory, goToErrorReport) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
@@ -190,6 +191,16 @@ const renderLocation = (location, searchCategory) => {
               />
             ))}
 
+          <div>
+            <Button
+              secondary
+              fluid
+              onClick={goToErrorReport}
+            >
+              Report Errors
+            </Button>
+          </div>
+
           {didFpcContribute && renderFpcAttribution()}
         </div>
       )}
@@ -221,6 +232,7 @@ class LocationDetails extends Component {
       location,
       locationError,
       goBack,
+      goToErrorReport,
       searchCategory,
     } = this.props;
 
@@ -247,7 +259,7 @@ class LocationDetails extends Component {
           </div>
         )}
         <ErrorBoundary>
-          {location ? renderLocation(location, searchCategory) : null}
+          {location ? renderLocation(location, searchCategory, goToErrorReport) : null}
         </ErrorBoundary>
       </Modal>
     );
