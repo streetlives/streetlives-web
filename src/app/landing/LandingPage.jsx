@@ -133,7 +133,7 @@ class LandingPage extends Component {
             />
             <Testimonial
               img="img/landing_page/testimonial_gayle.png"
-              name="Gayle"
+              name="Gia"
               text="Boom! I go in and there’s all this information."
             />
           </div>
