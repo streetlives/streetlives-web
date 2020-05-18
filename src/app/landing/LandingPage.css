@@ -45,7 +45,7 @@
   background-position: 30% 0%;
   background-size: cover;
   color: #FFFFFF;
-  padding: 15vh 0px 10vh 0px;
+  padding: 15vh 0px 15vh 0px;
 }
 
 .LandingPage .IntroBody > .IntroTop > h1 {
@@ -207,6 +207,7 @@
 .GetStartedButton {
   padding: 0px 10px 0px 10px;
   width: 100%;
+  margin-bottom: 15px;
 }
 
 .GetStartedButton button {
