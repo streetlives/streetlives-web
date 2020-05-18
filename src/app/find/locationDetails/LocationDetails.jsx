@@ -60,6 +60,8 @@ const groupByCategory = services => services.reduce((grouped, service) => {
   };
 }, {});
 
+const formatClosureInfo = info => `* ${info.trim()[0].toUpperCase()}${info.trim().slice(1)}`;
+
 const renderAddress = (address) => {
   const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
   const directionsLink =
@@ -109,6 +111,7 @@ const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
+  const closureInfo = isClosed && formatClosureInfo(coronavirusInfo[0].information);
 
   const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
   const servicesByCategory = groupByCategory(servicesWithLastUpdate);
@@ -133,7 +136,9 @@ const renderLocation = (location, searchCategory) => {
 
   return (
     <div className="px-3 mb-4">
-      {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
+      {isClosed ? (
+        <p className="text-left coronavirusInfo closureInfo">{closureInfo}</p>
+      ) : (
         <div className="text-left">
           {locationLastUpdate && (
             <div className="lastUpdateLine coronavirusInfo">

@@ -142,6 +142,10 @@
   padding: 2vh 0 0 0;
 }
 
+.closureInfo {
+  margin-top: 16px;
+}
+
 .coronavirusInfo {
   color: #A02733;
   font-weight: bold;
