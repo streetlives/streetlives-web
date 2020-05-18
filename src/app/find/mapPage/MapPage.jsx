@@ -341,6 +341,7 @@ export default class MapPage extends Component {
                     {this.state.locations &&
                       this.state.locations.map(location => (
                         <LocationMarker
+                          color={location.closed ? 'gray' : 'blue'}
                           key={location.id}
                           id={location.id}
                           mapLocation={location}
