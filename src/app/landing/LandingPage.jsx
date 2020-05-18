@@ -94,7 +94,7 @@ class LandingPage extends Component {
                 Filter or answer a few questions and we will show you locations that meet your specific needs, from age to gender to family situations.
               </p>
             </div>
-            <img className="OnboardingImage" src="img/landing_page/welcome.png" alt="" />
+            <img className="OnboardingImage" src="img/landing_page/welcome.jpg" alt="" />
           </div>
 
           <div className="Section">
@@ -254,8 +254,8 @@ class LandingPage extends Component {
           <div className="FeedbackEmail">
             <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
           </div>
-          <div className="arrowUp" >
-            <Icon name="chevron-up" size="2x" onClick={this.scrollToContentTop} />
+          <div className="arrowUp" onClick={this.scrollToContentTop}>
+            <Icon name="chevron-up" size="2x" />
             <p>Back to top</p>
           </div>
         </div>
