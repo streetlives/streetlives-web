@@ -5,6 +5,5 @@
 }
 
 .PartnerPicture img {
-  max-width: 20vw;
-  max-height: 20vw;
+  width: 90px;
 }
