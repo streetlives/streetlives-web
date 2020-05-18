@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import Checkbox from '../../../components/checkbox';
@@ -13,6 +12,7 @@ const ErrorReportInformationSelect = (props) => {
     onGeneralLocationChange,
     onServiceChange,
     goToViewLocation,
+    goToErrorReportTextScreen,
   } = props;
 
   return (
@@ -49,19 +49,17 @@ const ErrorReportInformationSelect = (props) => {
       </div>
 
       <div className="mx-4 mb-1">
-        <Link to={`${props.match.url}/text`}>
-          <Button
-            primary
-            fluid
-            onClick={() => {} /* URL navigation handled by Link component wrapper */}
-          >
-            {
-              (!generalLocationError && !errorReportServices.length)
-                ? 'Skip'
-                : 'Next'
-            }
-          </Button>
-        </Link>
+        <Button
+          primary
+          fluid
+          onClick={goToErrorReportTextScreen}
+        >
+          {
+            (!generalLocationError && !errorReportServices.length)
+              ? 'Skip'
+              : 'Next'
+          }
+        </Button>
       </div>
       <div className="mx-4">
         <Button

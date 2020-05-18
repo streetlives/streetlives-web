@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { Route, Redirect, Switch, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import { postErrorReport, getLocation } from '../../../actions';
 import { selectLocationError, selectLocationData } from '../../../selectors/location';
 import LoadingLabel from '../../../components/form/LoadingLabel';
@@ -84,6 +84,8 @@ class ErrorReportContainer extends Component {
     }
 
     this.props.postErrorReport(data);
+
+    this.props.goToThanksScreen();
   }
 
   render() {
@@ -91,6 +93,7 @@ class ErrorReportContainer extends Component {
       locationData,
       locationError,
       goToViewLocation,
+      goToErrorReportTextScreen,
     } = this.props;
 
     const {
@@ -107,65 +110,67 @@ class ErrorReportContainer extends Component {
     }
 
     return (
-      <Router>
-        <div>
-          <Modal>
-            <div className="mx-3 mt-4 position-relative">
-              <Icon
-                name="times"
-                onClick={goToViewLocation}
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '0.2em',
-                }}
-              />
-            </div>
-            <Switch>
-              <Redirect exact from={`${this.props.match.path}/`} to={`${this.props.match.path}/services`} />
-              <Route
-                exact
-                path={`${this.props.match.path}/text`}
-                render={() => (
-                  <ErrorReportText
-                    match={this.props.match}
-                    errorReportText={this.state.errorReportText}
-                    onChange={this.onErrorReportTextChanged}
-                    onSubmit={this.onErrorReportSubmitted}
-                    goToViewLocation={goToViewLocation}
-                  />
-                )}
-              />
-              <Route
-                exact
-                path={`${this.props.match.path}/thanks`}
-                render={() => (
-                  <Thanks
-                    goToViewLocation={goToViewLocation}
-                  />
-                )}
-              />
-              <Route
-                exact
-                name="servicesScreen"
-                path={`${this.props.match.path}/services`}
-                render={() => (
-                  <ErrorReportInformationSelect
-                    locationData={locationData}
-                    match={this.props.match}
-                    generalLocationError={errorReportGeneralLocationError}
-                    errorReportServices={errorReportServices}
-                    onServiceChange={this.onErrorReportServicesChanged}
-                    onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
-                    goToViewLocation={goToViewLocation}
-                  />
-                )}
-              />
-              <Route path="*" component={NotFound} />
-            </Switch>
-          </Modal>
-        </div>
-      </Router>
+      <div>
+        <Modal>
+          <div className="mx-3 mt-4 position-relative">
+            <Icon
+              name="times"
+              onClick={goToViewLocation}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '0.2em',
+              }}
+            />
+          </div>
+          <Switch>
+            <Redirect
+              exact
+              from={`${this.props.match.path}/`}
+              to={`${this.props.match.path}/services`}
+            />
+            <Route
+              exact
+              path={`${this.props.match.path}/text`}
+              render={() => (
+                <ErrorReportText
+                  match={this.props.match}
+                  errorReportText={this.state.errorReportText}
+                  onChange={this.onErrorReportTextChanged}
+                  onSubmit={this.onErrorReportSubmitted}
+                  goToViewLocation={goToViewLocation}
+                />
+              )}
+            />
+            <Route
+              exact
+              path={`${this.props.match.path}/thanks`}
+              render={() => (
+                <Thanks
+                  goToViewLocation={goToViewLocation}
+                />
+              )}
+            />
+            <Route
+              exact
+              path={`${this.props.match.path}/services`}
+              render={() => (
+                <ErrorReportInformationSelect
+                  locationData={locationData}
+                  match={this.props.match}
+                  generalLocationError={errorReportGeneralLocationError}
+                  errorReportServices={errorReportServices}
+                  onServiceChange={this.onErrorReportServicesChanged}
+                  onGeneralLocationChange={this.onErrorReportGeneralLocationErrorChanged}
+                  goToViewLocation={goToViewLocation}
+                  goToErrorReportTextScreen={goToErrorReportTextScreen}
+                />
+              )}
+            />
+            <Route path="*" component={NotFound} />
+          </Switch>
+        </Modal>
+      </div>
     );
   }
 }
@@ -177,6 +182,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
+  goToThanksScreen: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/thanks`),
+  goToErrorReportTextScreen: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}/errorreports/text`),
   goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
   postErrorReport: data => dispatch(postErrorReport(
     ownProps.match.params.locationId,

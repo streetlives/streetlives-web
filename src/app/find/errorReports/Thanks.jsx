@@ -14,8 +14,8 @@ const Thanks = (props) => {
         </p>
         <p className="Header">Thank you so much!</p>
         <p>
-          You&#39;re helping everyone to get more reliable information.
-          And the reliable information is making it easier for people to get the help they need.
+          You&#39;re helping everyone to get more reliable information and
+          making it easier for people to get the help they need.
         </p>
         <p>
           Thank you.

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
 import TextArea from '../../../components/textarea';
@@ -37,19 +36,17 @@ const ErrorReportText = (props) => {
           />
         </div>
         <div className="mx-4 mb-1">
-          <Link to={`${props.match.url}/thanks`}>
-            <Button
-              onClick={onSubmit}
-              primary
-              fluid
-            >
-              {
-                errorReportText
-                  ? 'Done'
-                  : 'Skip'
-              }
-            </Button>
-          </Link>
+          <Button
+            onClick={onSubmit}
+            primary
+            fluid
+          >
+            {
+              errorReportText
+                ? 'Done'
+                : 'Skip'
+            }
+          </Button>
         </div>
         <div className="mx-4">
           <Button
