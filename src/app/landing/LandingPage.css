@@ -214,12 +214,14 @@
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.45);
   font-size: 17px;
   height: 44px;
+  line-height: normal;
   padding: 0px;
 }
 
 .GetStartedButton .btnWhite {
   background-color: white;
   color: #1400ff;
+  text-transform: capitalize;
 }
 
 .arrowUp {
