@@ -21,7 +21,7 @@ const ErrorReportInformationSelect = (props) => {
       <div className="mx-4 mb-3 text-left">
         <div className="w-100 mr-5">
           <Header size="medium" className="mb-3">
-            Which part of the information has errors?
+            Which parts of the information has errors?
           </Header>
         </div>
         <div>
