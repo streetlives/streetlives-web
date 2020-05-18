@@ -40,7 +40,7 @@ class LandingPage extends Component {
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
-          {this.state.isModalOpen ? <CovidInfoModal closeModal={this.toggleModal} /> : ''}
+          {this.state.isModalOpen ? <CovidInfoModal /> : ''}
           <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">

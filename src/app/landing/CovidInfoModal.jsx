@@ -1,11 +1,11 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import config from '../../config';
 import Modal from '../../components/modal';
 import Header from '../../components/header';
 import Button from '../../components/button';
-import Icon from '../../components/icon';
 
-function CovidInfoModal({ history, closeModal }) {
+function CovidInfoModal({ history }) {
   const toMap = (e) => {
     e.preventDefault();
     history.push('/find');
@@ -13,13 +13,7 @@ function CovidInfoModal({ history, closeModal }) {
 
   return (
     <Modal compact>
-      <div className="covidTopBar">
-        <div className="m-4"><img src="/img/virus.png" alt="virus icon" /></div>
-        <div onClick={closeModal} className="closeBtn">
-          <Icon name="times" />
-        </div>
-      </div>
-
+      <div className="m-4"><img src="/img/virus.png" alt="virus icon" /></div>
       <Header size="large" className="m-4 flex-grow-1">
         Covid-19 Version
       </Header>
@@ -33,9 +27,9 @@ function CovidInfoModal({ history, closeModal }) {
             <Button primary fluid onClick={toMap}> Great, continue </Button>
           </div>
           <div className="text-center legal">
-            <a href="https://docs.google.com/document/d/e/2PACX-1vTBNI2Sv5QC8DSBwBL7WHNBdMI-9kPLuN2ev_Y2VDSo-bLeh8qssi7iBv-w0EEQurX9fgFQF4_2lItn/pub" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+            <a href={config.termsOfUseUrl} target="_blank" rel="noopener noreferrer">Terms of Use</a>
             {' '}and{' '}
-            <a href="https://docs.google.com/document/d/e/2PACX-1vQ8djXWiASXKkcKJ2LSHNXMgrQ1PhQPskSs_Thk5oLTZMnKvMy7Nqz1t4Xs18mGGKuORXOj8yNNhJUq/pub" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            <a href={config.privacyUrl} target="_blank" rel="noopener noreferrer">Privacy Policy</a>
           </div>
         </div>
       </div>
