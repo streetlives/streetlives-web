@@ -18,7 +18,7 @@ function Checkbox({
   const id = `${name}-checkbox`;
 
   return (
-    <div className={classNames}>
+    <label className={classNames} htmlFor={id}>
       <input
         id={id}
         type="checkbox"
@@ -27,8 +27,8 @@ function Checkbox({
         disabled={disabled}
         className="Box"
       />
-      <label className="Label" htmlFor={id}>{label}</label>
-    </div>
+      {' '}<span className="Label">{label}</span>
+    </label>
   );
 }
 

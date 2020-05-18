@@ -31,6 +31,7 @@ const ErrorReportInformationSelect = (props) => {
               label="Information about the location"
               checked={generalLocationError}
               onChange={onGeneralLocationChange}
+              className="mb-2"
             />
           </div>
           {locationData.Services.map(service => (
@@ -41,6 +42,7 @@ const ErrorReportInformationSelect = (props) => {
                 label={service.name}
                 checked={errorReportServices.includes(service.id)}
                 onChange={() => onServiceChange(service.id)}
+                className="mb-2"
               />
             </div>
           ))}
