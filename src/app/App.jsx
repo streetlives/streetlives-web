@@ -7,13 +7,14 @@ import Amplify from 'aws-amplify';
 import { AmplifyTheme } from 'aws-amplify-react';
 import awsExports from './aws-exports';
 
-import LoadingLabel from '../components/form/LoadingLabel';
 import { store, history } from '../store/index';
 
 import './App.css';
 
+import LandingPage from './landing/LandingPage';
 import About from './about/About';
 import NotFound from './notFound/NotFound';
+import LoadingLabel from '../components/form/LoadingLabel';
 
 import withTracker from '../components/routing/withTracker';
 
@@ -43,7 +44,8 @@ function App() {
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
             <Switch>
-              <Route exact path="/" component={withTracker(About)} />
+              <Route exact path="/" component={withTracker(LandingPage)} />
+              <Route exact path="/about" component={withTracker(About)} />
               <Route path="/team" component={withTracker(TeamRouter)} />
               {feedbackLocations.map(({ name, id }) => (
                 <Route

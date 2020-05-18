@@ -1,0 +1,9 @@
+.PartnerPicture {
+  margin: 3vw;
+  width: 20vw;
+  text-align: center;
+}
+
+.PartnerPicture img {
+  width: 90px;
+}
