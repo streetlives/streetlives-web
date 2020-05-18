@@ -4,10 +4,15 @@ import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
 import './LandingPage.css';
+import CovidInfoModal from './CovidInfoModal';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
+  state = {
+    isModalOpen: false,
+  }
+
   getStarted = () => {
     this.props.history.push('/find');
   };
@@ -20,6 +25,10 @@ class LandingPage extends Component {
     this.topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  toggleModal = () => {
+    this.setState({ isModalOpen: !this.state.isModalOpen });
+  }
+
   contentRef = React.createRef();
   topRef = React.createRef();
 
@@ -31,7 +40,8 @@ class LandingPage extends Component {
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
-
+          {this.state.isModalOpen ? <CovidInfoModal closeModal={this.toggleModal} /> : ''}
+          <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">
               <h1>Get what <span className="Emphasis">you</span> need</h1>
@@ -44,7 +54,7 @@ class LandingPage extends Component {
               </div>
             </div>
             <div className="IntroBottom">
-              <GetStartedButton onClick={this.getStarted} primary fluid />
+              <GetStartedButton onClick={this.toggleModal} primary fluid />
             </div>
           </div>
         </div>

@@ -204,6 +204,34 @@
   font-style: italic;
 }
 
+.LandingPage .covidInfo {
+  color: #fff;
+  background: #0000FF;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.covidModalInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50vh;
+}
+
+.covidModalInner .legal {
+  margin-top: 12px;
+}
+
+.covidTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.covidTopBar .closeBtn {
+  margin: 20px;
+}
+
 .GetStartedButton {
   padding: 0px 10px 0px 10px;
   width: 100%;
