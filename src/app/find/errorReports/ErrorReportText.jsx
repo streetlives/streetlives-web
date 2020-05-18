@@ -9,7 +9,6 @@ const ErrorReportText = (props) => {
     errorReportText,
     onChange,
     onSubmit,
-    goToViewLocation,
   } = props;
 
   return (
@@ -48,15 +47,6 @@ const ErrorReportText = (props) => {
             }
           </Button>
         </div>
-        <div className="mx-4">
-          <Button
-            onClick={goToViewLocation}
-            secondary
-            fluid
-          >
-            Cancel
-          </Button>
-        </div>
       </div>
     </div>
   );
@@ -66,7 +56,6 @@ ErrorReportText.propTypes = {
   errorReportText: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  goToViewLocation: PropTypes.func.isRequired,
 };
 
 export default ErrorReportText;

@@ -6,6 +6,7 @@ import Icon from '../../../components/icon';
 import PhoneLink from '../../../components/phoneLink';
 import WebsiteLink from '../../../components/websiteLink';
 import ErrorBoundary from '../../../components/errorBoundary';
+import Button from '../../../components/button';
 import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
 import './locationDetails.css';
@@ -59,6 +60,8 @@ const groupByCategory = services => services.reduce((grouped, service) => {
   };
 }, {});
 
+const formatClosureInfo = info => `* ${info.trim()[0].toUpperCase()}${info.trim().slice(1)}`;
+
 const renderAddress = (address) => {
   const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
   const directionsLink =
@@ -108,6 +111,7 @@ const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
+  const closureInfo = isClosed && formatClosureInfo(coronavirusInfo[0].information);
 
   const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
   const servicesByCategory = groupByCategory(servicesWithLastUpdate);
@@ -132,7 +136,9 @@ const renderLocation = (location, searchCategory) => {
 
   return (
     <div className="px-3 mb-4">
-      {isClosed ? <p className="text-left coronavirusInfo">*{coronavirusInfo[0].information}</p> : (
+      {isClosed ? (
+        <p className="text-left coronavirusInfo closureInfo">{closureInfo}</p>
+      ) : (
         <div className="text-left">
           {locationLastUpdate && (
             <div className="lastUpdateLine coronavirusInfo">
@@ -221,6 +227,7 @@ class LocationDetails extends Component {
       location,
       locationError,
       goBack,
+      goToErrorReport,
       searchCategory,
     } = this.props;
 
@@ -238,17 +245,33 @@ class LocationDetails extends Component {
     );
 
     return (
-      <Modal className="pb-4">
-        <div className="locationHeader">{headerContent}</div>
-        <div className="locationHeaderCopyToAvoidCoveringBody">{headerContent}</div>
-        {locationError && (
-          <div className="d-flex align-items-center h-100">
-            Sorry, an error occurred loading data about this location.
+      <Modal className="pb-4 locationModal">
+        <div className="locationModalTop">
+          <div className="locationHeader">{headerContent}</div>
+          <div className="locationHeaderCopyToAvoidCoveringBody">{headerContent}</div>
+          {locationError && (
+            <div className="d-flex align-items-center h-100">
+              Sorry, an error occurred loading data about this location.
+            </div>
+          )}
+
+          <ErrorBoundary>
+            {location ? renderLocation(location, searchCategory) : null}
+          </ErrorBoundary>
+        </div>
+
+        {location && (
+          <div className="px-3 mb-4">
+            <Button
+              secondary
+              fluid
+              onClick={goToErrorReport}
+              className="reportErrorButton"
+            >
+              Report Errors
+            </Button>
           </div>
         )}
-        <ErrorBoundary>
-          {location ? renderLocation(location, searchCategory) : null}
-        </ErrorBoundary>
       </Modal>
     );
   }

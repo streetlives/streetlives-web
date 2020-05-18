@@ -5,7 +5,8 @@ import { selectLocationData, selectLocationError } from '../../../selectors/loca
 import LocationDetails from './LocationDetails';
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  goBack: () => ownProps.history.goBack(),
+  goBack: () => ownProps.history.push(ownProps.match.url.split('/location')[0]),
+  goToErrorReport: () => ownProps.history.push(`${ownProps.match.url}/errorreports`),
   fetchLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
 });
 

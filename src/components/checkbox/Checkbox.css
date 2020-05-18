@@ -1,17 +1,20 @@
 .Checkbox {
-  display: inline-block;
+  display: block;
+  padding-left: 15px;
+  text-indent: -15px;
+  margin: 0;
 }
 
 .Checkbox > .Box {
-  margin-right: 12px;
+  vertical-align: middle;
 }
 
 .Checkbox > .Label {
   font-weight: initial;
   font-size: initial;
   letter-spacing: initial;
-  line-height: initial;
-  margin: 0;
+  line-height: normal;
+  vertical-align: middle;
 }
 
 .Checkbox-disabled {
