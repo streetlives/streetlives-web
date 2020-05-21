@@ -105,7 +105,7 @@ class LandingPage extends Component {
               <p className="text-lighter">
                 See the service details, go get what you need. We don’t keep your personal data, so your privacy is protected.
               </p>
-              <GetStartedButton onClick={this.getStarted} primary fluid />
+              <GetStartedButton onClick={this.toggleModal} primary fluid />
             </div>
 
             <picture>
@@ -137,7 +137,7 @@ class LandingPage extends Component {
               text="Boom! I go in and there’s all this information."
             />
           </div>
-          <GetStartedButton onClick={this.getStarted} fluid className="btnWhite" />
+          <GetStartedButton onClick={this.toggleModal} fluid className="btnWhite" />
         </div>
         <div className="Partners Section">
           <h3>Collaboration</h3>
