@@ -13,10 +13,6 @@ class LandingPage extends Component {
     isModalOpen: false,
   }
 
-  getStarted = () => {
-    this.props.history.push('/find');
-  };
-
   scrollToContent = () => {
     this.contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
