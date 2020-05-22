@@ -10,6 +10,7 @@ import awsExports from './aws-exports';
 import { store, history } from '../store/index';
 
 import './App.css';
+import './IconLibrary';
 
 import LandingPage from './landing/LandingPage';
 import About from './about/About';
