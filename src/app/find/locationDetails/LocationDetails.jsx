@@ -142,7 +142,7 @@ const renderLocation = (location, searchCategory) => {
         <div className="text-left">
           {locationLastUpdate && (
             <div className="lastUpdateLine coronavirusInfo">
-              <Icon custom name="coronavirus" className="lastUpdateIcon" />
+              <Icon custom name="coronavirus" className="lastUpdateIcon" alt="" />
               <div className="updateText">
                 Information during coronavirus pandemic was
                 <span className="updateTime"> updated {moment(locationLastUpdate).fromNow()}.</span>

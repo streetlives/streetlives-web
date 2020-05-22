@@ -333,6 +333,7 @@ export default class MapPage extends Component {
                         onClick={centerMap}
                         custom
                         name="crosshairs"
+                        alt="go to my location"
                         circle
                         size="2x"
                       />
