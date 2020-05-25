@@ -9,6 +9,13 @@ import CoronavirusOpeningHours from '../coronavirus/OpeningHours';
 // import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
 import CoronavirusOtherInfo from '../coronavirus/OtherInfo';
 
+import ServiceHasHivNutrition from './hasHivNutrition/ServiceHasHivNutrition';
+import ServiceClothingOccasions from './clothingOccasions/ServiceClothingOccasions';
+import ServiceWhoIsThisClothingFor from './whoIsThisClothingFor/ServiceWhoIsThisClothingFor';
+import ServiceTgncClothing from './tgncClothing/ServiceTgncClothing';
+import ServiceMembershipCriteria, { selector as serviceMembershipSelector } from './membershipCriteria/ServiceMembershipCriteria';
+import ServiceArea, { selector as serviceAreaSelector } from './area/ServiceArea';
+
 const baseRoute = '/team/location/:locationId/services/:serviceId';
 
 export const SERVICE_FIELDS = [
@@ -54,6 +61,46 @@ export const SERVICE_FIELDS = [
   //   RouteComponent: ServiceOtherInfo,
   //   fieldName: 'additional_info',
   // },
+  {
+    label: 'PLHIV',
+    urlFragment: '/plhiv',
+    RouteComponent: ServiceHasHivNutrition,
+    taxonomySpecificFieldName: 'hasHivNutrition',
+    serviceTaxonomy: 'Food',
+  },
+  {
+    label: 'Occasions',
+    urlFragment: '/occasions',
+    RouteComponent: ServiceClothingOccasions,
+    taxonomySpecificFieldName: 'clothingOccasion',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'Gender and age',
+    urlFragment: '/gender-and-age',
+    RouteComponent: ServiceWhoIsThisClothingFor,
+    taxonomySpecificFieldName: 'wearerAge',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'TGNC',
+    urlFragment: '/tgnc',
+    RouteComponent: ServiceTgncClothing,
+    taxonomySpecificFieldName: 'tgncClothing',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'Membership',
+    urlFragment: '/membership',
+    RouteComponent: ServiceMembershipCriteria,
+    selector: serviceMembershipSelector,
+  },
+  {
+    label: 'Service Area',
+    urlFragment: '/area',
+    RouteComponent: ServiceArea,
+    selector: serviceAreaSelector,
+  },
   {
     label: 'Other info (coronavirus)',
     urlFragment: '/other-info',
