@@ -61,7 +61,12 @@ const locationsReducer = (state = {}, action) => {
         const {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
-        const { documents = {}, eventRelatedInfo } = params;
+        const {
+          documents = {},
+          membership,
+          eventRelatedInfo,
+          area,
+        } = params;
         const location = state[locationId];
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
@@ -73,6 +78,9 @@ const locationsReducer = (state = {}, action) => {
           RegularSchedules,
           HolidaySchedules,
           EventRelatedInfos,
+          ServiceTaxonomySpecificAttributes = [],
+          ServiceAreas = [],
+          Eligibilities = [],
         } = service;
 
         if (documents.proofs != null) {
@@ -82,6 +90,60 @@ const locationsReducer = (state = {}, action) => {
 
           RequiredDocuments[0] = proof;
         }
+
+        if (area != null) {
+          ServiceAreas[0] = {
+            ...area,
+            updated_at: dateString,
+          };
+        }
+
+        if (membership) {
+          const membershipIdx = Eligibilities
+            .findIndex(e => e.EligibilityParameter.name === 'membership');
+
+          if (membershipIdx !== -1) {
+            Eligibilities[membershipIdx].eligible_values = membership.eligible_values;
+            Eligibilities[membershipIdx].description = membership.description;
+            Eligibilities[membershipIdx].updated_at = dateString;
+          } else {
+            Eligibilities.push({
+              eligible_values: membership.eligible_values,
+              description: membership.description,
+              updated_at: dateString,
+              EligibilityParameter: {
+                name: 'membership',
+              },
+            });
+          }
+        }
+
+        const taxonomySpecificAttributes = [
+          'hasHivNutrition',
+          'tgncClothing',
+          'clothingOccasion',
+          'wearerAge',
+        ];
+
+        taxonomySpecificAttributes.forEach((attr) => {
+          if (Object.prototype.hasOwnProperty.call(params, attr)) {
+            const fieldIdx = ServiceTaxonomySpecificAttributes
+              .findIndex(el => el.attribute.name === attr);
+
+            if (fieldIdx !== -1) {
+              ServiceTaxonomySpecificAttributes[fieldIdx].values = params[attr];
+              ServiceTaxonomySpecificAttributes[fieldIdx].updated_at = dateString;
+            } else {
+              ServiceTaxonomySpecificAttributes.push({
+                value: params[attr],
+                updated_at: dateString,
+                attribute: {
+                  name: attr,
+                },
+              });
+            }
+          }
+        });
 
         let hours = null;
         if (params.hours) {
@@ -133,6 +195,9 @@ const locationsReducer = (state = {}, action) => {
                 RegularSchedules: hours || RegularSchedules,
                 HolidaySchedules: irregularHours || HolidaySchedules,
                 EventRelatedInfos: eventRelatedInfo ? [eventRelatedInfo] : EventRelatedInfos,
+                ServiceTaxonomySpecificAttributes,
+                ServiceAreas,
+                Eligibilities,
               },
               ...Services.slice(serviceIdx + 1),
             ],
