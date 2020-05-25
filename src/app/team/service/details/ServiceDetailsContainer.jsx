@@ -6,7 +6,7 @@ import {
   selectLocationError,
   selectLocationData,
 } from '../../../../selectors/location';
-import { getService } from '../../../../selectors/service';
+import { getService, getServiceTaxonomy } from '../../../../selectors/service';
 import * as actions from '../../../../actions';
 
 import ServiceDetails from './ServiceDetails';
@@ -31,6 +31,16 @@ class ServiceDetailsContainer extends Component {
     return `/team/location/${locationId}/services/${serviceId}`;
   };
 
+  filteredServiceFields = () => (
+    SERVICE_FIELDS.filter((el) => {
+      if (el.serviceTaxonomy) {
+        return el.serviceTaxonomy === this.props.serviceTaxonomy;
+      }
+
+      return true;
+    })
+  );
+
   render() {
     return (
       <ServiceDetails
@@ -39,7 +49,7 @@ class ServiceDetailsContainer extends Component {
         service={this.props.service}
         locationData={this.props.locationData}
         locationError={this.props.locationError}
-        serviceFields={SERVICE_FIELDS}
+        serviceFields={this.filteredServiceFields()}
       >
         <Button fluid primary onClick={this.onGoToDocs}>
           Go to docs required
@@ -53,6 +63,7 @@ const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
   locationData: selectLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
+  serviceTaxonomy: getServiceTaxonomy(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
