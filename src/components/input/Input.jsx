@@ -41,6 +41,7 @@ class Input extends Component {
       onBlur,
       onKeyPress,
       innerRef,
+      id
     } = this.props;
 
     const classNames = cx('Input', {
@@ -75,6 +76,7 @@ class Input extends Component {
         onFocus={onFocus}
         onBlur={onBlur}
         onKeyPress={onKeyPress}
+        id={id}
       />
     );
   }
