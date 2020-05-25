@@ -19,8 +19,16 @@ export const getServiceDescription = (state, props) => getService(state, props).
 
 export const getServiceAgesServed = (state, props) => getService(state, props).ages_served;
 
+export const getServiceTaxonomy = (state, props) => (
+  getService(state, props).Taxonomies &&
+  getService(state, props).Taxonomies[0].parent_name
+);
+
 export const getServiceWhoDoesItServe = (state, props) =>
   getService(state, props).who_does_it_serve;
+
+export const getServiceWhatKindOfClothing = (state, props) =>
+  getService(state, props).what_kind_of_clothing;
 
 export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 
@@ -65,3 +73,24 @@ export const getServiceAdditionalInfo = (state, props) => getService(state, prop
 
 export const getEventRelatedInfo = (state, props) =>
   getService(state, props).EventRelatedInfos || [];
+
+export const getServiceTaxonomySpecificAttribute = (name, state, props) => {
+  const attributes = getService(state, props).ServiceTaxonomySpecificAttributes || [];
+  const attribute = attributes.find(a => (a.attribute.name === name)) || {};
+  return attribute.values;
+};
+
+export const getServiceProofsRequired = (state, props) =>
+  getService(state, props).RequiredDocuments || [];
+
+export const getServiceHasHivNutrition = (state, props) =>
+  getServiceTaxonomySpecificAttribute('hasHivNutrition', state, props);
+
+export const getServiceTgncClothing = (state, props) =>
+  getServiceTaxonomySpecificAttribute('tgncClothing', state, props);
+
+export const getServiceClothingOccasions = (state, props) =>
+  getServiceTaxonomySpecificAttribute('clothingOccasion', state, props);
+
+export const getServiceWearerAge = (state, props) =>
+  getServiceTaxonomySpecificAttribute('wearerAge', state, props);
