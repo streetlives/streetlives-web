@@ -10,11 +10,8 @@ function FormView({ value, onConfirm, onEdit }) {
       <Header className="mb-3">Does this service offer a TGNC affirmative experience?</Header>
 
       <Selector fluid>
-        <Selector.Option
-          onClick={() => this.onSelectOption(false)}
-          active
-        >
-          No
+        <Selector.Option active>
+          { value === true ? 'Yes' : 'No' }
         </Selector.Option>
       </Selector>
 

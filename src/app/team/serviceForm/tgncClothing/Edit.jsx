@@ -9,8 +9,8 @@ class Edit extends Component {
     super(props);
 
     this.state = {
-      value: null
-    }
+      value: this.props.value,
+    };
 
     this.onSelectOption = this.onSelectOption.bind(this);
     this.updateValue = this.updateValue.bind(this);
@@ -22,7 +22,7 @@ class Edit extends Component {
     }
 
     this.setState({
-      value
+      value,
     });
   }
 
