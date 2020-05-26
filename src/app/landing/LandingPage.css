@@ -6,12 +6,12 @@
   box-sizing: border-box;
   line-height: 1.5;
   overflow-y: scroll;
-  scroll-snap-type: y proximity;
+  /* scroll-snap-type: y proximity; */
   height: 100vh;
 }
 
 .LandingPage .Section {
-  scroll-snap-align: start;
+  /* scroll-snap-align: start; */
 }
 
 .LandingPage .Intro {
