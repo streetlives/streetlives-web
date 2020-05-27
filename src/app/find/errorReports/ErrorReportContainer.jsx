@@ -180,7 +180,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
   goToThanksScreen: () => ownProps.history.push(`${ownProps.match.url}/thanks`),
   goToErrorReportTextScreen: () => ownProps.history.push(`${ownProps.match.url}/text`),
-  goToViewLocation: () => ownProps.history.push(`/find/location/${ownProps.match.params.locationId}`),
+  goToViewLocation: () => ownProps.history.push(ownProps.match.url.split('/errorreports')[0]),
   postErrorReport: data => dispatch(postErrorReport(
     ownProps.match.params.locationId,
     data,
