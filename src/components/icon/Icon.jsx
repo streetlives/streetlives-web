@@ -56,7 +56,6 @@ Icon.propTypes = {
 };
 
 Icon.defaultProps = {
-  size: '',
   className: '',
   custom: false,
   circle: false,
