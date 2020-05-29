@@ -13,11 +13,11 @@ const ErrorReportText = (props) => {
 
   return (
     <div>
-      <Header size="large" className="locationTitle">Error Report</Header>
+      <Header size="large" className="locationTitle">Issue Report</Header>
       <div className="mx-4 mb-3 text-left">
         <div className="w-100 mr-5">
           <Header size="medium" className="mb-3">
-            Please provide the correction below
+            Please describe the issue below
             <br />
             (Please don&#39;t enter any private information)
           </Header>

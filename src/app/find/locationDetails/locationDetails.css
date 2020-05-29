@@ -179,6 +179,7 @@
 .reportErrorButton {
   border-color: darkerGray;
   color: darkerGray;
+  text-transform: none;
 }
 
 .fpcAttribution {

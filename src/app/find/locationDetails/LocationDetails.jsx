@@ -268,7 +268,7 @@ class LocationDetails extends Component {
               onClick={goToErrorReport}
               className="reportErrorButton"
             >
-              Report Errors
+              Report an Issue
             </Button>
           </div>
         )}
