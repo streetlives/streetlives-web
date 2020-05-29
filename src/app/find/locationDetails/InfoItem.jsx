@@ -9,7 +9,7 @@ const InfoItem = ({ icon, children, coronavirus }) => {
 
   return (
     <div className="infoItem">
-      <Icon name={icon} size="medium" className="float-left mt-1" />
+      <Icon name={icon} className="float-left mt-1" />
       <div className={classNames}>{children}</div>
     </div>
   );
