@@ -2,18 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './PartnerPicture.css';
 
-const PartnerPicture = ({ img, alt = '', link }) => (
+const PartnerPicture = ({ imagePartialPath, alt = "", link }) => (
   <div className="PartnerPicture">
     <a href={link}>
       <picture>
         <source
           className="OnboardingImage"
-          media="(min-aspect-ratio: 2/3)"
-          srcSet={img.large}
+          media="(min-width: 1224px)"
+          srcSet={`/img/partners/${imagePartialPath}.png`}
         />
         <img
           className="OnboardingImage"
-          src={img.small}
+          src={`/img/partners/${imagePartialPath}_mobile.png`}
           alt={alt}
         />
       </picture>
