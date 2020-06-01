@@ -78,7 +78,7 @@ class LandingPage extends Component {
               <img
                 className="OnboardingImage"
                 src="img/landing_page/step1_mobile.png"
-                alt="map showing food, clothing, and personal care markers"
+                alt="map showing food, clothing, shelter, and personal care markers"
               />
             </picture>
           </div>
@@ -131,7 +131,7 @@ class LandingPage extends Component {
               <img
                 className="OnboardingImage"
                 src="img/landing_page/step3_mobile.png"
-                alt="map showing food, clothing, and personal care markers"
+                alt="woman with groceries"
               />
             </picture>
           </div>
