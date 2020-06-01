@@ -29,7 +29,7 @@ export default class MapPage extends Component {
     center: null,
     radius: null,
     openLocationId: null,
-    isSearchingLocations: true,
+    isSearchingLocations: false,
     isFilterModalOpen: false,
     filters: initialFiltersState,
     hasResults: false,
@@ -195,6 +195,7 @@ export default class MapPage extends Component {
   searchLocations = () => {
     if (!this.state.center || !this.props.categories) {
       // Can't search until we know which area and categories are relevant.
+      this.setState({ isSearchingLocations: false });
       return;
     }
 
