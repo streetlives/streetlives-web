@@ -8,7 +8,7 @@ import { getPhoneNumbers } from '../../../../selectors/location';
 
 import Button from '../../../../components/button';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../../../../components/confirmationModal';
 
 import deleteIcon from './DeleteIcon.svg';
 
@@ -74,9 +74,10 @@ class LocationNumberView extends Component {
 
         { showDeleteModal &&
           <ConfirmationModal
-            number={formatPhoneNumber(showDeleteModal)}
+            headerText={`Are you sure that you want to delete? ${formatPhoneNumber(showDeleteModal)}`}
             onCancel={this.onCancelDelete}
             onConfirm={this.onConfirmDelete}
+            cancelText="NO, LET’S KEEP IT"
           /> }
 
         <ul className="PhoneNumbers-List">
