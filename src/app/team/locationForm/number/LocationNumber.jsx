@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import { getLocation } from '../../../../actions';
+import { selectLocationData } from '../../../../selectors/location';
 
 import LocationNumberEdit from './LocationNumberEdit';
 import LocationNumberView from './LocationNumberView';
@@ -15,7 +16,11 @@ export const selectValue = locationData => (
 
 class LocationNumber extends Component {
   componentDidMount() {
-    this.props.fetchResourceData();
+    const { resource, fetchResourceData } = this.props;
+
+    if (!resource || Object.keys(resource).length === 0) {
+      fetchResourceData();
+    }
   }
 
   render() {
@@ -35,10 +40,14 @@ class LocationNumber extends Component {
   }
 }
 
+const mapStateToProps = (state, ownProps) => ({
+  resource: selectLocationData(state, ownProps),
+});
+
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: () => {
     dispatch(getLocation(ownProps.match.params.locationId));
   },
 });
 
-export default connect(null, mapDispatchToProps)(LocationNumber);
+export default connect(mapStateToProps, mapDispatchToProps)(LocationNumber);
