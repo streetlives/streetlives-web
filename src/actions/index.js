@@ -122,11 +122,12 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
-export const deletePhone = id => (dispatch) => {
+export const deletePhone = (locationId, id) => (dispatch) => {
   dispatch({
     type: OPTIMISTIC_DELETE_PHONE,
     payload: {
-      id,
+      phoneId: id,
+      locationId,
     },
   });
 
@@ -135,8 +136,14 @@ export const deletePhone = id => (dispatch) => {
       id,
     })
     .catch((e) => {
-      // no need to track
+      // roll back
       console.error('error', e);
+      dispatch({
+        type: ROLLBACK_UPDATE_LOCATION,
+        payload: {
+          id: locationId,
+        },
+      });
     });
 };
 
