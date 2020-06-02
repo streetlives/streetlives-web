@@ -10,8 +10,6 @@ import Button from '../../../../components/button';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import ConfirmationModal from '../../../../components/confirmationModal';
 
-import deleteIcon from './DeleteIcon.svg';
-
 const formatPhoneNumber = phone =>
   `${phone.number.replace(/\./g, '-')}${
     phone.extension ? ` ext. ${phone.extension}` : ''
@@ -89,7 +87,9 @@ class LocationNumberView extends Component {
                     onClick={() => this.deletePhone(phone)}
                     className="PhoneNumber-Delete"
                   >
-                    <img src={deleteIcon} alt="Delete" />
+                    <i
+                      className="fa fa-trash"
+                    />
                   </button>
                 }
                 <p className="PhoneNumber-Number">{ formatPhoneNumber(phone) }</p>
