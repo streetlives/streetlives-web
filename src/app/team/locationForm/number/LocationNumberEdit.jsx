@@ -19,14 +19,13 @@ class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
 
-    const [areaCode, firstThree, lastFour] = parsePhoneNumber(props.phone);
-
     this.state = {
-      areaCode,
-      firstThree,
-      lastFour,
-      extension: (props.phone && props.phone.extension) || '',
-      type: (props.phone && props.phone.type) || '',
+      areaCode: '',
+      firstThree: '',
+      lastFour: '',
+      extension: '',
+      type: '',
+      phoneNumber: '',
     };
 
     this.keyToMaxDigits = {
@@ -42,16 +41,20 @@ class LocationNumberEdit extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const [areaCode, firstThree, lastFour] = parsePhoneNumber(nextProps.phone);
+  static getDerivedStateFromProps(props, state) {
+    if (props.phone && props.phone.number !== state.phoneNumber) {
+      const [areaCode, firstThree, lastFour] = parsePhoneNumber(props.phone);
+      return {
+        areaCode,
+        firstThree,
+        lastFour,
+        extension: (props.phone && props.phone.extension) || '',
+        type: (props.phone && props.phone.type) || '',
+        phoneNumber: props.phone && props.phone.number,
+      };
+    }
 
-    this.setState({
-      areaCode,
-      firstThree,
-      lastFour,
-      extension: (nextProps.phone && nextProps.phone.extension) || '',
-      type: (nextProps.phone && nextProps.phone.type) || '',
-    });
+    return null;
   }
 
   onChange(key, event) {
@@ -61,7 +64,7 @@ class LocationNumberEdit extends Component {
     this.setState({ [key]: value });
   }
 
-  async onSubmit(e) {
+  onSubmit(e) {
     e.preventDefault();
     const number = [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.');
 
@@ -74,16 +77,16 @@ class LocationNumberEdit extends Component {
       params.type = this.state.type;
     }
 
-    await this.props.updateValue(
+    this.props.updateValue(
       params,
-      this.props.phoneId,
+      this.props.match.params.phoneId,
     );
 
-    this.props.history.push({ pathname: '../phone-number' });
+    this.props.onDone();
   }
 
   onCancel() {
-    this.props.history.push({ pathname: '../phone-number' });
+    this.props.onDone();
   }
 
   render() {

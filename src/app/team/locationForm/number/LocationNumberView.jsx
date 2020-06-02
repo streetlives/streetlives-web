@@ -22,6 +22,7 @@ class LocationNumberView extends Component {
     this.state = {
       isEditing: false,
       showDeleteModal: false,
+      phoneBeingDeleted: null,
     };
 
     this.toggleEdit = this.toggleEdit.bind(this);
@@ -30,27 +31,28 @@ class LocationNumberView extends Component {
     this.deletePhone = this.deletePhone.bind(this);
   }
 
-  async onConfirmDelete() {
-    const { showDeleteModal: { id } } = this.state;
+  onConfirmDelete() {
+    const { phoneBeingDeleted: { id } } = this.state;
 
-    await this.props.deletePhone(id);
+    this.props.deletePhone(id);
 
     this.setState({
       showDeleteModal: false,
-    }, () => {
-      this.props.fetchResourceData();
+      phoneBeingDeleted: null,
     });
   }
 
   onCancelDelete() {
     this.setState({
       showDeleteModal: false,
+      phoneBeingDeleted: null,
     });
   }
 
   deletePhone(phone) {
     this.setState({
-      showDeleteModal: phone,
+      showDeleteModal: true,
+      phoneBeingDeleted: phone,
     });
   }
 
@@ -62,7 +64,7 @@ class LocationNumberView extends Component {
 
   render() {
     const { phones, onConfirm, match } = this.props;
-    const { isEditing, showDeleteModal } = this.state;
+    const { isEditing, showDeleteModal, phoneBeingDeleted } = this.state;
 
     return (
       <div className="w-100">
@@ -72,7 +74,7 @@ class LocationNumberView extends Component {
 
         { showDeleteModal &&
           <ConfirmationModal
-            headerText={`Are you sure that you want to delete? ${formatPhoneNumber(showDeleteModal)}`}
+            headerText={`Are you sure that you want to delete? ${formatPhoneNumber(phoneBeingDeleted)}`}
             onCancel={this.onCancelDelete}
             onConfirm={this.onConfirmDelete}
             cancelText="NO, LET’S KEEP IT"
@@ -108,12 +110,12 @@ class LocationNumberView extends Component {
           }
         </ul>
 
-        <Link
-          to={`${match.url}/new`}
+        <Button
+          onClick={() => { this.props.onNew(); }}
           className="Button Button-secondary Button-fluid PhoneNumbers-Add"
         >
           + Add another number
-        </Link>
+        </Button>
 
         {
           isEditing ?
@@ -146,7 +148,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  deletePhone: id => dispatch(deletePhone(id)),
+  deletePhone: id => dispatch(deletePhone(ownProps.match.params.locationId, id)),
   fetchResourceData: () => {
     dispatch(getLocation(ownProps.match.params.locationId));
   },
