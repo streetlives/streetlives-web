@@ -17,7 +17,7 @@ class ProofsRequiredEdit extends Component {
   constructor(props) {
     super(props);
 
-    let proofs;
+    let proofs = [];
 
     if (this.props.value) {
       proofs = this.props.value.map(el => el.document);
@@ -118,7 +118,7 @@ class ProofsRequiredEdit extends Component {
     ])];
 
     return (
-      <div className="w-100 WhoDoesItServe">
+      <div className="w-100">
         <Header className="mb-3">What proofs are required to use this service?</Header>
         <Selector fluid>
           {

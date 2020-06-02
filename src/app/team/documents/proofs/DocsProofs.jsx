@@ -25,7 +25,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
   updateValue: (proofs, serviceId, metaDataSection, fieldName) => {
-    if (proofs.every(p => (typeof p !== 'string'))) {
+    if (proofs.length === 0) {
       return null;
     }
 
