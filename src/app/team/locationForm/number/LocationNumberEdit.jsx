@@ -10,14 +10,16 @@ import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 
+const parsePhoneNumber = phone =>
+  (phone && phone.number ?
+    phone.number.split(/[. )(-]+/).filter(d => d) :
+    ['', '', '']);
+
 class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
 
-    const [areaCode, firstThree, lastFour] =
-      props.phone && props.phone.number ?
-        props.phone.number.split(/[. )(-]+/).filter(d => d) :
-        ['', '', ''];
+    const [areaCode, firstThree, lastFour] = parsePhoneNumber(props.phone);
 
     this.state = {
       areaCode,
@@ -41,8 +43,7 @@ class LocationNumberEdit extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const [areaCode, firstThree, lastFour] =
-      nextProps.phone && nextProps.phone.number ? nextProps.phone.number.split('.') : ['', '', ''];
+    const [areaCode, firstThree, lastFour] = parsePhoneNumber(nextProps.phone);
 
     this.setState({
       areaCode,
