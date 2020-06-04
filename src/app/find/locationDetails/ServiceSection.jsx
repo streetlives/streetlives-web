@@ -15,10 +15,13 @@ const renderSchedule = (schedule) => {
 
   const dayNumberToName = weekday => DAYS[weekday - 1];
 
-  const formatHour = time => moment(time, 'HH:mm:ss')
-    .format('LT')
-    .replace(':00 ', ' ')
-    .replace(/(11:59 PM)|(12 AM)/, 'midnight');
+  const formatHour = (time) => {
+    const regexMidnight = /(23:59:00)|(00:00:00)/;
+    if (regexMidnight.test(time)) {
+      return 'midnight';
+    }
+    return moment(time, 'HH:mm:ss').format('LT').replace(':00 ', ' ');
+  };
 
   const formatHours = (opens, closes) => `${formatHour(opens)} to ${formatHour(closes)}`;
 
