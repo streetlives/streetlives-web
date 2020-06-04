@@ -185,7 +185,6 @@ export default class MapPage extends Component {
 
         this.setState({
           initialLocationsLoaded: true,
-          isSearchingLocations: false,
           locations,
         }, () => resolve());
       }))
@@ -203,6 +202,7 @@ export default class MapPage extends Component {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
           hasResults: !!(this.state.locations && this.state.locations.length),
+          isSearchingLocations: false,
           zoomedLocations: this.state.locations && this.state.locations.slice(0, minSearchResults),
         }));
     });
