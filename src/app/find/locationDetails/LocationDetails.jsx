@@ -123,9 +123,6 @@ const renderLocation = (location, searchCategory) => {
       service.metadata.sources.some(source => source.includes('FPC')));
 
   const phones = [];
-  if (location.Organization.Phones) {
-    phones.push(...location.Organization.Phones);
-  }
   if (location.Phones) {
     location.Phones.forEach((phone) => {
       if (!phones.find(existingPhone => existingPhone.number === phone.number)) {
