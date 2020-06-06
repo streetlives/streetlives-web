@@ -235,12 +235,12 @@
   height: 44px;
   line-height: normal;
   padding: 0px;
+  text-transform: none;
 }
 
 .GetStartedButton .btnWhite {
   background-color: white;
   color: #1400ff;
-  text-transform: capitalize;
 }
 
 .arrowUp {
