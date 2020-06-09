@@ -64,6 +64,10 @@ const formatDocument = (document) => {
   };
 
   const documentName = document.document;
+  if (documentName.toLowerCase() === 'none') {
+    return null;
+  }
+
   return `Requires ${documentDescriptions[documentName.toLowerCase()] || documentName}`;
 };
 

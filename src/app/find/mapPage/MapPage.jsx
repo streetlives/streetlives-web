@@ -30,7 +30,7 @@ export default class MapPage extends Component {
     center: null,
     radius: null,
     openLocationId: null,
-    isSearchingLocations: false,
+    isSearchingLocations: true,
     isFilterModalOpen: false,
     filters: initialFiltersState,
     hasResults: false,
@@ -192,10 +192,15 @@ export default class MapPage extends Component {
   };
 
   searchLocations = () => {
+    if (!this.state.center || !this.props.categories) {
+      // Can't search until we know which area and categories are relevant.
+      return;
+    }
+
     this.setState({ isSearchingLocations: true }, () => {
       this.fetchLocations(minSearchResults)
         .then(() => this.setState({
-          hasResults: this.state.locations && this.state.locations.length,
+          hasResults: !!(this.state.locations && this.state.locations.length),
           isSearchingLocations: false,
           zoomedLocations: this.state.locations && this.state.locations.slice(0, minSearchResults),
         }));
@@ -309,7 +314,7 @@ export default class MapPage extends Component {
                   <ResultsBar
                     isSearching={this.state.isSearchingLocations}
                     filterString={this.getCurrentFilterString()}
-                    hasResults={!!this.state.hasResults}
+                    hasResults={this.state.hasResults}
                     filters={this.state.filters}
                     clearResults={this.clearResults}
                   />
