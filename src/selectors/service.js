@@ -19,16 +19,13 @@ export const getServiceDescription = (state, props) => getService(state, props).
 
 export const getServiceAgesServed = (state, props) => getService(state, props).ages_served;
 
-export const getServiceTaxonomy = (state, props) => (
-  getService(state, props).Taxonomies &&
-  getService(state, props).Taxonomies[0].parent_name
-);
+export const getServiceTaxonomy = (state, props) => {
+  const taxonomy = (getService(state, props).Taxonomies || [])[0];
+  return taxonomy && (taxonomy.parent_name || taxonomy.name);
+};
 
 export const getServiceWhoDoesItServe = (state, props) =>
   getService(state, props).who_does_it_serve;
-
-export const getServiceWhatKindOfClothing = (state, props) =>
-  getService(state, props).what_kind_of_clothing;
 
 export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 
@@ -79,9 +76,6 @@ export const getServiceTaxonomySpecificAttribute = (name, state, props) => {
   const attribute = attributes.find(a => (a.attribute.name === name)) || {};
   return attribute.values;
 };
-
-export const getServiceProofsRequired = (state, props) =>
-  getService(state, props).RequiredDocuments || [];
 
 export const getServiceHasHivNutrition = (state, props) =>
   getServiceTaxonomySpecificAttribute('hasHivNutrition', state, props);
