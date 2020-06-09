@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 
 import Header from '../../../../components/header';
 import Button from '../../../../components/button';
@@ -9,7 +9,7 @@ import ZipCodeForm from './ZipCodeForm';
 import './AreaEdit.css';
 import { AREA_TYPE_LABELS, SERVICE_AREA_TYPES } from './utils';
 
-class WhoDoesItServe extends Component {
+class AreaEdit extends Component {
   constructor(props) {
     super(props);
 
@@ -29,18 +29,17 @@ class WhoDoesItServe extends Component {
       customZipCodes,
     };
 
-    this.customOcassionRef = createRef();
     this.updateValue = this.updateValue.bind(this);
     this.addNewZipCode = this.addNewZipCode.bind(this);
     this.selectAreaType = this.selectAreaType.bind(this);
   }
 
-  onDeleteZipCode(index) {
+  onDeleteZipCode(zip) {
     const { customZipCodes } = this.state;
 
-    customZipCodes.splice(index, 1);
-
-    this.setState({ customZipCodes });
+    this.setState({
+      customZipCodes: customZipCodes.filter(z => z !== zip),
+    });
   }
 
   onUpdateZipCode(index, value) {
@@ -85,9 +84,7 @@ class WhoDoesItServe extends Component {
     }
 
     this.props.updateValue(
-      {
-        postal_codes: customZipCodes,
-      },
+      customZipCodes,
       this.props.id,
       this.props.metaDataSection,
       this.props.fieldName,
@@ -100,7 +97,7 @@ class WhoDoesItServe extends Component {
     const lastZipCode = customZipCodes[customZipCodes.length - 1];
 
     return (
-      <div className="w-100 WhoDoesItServe">
+      <div className="w-100">
         <Header className="mb-3">Which area does it serve?</Header>
         <p>(select all that applies)</p>
         <Selector fluid>
@@ -136,7 +133,7 @@ class WhoDoesItServe extends Component {
                   key={zip}
                   zip={zip}
                   onUpdate={value => this.onUpdateZipCode(index, value)}
-                  onDelete={() => this.onDeleteZipCode(index)}
+                  onDelete={() => this.onDeleteZipCode(zip)}
                 />
               ))
             }
@@ -147,7 +144,7 @@ class WhoDoesItServe extends Component {
               disabled={lastZipCode === ''}
               onClick={this.addNewZipCode}
             >
-              <div className="addAnotherGroup">
+              <div className="addAnotherArea">
                 + Add another
               </div>
             </Selector.Option>
@@ -163,4 +160,4 @@ class WhoDoesItServe extends Component {
   }
 }
 
-export default WhoDoesItServe;
+export default AreaEdit;

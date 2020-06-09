@@ -1,19 +1,21 @@
+@value borderGray, darkerGray from "../../../../colors.css";
+
 .Zipcode-Form {
     margin-bottom: 20px;
 }
 
 .Zipcode-Form input {
-	font-family: monospace;
-	font-size: 20px;
-	letter-spacing: 30px;
-	text-align: center;
-	padding-left: 30px;
-    border: 1px solid #DDDDDD;
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 30px;
+    text-align: center;
+    padding-left: 30px;
+    border: 1px solid $borderGray;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
     border-radius: 2px;
-    color: #333333;
+    color: $darkerGray;
     cursor: pointer;
     position: relative;
 }

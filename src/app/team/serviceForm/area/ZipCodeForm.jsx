@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import InputMask from 'react-input-mask';
 import Button from '../../../../components/button';
 
@@ -8,9 +8,8 @@ class ZipCodeForm extends Component {
 
     this.state = {
       showForm: this.props.zip === '',
+      zipCode: '',
     };
-
-    this.inputRef = createRef();
 
     this.onSubmit = this.onSubmit.bind(this);
     this.enableForm = this.enableForm.bind(this);
@@ -25,12 +24,16 @@ class ZipCodeForm extends Component {
   onSubmit(e) {
     e.preventDefault();
 
-    const zipCode = this.inputRef.value;
-
-    this.props.onUpdate(zipCode);
+    this.props.onUpdate(this.state.zipCode);
 
     this.setState({
       showForm: false,
+    });
+  }
+
+  onChangeZipCode(zipCode) {
+    this.setState({
+      zipCode,
     });
   }
 
@@ -50,8 +53,8 @@ class ZipCodeForm extends Component {
     return (
       <form className="Zipcode-Form" onSubmit={this.onSubmit}>
         <InputMask
-          inputRef={(ref) => { this.inputRef = ref; }}
-          defaultValue={this.props.zip}
+          onChange={this.onChangeZipCode}
+          value={this.state.zipCode}
           className="Input-fluid"
           mask="99999"
           maskChar="_"
