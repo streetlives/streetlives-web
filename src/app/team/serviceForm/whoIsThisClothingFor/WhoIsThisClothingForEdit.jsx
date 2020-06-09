@@ -4,12 +4,7 @@ import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 
-const LIST = [
-  'Men',
-  'Women',
-  'Girls',
-  'Boys',
-];
+import { options } from './options';
 
 class WhoDoesItServe extends Component {
   constructor(props) {
@@ -45,21 +40,19 @@ class WhoDoesItServe extends Component {
   render() {
     const { state: { value } } = this;
 
-    console.log(value);
-
     return (
       <div className="w-100 WhoDoesItServe">
         <Header className="mb-3">Who is this clothing for?</Header>
         <Selector fluid>
           {
-            LIST.map(name => (
+            options.map(({ label }) => (
               <Selector.Option
-                key={`selector-${name}`}
-                active={value.includes(name)}
+                key={`selector-${label}`}
+                active={value.includes(label)}
                 hide={false}
-                onClick={() => this.onListClick(name)}
+                onClick={() => this.onListClick(label)}
               >
-                {name}
+                {label}
               </Selector.Option>
             ))
           }

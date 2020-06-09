@@ -6,28 +6,34 @@ import { getService, getServiceWearerAge, getServiceId } from '../../../../selec
 import { selectLocationError } from '../../../../selectors/location';
 import * as actions from '../../../../actions';
 import { Form } from '../../../../components/form';
-import WhatKindOfClothingEdit from './WhatKindOfClothingEdit';
-import WhatKindOfClothingView from './WhatKindOfClothingView';
+import WhoIsThisClothingForEdit from './WhoIsThisClothingForEdit';
+import WhoIsThisClothingForView from './WhoIsThisClothingForView';
+import { getWearerAgeFromOptions, getGenderFromOptions, getLabelsFromWearerAge } from './options';
 
 const FormComponent = compose(withProps({
-  ViewComponent: WhatKindOfClothingView,
-  EditComponent: WhatKindOfClothingEdit
+  ViewComponent: WhoIsThisClothingForView,
+  EditComponent: WhoIsThisClothingForEdit,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
-  value: getServiceWearerAge(state, ownProps),
+  value: getLabelsFromWearerAge(getServiceWearerAge(state, ownProps)),
   id: getServiceId(ownProps),
   resourceLoadError: selectLocationError(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (wearerAge, serviceId, metaDataSection, fieldName) =>
+  updateValue: (value, serviceId, metaDataSection, fieldName) =>
     dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { wearerAge },
+      params: {
+        wearerAge: getWearerAgeFromOptions(value),
+        gender: {
+          eligible_values: getGenderFromOptions(value),
+        },
+      },
       metaDataSection,
       fieldName,
     })),

@@ -8,12 +8,12 @@ function FormView({ value, onConfirm, onEdit }) {
   return (
     <div className="w-100">
       <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
-        What kind of clothing is it?
+        Who is this clothing for?
       </div>
 
       <Selector fluid>
         {
-          value.map(name => (
+          value && value.map(name => (
             <Selector.Option
               key={`selector-${name}`}
               active
