@@ -70,7 +70,7 @@ class LocationNumberEdit extends Component {
 
     const params = {
       number,
-      extension: this.state.extension || null,
+      extension: parseInt(this.state.extension, 10) || null,
     };
 
     if (this.state.type) {

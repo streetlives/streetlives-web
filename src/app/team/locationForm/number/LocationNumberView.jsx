@@ -29,6 +29,7 @@ class LocationNumberView extends Component {
     this.onConfirmDelete = this.onConfirmDelete.bind(this);
     this.onCancelDelete = this.onCancelDelete.bind(this);
     this.deletePhone = this.deletePhone.bind(this);
+    this.goToEditPhone = this.goToEditPhone.bind(this);
   }
 
   onConfirmDelete() {
@@ -62,8 +63,14 @@ class LocationNumberView extends Component {
     });
   }
 
+  goToEditPhone(id) {
+    const { history, match } = this.props;
+
+    history.push(`${match.url}/${id}`);
+  }
+
   render() {
-    const { phones, onConfirm, match } = this.props;
+    const { phones, onConfirm } = this.props;
     const { isEditing, showDeleteModal, phoneBeingDeleted } = this.state;
 
     return (
@@ -98,12 +105,13 @@ class LocationNumberView extends Component {
                 <p className="PhoneNumber-Type">{phone.type}</p>
 
                 { isEditing &&
-                  <Link
-                    to={`${match.url}/${phone.id}`}
-                    className="Button Button-secondary Button-fluid"
+                  <Button
+                    onClick={() => this.goToEditPhone(phone.id)}
+                    secondary
+                    fluid
                   >
                     Edit
-                  </Link>
+                  </Button>
                 }
               </li>
             ))
@@ -112,7 +120,9 @@ class LocationNumberView extends Component {
 
         <Button
           onClick={() => { this.props.onNew(); }}
-          className="Button Button-secondary Button-fluid PhoneNumbers-Add"
+          secondary
+          fluid
+          className="PhoneNumbers-Add"
         >
           + Add another number
         </Button>
