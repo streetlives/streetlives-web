@@ -8,7 +8,7 @@ function isEditing(value) {
     value === null ||
     (typeof value === 'object'
       ? Object.keys(value).every(key => !value[key])
-      : value === null)
+      : !value)
   );
 }
 

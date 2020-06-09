@@ -99,13 +99,13 @@ const locationsReducer = (state = {}, action) => {
         }
 
         if (membership) {
-          const membershipIdx = Eligibilities
-            .findIndex(e => e.EligibilityParameter.name === 'membership');
+          const membershipEl = Eligibilities
+            .find(e => e.EligibilityParameter.name === 'membership');
 
-          if (membershipIdx !== -1) {
-            Eligibilities[membershipIdx].eligible_values = membership.eligible_values;
-            Eligibilities[membershipIdx].description = membership.description;
-            Eligibilities[membershipIdx].updated_at = dateString;
+          if (membershipEl) {
+            membershipEl.eligible_values = membership.eligible_values;
+            membershipEl.description = membership.description;
+            membershipEl.updated_at = dateString;
           } else {
             Eligibilities.push({
               eligible_values: membership.eligible_values,

@@ -1,7 +1,7 @@
 const options = [
   {
     label: 'None',
-    values: [false],
+    values: [true, false],
   },
   {
     label: 'Referal Letter',
