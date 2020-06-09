@@ -25,18 +25,7 @@ const LoadingView = () => (
 );
 
 function getUpdatedAt(service, route) {
-  const { metaDataSection, fieldName, taxonomySpecificFieldName, selector } = route;
-
-  if (selector) {
-    const value = selector(service);
-    return value ? value.updated_at : null;
-  }
-
-  if (taxonomySpecificFieldName) {
-    const attributes = service.ServiceTaxonomySpecificAttributes;
-    const field = attributes.find(el => el.attribute.name === taxonomySpecificFieldName);
-    return field ? field.updated_at : null;
-  }
+  const { metaDataSection, fieldName } = route;
 
   const subFields = service.metadata[metaDataSection];
   const field = subFields.find(el => el.field_name === fieldName);

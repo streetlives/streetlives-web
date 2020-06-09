@@ -13,8 +13,8 @@ import ServiceHasHivNutrition from './hasHivNutrition/ServiceHasHivNutrition';
 import ServiceClothingOccasions from './clothingOccasions/ServiceClothingOccasions';
 import ServiceWhoIsThisClothingFor from './whoIsThisClothingFor/ServiceWhoIsThisClothingFor';
 import ServiceTgncClothing from './tgncClothing/ServiceTgncClothing';
-import ServiceMembershipCriteria, { selector as serviceMembershipSelector } from './membershipCriteria/ServiceMembershipCriteria';
-import ServiceArea, { selector as serviceAreaSelector } from './area/ServiceArea';
+import ServiceMembershipCriteria from './membershipCriteria/ServiceMembershipCriteria';
+import ServiceArea from './area/ServiceArea';
 
 const baseRoute = '/team/location/:locationId/services/:serviceId';
 
@@ -65,41 +65,47 @@ export const SERVICE_FIELDS = [
     label: 'PLHIV',
     urlFragment: '/plhiv',
     RouteComponent: ServiceHasHivNutrition,
-    taxonomySpecificFieldName: 'hasHivNutrition',
+    fieldName: 'hasHivNutrition',
+    metaDataSection: 'service',
     serviceTaxonomy: 'Food',
   },
   {
     label: 'Occasions',
     urlFragment: '/occasions',
     RouteComponent: ServiceClothingOccasions,
-    taxonomySpecificFieldName: 'clothingOccasion',
+    fieldName: 'clothingOccasion',
+    metaDataSection: 'service',
     serviceTaxonomy: 'Clothing',
   },
   {
     label: 'Gender and age',
     urlFragment: '/gender-and-age',
     RouteComponent: ServiceWhoIsThisClothingFor,
-    taxonomySpecificFieldName: 'wearerAge',
+    fieldName: 'clothingOccasion',
+    metaDataSection: 'service',
     serviceTaxonomy: 'Clothing',
   },
   {
     label: 'TGNC',
     urlFragment: '/tgnc',
     RouteComponent: ServiceTgncClothing,
-    taxonomySpecificFieldName: 'tgncClothing',
+    fieldName: 'tgncClothing',
+    metaDataSection: 'service',
     serviceTaxonomy: 'Clothing',
   },
   {
     label: 'Membership',
     urlFragment: '/membership',
     RouteComponent: ServiceMembershipCriteria,
-    selector: serviceMembershipSelector,
+    fieldName: 'membership',
+    metaDataSection: 'service',
   },
   {
     label: 'Service Area',
     urlFragment: '/area',
     RouteComponent: ServiceArea,
-    selector: serviceAreaSelector,
+    fieldName: 'area',
+    metaDataSection: 'service',
   },
   {
     label: 'Other info (coronavirus)',
