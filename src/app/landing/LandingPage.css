@@ -272,7 +272,7 @@
     margin: 0 auto;
   }
 
-  .TestimonialsInner, .TestimonialBtn {
+  .TestimonialsInner, .TestimonialBtn, .SectionInner {
     max-width: 800px;
     margin: 0 auto;
   }

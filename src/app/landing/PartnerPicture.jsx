@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './PartnerPicture.css';
 
-const PartnerPicture = ({ imagePartialPath, alt = "", link }) => (
+const PartnerPicture = ({ imagePartialPath, alt = '', link }) => (
   <div className="PartnerPicture">
     <a href={link}>
       <picture>
@@ -16,11 +16,6 @@ const PartnerPicture = ({ imagePartialPath, alt = "", link }) => (
           media="(min-width: 1224px)"
           srcSet={`/img/partners/${imagePartialPath}_desktop.jpg`}
         />
-        {/* <source
-          className="OnboardingImage"
-          media="(max-width: 1223px)"
-          srcSet={`/img/partners/${imagePartialPath}_mobile.webp`}
-        /> */}
         <img
           className="OnboardingImage"
           src={`/img/partners/${imagePartialPath}_mobile.jpg`}
