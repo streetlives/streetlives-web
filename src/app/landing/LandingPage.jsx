@@ -28,7 +28,7 @@ class LandingPage extends Component {
       <div className="LandingPage">
         <div className="Intro Section">
           <div className="IntroTitle" ref={this.topRef}>
-            <img src="/img/gogetta.svg" alt="" />
+            <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
 
