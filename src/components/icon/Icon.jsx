@@ -1,6 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Icon.css';
 
 function Icon({
@@ -9,17 +10,13 @@ function Icon({
   alt,
   size,
   circle,
+  spin,
   onClick,
   className,
   style,
 }) {
   const classNames = cx(circle ? {} : className, {
     Icon: true,
-    'fa-lg': size === 'lg',
-    'fa-2x': size === '2x',
-    'fa-3x': size === '3x',
-    fa: !custom,
-    [`fa-${name}`]: !custom,
   });
 
   const containerClassNames = cx(circle ? className : {}, {
@@ -35,7 +32,7 @@ function Icon({
 
   const icon = custom ?
     <img {...iconProps} alt={alt} src={`/icons/${name}.svg`} /> :
-    <i {...iconProps} alt={alt} />;
+    <FontAwesomeIcon {...iconProps} size={size} icon={name} alt={alt} spin={spin} />;
 
   if (!circle) {
     return icon;
@@ -59,7 +56,6 @@ Icon.propTypes = {
 };
 
 Icon.defaultProps = {
-  size: '',
   className: '',
   custom: false,
   circle: false,

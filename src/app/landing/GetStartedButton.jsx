@@ -4,7 +4,7 @@ import Button from '../../components/button';
 const GetStartedButton = ({ onClick, ...rest }) => (
   <div className="GetStartedButton">
     <Button onClick={onClick} {...rest}>
-      Get started
+      Find free services
     </Button>
   </div>
 );

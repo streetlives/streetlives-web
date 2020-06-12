@@ -1,4 +1,4 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans&display=swap);
 @value primaryColor from "../../colors.css";
 
 .LandingPage {
@@ -6,12 +6,12 @@
   box-sizing: border-box;
   line-height: 1.5;
   overflow-y: scroll;
-  scroll-snap-type: y proximity;
+  /* scroll-snap-type: y proximity; */
   height: 100vh;
 }
 
 .LandingPage .Section {
-  scroll-snap-align: start;
+  /* scroll-snap-align: start; */
 }
 
 .LandingPage .Intro {
@@ -222,12 +222,12 @@
   height: 44px;
   line-height: normal;
   padding: 0px;
+  text-transform: none;
 }
 
 .GetStartedButton .btnWhite {
   background-color: white;
   color: #1400ff;
-  text-transform: capitalize;
 }
 
 .arrowUp {
