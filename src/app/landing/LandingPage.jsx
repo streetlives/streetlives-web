@@ -70,24 +70,63 @@ class LandingPage extends Component {
             </div>
 
             <picture>
+              {/* mobile jpg */}
               <source
-                className="OnboardingImage"
+                media="(max-width: 1223px)"
+                srcSet="/img/landing_page/step1_mobile2x.jpg"
+                type="image/jpeg"
+              />
+              {/* mobile webp */}
+              <source
+                media="(max-width: 1223px)"
+                srcSet="/img/landing_page/step1_mobile2x.webp"
+                type="image/webp"
+              />
+              {/* desktop jpg */}
+              <source
                 media="(min-width: 1224px)"
-                srcSet="img/landing_page/step1.png"
+                srcSet="/img/landing_page/step1_desktop1x.jpg 1x,
+                /img/landing_page/step1_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              {/* desktop webp */}
+              <source
+                media="(min-width: 1224px)"
+                srcSet="/img/landing_page/step1_desktop1x.webp 1x,
+              /img/landing_page/step1_desktop2x.webp 2x"
+                type="image/webp"
               />
               <img
+                src="/img/landing_page/step1_mobile2x.jpg"
                 className="OnboardingImage"
-                src="img/landing_page/step1_mobile.png"
                 alt="map showing food, clothing, shelter, and personal care markers"
               />
             </picture>
+
+            {/* <picture>
+              <source
+                className="OnboardingImage"
+                media="(min-width: 1920px)"
+                srcSet="img/landing_page/step1_3820.webp"
+              />
+              <source
+                className="OnboardingImage"
+                media="(min-width: 1224px)"
+                srcSet="img/landing_page/step1_1920.webp"
+              />
+              <img
+                className="OnboardingImage"
+                src="img/landing_page/step1_mobile.webp"
+                alt="map showing food, clothing, shelter, and personal care markers"
+              />
+            </picture> */}
           </div>
 
           <div className="Section">
             <div className="OnboardingSectionNumber">2</div>
             <div className="OnboardingText">
               <h2>
-                Find providers that will actually serve{' '}
+                Find providers that will actually serve{" "}
                 <span className="Emphasis">you</span>
               </h2>
               <p className="text-lighter">
@@ -97,14 +136,33 @@ class LandingPage extends Component {
               </p>
             </div>
             <picture>
+              {/* desktop jpg */}
               <source
-                className="OnboardingImage"
-                media="(min-width: 1224px)"
-                srcSet="img/landing_page/step2.png"
+                media="(min-aspect-ratio: 2/3)"
+                srcSet="/img/landing_page/step2_desktop1x.jpg 1x,
+                /img/landing_page/step2_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              {/* desktop webp */}
+              <source
+                media="(min-aspect-ratio: 2/3)"
+                srcSet="/img/landing_page/step2_desktop1x.webp 1x,
+              /img/landing_page/step2_desktop2x.webp 2x"
+                type="image/webp"
+              />
+              {/* mobile jpg */}
+              <source
+                srcSet="/img/landing_page/step2_mobile2x.jpg"
+                type="image/jpeg"
+              />
+              {/* mobile webp */}
+              <source
+                srcSet="/img/landing_page/step2_mobile2x.webp"
+                type="image/webp"
               />
               <img
                 className="OnboardingImage"
-                src="img/landing_page/step2_mobile.png"
+                src="/img/landing_page/step2_mobile2x.jpg"
                 alt="Welcome sign"
               />
             </picture>
@@ -123,14 +181,35 @@ class LandingPage extends Component {
             </div>
 
             <picture>
+              {/* mobile jpg */}
               <source
-                className="OnboardingImage"
+                media="(max-width: 1223px)"
+                srcSet="/img/landing_page/step3_mobile2x.jpg"
+                type="image/jpeg"
+              />
+              {/* mobile webp */}
+              <source
+                media="(max-width: 1223px)"
+                srcSet="/img/landing_page/step3_mobile2x.webp"
+                type="image/webp"
+              />
+              {/* desktop jpg */}
+              <source
                 media="(min-width: 1224px)"
-                srcSet="img/landing_page/step3.png"
+                srcSet="/img/landing_page/step3_desktop1x.jpg 1x,
+                /img/landing_page/step3_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              {/* desktop webp */}
+              <source
+                media="(min-width: 1224px)"
+                srcSet="/img/landing_page/step3_desktop1x.webp 1x,
+              /img/landing_page/step3_desktop2x.webp 2x"
+                type="image/webp"
               />
               <img
                 className="OnboardingImage"
-                src="img/landing_page/step3_mobile.png"
+                src="/img/landing_page/step3_mobile2x.jpg"
                 alt="woman with groceries"
               />
             </picture>
@@ -141,26 +220,28 @@ class LandingPage extends Component {
           <div className="TestimonialsInner">
             <h3 className="TestimonialsTitle">GoGettas are saying</h3>
             <Testimonial
-              imagePartialPath="testimonial_jeffrey"
+              imagePartialPath="testimonial1"
               name="Jeffrey"
               text="I know this information is good, it’s from people like me"
             />
             <Testimonial
-              imagePartialPath="testimonial_kenia"
+              imagePartialPath="testimonial2"
               name="Kenia"
               text="Usually, if I need something, I ask. But this is faster, easier, better."
             />
             <Testimonial
-              imagePartialPath="testimonial_gia"
+              imagePartialPath="testimonial3"
               name="Gia"
               text="Boom! I go in and there’s all this information."
             />
           </div>
-          <GetStartedButton
-            onClick={this.getStarted}
-            fluid
-            className="btnWhite"
-          />
+          <div className="TestimonialBtn">
+            <GetStartedButton
+              onClick={this.getStarted}
+              fluid
+              className="btnWhite"
+            />
+          </div>
         </div>
         <div className="Partners Section">
           <h3>Collaboration</h3>
@@ -214,7 +295,7 @@ class LandingPage extends Component {
             <PartnerPicture
               link="https://www.ncsinc.org/"
               alt="Neighborhood Coalition For Shelter logo"
-              imagePartialPath="neighborhood_coalition_for_shelter"
+              imagePartialPath="neighborhood_coalition"
             />
             <PartnerPicture
               link="https://www1.nyc.gov/site/dhs/index.page"
@@ -249,7 +330,7 @@ class LandingPage extends Component {
             <PartnerPicture
               link="https://www.usdigitalresponse.org/"
               alt="US Digital Response logo"
-              imagePartialPath="us_digital_response"
+              imagePartialPath="usdr"
             />
           </div>
           <p className="text-lighter">

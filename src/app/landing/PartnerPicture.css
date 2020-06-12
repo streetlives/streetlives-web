@@ -1,4 +1,5 @@
 .PartnerPicture {
+  flex: 1 1 0px;
   margin: 3vw;
   width: 20vw;
   text-align: center;
