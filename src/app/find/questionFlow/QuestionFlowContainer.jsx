@@ -10,7 +10,8 @@ class QuestionFlowContainer extends Component {
 
   componentDidMount() {
     if (!this.questions) {
-      this.goToResults({});
+      const { categoryName } = this.props.match.params;
+      this.props.history.replace(`/find/${categoryName}`);
     }
   }
 
