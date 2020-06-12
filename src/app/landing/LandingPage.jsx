@@ -199,7 +199,7 @@ class LandingPage extends Component {
         </div>
 
         <div className="Testimonials Section">
-          <div className="SectionInner">
+          <div className="TestimonialsInner">
             <h3 className="TestimonialsTitle">GoGettas are saying</h3>
             <Testimonial
               imagePartialPath="testimonial1"
