@@ -27,7 +27,7 @@ class LocationNumber extends Component {
     const { match, onFieldVerified, history } = this.props;
 
     const onDone = () => history.push({ pathname: '../phone-number' });
-    const onNew = () => history.push({ pathname:  `${match.url}/new` });
+    const onNew = () => history.push({ pathname: `${match.url}/new` });
 
     return (
       <Switch>
@@ -44,7 +44,13 @@ class LocationNumber extends Component {
         <Route
           exact
           path={`${match.path}/`}
-          render={props => <LocationNumberView {...props} onConfirm={onFieldVerified} onNew={onNew} />}
+          render={props => (
+            <LocationNumberView
+              {...props}
+              onConfirm={onFieldVerified}
+              onNew={onNew}
+            />
+          )}
         />
       </Switch>
     );
