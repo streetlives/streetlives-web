@@ -20,10 +20,6 @@ const Testimonial = ({ imagePartialPath, name, text }) => (
         srcSet={`/img/landing_page/${imagePartialPath}_mobile2x.webp`}
         type="image/webp"
       />
-      <source
-        srcSet={`/img/landing_page/${imagePartialPath}_mobile2x.jpg`}
-        type="image/jpeg"
-      />
       <img
         className="Testimonial-image"
         src={`/img/landing_page/${imagePartialPath}_mobile2x.jpg`}

@@ -10,12 +10,17 @@ const PartnerPicture = ({ imagePartialPath, alt = '', link }) => (
         <source
           media={`(min-width: ${DESKTOP_BREAKPOINT})`}
           srcSet={`/img/partners/${imagePartialPath}_desktop.webp`}
+          type="image/webp"
         />
         <source
           media={`(min-width: ${DESKTOP_BREAKPOINT})`}
           srcSet={`/img/partners/${imagePartialPath}_desktop.jpg`}
+          type="image/jpeg"
         />
-        <source srcSet={`/img/partners/${imagePartialPath}_mobile.webp`} />
+        <source
+          srcSet={`/img/partners/${imagePartialPath}_mobile.webp`}
+          type="image/webp"
+        />
         <img
           className="OnboardingImage"
           src={`/img/partners/${imagePartialPath}_mobile.jpg`}

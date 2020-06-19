@@ -87,10 +87,6 @@ class LandingPage extends Component {
                 srcSet="/img/landing_page/step1_mobile2x.webp"
                 type="image/webp"
               />
-              <source
-                srcSet="/img/landing_page/step1_mobile2x.jpg"
-                type="image/jpeg"
-              />
               <img
                 src="/img/landing_page/step1_mobile2x.jpg"
                 className="OnboardingImage"
@@ -129,10 +125,6 @@ class LandingPage extends Component {
                 srcSet="/img/landing_page/step2_mobile2x.webp"
                 type="image/webp"
               />
-              <source
-                srcSet="/img/landing_page/step2_mobile2x.jpg"
-                type="image/jpeg"
-              />
               <img
                 className="OnboardingImage"
                 src="/img/landing_page/step2_mobile2x.jpg"
@@ -169,10 +161,6 @@ class LandingPage extends Component {
               <source
                 srcSet="/img/landing_page/step3_mobile2x.webp"
                 type="image/webp"
-              />
-              <source
-                srcSet="/img/landing_page/step3_mobile2x.jpg"
-                type="image/jpeg"
               />
               <img
                 className="OnboardingImage"
