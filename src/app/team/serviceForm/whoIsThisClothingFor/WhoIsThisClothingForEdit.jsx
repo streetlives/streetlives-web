@@ -4,14 +4,18 @@ import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 
-import { options } from './options';
+import { options, getLabelsFromWearerAge } from './options';
 
 class WhoDoesItServe extends Component {
   constructor(props) {
     super(props);
 
+    const { value } = this.props;
+
+    const selectedOptions = value ? getLabelsFromWearerAge(value) : [];
+
     this.state = {
-      value: this.props.value,
+      value: selectedOptions,
     };
 
     this.updateValue = this.updateValue.bind(this);

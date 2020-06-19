@@ -52,7 +52,11 @@ class Edit extends Component {
             No
           </Selector.Option>
         </Selector>
-        <Button onClick={this.updateValue} primary>
+        <Button
+          onClick={this.updateValue}
+          disabled={typeof this.state.value !== 'boolean'}
+          primary
+        >
           OK
         </Button>
       </div>

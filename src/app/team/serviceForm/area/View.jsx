@@ -27,7 +27,6 @@ function FormView({ value: { postal_codes: postalCodes } = {}, onConfirm, onEdit
 
 FormView.propTypes = {
   value: PropTypes.shape({
-    description: PropTypes.string.isRequired,
     postal_codes: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   onConfirm: PropTypes.func.isRequired,

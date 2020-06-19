@@ -73,8 +73,8 @@ export const getEventRelatedInfo = (state, props) =>
 
 export const getServiceTaxonomySpecificAttribute = (name, state, props) => {
   const attributes = getService(state, props).ServiceTaxonomySpecificAttributes || [];
-  const attribute = attributes.find(a => (a.attribute.name === name)) || {};
-  return attribute.values;
+  const attribute = attributes.find(a => (a.attribute.name === name));
+  return attribute ? attribute.values : null;
 };
 
 export const getServiceHasHivNutrition = (state, props) =>

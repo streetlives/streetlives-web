@@ -8,7 +8,7 @@ import * as actions from '../../../../actions';
 import { Form } from '../../../../components/form';
 import WhoIsThisClothingForEdit from './WhoIsThisClothingForEdit';
 import WhoIsThisClothingForView from './WhoIsThisClothingForView';
-import { getWearerAgeFromOptions, getGenderFromOptions, getLabelsFromWearerAge } from './options';
+import { getWearerAgeFromOptions, getGenderFromOptions } from './options';
 
 const FormComponent = compose(withProps({
   ViewComponent: WhoIsThisClothingForView,
@@ -17,7 +17,7 @@ const FormComponent = compose(withProps({
 
 const mapStateToProps = (state, ownProps) => ({
   resourceData: getService(state, ownProps),
-  value: getLabelsFromWearerAge(getServiceWearerAge(state, ownProps)),
+  value: getServiceWearerAge(state, ownProps),
   id: getServiceId(ownProps),
   resourceLoadError: selectLocationError(state, ownProps),
 });

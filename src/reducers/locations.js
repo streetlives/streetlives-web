@@ -135,7 +135,7 @@ const locationsReducer = (state = {}, action) => {
               ServiceTaxonomySpecificAttributes[fieldIdx].updated_at = dateString;
             } else {
               ServiceTaxonomySpecificAttributes.push({
-                value: params[attr],
+                values: params[attr],
                 updated_at: dateString,
                 attribute: {
                   name: attr,

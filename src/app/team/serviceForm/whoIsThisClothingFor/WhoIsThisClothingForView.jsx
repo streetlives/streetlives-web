@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import Selector from '../../../../components/selector';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 
+import { getLabelsFromWearerAge } from './options';
+
 function FormView({ value, onConfirm, onEdit }) {
   return (
     <div className="w-100">
@@ -13,7 +15,7 @@ function FormView({ value, onConfirm, onEdit }) {
 
       <Selector fluid>
         {
-          value && value.map(name => (
+          value && getLabelsFromWearerAge(value).map(name => (
             <Selector.Option
               key={`selector-${name}`}
               active
