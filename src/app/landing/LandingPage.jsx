@@ -198,7 +198,7 @@ class LandingPage extends Component {
           </div>
           <div className="TestimonialBtn">
             <GetStartedButton
-              onClick={this.getStarted}
+              onClick={this.toggleModal}
               fluid
               className="btnWhite"
             />
