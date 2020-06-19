@@ -12,7 +12,7 @@ import { Form } from '../../../../components/form';
 import Edit from './Edit';
 import View from './View';
 
-export const selector = service => (service.ServiceAreas || [])[0];
+export const selector = service => (service.ServiceAreas || [])[0] || null;
 
 const FormComponent = compose(withProps({
   ViewComponent: View,

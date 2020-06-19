@@ -34,11 +34,17 @@ class AreaEdit extends Component {
     this.selectAreaType = this.selectAreaType.bind(this);
   }
 
-  onDeleteZipCode(zip) {
+  onDeleteZipCode(index) {
     const { customZipCodes } = this.state;
 
+    const filtered = [
+      ...customZipCodes,
+    ];
+
+    filtered.splice(index, 1);
+
     this.setState({
-      customZipCodes: customZipCodes.filter(z => z !== zip),
+      customZipCodes: filtered,
     });
   }
 
@@ -84,11 +90,21 @@ class AreaEdit extends Component {
     }
 
     this.props.updateValue(
-      customZipCodes,
+      { postal_codes: customZipCodes },
       this.props.id,
       this.props.metaDataSection,
       this.props.fieldName,
     );
+  }
+
+  isSubmitDisabled() {
+    const { areaType, customZipCodes } = this.state;
+
+    if (areaType === 'CUSTOM') {
+      return customZipCodes.length === 0;
+    }
+
+    return areaType === '';
   }
 
   render() {
@@ -133,7 +149,7 @@ class AreaEdit extends Component {
                   key={zip}
                   zip={zip}
                   onUpdate={value => this.onUpdateZipCode(index, value)}
-                  onDelete={() => this.onDeleteZipCode(zip)}
+                  onDelete={() => this.onDeleteZipCode(index)}
                 />
               ))
             }
@@ -152,7 +168,11 @@ class AreaEdit extends Component {
           }
         </Selector>
 
-        <Button onClick={this.updateValue} primary>
+        <Button
+          onClick={this.updateValue}
+          primary
+          disabled={this.isSubmitDisabled()}
+        >
           OK
         </Button>
       </div>

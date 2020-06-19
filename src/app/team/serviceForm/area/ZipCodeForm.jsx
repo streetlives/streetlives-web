@@ -8,17 +8,12 @@ class ZipCodeForm extends Component {
 
     this.state = {
       showForm: this.props.zip === '',
-      zipCode: '',
+      zipCode: this.props.zip,
     };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.enableForm = this.enableForm.bind(this);
-  }
-
-  componentDidMount() {
-    if (this.state.showForm) {
-      this.inputRef.focus();
-    }
+    this.onChangeZipCode = this.onChangeZipCode.bind(this);
   }
 
   onSubmit(e) {
@@ -31,7 +26,9 @@ class ZipCodeForm extends Component {
     });
   }
 
-  onChangeZipCode(zipCode) {
+  onChangeZipCode(e) {
+    const zipCode = e.target.value;
+
     this.setState({
       zipCode,
     });
@@ -60,7 +57,6 @@ class ZipCodeForm extends Component {
           maskChar="_"
           alwaysShowMask
           onFocus={this.enableForm}
-          onBlur={this.onSubmit}
         />
 
         { showForm &&
@@ -69,6 +65,7 @@ class ZipCodeForm extends Component {
             primary
             className="mt-3 mb-3"
             onClick={this.onSubmit}
+            disabled={this.state.zipCode.length !== 5}
           >
             OK
           </Button>
