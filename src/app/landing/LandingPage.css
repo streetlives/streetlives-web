@@ -17,7 +17,7 @@
 .LandingPage .Intro {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .LandingPage .IntroTitle {
@@ -39,13 +39,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around ;
   align-items: center;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1.jpg') no-repeat center center fixed;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1_desktop.jpg') no-repeat center center fixed;
   background-position: 30% 0%;
   background-size: cover;
   color: #FFFFFF;
-  padding: 15vh 0px 15vh 0px;
 }
 
 .LandingPage .IntroBody > .IntroTop > h1 {
@@ -121,6 +120,10 @@
   color: #FFFFFF;
 }
 
+.TestimonialBtn {
+  margin-top: 36px;
+}
+
 .LandingPage .TestimonialsInner {
   margin-bottom: 24px;
 }
@@ -135,7 +138,7 @@
 }
 
 .LandingPage .Partners .PartnerPictures {
-  margin: 18px auto;
+  margin: 0px 36px 24px 36px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -265,5 +268,22 @@
 
   .LandingPage h3 {
     font-size: 11px;
+  }
+}
+
+@media screen and (max-width: 1224px) {
+  .LandingPage .IntroBody {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1_mobile.jpg') no-repeat center center fixed;
+  }
+}
+
+@media screen and (min-width: 1224px) {
+  .IntroTop, .IntroBottom {
+    max-width: 800px;
+  }
+
+  .TestimonialsInner, .TestimonialBtn, .SectionInner, .OnboardingText {
+    max-width: 800px;
+    margin: 0 auto;
   }
 }

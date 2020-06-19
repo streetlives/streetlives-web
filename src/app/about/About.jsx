@@ -50,67 +50,67 @@ export default function About() {
         <p>Fiscal Sponsors:</p>
         <div className="About-Outreach">
           <div className="social-proof">
-            <a href="https://techimpact.org/"><img alt="tech impact logo" src="img/partners/techimpact_logo.png" /></a>
+            <a href="https://techimpact.org/"><img alt="tech impact logo" src="img/partners/techimpact.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://opencollective.com/streetlives"><img alt="open collective logo" src="img/partners/open_collective_logo.png" /></a>
+            <a href="https://opencollective.com/streetlives"><img alt="open collective logo" src="img/partners/open_collective_mobile.jpg" /></a>
           </div>
         </div>
         <p>International Partner Organization:</p>
         <div className="About-Outreach">
           <div className="social-proof">
-            <a href="https://www.infoxchange.org/au/"><img alt="infoxchange logo" src="img/partners/infoxchange_logo.png" /></a>
+            <a href="https://www.infoxchange.org/au/"><img alt="infoxchange logo" src="img/partners/infoxchange_mobile.jpg" /></a>
           </div>
         </div>
         <p>Core Partners:</p>
         <div className="About-Outreach">
           <div className="social-proof">
-            <a href="http://civichall.org/"><img alt="civic hall logo" src="img/partners/civic_hall_logo.svg" /></a>
+            <a href="http://civichall.org/"><img alt="civic hall logo" src="img/partners/civic_hall_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.breadandlife.org/"><img alt="st john's logo" src="img/partners/st_john_logo.png" /></a>
+            <a href="https://www.breadandlife.org/"><img alt="st john's logo" src="img/partners/st_john_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://holyapostlessoupkitchen.org/"><img alt="holy apostles logo" src="img/partners/holy_apostles_logo.png" /></a>
+            <a href="https://holyapostlessoupkitchen.org/"><img alt="holy apostles logo" src="img/partners/holy_apostles_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://www.aliforneycenter.org/"><img alt="ali forney logo" src="img/partners/ali_forney_logo.png" /></a>
+            <a href="http://www.aliforneycenter.org/"><img alt="ali forney logo" src="img/partners/ali_forney_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://www.edalliance.org/"><img alt="educational alliance logo" src="img/partners/educational_alliance_logo.png" /></a>
+            <a href="http://www.edalliance.org/"><img alt="educational alliance logo" src="img/partners/educational_alliance_mobile.jpg" /></a>
           </div>
         </div>
         <p>In Collaboration With:</p>
         <div className="About-Outreach">
           <div className="social-proof">
-            <a href="https://aws.amazon.com/"><img alt="aws logo" src="img/partners/aws_logo.png" /></a>
+            <a href="https://aws.amazon.com/"><img alt="aws logo" src="img/partners/aws_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://cartodb.com/"><img alt="carto logo" src="img/partners/carto_logo.png" /></a>
+            <a href="https://cartodb.com/"><img alt="carto logo" src="img/partners/carto.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.careforthehomeless.org/"><img alt="care for the homeless logo" src="img/partners/care_for_the_homeless_logo.png" /></a>
+            <a href="https://www.careforthehomeless.org/"><img alt="care for the homeless logo" src="img/partners/care_for_the_homeless_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://neighborstogether.org/"><img alt="neighbors together logo" src="img/partners/neighbors_together_logo.png" /></a>
+            <a href="http://neighborstogether.org/"><img alt="neighbors together logo" src="img/partners/neighbors_together_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.plannedparenthood.org/"><img alt="planned parenthood logo" src="img/partners/planned_parenthood_logo.svg" /></a>
+            <a href="https://www.plannedparenthood.org/"><img alt="planned parenthood logo" src="img/partners/planned_parenthood.svg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://www.law.nyu.edu/"><img alt="nyu law logo" src="img/partners/nyu_law_logo.png" /></a>
+            <a href="http://www.law.nyu.edu/"><img alt="nyu law logo" src="img/partners/nyu_law_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.fathersheartnyc.org/"><img alt="father's heart logo" src="img/partners/fathers_heart_logo.png" /></a>
+            <a href="https://www.fathersheartnyc.org/"><img alt="father's heart logo" src="img/partners/fathers_heart.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://minnow.io/"><img alt="minnow software logo" src="img/partners/minnow_logo.png" /></a>
+            <a href="http://minnow.io/"><img alt="minnow software logo" src="img/partners/minnow_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://openreferral.org/"><img alt="open referral logo" src="img/partners/openreferral_logo.png" /></a>
+            <a href="https://openreferral.org/"><img alt="open referral logo" src="img/partners/openreferral_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://www.argolabs.org/"><img alt="argo labs logo" src="img/partners/argo_logo.png" /></a>
+            <a href="http://www.argolabs.org/"><img alt="argo labs logo" src="img/partners/argo.png" /></a>
           </div>
           <div
             className="social-proof"
@@ -119,28 +119,28 @@ export default function About() {
               backgroundColor: '#e35205',
             }}
           >
-            <a href="https://www.ncsinc.org/"><img style={{ width: '80%' }} alt="neighborhood coalition for shelter logo" src="img/partners/neighborhood_coalition_for_shelter_logo.svg" /></a>
+            <a href="https://www.ncsinc.org/"><img style={{ width: '80%' }} alt="neighborhood coalition for shelter logo" src="img/partners/neighborhood_coalition_for_shelter.svg" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://feedbacklabs.org/"><img alt="feedback labs logo" src="img/partners/feedback_labs_logo.png" /></a>
+            <a href="http://feedbacklabs.org/"><img alt="feedback labs logo" src="img/partners/feedback_labs.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://foundertherapy.co/"><img alt="founder therapy logo" src="img/partners/founder_therapy_logo.png" /></a>
+            <a href="https://foundertherapy.co/"><img alt="founder therapy logo" src="img/partners/founder_therapy.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="http://civicconsultingusa.org/"><img alt="civic consulting usa logo" src="img/partners/civic_usa_logo.png" /></a>
+            <a href="http://civicconsultingusa.org/"><img alt="civic consulting usa logo" src="img/partners/civic_hall_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www1.nyc.gov/site/dhs/index.page"><img alt="nyc dhs logo" src="img/partners/nyc_logo.png" /></a>
+            <a href="https://www1.nyc.gov/site/dhs/index.page"><img alt="nyc dhs logo" src="img/partners/nyc_mobile.jpg" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.sethgodin.com/"><img alt="seth godin logo" src="img/partners/seth_godin_logo.png" /></a>
+            <a href="https://www.sethgodin.com/"><img alt="seth godin logo" src="img/partners/seth_godin.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://streetsupport.net/"><img alt="street support logo" src="img/partners/street_support_logo.png" /></a>
+            <a href="https://streetsupport.net/"><img alt="street support logo" src="img/partners/street_support.png" /></a>
           </div>
           <div className="social-proof">
-            <a href="https://www.backonmyfeet.org/"><img alt="back_on_my_feet_logo" src="img/partners/back_on_my_feet_logo.png" /></a>
+            <a href="https://www.backonmyfeet.org/"><img alt="back_on_my_feet" src="img/partners/back_on_my_feet.png" /></a>
           </div>
         </div>
       </div>

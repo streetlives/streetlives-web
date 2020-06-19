@@ -3,6 +3,7 @@ import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
+import { DESKTOP_BREAKPOINT } from '../../Constants';
 import './LandingPage.css';
 import CovidInfoModal from './CovidInfoModal';
 
@@ -40,13 +41,20 @@ class LandingPage extends Component {
           <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">
-              <h1>Get what <span className="Emphasis">you</span> need</h1>
+              <h1>
+                Get what <span className="Emphasis">you</span> need
+              </h1>
               <p>
-                Find food, clothing, personal care, shelter, and other services that are{' '}
-                <strong>verified by the community</strong> and right for you.
+                Find food, clothing, personal care, shelter, and other services
+                that are <strong>verified by the community</strong> and right
+                for you.
               </p>
               <div className="IntroTop arrow">
-                <Icon name="chevron-down" size="2x" onClick={this.scrollToContent} />
+                <Icon
+                  name="chevron-down"
+                  size="2x"
+                  onClick={this.scrollToContent}
+                />
               </div>
             </div>
             <div className="IntroBottom">
@@ -63,34 +71,72 @@ class LandingPage extends Component {
               <h3>How it works</h3>
               <h2>Search for what you need</h2>
               <p className="text-lighter">
-                GoGetta has New York’s most up-to-date service information on food, personal care, shelter, and clothing.
+                GoGetta has New York’s most up-to-date service information on
+                food, personal care, shelter, and clothing.
               </p>
             </div>
 
             <picture>
               <source
-                className="OnboardingImage"
-                media="(min-aspect-ratio: 2/3)"
-                srcSet="img/landing_page/map_tablet.png"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step1_desktop1x.webp 1x,
+              /img/landing_page/step1_desktop2x.webp 2x"
+                type="image/webp"
+              />
+              <source
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step1_desktop1x.jpg 1x,
+                /img/landing_page/step1_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              <source
+                srcSet="/img/landing_page/step1_mobile2x.webp"
+                type="image/webp"
               />
               <img
+                src="/img/landing_page/step1_mobile2x.jpg"
                 className="OnboardingImage"
-                src="img/landing_page/map_narrow.png"
-                alt="map showing food, clothing, and personal care markers"
+                alt="map showing food, clothing, shelter, and personal care markers"
               />
             </picture>
           </div>
 
           <div className="Section">
             <div className="OnboardingSectionNumber">2</div>
-
             <div className="OnboardingText">
-              <h2>Find providers that will actually serve <span className="Emphasis">you</span></h2>
+              <h2>
+                Find providers that will actually serve{' '}
+                <span className="Emphasis">you</span>
+              </h2>
               <p className="text-lighter">
-                Filter or answer a few questions and we will show you locations that meet your specific needs, from age to gender to family situations.
+                Filter or answer a few questions and we will show you locations
+                that meet your specific needs, from age to gender to family
+                situations.
               </p>
             </div>
-            <img className="OnboardingImage" src="img/landing_page/welcome.jpg" alt="" />
+            <picture>
+              <source
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step2_desktop1x.webp 1x,
+              /img/landing_page/step2_desktop2x.webp 2x"
+                type="image/webp"
+              />
+              <source
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step2_desktop1x.jpg 1x,
+                /img/landing_page/step2_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              <source
+                srcSet="/img/landing_page/step2_mobile2x.webp"
+                type="image/webp"
+              />
+              <img
+                className="OnboardingImage"
+                src="/img/landing_page/step2_mobile2x.jpg"
+                alt="Welcome sign"
+              />
+            </picture>
           </div>
 
           <div className="Section">
@@ -99,16 +145,33 @@ class LandingPage extends Component {
             <div className="OnboardingText">
               <h2>You’re all set!</h2>
               <p className="text-lighter">
-                See the service details, go get what you need. We don’t keep your personal data, so your privacy is protected.
+                See the service details, go get what you need. We don’t keep
+                your personal data, so your privacy is protected.
               </p>
               <GetStartedButton onClick={this.toggleModal} primary fluid />
             </div>
 
             <picture>
+              <source
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step3_desktop1x.webp 1x,
+              /img/landing_page/step3_desktop2x.webp 2x"
+                type="image/webp"
+              />
+              <source
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step3_desktop1x.jpg 1x,
+                /img/landing_page/step3_desktop2x.jpg 2x"
+                type="image/jpeg"
+              />
+              <source
+                srcSet="/img/landing_page/step3_mobile2x.webp"
+                type="image/webp"
+              />
               <img
                 className="OnboardingImage"
-                src="img/landing_page/step3.png"
-                alt=""
+                src="/img/landing_page/step3_mobile2x.jpg"
+                alt="woman with groceries"
               />
             </picture>
           </div>
@@ -118,141 +181,174 @@ class LandingPage extends Component {
           <div className="TestimonialsInner">
             <h3 className="TestimonialsTitle">GoGettas are saying</h3>
             <Testimonial
-              img="img/landing_page/testimonial_jeffrey.png"
+              imagePartialPath="testimonial1"
               name="Jeffrey"
               text="I know this information is good, it’s from people like me"
             />
             <Testimonial
-              img="img/landing_page/testimonial_kenia.png"
+              imagePartialPath="testimonial2"
               name="Kenia"
               text="Usually, if I need something, I ask. But this is faster, easier, better."
             />
             <Testimonial
-              img="img/landing_page/testimonial_gayle.png"
+              imagePartialPath="testimonial3"
               name="Gia"
               text="Boom! I go in and there’s all this information."
             />
           </div>
-          <GetStartedButton onClick={this.toggleModal} fluid className="btnWhite" />
+          <div className="TestimonialBtn">
+            <GetStartedButton
+              onClick={this.getStarted}
+              fluid
+              className="btnWhite"
+            />
+          </div>
         </div>
         <div className="Partners Section">
-          <h3>Collaboration</h3>
-          <h2>Love for the help we’ve had to create GoGetta!</h2>
-          <div className="PartnerPictures">
-            <PartnerPicture
-              link="http://www.aliforneycenter.org/"
-              alt="Ali Forney logo"
-              src="img/partners/ali_forney_logo.png"
-            />
-            <PartnerPicture
-              link="https://www.breadandlife.org/"
-              alt="St. Johns' logo"
-              src="img/partners/st_john_logo.png"
-            />
-            <PartnerPicture
-              link="https://www.careforthehomeless.org/"
-              alt="care for the homeless logo"
-              src="img/partners/care_for_the_homeless_logo.png"
-            />
-            <PartnerPicture
-              link="https://civichall.org/"
-              alt="Civic Hall logo"
-              src="img/partners/civic_hall_logo.svg"
-            />
-            <PartnerPicture
-              link="http://www.edalliance.org/"
-              alt="Education Alliance logo"
-              src="img/partners/educational_alliance_logo.png"
-            />
-            <PartnerPicture
-              link="https://www.nycfoodpolicy.org/"
-              alt="NYC Food Policy logo"
-              src="img/partners/hunter_college.png"
-            />
-            <PartnerPicture
-              link="https://www.infoxchange.org/au/"
-              alt="InfoXChange logo"
-              src="img/partners/infoxchange_logo.png"
-            />
-            <PartnerPicture
-              link="http://minnow.io/"
-              alt="Minnow logo"
-              src="img/partners/minnow_logo.png"
-            />
-            <PartnerPicture
-              link="http://neighborstogether.org/"
-              alt="neighbors together logo"
-              src="img/partners/neighbors_together_logo.png"
-            />
-            <PartnerPicture
-              link="https://www.ncsinc.org/"
-              alt="Neighborhood Coalition For Shelter logo"
-              src="img/partners/neighborhood_coalition_for_shelter_logo.png"
-            />
-            <PartnerPicture
-              link="https://www1.nyc.gov/site/dhs/index.page"
-              alt="nyc dhs logo"
-              src="img/partners/nyc_logo.png"
-            />
-            <PartnerPicture
-              link="http://www.law.nyu.edu/"
-              alt="nyu law logo"
-              src="img/partners/nyu_law_logo.png"
-            />
-            <PartnerPicture
-              link="https://opencollective.com/streetlives"
-              alt="Open Collective logo"
-              src="img/partners/open_collective_logo.png"
-            />
-            <PartnerPicture
-              link="https://openreferral.org/"
-              alt="open referral logo"
-              src="img/partners/openreferral_logo.png"
-            />
-            <PartnerPicture
-              link="https://holyapostlessoupkitchen.org/"
-              alt="Holy Apostles logo"
-              src="img/partners/holy_apostles_logo.png"
-            />
-            <PartnerPicture
-              link="https://aws.amazon.com/"
-              alt="aws logo"
-              src="img/partners/aws_logo.png"
-            />
-            <PartnerPicture
-              link="https://www.usdigitalresponse.org/"
-              alt="US Digital Response logo"
-              src="img/partners/us_digital_response_logo.png"
-            />
-          </div>
-          <p className="text-lighter">Food service information provided with the help of Hunter College NYC Food Policy Center.</p>
-          <p className="text-lighter">For more information, visit:</p>
-          <p>
-            <a href="https://www.nycfoodpolicy.org/food">https://www.nycfoodpolicy.org/food</a>
-          </p>
-        </div>
-        <div className="AboutUs Section">
-          <h3>Who we are</h3>
-          <div>
-            <p>GoGetta is a Streetlives product. Streetlives is a US non-profit under our fiscal host the Open Collective Foundation.</p>
+          <div className="SectionInner">
+            <h3>Collaboration</h3>
+            <h2>Love for the help we’ve had to create GoGetta!</h2>
+            <div className="PartnerPictures">
+              <PartnerPicture
+                link="http://www.aliforneycenter.org/"
+                alt="Ali Forney logo"
+                imagePartialPath="ali_forney"
+              />
+              <PartnerPicture
+                link="https://www.breadandlife.org/"
+                alt="St. Johns' logo"
+                imagePartialPath="st_john"
+              />
+              <PartnerPicture
+                link="https://www.careforthehomeless.org/"
+                alt="Care for the Homeless logo"
+                imagePartialPath="care_for_the_homeless"
+              />
+              <PartnerPicture
+                link="https://civichall.org/"
+                alt="Civic Hall logo"
+                imagePartialPath="civic_hall"
+              />
+              <PartnerPicture
+                link="http://www.edalliance.org/"
+                alt="Education Alliance logo"
+                imagePartialPath="educational_alliance"
+              />
+              <PartnerPicture
+                link="https://www.nycfoodpolicy.org/"
+                alt="NYC Food Policy logo"
+                imagePartialPath="hunter_college"
+              />
+              <PartnerPicture
+                link="https://www.infoxchange.org/au/"
+                alt="InfoXChange logo"
+                imagePartialPath="infoxchange"
+              />
+              <PartnerPicture
+                link="http://minnow.io/"
+                alt="Minnow logo"
+                imagePartialPath="minnow"
+              />
+              <PartnerPicture
+                link="http://neighborstogether.org/"
+                alt="Neighbors Together logo"
+                imagePartialPath="neighbors_together"
+              />
+              <PartnerPicture
+                link="https://www.ncsinc.org/"
+                alt="Neighborhood Coalition For Shelter logo"
+                imagePartialPath="neighborhood_coalition"
+              />
+              <PartnerPicture
+                link="https://www1.nyc.gov/site/dhs/index.page"
+                alt="NYC DHS logo"
+                imagePartialPath="nyc"
+              />
+              <PartnerPicture
+                link="http://www.law.nyu.edu/"
+                alt="NYU Law logo"
+                imagePartialPath="nyu_law"
+              />
+              <PartnerPicture
+                link="https://opencollective.com/streetlives"
+                alt="Open Collective logo"
+                imagePartialPath="open_collective"
+              />
+              <PartnerPicture
+                link="https://openreferral.org/"
+                alt="Open Referral logo"
+                imagePartialPath="openreferral"
+              />
+              <PartnerPicture
+                link="https://holyapostlessoupkitchen.org/"
+                alt="Holy Apostles logo"
+                imagePartialPath="holy_apostles"
+              />
+              <PartnerPicture
+                link="https://aws.amazon.com/"
+                alt="AWS logo"
+                imagePartialPath="aws"
+              />
+              <PartnerPicture
+                link="https://www.usdigitalresponse.org/"
+                alt="US Digital Response logo"
+                imagePartialPath="usdr"
+              />
+            </div>
+            <p className="text-lighter">
+              Food service information provided with the help of Hunter College
+              NYC Food Policy Center.
+            </p>
+            <p className="text-lighter">For more information, visit:</p>
             <p>
-              We build technology with communities considered vulnerable, New York social service providers, and other system stakeholders in a whole-of-community partnership.
+              <a href="https://www.nycfoodpolicy.org/food">
+                https://www.nycfoodpolicy.org/food
+              </a>
             </p>
           </div>
-          <div>
-            <img src="img/streetlives_text_logo.png" alt="Streetlives logo" className="about-logo" />
+        </div>
+        <div className="AboutUs Section">
+          <div className="SectionInner">
+            <h3>Who we are</h3>
+            <div>
+              <p>
+                GoGetta is a Streetlives product. Streetlives is a US non-profit
+                under our fiscal host the Open Collective Foundation.
+              </p>
+              <p>
+                We build technology with communities considered vulnerable, New
+                York social service providers, and other system stakeholders in
+                a whole-of-community partnership.
+              </p>
+            </div>
+            <div>
+              <picture>
+                <source
+                  className="OnboardingImage"
+                  media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                  srcSet="img/streetlives_text_logo.png"
+                />
+                <img
+                  src="img/streetlives_text_mobile_logo.png"
+                  alt="Streetlives logo"
+                  className="about-logo"
+                />
+              </picture>
+            </div>
           </div>
         </div>
 
         <div className="Feedback Section">
-          <h2>We’re all about feedback</h2>
-          <p>Tell us what you think at:</p>
-          <div className="FeedbackEmail">
-            <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
-          </div>
-          <div className="arrowUp" onClick={this.scrollToContentTop}>
-            <Icon name="chevron-up" size="2x" />
-            <p>Back to top</p>
+          <div className="SectionInner">
+            <h2>We’re all about feedback</h2>
+            <p>Tell us what you think at:</p>
+            <div className="FeedbackEmail">
+              <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
+            </div>
+            <div className="arrowUp" onClick={this.scrollToContentTop}>
+              <Icon name="chevron-up" size="2x" />
+              <p>Back to top</p>
+            </div>
           </div>
         </div>
       </div>
