@@ -91,7 +91,7 @@
   padding-right: 0 !important;
 }
 
-@media (min-width: 768px) .col-md-8 {
+@media (min-width: 1224px) .col-md-8 {
   margin-left: auto !important;
   margin-right: auto !important;
 }
