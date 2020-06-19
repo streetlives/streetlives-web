@@ -9,10 +9,8 @@ import { Form } from '../../../../components/form';
 import MembershipCriteriaEdit from './MembershipCriteriaEdit';
 import MembershipCriteriaView from './MembershipCriteriaView';
 
-import { getRequiredDocument } from './options';
-
 export const selector = service =>
-  (service.Eligibilities || []).find(e => e.EligibilityParameter.name === 'membership');
+  (service.Eligibilities || []).find(e => e.EligibilityParameter.name === 'membership') || null;
 
 const FormComponent = compose(withProps({
   ViewComponent: MembershipCriteriaView,
@@ -27,19 +25,13 @@ const mapStateToProps = (state, ownProps) => {
     value: selector(serviceData),
     id: getServiceId(ownProps),
     resourceLoadError: selectLocationError(state, ownProps),
-  }
+  };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(getLocation, dispatch),
   updateValue: (membership, serviceId, metaDataSection, fieldName) => {
-    const params = { membership, documents: { proofs: [] } };
-
-    const requiredDocument = getRequiredDocument(membership.eligible_values);
-
-    if (requiredDocument) {
-      params.documents.proofs.push(requiredDocument);
-    }
+    const params = { membership };
 
     dispatch(updateService({
       locationId: ownProps.match.params.locationId,
