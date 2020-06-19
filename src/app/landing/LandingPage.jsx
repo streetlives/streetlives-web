@@ -3,6 +3,7 @@ import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
+import { DESKTOP_BREAKPOINT } from '../../Constants';
 import './LandingPage.css';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
@@ -70,31 +71,25 @@ class LandingPage extends Component {
             </div>
 
             <picture>
-              {/* desktop jpg */}
               <source
-                media="(min-width: 1224px)"
-                srcSet="/img/landing_page/step1_desktop1x.jpg 1x,
-                /img/landing_page/step1_desktop2x.jpg 2x"
-                type="image/jpeg"
-              />
-              {/* desktop webp */}
-              <source
-                media="(min-width: 1224px)"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
                 srcSet="/img/landing_page/step1_desktop1x.webp 1x,
               /img/landing_page/step1_desktop2x.webp 2x"
                 type="image/webp"
               />
-              {/* mobile jpg */}
               <source
-                media="(max-width: 1223px)"
-                srcSet="/img/landing_page/step1_mobile2x.jpg"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step1_desktop1x.jpg 1x,
+                /img/landing_page/step1_desktop2x.jpg 2x"
                 type="image/jpeg"
               />
-              {/* mobile webp */}
               <source
-                media="(max-width: 1223px)"
                 srcSet="/img/landing_page/step1_mobile2x.webp"
                 type="image/webp"
+              />
+              <source
+                srcSet="/img/landing_page/step1_mobile2x.jpg"
+                type="image/jpeg"
               />
               <img
                 src="/img/landing_page/step1_mobile2x.jpg"
@@ -108,7 +103,7 @@ class LandingPage extends Component {
             <div className="OnboardingSectionNumber">2</div>
             <div className="OnboardingText">
               <h2>
-                Find providers that will actually serve{" "}
+                Find providers that will actually serve{' '}
                 <span className="Emphasis">you</span>
               </h2>
               <p className="text-lighter">
@@ -118,29 +113,25 @@ class LandingPage extends Component {
               </p>
             </div>
             <picture>
-              {/* desktop jpg */}
               <source
-                media="(min-aspect-ratio: 2/3)"
-                srcSet="/img/landing_page/step2_desktop1x.jpg 1x,
-                /img/landing_page/step2_desktop2x.jpg 2x"
-                type="image/jpeg"
-              />
-              {/* desktop webp */}
-              <source
-                media="(min-aspect-ratio: 2/3)"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
                 srcSet="/img/landing_page/step2_desktop1x.webp 1x,
               /img/landing_page/step2_desktop2x.webp 2x"
                 type="image/webp"
               />
-              {/* mobile jpg */}
               <source
-                srcSet="/img/landing_page/step2_mobile2x.jpg"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step2_desktop1x.jpg 1x,
+                /img/landing_page/step2_desktop2x.jpg 2x"
                 type="image/jpeg"
               />
-              {/* mobile webp */}
               <source
                 srcSet="/img/landing_page/step2_mobile2x.webp"
                 type="image/webp"
+              />
+              <source
+                srcSet="/img/landing_page/step2_mobile2x.jpg"
+                type="image/jpeg"
               />
               <img
                 className="OnboardingImage"
@@ -163,31 +154,25 @@ class LandingPage extends Component {
             </div>
 
             <picture>
-              {/* desktop jpg */}
               <source
-                media="(min-width: 1224px)"
-                srcSet="/img/landing_page/step3_desktop1x.jpg 1x,
-                /img/landing_page/step3_desktop2x.jpg 2x"
-                type="image/jpeg"
-              />
-              {/* desktop webp */}
-              <source
-                media="(min-width: 1224px)"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
                 srcSet="/img/landing_page/step3_desktop1x.webp 1x,
               /img/landing_page/step3_desktop2x.webp 2x"
                 type="image/webp"
               />
-              {/* mobile jpg */}
               <source
-                media="(max-width: 1223px)"
-                srcSet="/img/landing_page/step3_mobile2x.jpg"
+                media={`(min-width: ${DESKTOP_BREAKPOINT})`}
+                srcSet="/img/landing_page/step3_desktop1x.jpg 1x,
+                /img/landing_page/step3_desktop2x.jpg 2x"
                 type="image/jpeg"
               />
-              {/* mobile webp */}
               <source
-                media="(max-width: 1223px)"
                 srcSet="/img/landing_page/step3_mobile2x.webp"
                 type="image/webp"
+              />
+              <source
+                srcSet="/img/landing_page/step3_mobile2x.jpg"
+                type="image/jpeg"
               />
               <img
                 className="OnboardingImage"
@@ -326,7 +311,6 @@ class LandingPage extends Component {
                 https://www.nycfoodpolicy.org/food
               </a>
             </p>
-
           </div>
         </div>
         <div className="AboutUs Section">
@@ -347,7 +331,7 @@ class LandingPage extends Component {
               <picture>
                 <source
                   className="OnboardingImage"
-                  media="(min-width: 1224px)"
+                  media={`(min-width: ${DESKTOP_BREAKPOINT})`}
                   srcSet="img/streetlives_text_logo.png"
                 />
                 <img

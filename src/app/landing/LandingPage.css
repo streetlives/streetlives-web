@@ -238,7 +238,7 @@
 }
 
 @media screen and (max-width: 470px) {
-.LandingPage {
+  .LandingPage {
     font-size: 15px;
   }
 
@@ -257,22 +257,16 @@
 
 @media screen and (max-width: 1224px) {
   .LandingPage .IntroBody {
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1_mobile.jpg') no-repeat center center fixed;
-    background-position: 30% 0%;
-    background-size: cover;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url('/img/landing_page/top1_mobile.jpg') no-repeat center center fixed;
   }
 }
 
 @media screen and (min-width: 1224px) {
-  .IntroTop, .IntroBottom, .OnboardingText {
+  .IntroTop, .IntroBottom {
     max-width: 800px;
   }
 
-  .OnboardingText {
-    margin: 0 auto;
-  }
-
-  .TestimonialsInner, .TestimonialBtn, .SectionInner {
+  .TestimonialsInner, .TestimonialBtn, .SectionInner, .OnboardingText {
     max-width: 800px;
     margin: 0 auto;
   }

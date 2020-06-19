@@ -29,3 +29,5 @@ export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
   tgncClothing: 'tgncClothing',
   hasHivNutrition: 'hasHivNutrition',
 };
+
+export const DESKTOP_BREAKPOINT = '1224px';

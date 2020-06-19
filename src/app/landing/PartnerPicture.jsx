@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DESKTOP_BREAKPOINT } from '../../Constants';
 import './PartnerPicture.css';
 
 const PartnerPicture = ({ imagePartialPath, alt = '', link }) => (
@@ -7,15 +8,14 @@ const PartnerPicture = ({ imagePartialPath, alt = '', link }) => (
     <a href={link}>
       <picture>
         <source
-          className="OnboardingImage"
-          media="(min-width: 1224px)"
+          media={`(min-width: ${DESKTOP_BREAKPOINT})`}
           srcSet={`/img/partners/${imagePartialPath}_desktop.webp`}
         />
         <source
-          className="OnboardingImage"
-          media="(min-width: 1224px)"
+          media={`(min-width: ${DESKTOP_BREAKPOINT})`}
           srcSet={`/img/partners/${imagePartialPath}_desktop.jpg`}
         />
+        <source srcSet={`/img/partners/${imagePartialPath}_mobile.webp`} />
         <img
           className="OnboardingImage"
           src={`/img/partners/${imagePartialPath}_mobile.jpg`}
@@ -27,10 +27,7 @@ const PartnerPicture = ({ imagePartialPath, alt = '', link }) => (
 );
 
 PartnerPicture.propTypes = {
-  img: PropTypes.shape({
-    small: PropTypes.string,
-    large: PropTypes.string,
-  }),
+  imagePartialPath: PropTypes.string.isRequired,
   alt: PropTypes.string,
   link: PropTypes.string.isRequired,
 };
