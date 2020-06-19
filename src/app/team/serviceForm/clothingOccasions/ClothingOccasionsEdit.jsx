@@ -17,19 +17,23 @@ class ClothingOccasionsEdit extends Component {
     this.state = {
       occasions: this.props.value,
       showForm: false,
+      disableFormSubmit: true,
     };
 
     this.customOccasionRef = createRef();
     this.updateValue = this.updateValue.bind(this);
     this.showForm = this.showForm.bind(this);
     this.onSubmitOccasionForm = this.onSubmitOccasionForm.bind(this);
+    this.onClothingOcassionFormChange = this.onClothingOcassionFormChange.bind(this);
   }
 
-  showForm() {
+  onClothingOcassionFormChange(e) {
+    const { value } = e.target;
+
+    const disableFormSubmit = value === '';
+
     this.setState({
-      showForm: true,
-    }, () => {
-      this.customOccasionRef.current.element.focus();
+      disableFormSubmit,
     });
   }
 
@@ -47,6 +51,19 @@ class ClothingOccasionsEdit extends Component {
     }));
   }
 
+  onOccasionClick(name) {
+    const { occasions } = this.state;
+
+    const occasionIndex = occasions.findIndex(el => el === name);
+
+    if (occasionIndex > -1) {
+      occasions.splice(occasionIndex, 1);
+    } else {
+      occasions.push(name);
+    }
+    this.setState({ occasions });
+  }
+
   occasionForm() {
     return (
       <form onSubmit={this.onSubmitOccasionForm}>
@@ -60,6 +77,7 @@ class ClothingOccasionsEdit extends Component {
           <Input
             id="custom-occasion-form"
             ref={this.customOccasionRef}
+            onChange={this.onClothingOcassionFormChange}
             fluid
           />
         </div>
@@ -68,6 +86,7 @@ class ClothingOccasionsEdit extends Component {
           primary
           className="mt-3 mb-3"
           onClick={this.onSubmitOccasionForm}
+          disabled={this.state.disableFormSubmit}
         >
           OK
         </Button>
@@ -75,17 +94,12 @@ class ClothingOccasionsEdit extends Component {
     );
   }
 
-  onOccasionClick(name) {
-    const { occasions } = this.state;
-
-    const occasionIndex = occasions.findIndex(el => el === name);
-
-    if (occasionIndex > -1) {
-      occasions.splice(occasionIndex, 1);
-    } else {
-      occasions.push(name);
-    }
-    this.setState({ occasions });
+  showForm() {
+    this.setState({
+      showForm: true,
+    }, () => {
+      this.customOccasionRef.current.element.focus();
+    });
   }
 
   updateValue = e => this.props.updateValue(
@@ -136,7 +150,11 @@ class ClothingOccasionsEdit extends Component {
           </Selector.Option>
         </Selector>
 
-        <Button onClick={this.updateValue} primary>
+        <Button
+          onClick={this.updateValue}
+          disabled={this.state.occasions.length === 0}
+          primary
+        >
           OK
         </Button>
       </div>
