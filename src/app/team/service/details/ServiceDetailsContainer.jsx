@@ -12,7 +12,7 @@ import * as actions from '../../../../actions';
 import ServiceDetails from './ServiceDetails';
 import Button from '../../../../components/button';
 
-import { SERVICE_FIELDS } from '../../serviceForm/routes';
+import { filterServiceFields } from '../../serviceForm/routes';
 
 class ServiceDetailsContainer extends Component {
   componentDidMount() {
@@ -31,17 +31,10 @@ class ServiceDetailsContainer extends Component {
     return `/team/location/${locationId}/services/${serviceId}`;
   };
 
-  filteredServiceFields = () => (
-    SERVICE_FIELDS.filter((el) => {
-      if (el.serviceTaxonomy) {
-        return el.serviceTaxonomy === this.props.serviceTaxonomy;
-      }
-
-      return true;
-    })
-  );
-
   render() {
+    const { serviceTaxonomy } = this.props;
+    const serviceFields = filterServiceFields(serviceTaxonomy);
+
     return (
       <ServiceDetails
         backButtonTarget={`/team/location/${this.props.match.params.locationId}/services`}
@@ -49,7 +42,7 @@ class ServiceDetailsContainer extends Component {
         service={this.props.service}
         locationData={this.props.locationData}
         locationError={this.props.locationError}
-        serviceFields={this.filteredServiceFields()}
+        serviceFields={serviceFields}
       >
         <Button fluid primary onClick={this.onGoToDocs}>
           Go to docs required

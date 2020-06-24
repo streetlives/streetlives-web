@@ -116,6 +116,15 @@ export const SERVICE_FIELDS = [
   },
 ];
 
+export const filterServiceFields = serviceTaxonomy =>
+  SERVICE_FIELDS.filter((el) => {
+    if (el.serviceTaxonomy) {
+      return el.serviceTaxonomy === serviceTaxonomy;
+    }
+
+    return true;
+  });
+
 export default function ServiceRoutes({ onNext }) {
   return SERVICE_FIELDS.map(({
     RouteComponent, label, urlFragment, metaDataSection, fieldName,
