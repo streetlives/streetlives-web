@@ -6,7 +6,7 @@ import Selector from '../../../../components/selector';
 
 import { options, getLabelsFromWearerAge } from './options';
 
-class WhoDoesItServe extends Component {
+class WhoIsThisClothingForEdit extends Component {
   constructor(props) {
     super(props);
 
@@ -70,4 +70,4 @@ class WhoDoesItServe extends Component {
   }
 }
 
-export default WhoDoesItServe;
+export default WhoIsThisClothingForEdit;

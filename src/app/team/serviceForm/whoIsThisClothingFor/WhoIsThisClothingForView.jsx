@@ -6,7 +6,7 @@ import ConfirmationOptions from '../../../../components/form/ConfirmationOptions
 
 import { getLabelsFromWearerAge } from './options';
 
-function FormView({ value, onConfirm, onEdit }) {
+function WhoIsThisClothingForView({ value, onConfirm, onEdit }) {
   return (
     <div className="w-100">
       <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
@@ -31,10 +31,10 @@ function FormView({ value, onConfirm, onEdit }) {
   );
 }
 
-FormView.propTypes = {
+WhoIsThisClothingForView.propTypes = {
   value: PropTypes.arrayOf(PropTypes.string),
   onConfirm: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
 };
 
-export default FormView;
+export default WhoIsThisClothingForView;

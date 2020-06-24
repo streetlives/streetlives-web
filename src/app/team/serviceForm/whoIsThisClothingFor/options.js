@@ -12,12 +12,10 @@ export const options = [
   {
     label: 'Girls',
     wearerAge: ['girls', 'children'],
-    gender: 'female',
   },
   {
     label: 'Boys',
     wearerAge: ['boys', 'children'],
-    gender: 'male',
   },
 ];
 
