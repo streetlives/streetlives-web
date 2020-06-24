@@ -7,6 +7,7 @@ import { deletePhone, getLocation } from '../../../../actions';
 import { getPhoneNumbers } from '../../../../selectors/location';
 
 import Button from '../../../../components/button';
+import Icon from '../../../../components/icon';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import ConfirmationModal from '../../../../components/confirmationModal';
 
@@ -96,8 +97,8 @@ class LocationNumberView extends Component {
                     onClick={() => this.deletePhone(phone)}
                     className="PhoneNumber-Delete"
                   >
-                    <i
-                      className="fa fa-trash"
+                    <Icon
+                      name="fa fa-trash"
                     />
                   </button>
                 }
