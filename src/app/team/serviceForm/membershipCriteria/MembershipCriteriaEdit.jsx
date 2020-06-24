@@ -107,7 +107,12 @@ class MembershipCriteriaEdit extends Component {
         </div>
 
         <p>
-          <Button onClick={this.onSubmit} primary className="mt-3">
+          <Button
+            onClick={this.onSubmit}
+            primary
+            className="mt-3"
+            disabled={!this.state.eligibleValues}
+          >
             OK
           </Button>&nbsp;
           <Button onClick={this.props.onCancel} basic primary className="mt-3">

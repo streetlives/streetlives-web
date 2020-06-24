@@ -10,7 +10,7 @@ import MembershipCriteriaEdit from './MembershipCriteriaEdit';
 import MembershipCriteriaView from './MembershipCriteriaView';
 
 export const selector = service =>
-  (service.Eligibilities || []).find(e => e.EligibilityParameter.name === 'membership') || null;
+  (service.Eligibilities || []).find(e => e.EligibilityParameter.name === 'membership') || {};
 
 const FormComponent = compose(withProps({
   ViewComponent: MembershipCriteriaView,
