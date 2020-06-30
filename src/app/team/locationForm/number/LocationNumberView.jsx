@@ -98,7 +98,7 @@ class LocationNumberView extends Component {
                     className="PhoneNumber-Delete"
                   >
                     <Icon
-                      name="fa fa-trash"
+                      name="trash"
                     />
                   </button>
                 }
