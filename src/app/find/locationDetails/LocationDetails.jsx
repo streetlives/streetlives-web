@@ -9,6 +9,7 @@ import ErrorBoundary from '../../../components/errorBoundary';
 import Button from '../../../components/button';
 import { OCCASIONS } from '../../../Constants';
 import CategoryCard from './CategoryCard';
+import InfoItem from './InfoItem';
 import './locationDetails.css';
 
 const getLatestActionDate = (metadata) => {
@@ -60,7 +61,43 @@ const groupByCategory = services => services.reduce((grouped, service) => {
   };
 }, {});
 
-const formatClosureInfo = info => `* ${info.trim()[0].toUpperCase()}${info.trim().slice(1)}`;
+const renderClosedLocation = ({
+  closureInfo,
+  lastUpdateString,
+  locationPhones,
+  services,
+}) => {
+  const capitalizedInfo = `${closureInfo.trim()[0].toUpperCase()}${closureInfo.trim().slice(1)}`;
+  const phones = services.reduce((flatPhones, service) => [
+    ...flatPhones,
+    ...service.Phones
+      .filter(phone => !flatPhones.some(existingPhone => existingPhone.number === phone.number))
+      .map(phone => ({ ...phone, serviceName: service.name })),
+  ], locationPhones);
+
+  return (
+    <div>
+      <div className="closureInfo">
+        <InfoItem icon="coronavirus" customIcon coronavirus >
+          <div className="font-weight-normal">
+            {capitalizedInfo}
+          </div>
+          <div className="updateTime">
+            Last updated {lastUpdateString}.
+          </div>
+        </InfoItem>
+      </div>
+      {phones.map(phone => (
+        <InfoItem key={phone.id} icon="phone">
+          <PhoneLink {...phone} className="locationLinks" />
+          {phone.serviceName && (
+            <span> ({phone.serviceName})</span>
+          )}
+        </InfoItem>
+      ))}
+    </div>
+  );
+};
 
 const renderAddress = (address) => {
   const addressString = `${address.street}, ${address.city}, ${address.postalCode}`;
@@ -111,16 +148,17 @@ const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
-  const closureInfo = isClosed && formatClosureInfo(coronavirusInfo[0].information);
+  const closureInfo = coronavirusInfo[0].information;
 
-  const servicesWithLastUpdate = location.Services.map(mapServiceToLastUpdate);
+  const services = location.Services;
+  const servicesWithLastUpdate = services.map(mapServiceToLastUpdate);
   const servicesByCategory = groupByCategory(servicesWithLastUpdate);
 
   const locationLastUpdate = getLocationLastUpdate(location, servicesWithLastUpdate);
+  const lastUpdateString = moment(locationLastUpdate).fromNow();
 
   const didFpcContribute = location.metadata.sources.some(source => source.includes('FPC'))
-    || location.Services.some(service =>
-      service.metadata.sources.some(source => source.includes('FPC')));
+    || services.some(service => service.metadata.sources.some(source => source.includes('FPC')));
 
   const phones = [];
   if (location.Organization.Phones) {
@@ -135,70 +173,75 @@ const renderLocation = (location, searchCategory) => {
   }
 
   return (
-    <div className="px-3 mb-4">
-      {isClosed ? (
-        <p className="text-left coronavirusInfo closureInfo">{closureInfo}</p>
-      ) : (
-        <div className="text-left">
-          {locationLastUpdate && (
-            <div className="lastUpdateLine coronavirusInfo">
-              <Icon custom name="coronavirus" className="lastUpdateIcon" alt="" />
-              <div className="updateText">
-                Information during coronavirus pandemic was
-                <span className="updateTime"> updated {moment(locationLastUpdate).fromNow()}.</span>
-              </div>
-            </div>
-          )}
-
-          {renderCategoriesLine(location.Services)}
-
-          <Header size="large" className="locationFieldHeader">Address</Header>
-          {renderAddress(location.address)}
-
-          {location.Organization.url && (
-            <div>
-              <Header size="large" className="locationFieldHeader">Website</Header>
-              <WebsiteLink url={location.Organization.url} className="locationLinks" />
-            </div>
-          )}
-
-          {phones.length > 0 && (
-            <div>
-              <Header size="large" className="locationFieldHeader">Phone Number</Header>
-              {phones.map(phone => (
-                <div key={phone.id}>
-                  <PhoneLink {...phone} className="locationLinks" />
+    <div className="px-3 mb-4 text-left">
+      {isClosed
+        ? renderClosedLocation({
+          closureInfo,
+          lastUpdateString,
+          locationPhones: phones,
+          services,
+        })
+        : (
+          <div>
+            {locationLastUpdate && (
+              <div className="lastUpdateLine coronavirusInfo">
+                <Icon custom name="coronavirus" className="lastUpdateIcon" alt="" />
+                <div className="updateText">
+                  Information during coronavirus pandemic was
+                  <span className="updateTime"> updated {lastUpdateString}.</span>
                 </div>
+              </div>
+            )}
+
+            {renderCategoriesLine(location.Services)}
+
+            <Header size="large" className="locationFieldHeader">Address</Header>
+            {renderAddress(location.address)}
+
+            {location.Organization.url && (
+              <div>
+                <Header size="large" className="locationFieldHeader">Website</Header>
+                <WebsiteLink url={location.Organization.url} className="locationLinks" />
+              </div>
+            )}
+
+            {phones.length > 0 && (
+              <div>
+                <Header size="large" className="locationFieldHeader">Phone Number</Header>
+                {phones.map(phone => (
+                  <div key={phone.id}>
+                    <PhoneLink {...phone} className="locationLinks" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {location.AccessibilityForDisabilities.length > 0 && (
+              <div>
+                <Header size="large" className="locationFieldHeader">Accessibility</Header>
+                {location.AccessibilityForDisabilities.map(accessibility => (
+                  <p className="accessibilityText" key={accessibility.id}>
+                    {accessibility.details || accessibility.accessibility}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            <Header size="large" className="locationFieldHeader">Services Offered:</Header>
+            {sortedCategoryNames(servicesByCategory, searchCategory)
+              .map(category => (
+                <CategoryCard
+                  key={category}
+                  className="my-3"
+                  category={category}
+                  isInitiallyExpanded={searchCategory === category}
+                  services={servicesByCategory[category].services}
+                />
               ))}
-            </div>
-          )}
 
-          {location.AccessibilityForDisabilities.length > 0 && (
-            <div>
-              <Header size="large" className="locationFieldHeader">Accessibility</Header>
-              {location.AccessibilityForDisabilities.map(accessibility => (
-                <p className="accessibilityText" key={accessibility.id}>
-                  {accessibility.details || accessibility.accessibility}
-                </p>
-              ))}
-            </div>
-          )}
-
-          <Header size="large" className="locationFieldHeader">Services Offered:</Header>
-          {sortedCategoryNames(servicesByCategory, searchCategory)
-            .map(category => (
-              <CategoryCard
-                key={category}
-                className="my-3"
-                category={category}
-                isInitiallyExpanded={searchCategory === category}
-                services={servicesByCategory[category].services}
-              />
-            ))}
-
-          {didFpcContribute && renderFpcAttribution()}
-        </div>
-      )}
+            {didFpcContribute && renderFpcAttribution()}
+          </div>
+        )}
     </div>
   );
 };

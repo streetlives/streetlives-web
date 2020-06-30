@@ -144,6 +144,11 @@
 
 .closureInfo {
   margin-top: 16px;
+  font-weight: normal;
+}
+
+.closureInfo div {
+  font-size: 1rem;
 }
 
 .coronavirusInfo {
