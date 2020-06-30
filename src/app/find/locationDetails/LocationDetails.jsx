@@ -148,7 +148,7 @@ const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
     location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
-  const closureInfo = coronavirusInfo[0].information;
+  const closureInfo = isClosed && coronavirusInfo[0].information;
 
   const services = location.Services;
   const servicesWithLastUpdate = services.map(mapServiceToLastUpdate);
