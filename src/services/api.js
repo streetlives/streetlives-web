@@ -171,6 +171,7 @@ export const updateLocation = updateResource.bind(this, {
   method: 'patch',
 });
 export const updatePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'patch' });
+export const deletePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'delete' });
 export const createPhone = updateResource.bind(this, {
   pathPrefix: 'locations',
   method: 'post',

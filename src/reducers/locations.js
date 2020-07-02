@@ -8,6 +8,7 @@ import {
   CREATE_PHONE_SUCCESS,
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
+  OPTIMISTIC_DELETE_PHONE,
 } from '../actions';
 import { DAYS } from '../Constants';
 
@@ -202,17 +203,24 @@ const locationsReducer = (state = {}, action) => {
       if (!location.Phones) {
         newPhones = [action.payload.params];
       } else {
-        newPhones = location.Phones.concat(action.payload.params);
+        newPhones = [...location.Phones, action.payload.params];
       }
+      return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
+    }
+    case OPTIMISTIC_DELETE_PHONE: {
+      const location = state[action.payload.locationId];
+      const newPhones = location.Phones.filter(p => p.id !== action.payload.phoneId);
       return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
     case CREATE_PHONE_SUCCESS: {
       const location = state[action.payload.locationId];
+
       const idx = location.Phones.findIndex(phone =>
         !phone.id &&
           phone.number === action.payload.params.number &&
           phone.extension === action.payload.params.extension);
       const phone = location.Phones[idx];
+
       const newPhones = [
         ...location.Phones.slice(0, idx),
         { ...phone, ...action.payload.params },
