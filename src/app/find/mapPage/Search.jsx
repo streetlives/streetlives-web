@@ -43,6 +43,11 @@ class Search extends Component {
     this.setState({ modifiedSearchString: searchString });
   }
 
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.submitSearchString();
+  }
+
   submitSearchString = () => {
     const searchString = this.state.modifiedSearchString;
     this.setState({
@@ -84,7 +89,12 @@ class Search extends Component {
             color: 'white',
           }}
           onClick={this.submitSuggestion}
-          onKeyDown={e => e.keyCode === 13 && this.submitSuggestion()}
+          onKeyDown={(e) => {
+            e.preventDefault();
+            if (e.keyCode === 13) {
+              this.submitSuggestion();
+            }
+          }}
           role="button"
           tabIndex={0}
         >
@@ -154,7 +164,7 @@ class Search extends Component {
         zIndex: 4,
       }}
     >
-      <form className="input-group" onSubmit={this.submitSearchString} >
+      <form className="input-group" onSubmit={this.handleSubmit} >
         {this.state.isEnteringSearchString && (
           <Button
             className="backSearch"
