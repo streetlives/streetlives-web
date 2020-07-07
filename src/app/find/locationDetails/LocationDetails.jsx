@@ -234,7 +234,7 @@ const renderLocation = (location, searchCategory) => {
                   key={category}
                   className="my-3"
                   category={category}
-                  isInitiallyExpanded={searchCategory === category}
+                  isInitiallyExpanded={searchCategory === category || services.length === 1}
                   services={servicesByCategory[category].services}
                 />
               ))}
