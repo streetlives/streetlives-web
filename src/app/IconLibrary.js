@@ -28,6 +28,7 @@ import {
   faCamera,
   faPlus,
   faSpinner,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -59,4 +60,5 @@ library.add(
   faCamera,
   faPlus,
   faSpinner,
+  faTrash,
 );

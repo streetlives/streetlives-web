@@ -146,7 +146,6 @@ class LocationNumberEdit extends Component {
           fluid
           value={this.state.type}
           onChange={this.onChange_type}
-          required
         />
 
         <div>

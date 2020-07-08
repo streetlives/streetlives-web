@@ -82,7 +82,8 @@ class LocationNumberView extends Component {
 
         { showDeleteModal &&
           <ConfirmationModal
-            headerText={`Are you sure that you want to delete? ${formatPhoneNumber(phoneBeingDeleted)}`}
+            headerText={`Are you sure that you want to delete? ${
+              formatPhoneNumber(phoneBeingDeleted)}`}
             onCancel={this.onCancelDelete}
             onConfirm={this.onConfirmDelete}
             cancelText="NO, LET’S KEEP IT"
