@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import Icon from '../icon';
 
 function NavBar({ title, history, backButtonTarget }) {
   return (
@@ -41,13 +42,13 @@ function NavBar({ title, history, backButtonTarget }) {
               className="default font-weight-light"
               onClick={() => history.push('/team')}
             >
-              <i
+              <Icon
                 style={{
                   position: 'absolute',
                   right: '.5em',
                   top: '.25em',
                 }}
-                className="fa fa-times"
+                name="times"
               />
             </button>
           </div>

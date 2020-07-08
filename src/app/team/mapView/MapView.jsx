@@ -5,6 +5,7 @@ import { getLocations } from '../../../services/api';
 import { getAddressForLocation } from '../../../services/geocoding';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
+import Icon from '../../../components/icon';
 import ExistingLocationMarker from './ExistingLocationMarker';
 import NewLocationMarker from './NewLocationMarker';
 
@@ -189,7 +190,7 @@ export default class MapView extends Component {
                 style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
                 className="input-group-text"
               >
-                <i className="fa fa-search" />
+                <Icon name="search" />
               </span>
             </div>
             <input

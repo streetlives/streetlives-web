@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../icon';
 import './ErrorLabel.css';
 
 function reload() {
@@ -8,7 +9,7 @@ function reload() {
 const ErrorLabel = ({ errorMessage }) => (
   <div className="ErrorLabel">
     <p>
-      <i className="fas fa-exclamation-triangle" aria-hidden="true" />&nbsp;
+      <Icon name="exclamation-triangle" aria-hidden="true" />&nbsp;
       <span>{errorMessage}</span>
     </p>
     <button
