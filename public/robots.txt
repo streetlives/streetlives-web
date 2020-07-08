@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /about
 Disallow: /comments
+Disallow: /team
 Disallow: /team/*
 
 User-agent: Googlebot-Image
