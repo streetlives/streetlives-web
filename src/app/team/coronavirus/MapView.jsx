@@ -4,6 +4,7 @@ import debounce from 'lodash.debounce';
 import { getLocations } from '../../../services/api';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
+import Icon from '../../../components/icon';
 import ExistingLocationMarker from '../mapView/ExistingLocationMarker';
 
 const debouncePeriod = 500;
@@ -163,7 +164,7 @@ export default class MapView extends Component {
                 style={{ backgroundColor: 'white', border: 'none', borderRadius: 0 }}
                 className="input-group-text"
               >
-                <i className="fa fa-search" />
+                <Icon name="search" />
               </span>
             </div>
             <input
