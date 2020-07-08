@@ -12,13 +12,14 @@ import Header from '../../../../components/header';
 import Accordion from '../../../../components/accordion';
 import Button from '../../../../components/button';
 import NavBar from '../../../../components/navBar';
+import LoadingLabel from '../../../../components/form/LoadingLabel';
 import ServiceCategory from './ServiceCategory';
 
 const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
     <NavBar backButtonTarget={`/team/location/${locationId}`} title="Services info" />
     <p>
-      <i className="fa fa-spinner fa-spin" aria-hidden="true" /> Loading location data ...{' '}
+      <LoadingLabel />
     </p>
   </div>
 );

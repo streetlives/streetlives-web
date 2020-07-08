@@ -4,6 +4,7 @@ import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 import Input from '../../../../components/input';
+import Icon from '../../../../components/icon';
 import { SERVICE_GROUPS } from '../../../../Constants';
 import { formatLabel, isEditing } from './util';
 import './WhoDoesItServeEditForm.css';
@@ -202,9 +203,7 @@ class WhoDoesItServe extends Component {
                   className="default"
                   onClick={() => this.removeCustomGroup(i)}
                 >
-                  <i
-                    className="fas fa-times-circle"
-                  />
+                  <Icon name="times-circle" />
                 </button>
                 {
                   this.getForm(group.name, group, serviceGroups)
