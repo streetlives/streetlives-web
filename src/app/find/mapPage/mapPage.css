@@ -71,6 +71,8 @@
 	height: 100px;
 	min-width: 10px;
 	border-radius: 2px;
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .categoryButton > img {
