@@ -22,6 +22,7 @@
     "history": "^4.7.2",
     "lodash.debounce": "^4.0.8",
     "lodash.ismatch": "^4.4.0",
+    "mixpanel-browser": "^2.38.0",
     "moment": "^2.22.0",
     "prop-types": "^15.6.1",
     "qs": "^6.7.0",

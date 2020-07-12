@@ -5,11 +5,13 @@ import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
 import { DESKTOP_BREAKPOINT } from '../../Constants';
 import './LandingPage.css';
+import Mixpanel from '../../services/mixpanel';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
   getStarted = () => {
+    Mixpanel.track('Get Started Clicked');
     this.props.history.push('/find');
   };
 
