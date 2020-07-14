@@ -4,7 +4,7 @@ import Icon from '../../../components/icon';
 import Button from '../../../components/button';
 import { getCategoryIcon } from '../../../services/iconography';
 import './search.css';
-import Mixpanel from '../../../services/mixpanel';
+import analytics from '../../../services/analytics';
 
 const minCharsForSuggestions = 3;
 
@@ -46,7 +46,7 @@ class Search extends Component {
 
   submitSearchString = () => {
     const searchString = this.state.modifiedSearchString;
-    Mixpanel.track('Search Initiated', { searchString });
+    analytics.track('Search Initiated', { searchString });
     this.setState({
       isEnteringSearchString: false,
       modifiedSearchString: '',

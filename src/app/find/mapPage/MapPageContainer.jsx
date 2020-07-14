@@ -5,7 +5,7 @@ import qs from 'qs';
 import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
-import Mixpanel from '../../../services/mixpanel';
+import analytics from '../../../services/analytics';
 
 class MapPageContainer extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -33,7 +33,7 @@ class MapPageContainer extends Component {
     this.props.history.push(`/find/${category.name}${this.props.location.search}`);
 
   goToCategory = (category) => {
-    Mixpanel.track('Category Selected', { categoryName: category.name });
+    analytics.track('Category Selected', { categoryName: category.name });
     this.props.history.push(`/find/${category.name}/questions`);
   }
 
@@ -43,7 +43,7 @@ class MapPageContainer extends Component {
       `/find/${categoryName}/location/${locationId}` :
       `/find/location/${locationId}`;
 
-    Mixpanel.track('Location Clicked', { locationId, url, categoryName });
+    analytics.track('Location Clicked', { locationId, url, categoryName });
 
     this.props.history.push(url);
   }

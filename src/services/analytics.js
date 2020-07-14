@@ -1,9 +1,9 @@
 import mixpanel from 'mixpanel-browser';
 
-const mixpanelToken = process.env.REACT_APP_MIXPANEL_TOKEN;
-mixpanel.init(mixpanelToken);
+const token = process.env.REACT_APP_MIXPANEL_TOKEN;
+mixpanel.init(token);
 
-const Mixpanel = {
+const analytics = {
   identify: (id) => {
     mixpanel.identify(id);
   },
@@ -20,4 +20,4 @@ const Mixpanel = {
   },
 };
 
-export default Mixpanel;
+export default analytics;

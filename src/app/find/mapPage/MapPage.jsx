@@ -10,8 +10,8 @@ import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
 import Search from './Search';
 import ResultsBar from './ResultsBar';
+import analytics from '../../../services/analytics';
 import './mapPage.css';
-import Mixpanel from '../../../services/mixpanel';
 
 const minSearchResults = 3;
 
@@ -37,7 +37,6 @@ export default class MapPage extends Component {
   };
 
   componentDidMount() {
-    Mixpanel.track('Map Page Loaded');
     this.props.fetchCategories();
   }
 
@@ -215,7 +214,7 @@ export default class MapPage extends Component {
   };
 
   openFilterModal = () => {
-    Mixpanel.track('Filter Results Clicked', { categoryName: this.props.category.name });
+    analytics.track('Filter Results Clicked', { categoryName: this.props.category.name });
     this.setState({ isFilterModalOpen: true });
   }
 
