@@ -18,13 +18,15 @@ import NotFound from './notFound/NotFound';
 import LoadingLabel from '../components/form/LoadingLabel';
 
 import withTracker from '../components/routing/withTracker';
+import analytics from '../services/analytics';
 
 const TeamRouter = React.lazy(() => import('./team/Router'));
 const CommentsRouter = React.lazy(() => import('./comments/Router'));
 const findRouterPromise = import('./find/Router');
 const FindRouter = React.lazy(() => findRouterPromise);
 
-history.listen((location, action) => {
+history.listen(() => {
+  analytics.track('Page View');
   window.scrollTo(0, 0);
 });
 

@@ -3,9 +3,10 @@ import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
-import { DESKTOP_BREAKPOINT } from '../../Constants';
-import './LandingPage.css';
 import CovidInfoModal from './CovidInfoModal';
+import { DESKTOP_BREAKPOINT } from '../../Constants';
+import analytics from '../../services/analytics';
+import './LandingPage.css';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
 
@@ -23,6 +24,7 @@ class LandingPage extends Component {
   };
 
   toggleModal = () => {
+    analytics.track('Get Started Clicked');
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 

@@ -5,6 +5,7 @@ import qs from 'qs';
 import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
+import analytics from '../../../services/analytics';
 
 class MapPageContainer extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -31,14 +32,19 @@ class MapPageContainer extends Component {
   goToCategoryResults = category =>
     this.props.history.push(`/find/${category.name}${this.props.location.search}`);
 
-  goToCategory = category =>
+  goToCategory = (category) => {
+    analytics.track('Category Selected', { categoryName: category.name });
     this.props.history.push(`/find/${category.name}/questions`);
+  }
 
   goToLocationDetails = (locationId) => {
     const { categoryName } = this.props.match.params;
     const url = categoryName ?
       `/find/${categoryName}/location/${locationId}` :
       `/find/location/${locationId}`;
+
+    analytics.track('Location Clicked', { locationId, url, categoryName });
+
     this.props.history.push(url);
   }
 
