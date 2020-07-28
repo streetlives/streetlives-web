@@ -1,6 +1,7 @@
 import mixpanel from 'mixpanel-browser';
+import config from '../config';
 
-const token = process.env.REACT_APP_MIXPANEL_TOKEN;
+const token = config.mixpanelToken;
 mixpanel.init(token);
 
 const analytics = {

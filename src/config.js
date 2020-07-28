@@ -12,4 +12,5 @@ export default {
   googleMaps: process.env.REACT_APP_GMAPS_URL || 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCFMDqEgQ6VWWJbROzZhHu-f6sktAmTEGU&v=3.exp&libraries=geometry,drawing,places',
   adminGroupName: process.env.REACT_APP_ADMIN_GROUP_NAME || 'StreetlivesAdmins',
   disableAuth: parseBoolean(process.env.REACT_APP_DISABLE_AUTH),
+  mixpanelToken: process.env.REACT_APP_MIXPANEL_TOKEN || '8dd3b51f7a1de357a05e954495ae616f',
 };
