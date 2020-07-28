@@ -10,6 +10,7 @@ import LocationMarker from '../../../components/map/LocationMarker';
 import FiltersModal from './filters/FiltersModal';
 import Search from './Search';
 import ResultsBar from './ResultsBar';
+import analytics from '../../../services/analytics';
 import './mapPage.css';
 
 const minSearchResults = 3;
@@ -213,6 +214,7 @@ export default class MapPage extends Component {
   };
 
   openFilterModal = () => {
+    analytics.track('Filter Results Clicked', { categoryName: this.props.category.name });
     this.setState({ isFilterModalOpen: true });
   }
 
