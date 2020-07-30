@@ -9,7 +9,7 @@ export default class OpeningHoursEditForm extends Component {
       active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour,
     } = this.props;
     return hours.map((hour, i) => (
-      <form
+      <div
         key={i} // eslint-disable-line react/no-array-index-key
         style={{
           display: active ? 'block' : 'none',
@@ -17,6 +17,7 @@ export default class OpeningHoursEditForm extends Component {
         className="OpeningHoursEditForm"
       >
         <button
+          type="button"
           className="default"
           onClick={() => removeHour(hour)}
         >
@@ -59,6 +60,7 @@ export default class OpeningHoursEditForm extends Component {
             className="AddMoreHoursBtn"
           >
             <button
+              type="button"
               className="default"
               onClick={addHour}
             >
@@ -66,7 +68,7 @@ export default class OpeningHoursEditForm extends Component {
             </button>
           </div>
         }
-      </form>
+      </div>
     ));
   }
 }
