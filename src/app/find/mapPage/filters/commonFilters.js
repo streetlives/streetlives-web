@@ -1,5 +1,5 @@
 export const openOptions = [
-  { label: 'Open & closed', value: null },
+  { label: 'Any', value: null },
   { label: 'Open Now', value: true, description: 'are open now' },
 ];
 
