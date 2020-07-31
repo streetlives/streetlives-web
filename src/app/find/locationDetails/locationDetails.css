@@ -73,6 +73,7 @@
     font-size: 0.85rem;
     line-height: 160%;
     padding-bottom: 0.45rem;
+    overflow-wrap: break-word;
 }
 
 .infoItem:last-child{
@@ -93,4 +94,5 @@
 	font-size: 0.85rem;
 	cursor: pointer;
 	padding: 2vh 0 0 0;
+	overflow-wrap: break-word;
 }
