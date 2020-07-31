@@ -280,7 +280,6 @@ class LocationDetails extends Component {
           className="locationCloseButton"
           name="times"
           onClick={goBack}
-          style={{ marginRight: '10px' }}
         />
         <Header size="medium" className="locationTitle">
           {location ? location.Organization.name : 'Loading...'}
