@@ -17,11 +17,11 @@
 
 .locationCloseButton {
   position: absolute;
-  right: 17px;
+  right: 27px;
 }
 
 .locationTitle {
-  width: 85%;
+  width: 75%;
   margin-left: auto;
   margin-right: auto;
   font-size: 17px;
