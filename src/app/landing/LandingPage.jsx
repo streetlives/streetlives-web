@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { Component } from 'react';
 import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
@@ -340,8 +341,26 @@ class LandingPage extends Component {
           </div>
         </div>
 
-        <div className="Feedback Section">
+        <div className="Feedback">
           <div className="SectionInner">
+            <h2>Follow us on:</h2>
+            <ul className="SocialIconsList">
+              <li>
+                <a href="https://twitter.com/streetlivesnyc" rel="noreferrer" target="_blank">
+                  <FontAwesomeIcon icon={['fab', 'twitter-square']} size="2x" color="white" />
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/streetlivesnyc/" rel="noreferrer" target="_blank">
+                  <FontAwesomeIcon icon={['fab', 'facebook-square']} size="2x" color="white" />
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/company/streetlives/" rel="noreferrer" target="_blank">
+                  <FontAwesomeIcon icon={['fab', 'linkedin']} size="2x" color="white" />
+                </a>
+              </li>
+            </ul>
             <h2>We’re all about feedback</h2>
             <p>Tell us what you think at:</p>
             <div className="FeedbackEmail">

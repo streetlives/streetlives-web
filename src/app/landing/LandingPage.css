@@ -176,6 +176,18 @@
   justify-content: center;
 }
 
+.LandingPage .Feedback .SocialIconsList {
+  margin-top: -5%;
+  margin-left: -3px;
+  font-size: 1.1rem;
+}
+
+.LandingPage .Feedback .SocialIconsList li {
+  display: inline;
+  list-style-type:none;
+  padding-right: 10px;
+}
+
 .LandingPage h1 {
   font-weight: bold;
   margin-left: 25px;
