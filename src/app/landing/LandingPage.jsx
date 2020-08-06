@@ -344,23 +344,17 @@ class LandingPage extends Component {
         <div className="Feedback">
           <div className="SectionInner">
             <h2>Follow us on:</h2>
-            <ul className="SocialIconsList">
-              <li>
-                <a href="https://twitter.com/streetlivesnyc" rel="noreferrer" target="_blank">
-                  <FontAwesomeIcon icon={['fab', 'twitter-square']} size="2x" color="white" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.facebook.com/streetlivesnyc/" rel="noreferrer" target="_blank">
-                  <FontAwesomeIcon icon={['fab', 'facebook-square']} size="2x" color="white" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.linkedin.com/company/streetlives/" rel="noreferrer" target="_blank">
-                  <FontAwesomeIcon icon={['fab', 'linkedin']} size="2x" color="white" />
-                </a>
-              </li>
-            </ul>
+            <div className="SocialIcons">
+              <a href="https://twitter.com/streetlivesnyc" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'twitter-square']} size="2x" />
+              </a>
+              <a href="https://www.facebook.com/streetlivesnyc/" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'facebook-square']} size="2x" />
+              </a>
+              <a href="https://www.linkedin.com/company/streetlives/" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'linkedin']} size="2x" />
+              </a>
+            </div>
             <h2>We’re all about feedback</h2>
             <p>Tell us what you think at:</p>
             <div className="FeedbackEmail">

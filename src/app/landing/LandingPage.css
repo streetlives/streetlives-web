@@ -176,16 +176,14 @@
   justify-content: center;
 }
 
-.LandingPage .Feedback .SocialIconsList {
-  margin-top: -5%;
-  margin-left: -3px;
+.LandingPage .Feedback .SocialIcons {
+  margin: -22px 36px 46px;
   font-size: 1.1rem;
 }
 
-.LandingPage .Feedback .SocialIconsList li {
-  display: inline;
-  list-style-type:none;
-  padding-right: 10px;
+.LandingPage .Feedback .SocialIcons a {
+  color: #FFFFFF;
+  padding-right: 8px;
 }
 
 .LandingPage h1 {
