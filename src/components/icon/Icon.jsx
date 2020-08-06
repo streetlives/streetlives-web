@@ -46,7 +46,10 @@ function Icon({
 }
 
 Icon.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.string,
+  ]).isRequired,
   custom: PropTypes.bool,
   size: PropTypes.string,
   circle: PropTypes.bool,
