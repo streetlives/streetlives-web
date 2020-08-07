@@ -29,6 +29,11 @@
   margin-top: 0;
 }
 
+.locationSubTitle {
+  font-size: 14px;
+  font-weight: normal;
+}
+
 .locationModal {
   display: flex;
   flex-direction: column;
