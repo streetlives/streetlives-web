@@ -17,11 +17,11 @@
 
 .locationCloseButton {
   position: absolute;
-  right: 27px;
+  right: 17px;
 }
 
 .locationTitle {
-  width: 75%;
+  width: 85%;
   margin-left: auto;
   margin-right: auto;
   font-size: 17px;
@@ -37,9 +37,17 @@
 .locationModal {
   display: flex;
   flex-direction: column;
+  overflow-y: hidden;
 }
 
-.locationModalTop {
+.locationModalBody  {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.locationInfo {
   flex: 1;
 }
 
