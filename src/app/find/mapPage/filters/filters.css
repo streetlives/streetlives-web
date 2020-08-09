@@ -25,9 +25,9 @@ input#hivNutrition-checkbox {
     padding: 11px;
 }
 
-.Label[for="hivNutrition-checkbox"]{
-	margin-left: 32px;
-	color: #333333;
+.Label[for="hivNutrition-checkbox"] {
+    margin-left: 32px;
+    color: #333333;
 }
 
 .filterSubmitBtn {

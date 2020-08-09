@@ -52,10 +52,8 @@ class FiltersModal extends Component {
             onChange={this.setFilterValues}
           />
         </div>
-        <div className="d-flex justify-content-around filterSubmitBtn">
-          <Button secondary fluid onClick={this.submit} >
-            <span>Apply filters</span>
-          </Button>
+        <div className="filterSubmitBtn">
+          <Button secondary fluid onClick={this.submit}>Apply filters</Button>
         </div>
       </Modal>
     );
