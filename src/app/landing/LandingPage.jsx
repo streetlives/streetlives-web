@@ -91,8 +91,8 @@ class LandingPage extends Component {
               />
               <img
                 src="/img/landing_page/step1_mobile2x.jpg"
-                className="OnboardingImage"
-                alt="map showing food, clothing, shelter, and personal care markers"
+                className="OnboardingImage step1"
+                alt="Manhattan skyline"
               />
             </picture>
           </div>
