@@ -166,6 +166,14 @@
   text-align: left;
 }
 
+.LandingPage .Feedback .SectionInner h2 {
+  margin-bottom: 6px;
+}
+
+.LandingPage .Feedback .SectionInner p {
+  margin-bottom: 16px;
+}
+
 .LandingPage .Feedback .FeedbackEmail {
   background-color: #FFFFFF;
   margin-left: 36px;
@@ -177,7 +185,7 @@
 }
 
 .LandingPage .Feedback .SocialIcons {
-  margin: -22px 36px 46px;
+  margin: 0px 36px 46px;
   font-size: 1.1rem;
 }
 
