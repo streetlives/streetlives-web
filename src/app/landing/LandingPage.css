@@ -90,6 +90,10 @@
   height: 100%;
 }
 
+.step1 {
+  object-position: bottom;
+}
+
 .LandingPage .Onboarding .Section picture {
   flex: 1;
   max-height: 70vh;
@@ -166,6 +170,14 @@
   text-align: left;
 }
 
+.LandingPage .Feedback .SectionInner h2 {
+  margin-bottom: 6px;
+}
+
+.LandingPage .Feedback .SectionInner p {
+  margin-bottom: 16px;
+}
+
 .LandingPage .Feedback .FeedbackEmail {
   background-color: #FFFFFF;
   margin-left: 36px;
@@ -174,6 +186,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.LandingPage .Feedback .SocialIcons {
+  margin: 0px 36px 46px;
+  font-size: 1.1rem;
+}
+
+.LandingPage .Feedback .SocialIcons a {
+  color: #FFFFFF;
+  padding-right: 8px;
 }
 
 .LandingPage h1 {

@@ -97,8 +97,8 @@ class LandingPage extends Component {
               />
               <img
                 src="/img/landing_page/step1_mobile2x.jpg"
-                className="OnboardingImage"
-                alt="map showing food, clothing, shelter, and personal care markers"
+                className="OnboardingImage step1"
+                alt="Manhattan skyline"
               />
             </picture>
           </div>
@@ -340,8 +340,20 @@ class LandingPage extends Component {
           </div>
         </div>
 
-        <div className="Feedback Section">
+        <div className="Feedback">
           <div className="SectionInner">
+            <h2>Follow us on:</h2>
+            <div className="SocialIcons">
+              <a href="https://twitter.com/streetlivesnyc" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'twitter-square']} size="2x" />
+              </a>
+              <a href="https://www.facebook.com/streetlivesnyc/" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'facebook-square']} size="2x" />
+              </a>
+              <a href="https://www.linkedin.com/company/streetlives/" rel="noreferrer" target="_blank">
+                <Icon name={['fab', 'linkedin']} size="2x" />
+              </a>
+            </div>
             <h2>We’re all about feedback</h2>
             <p>Tell us what you think at:</p>
             <div className="FeedbackEmail">

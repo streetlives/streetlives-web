@@ -6,13 +6,13 @@ import {
   selectLocationError,
   selectLocationData,
 } from '../../../../selectors/location';
-import { getService } from '../../../../selectors/service';
+import { getService, getServiceTaxonomy } from '../../../../selectors/service';
 import * as actions from '../../../../actions';
 
 import ServiceDetails from './ServiceDetails';
 import Button from '../../../../components/button';
 
-import { SERVICE_FIELDS } from '../../serviceForm/routes';
+import { filterServiceFields } from '../../serviceForm/routes';
 
 class ServiceDetailsContainer extends Component {
   componentDidMount() {
@@ -32,6 +32,9 @@ class ServiceDetailsContainer extends Component {
   };
 
   render() {
+    const { serviceTaxonomy } = this.props;
+    const serviceFields = filterServiceFields(serviceTaxonomy);
+
     return (
       <ServiceDetails
         backButtonTarget={`/team/location/${this.props.match.params.locationId}/services`}
@@ -39,7 +42,7 @@ class ServiceDetailsContainer extends Component {
         service={this.props.service}
         locationData={this.props.locationData}
         locationError={this.props.locationError}
-        serviceFields={SERVICE_FIELDS}
+        serviceFields={serviceFields}
       >
         <Button fluid primary onClick={this.onGoToDocs}>
           Go to docs required
@@ -53,6 +56,7 @@ const mapStateToProps = (state, ownProps) => ({
   service: getService(state, ownProps),
   locationData: selectLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
+  serviceTaxonomy: getServiceTaxonomy(state, ownProps),
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
