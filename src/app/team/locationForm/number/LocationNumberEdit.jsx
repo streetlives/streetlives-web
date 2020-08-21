@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-
 import { connect } from 'react-redux';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 import { getPhoneNumber } from '../../../../selectors/location';
 import { updatePhone, createPhone } from '../../../../actions';
@@ -10,44 +11,25 @@ import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 
-const parsePhoneNumber = phone =>
-  (phone && phone.number ?
-    phone.number.split(/[. )(-]+/).filter(d => d) :
-    ['', '', '']);
+const convertToPackagePhoneFormat = input => (input ? `${input.replace(/\./g, '')}` : '');
+const convertToOurFormat = input => (input ? `${input.slice(0, 3)}.${input.slice(3, 6)}.${input.slice(6)}` : '');
+const validPhoneNumberLength = input => input.length === 12;
 
 class LocationNumberEdit extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
-      areaCode: '',
-      firstThree: '',
-      lastFour: '',
       extension: '',
       type: '',
       phoneNumber: '',
+      newPhoneNumber: '',
+      invalidNumber: false,
     };
-
-    this.keyToMaxDigits = {
-      areaCode: 3,
-      firstThree: 3,
-      lastFour: 4,
-    };
-
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onCancel = this.onCancel.bind(this);
-    Object.keys(this.state).forEach((k) => {
-      this[`onChange_${k}`] = this.onChange.bind(this, k);
-    });
   }
 
   static getDerivedStateFromProps(props, state) {
     if (props.phone && props.phone.number !== state.phoneNumber) {
-      const [areaCode, firstThree, lastFour] = parsePhoneNumber(props.phone);
       return {
-        areaCode,
-        firstThree,
-        lastFour,
         extension: (props.phone && props.phone.extension) || '',
         type: (props.phone && props.phone.type) || '',
         phoneNumber: props.phone && props.phone.number,
@@ -57,19 +39,22 @@ class LocationNumberEdit extends Component {
     return null;
   }
 
-  onChange(key, event) {
-    let { value } = event.target;
-    const maxLength = this.keyToMaxDigits[key];
-    value = value.length > maxLength ? value.slice(0, maxLength) : value; // truncate
-    this.setState({ [key]: value });
+  onCancel = () => {
+    this.props.onDone();
   }
 
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.preventDefault();
-    const number = [this.state.areaCode, this.state.firstThree, this.state.lastFour].join('.');
+
+    const newPhoneNumber = this.state.newPhoneNumber ? this.state.newPhoneNumber : this.state.phoneNumber;
+
+    if (!validPhoneNumberLength(newPhoneNumber)) {
+      this.setState({ invalidNumber: true });
+      return;
+    }
 
     const params = {
-      number,
+      number: newPhoneNumber,
       extension: parseInt(this.state.extension, 10) || null,
     };
 
@@ -85,69 +70,45 @@ class LocationNumberEdit extends Component {
     this.props.onDone();
   }
 
-  onCancel() {
-    this.props.onDone();
-  }
-
   render() {
     return (
       <form
-        ref={(e) => {
-          this.form = e;
-        }}
         className="container"
         onSubmit={this.onSubmit}
       >
         <Header>What&apos;s this location&apos;s phone number?</Header>
-        (<Input
-          onFocus={this.props.onInputFocus}
-          onBlur={this.props.onInputBlur}
-          customValidationMessage="Area code must contain three digits"
-          type="tel"
-          value={this.state.areaCode}
-          onChange={this.onChange_areaCode}
-          pattern="\d{3}"
-          size="3"
-          required
-        />)&nbsp;-&nbsp;
-        <Input
-          onFocus={this.props.onInputFocus}
-          onBlur={this.props.onInputBlur}
-          customValidationMessage="Enter first three digits for phone number"
-          type="tel"
-          value={this.state.firstThree}
-          onChange={this.onChange_firstThree}
-          size="3"
-          pattern="\d{3}"
-          required
-        />&nbsp;-&nbsp;
-        <Input
-          onFocus={this.props.onInputFocus}
-          onBlur={this.props.onInputBlur}
-          customValidationMessage="Enter last four digits for phone number"
-          type="tel"
-          value={this.state.lastFour}
-          onChange={this.onChange_lastFour}
-          pattern="\d{4}"
-          required
-          size="4"
-        />&nbsp;ext.&nbsp;
-        <Input
-          onFocus={this.props.onInputFocus}
-          onBlur={this.props.onInputBlur}
-          type="tel"
-          size="4"
-          value={this.state.extension}
-          onChange={this.onChange_extension}
-        />
-
+        <div className="phone-wrapper">
+          <PhoneInput
+            country="us"
+            disableCountryCode
+            disableDropdown
+            onlyCountries={['us']}
+            value={convertToPackagePhoneFormat(this.state.phoneNumber)}
+            placeholder="(111) 111-1111"
+            limitMaxLength
+            onChange={(newNumber) => {
+              this.setState({ newPhoneNumber: convertToOurFormat(newNumber) });
+            }}
+          />
+          &nbsp;-&nbsp;
+          <Input
+            onFocus={this.props.onInputFocus}
+            onBlur={this.props.onInputBlur}
+            type="tel"
+            size="4"
+            value={this.state.extension}
+            onChange={e => this.setState({ extension: e.target.value })}
+          />
+        </div>
         <Input
           placeholder="Type (e.g. Main Office, Hotline, Spanish, etc)"
           fluid
           value={this.state.type}
-          onChange={this.onChange_type}
+          onChange={e => this.setState({ type: e.target.value })}
         />
-
+        <div>
+          {this.state.invalidNumber ? <h5 className="invalid-number-warning">Please enter a valid phone number</h5> : ''}
+        </div>
         <div>
           <input type="submit" className="Button Button-primary mt-3" value="OK" />&nbsp;
           <Button onClick={this.onCancel} basic primary className="mt-3">
