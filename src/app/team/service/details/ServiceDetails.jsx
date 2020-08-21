@@ -24,15 +24,17 @@ const LoadingView = () => (
   </div>
 );
 
-function getUpdatedAt(service, metaDataSection, fieldName) {
+function getUpdatedAt(service, route) {
+  const { metaDataSection, fieldName } = route;
+
   const subFields = service.metadata[metaDataSection];
   const field = subFields.find(el => el.field_name === fieldName);
   return field ? field.last_action_date : null;
 }
 
 function ListItem({ route, linkTo, service }) {
-  const { label, metaDataSection, fieldName } = route;
-  const updatedAt = getUpdatedAt(service, metaDataSection, fieldName);
+  const { label } = route;
+  const updatedAt = getUpdatedAt(service, route);
   return <FieldItem title={label} linkTo={linkTo} updatedAt={updatedAt} />;
 }
 

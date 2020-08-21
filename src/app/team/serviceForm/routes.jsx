@@ -9,6 +9,13 @@ import CoronavirusOpeningHours from '../coronavirus/OpeningHours';
 // import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
 import CoronavirusOtherInfo from '../coronavirus/OtherInfo';
 
+import ServiceHasHivNutrition from './hasHivNutrition/ServiceHasHivNutrition';
+import ServiceClothingOccasions from './clothingOccasions/ServiceClothingOccasions';
+import ServiceWhoIsThisClothingFor from './whoIsThisClothingFor/ServiceWhoIsThisClothingFor';
+import ServiceTgncClothing from './tgncClothing/ServiceTgncClothing';
+import ServiceMembershipCriteria from './membershipCriteria/ServiceMembershipCriteria';
+import ServiceArea from './area/ServiceArea';
+
 const baseRoute = '/team/location/:locationId/services/:serviceId';
 
 export const SERVICE_FIELDS = [
@@ -55,6 +62,52 @@ export const SERVICE_FIELDS = [
   //   fieldName: 'additional_info',
   // },
   {
+    label: 'PLHIV',
+    urlFragment: '/plhiv',
+    RouteComponent: ServiceHasHivNutrition,
+    fieldName: 'hasHivNutrition',
+    metaDataSection: 'service',
+    serviceTaxonomy: 'Food',
+  },
+  {
+    label: 'Occasions',
+    urlFragment: '/occasions',
+    RouteComponent: ServiceClothingOccasions,
+    fieldName: 'clothingOccasion',
+    metaDataSection: 'service',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'Gender and age',
+    urlFragment: '/gender-and-age',
+    RouteComponent: ServiceWhoIsThisClothingFor,
+    fieldName: 'clothingOccasion',
+    metaDataSection: 'service',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'TGNC',
+    urlFragment: '/tgnc',
+    RouteComponent: ServiceTgncClothing,
+    fieldName: 'tgncClothing',
+    metaDataSection: 'service',
+    serviceTaxonomy: 'Clothing',
+  },
+  {
+    label: 'Membership',
+    urlFragment: '/membership',
+    RouteComponent: ServiceMembershipCriteria,
+    fieldName: 'membership',
+    metaDataSection: 'service',
+  },
+  {
+    label: 'Service Area',
+    urlFragment: '/area',
+    RouteComponent: ServiceArea,
+    fieldName: 'area',
+    metaDataSection: 'service',
+  },
+  {
     label: 'Other info (coronavirus)',
     urlFragment: '/other-info',
     metaDataSection: 'service',
@@ -62,6 +115,15 @@ export const SERVICE_FIELDS = [
     fieldName: 'eventRelatedInfo',
   },
 ];
+
+export const filterServiceFields = serviceTaxonomy =>
+  SERVICE_FIELDS.filter((el) => {
+    if (el.serviceTaxonomy) {
+      return el.serviceTaxonomy === serviceTaxonomy;
+    }
+
+    return true;
+  });
 
 export default function ServiceRoutes({ onNext }) {
   return SERVICE_FIELDS.map(({
