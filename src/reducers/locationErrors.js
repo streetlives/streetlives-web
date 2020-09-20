@@ -8,7 +8,7 @@ const locationErrorsReducer = (state = {}, action) => {
     case GET_LOCATION_REQUEST:
       return { ...state, [action.locationId]: null };
     case GET_LOCATION_ERROR:
-      return { ...state, [action.locationId]: action.errorMessage };
+      return { ...state, [action.locationId]: action.error.message };
     default:
       break;
   }

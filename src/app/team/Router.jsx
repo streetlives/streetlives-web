@@ -16,68 +16,73 @@ import ServiceFormContainer from './serviceForm/ServiceFormContainer';
 import DocsFormContainer from './documents/DocsFormContainer';
 import DocumentDetails from './documents/details/DocumentDetails';
 import NotFound from '../notFound/NotFound';
+import ErrorBar from './errorBar/ErrorBar';
 
 function Router({ match }) {
   return (
-    <Switch>
-      <Route exact path={`${match.path}/`} component={withTracker(withAuth(MapView))} />
-      <Route
-        exact
-        path={`${match.path}/location`}
-        component={withTracker(withAuth(NewLocation))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId`}
-        component={withTracker(withAuth(LocationInfo))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/recap`}
-        component={withTracker(withAuth(LocationRecap))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/questions/:questionId/:thanks?`}
-        component={withTracker(withAuth(LocationForm))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/`}
-        component={withTracker(withAuth(ServiceCategories))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/recap/:thanks?`}
-        component={withTracker(withAuth(ServiceRecap))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/:serviceId/`}
-        component={withTracker(withAuth(ServiceDetails))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/:serviceId/documents`}
-        component={withTracker(withAuth(DocumentDetails))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/:serviceId/:fieldName`}
-        component={withTracker(withAuth(ServiceFormContainer))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/:serviceId/documents/:fieldName`}
-        component={withTracker(withAuth(DocsFormContainer))}
-      />
-      <Route
-        exact
-        path={`${match.path}/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?`}
-        component={withTracker(withAuth(DocsFormContainer))}
-      />
-      <Route path={`${match.path}/*`} component={withTracker(NotFound)} />
-    </Switch>
+    <div>
+      <Switch>
+        <Route exact path={`${match.path}/`} component={withTracker(withAuth(MapView))} />
+        <Route
+          exact
+          path={`${match.path}/location`}
+          component={withTracker(withAuth(NewLocation))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId`}
+          component={withTracker(withAuth(LocationInfo))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/recap`}
+          component={withTracker(withAuth(LocationRecap))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/questions/:questionId/:thanks?`}
+          component={withTracker(withAuth(LocationForm))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/`}
+          component={withTracker(withAuth(ServiceCategories))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/recap/:thanks?`}
+          component={withTracker(withAuth(ServiceRecap))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/:serviceId/`}
+          component={withTracker(withAuth(ServiceDetails))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/:serviceId/documents`}
+          component={withTracker(withAuth(DocumentDetails))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/:serviceId/:fieldName`}
+          component={withTracker(withAuth(ServiceFormContainer))}
+        />
+        <Route
+          exact
+          path={`${match.path}/location/:locationId/services/:serviceId/documents/:fieldName`}
+          component={withTracker(withAuth(DocsFormContainer))}
+        />
+        <Route
+          exact
+          path={
+            `${match.path}/location/:locationId/services/:serviceId/documents/:fieldName/:thanks?`}
+          component={withTracker(withAuth(DocsFormContainer))}
+        />
+        <Route path={`${match.path}/*`} component={withTracker(NotFound)} />
+      </Switch>
+      <ErrorBar />
+    </div>
   );
 }
 
