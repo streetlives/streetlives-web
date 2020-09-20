@@ -344,13 +344,25 @@ class LandingPage extends Component {
           <div className="SectionInner">
             <h2>Follow us on:</h2>
             <div className="SocialIcons">
-              <a href="https://twitter.com/streetlivesnyc" rel="noreferrer" target="_blank">
+              <a
+                href="https://twitter.com/streetlivesnyc"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 <Icon name={['fab', 'twitter-square']} size="2x" />
               </a>
-              <a href="https://www.facebook.com/streetlivesnyc/" rel="noreferrer" target="_blank">
+              <a
+                href="https://www.facebook.com/streetlivesnyc/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 <Icon name={['fab', 'facebook-square']} size="2x" />
               </a>
-              <a href="https://www.linkedin.com/company/streetlives/" rel="noreferrer" target="_blank">
+              <a
+                href="https://www.linkedin.com/company/streetlives/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 <Icon name={['fab', 'linkedin']} size="2x" />
               </a>
             </div>
