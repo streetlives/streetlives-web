@@ -1,7 +1,7 @@
 import {
   GET_COMMENTS_RESPONSE,
   OPTIMISTIC_POST_COMMENT,
-  ROLLBACK_POST_COMMENT,
+  POST_COMMENT_ERROR,
   POST_COMMENT_SUCCESS,
   POST_REPLY_REQUEST,
   POST_REPLY_SUCCESS,
@@ -44,7 +44,7 @@ export const commentsReducer = (state = { isPosting: false }, action) => {
         isPosting: false,
       };
 
-    case ROLLBACK_POST_COMMENT:
+    case POST_COMMENT_ERROR:
       return {
         ...state,
         [`last/${action.payload.locationId}`]: null,

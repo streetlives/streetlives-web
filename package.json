@@ -38,7 +38,8 @@
     "react-textarea-autosize": "^7.0.4",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "retry-axios": "^2.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
