@@ -29,7 +29,7 @@ class ErrorBar extends Component {
       return (
         <div className="ErrorBar">
           Having some issues updating the data ({errors[0].message})...<br />
-          Please review fields updated recently and validate they still have the correct values.
+          Please check if fields updated in the last minute are still correct.
           <Icon name="times" className="DismissButton" onClick={dismissErrors} />
         </div>
       );
