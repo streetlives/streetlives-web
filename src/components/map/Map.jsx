@@ -118,7 +118,7 @@ class Map extends Component {
         this.setState({ userPosition: location });
       },
       // eslint-disable-next-line no-console
-      e => console.error('Failed to get current position', e),
+      e => console.log('Failed to get current position', e),
       { timeout: geolocationTimeout },
     );
   }
