@@ -2,7 +2,7 @@ import {
   GET_LOCATION_RESPONSE,
   GET_TAXONOMY_RESPONSE,
   OPTIMISTIC_UPDATE_LOCATION,
-  ROLLBACK_UPDATE_LOCATION,
+  UPDATE_LOCATION_ERROR,
   OPTIMISTIC_UPDATE_PHONE,
   OPTIMISTIC_CREATE_PHONE,
   CREATE_PHONE_SUCCESS,
@@ -242,7 +242,7 @@ const locationsReducer = (state = {}, action) => {
         };
       }
       break;
-    case ROLLBACK_UPDATE_LOCATION:
+    case UPDATE_LOCATION_ERROR:
       if (action.payload) {
         return {
           ...state,

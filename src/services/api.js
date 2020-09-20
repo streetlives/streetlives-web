@@ -1,4 +1,5 @@
 import axios from 'axios';
+import * as rax from 'retry-axios';
 import qs from 'qs';
 import config from '../config';
 import { TAXONOMY_SPECIFIC_ATTRIBUTES } from '../Constants';
@@ -94,12 +95,21 @@ const updateResource = ({ pathPrefix, method, pathSuffix }, { id, params }) =>
       if (pathSuffix) pathComponents.push(pathSuffix);
       const url = pathComponents.join('/');
 
-      return axios.request({
+      const axiosWithRetries = axios.create();
+      axiosWithRetries.defaults.raxConfig = { instance: axiosWithRetries };
+      rax.attach(axiosWithRetries);
+
+      return axiosWithRetries.request({
         url,
         method,
         data: params,
         headers: {
           Authorization: idJwtToken,
+        },
+        raxConfig: {
+          httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'PATCH'],
+          retry: 6,
+          noResponseRetries: 6,
         },
       });
     });

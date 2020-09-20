@@ -9,9 +9,9 @@ export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
 export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
-export const ROLLBACK_UPDATE_LOCATION = 'ROLLBACK_UPDATE_LOCATION';
-export const ROLLBACK_UPDATE_SERVICE = 'ROLLBACK_UPDATE_SERVICE';
-export const ROLLBACK_POST_COMMENT = 'ROLLBACK_POST_COMMENT';
+export const UPDATE_LOCATION_ERROR = 'UPDATE_LOCATION_ERROR';
+export const UPDATE_SERVICE_ERROR = 'UPDATE_SERVICE_ERROR';
+export const POST_COMMENT_ERROR = 'POST_COMMENT_ERROR';
 export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
 export const OPTIMISTIC_UPDATE_ORGANIZATION = 'OPTIMISTIC_UPDATE_ORGANIZATION';
 export const OPTIMISTIC_UPDATE_PHONE = 'OPTIMISTIC_UPDATE_PHONE';
@@ -32,6 +32,7 @@ export const REMOVE_COMMENT_ERROR = 'REMOVE_COMMENT_ERROR';
 export const POST_ERROR_REPORT_REQUEST = 'POST_ERROR_REPORT_REQUEST';
 export const POST_ERROR_REPORT_SUCCESS = 'POST_ERROR_REPORT_SUCCESS';
 export const POST_ERROR_REPORT_ERROR = 'POST_ERROR_REPORT_ERROR';
+export const DISMISS_DATA_ENTRY_ERRORS = 'DISMISS_DATA_ENTRY_ERRORS';
 
 export const getLocation = locationId => (dispatch) => {
   dispatch({
@@ -50,7 +51,7 @@ export const getLocation = locationId => (dispatch) => {
     .catch(e => dispatch({
       type: GET_LOCATION_ERROR,
       locationId,
-      errorMessage: e.message,
+      error: e,
     }));
 };
 
@@ -114,12 +115,12 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
       // do nothing, because save succeeded
     })
     .catch((e) => {
-      // roll back
-      console.error('error', e);
+      console.error('Error updating location', e);
       dispatch({
-        type: ROLLBACK_UPDATE_LOCATION,
+        type: UPDATE_LOCATION_ERROR,
         payload: {
           id: locationId,
+          error: e,
         },
       });
     });
@@ -139,12 +140,12 @@ export const deletePhone = (locationId, id) => (dispatch) => {
       id,
     })
     .catch((e) => {
-      // roll back
-      console.error('error', e);
+      console.error('Error deleting phone', e);
       dispatch({
-        type: ROLLBACK_UPDATE_LOCATION,
+        type: UPDATE_LOCATION_ERROR,
         payload: {
           id: locationId,
+          error: e,
         },
       });
     });
@@ -177,12 +178,12 @@ export const updatePhone = (
       // do nothing, because save succeeded
     })
     .catch((e) => {
-      // roll back
-      console.error('error', e);
+      console.error('Error updating phone', e);
       dispatch({
-        type: ROLLBACK_UPDATE_LOCATION,
+        type: UPDATE_LOCATION_ERROR,
         payload: {
           id: locationId,
+          error: e,
         },
       });
     });
@@ -220,12 +221,12 @@ export const createPhone = (
       });
     })
     .catch((e) => {
-      // roll back
-      console.error('error', e);
+      console.error('Error creating phone', e);
       dispatch({
-        type: ROLLBACK_UPDATE_LOCATION,
+        type: UPDATE_LOCATION_ERROR,
         payload: {
           id: locationId,
+          error: e,
         },
       });
     });
@@ -258,12 +259,12 @@ export const updateOrganization = (
       // do nothing, because save succeeded
     })
     .catch((e) => {
-      // roll back
-      console.error('error', e);
+      console.error('Error updating organization', e);
       dispatch({
-        type: ROLLBACK_UPDATE_LOCATION,
+        type: UPDATE_LOCATION_ERROR,
         payload: {
           id: locationId,
+          error: e,
         },
       });
     });
@@ -287,10 +288,10 @@ export const updateService = ({
     },
   });
   api.updateService({ id: serviceId, params }).catch((e) => {
-    console.error('error', e);
+    console.error('Error updating service', e);
     dispatch({
-      type: ROLLBACK_UPDATE_SERVICE,
-      payload: { id: locationId },
+      type: UPDATE_SERVICE_ERROR,
+      payload: { id: locationId, error: e },
     });
   });
 };
@@ -315,10 +316,10 @@ export const updateLanguages = ({
   });
 
   api.updateService({ id: serviceId, params: { languageIds } }).catch((e) => {
-    console.error('error', e);
+    console.error('Error updating service languages', e);
     dispatch({
-      type: ROLLBACK_UPDATE_SERVICE,
-      payload: { id: locationId },
+      type: UPDATE_SERVICE_ERROR,
+      payload: { id: locationId, error: e },
     });
   });
 };
@@ -329,8 +330,8 @@ export const postComment = (locationId, comment) => (dispatch) => {
     .then(() => {
       dispatch({ type: POST_COMMENT_SUCCESS, payload: { locationId, comment } });
     })
-    .catch((e) => {
-      dispatch({ type: ROLLBACK_POST_COMMENT, payload: { err: e, locationId, comment } });
+    .catch((error) => {
+      dispatch({ type: POST_COMMENT_ERROR, payload: { error, locationId, comment } });
     });
 };
 
@@ -347,8 +348,8 @@ export const replyToComment = (locationId, originalCommentId, reply) => (dispatc
         },
       });
     })
-    .catch((err) => {
-      dispatch({ type: POST_REPLY_ERROR, payload: { ...params, err } });
+    .catch((error) => {
+      dispatch({ type: POST_REPLY_ERROR, payload: { ...params, error } });
     });
 };
 
@@ -359,8 +360,8 @@ export const deleteReply = ({ locationId, originalCommentId, reply }) => (dispat
     .then(() => {
       dispatch({ type: DELETE_REPLY_SUCCESS, payload: params });
     })
-    .catch((err) => {
-      dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, err } });
+    .catch((error) => {
+      dispatch({ type: DELETE_REPLY_ERROR, payload: { ...params, error } });
     });
 };
 
@@ -371,8 +372,8 @@ export const removeComment = ({ locationId, comment }) => (dispatch) => {
     .then(() => {
       dispatch({ type: REMOVE_COMMENT_SUCCESS, payload: params });
     })
-    .catch((err) => {
-      dispatch({ type: REMOVE_COMMENT_ERROR, payload: { ...params, err } });
+    .catch((error) => {
+      dispatch({ type: REMOVE_COMMENT_ERROR, payload: { ...params, error } });
     });
 };
 
@@ -389,7 +390,10 @@ export const postErrorReport = (locationId, errorReport) => (dispatch) => {
         },
       });
     })
-    .catch((err) => {
-      dispatch({ type: POST_ERROR_REPORT_ERROR, payload: { ...params, err } });
+    .catch((error) => {
+      dispatch({ type: POST_ERROR_REPORT_ERROR, payload: { ...params, error } });
     });
 };
+
+export const dismissDataEntryErrors =
+  () => dispatch => dispatch({ type: DISMISS_DATA_ENTRY_ERRORS, payload: {} });

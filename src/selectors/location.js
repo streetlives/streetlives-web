@@ -7,6 +7,8 @@ export const selectOriginalLocationData = (state, props) =>
 
 export const selectLocationError = (state, props) => state.locationErrors[selectLocationId(props)];
 
+export const selectDataEntryErrors = state => state.dataEntryErrors;
+
 export const selectEventRelatedInfo = (state, props) =>
   (selectLocationData(state, props) || {}).EventRelatedInfos || [];
 
