@@ -47,6 +47,7 @@ function App() {
           <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
             <Switch>
               <Route exact path="/" component={withTracker(LandingPage)} />
+              <Route exact path="/covidnotif" component={withTracker(LandingPage)} />
               <Route path="/team" component={withTracker(TeamRouter)} />
               {feedbackLocations.map(({ name, id }) => (
                 <Route

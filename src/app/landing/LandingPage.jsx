@@ -5,16 +5,11 @@ import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
 import CovidInfoModal from './CovidInfoModal';
 import { DESKTOP_BREAKPOINT } from '../../Constants';
-import analytics from '../../services/analytics';
 import './LandingPage.css';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
-  state = {
-    isModalOpen: false,
-  }
-
   scrollToContent = () => {
     this.contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -23,15 +18,12 @@ class LandingPage extends Component {
     this.topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  toggleModal = () => {
-    analytics.track('Get Started Clicked');
-    this.setState({ isModalOpen: !this.state.isModalOpen });
-  }
-
   contentRef = React.createRef();
   topRef = React.createRef();
 
   render() {
+    const isModalOpen = this.props.location.pathname.endsWith('covidnotif');
+
     return (
       <div className="LandingPage">
         <div className="Intro Section">
@@ -39,7 +31,7 @@ class LandingPage extends Component {
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
-          {this.state.isModalOpen ? <CovidInfoModal /> : ''}
+          {isModalOpen ? <CovidInfoModal /> : ''}
           <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">
@@ -60,7 +52,7 @@ class LandingPage extends Component {
               </div>
             </div>
             <div className="IntroBottom">
-              <GetStartedButton onClick={this.toggleModal} primary fluid />
+              <GetStartedButton url="/covidnotif" primary fluid />
             </div>
           </div>
         </div>
@@ -150,7 +142,7 @@ class LandingPage extends Component {
                 See the service details, go get what you need. We don’t keep
                 your personal data, so your privacy is protected.
               </p>
-              <GetStartedButton onClick={this.toggleModal} primary fluid />
+              <GetStartedButton url="/covidnotif" primary fluid />
             </div>
 
             <picture>
@@ -200,7 +192,7 @@ class LandingPage extends Component {
           </div>
           <div className="TestimonialBtn">
             <GetStartedButton
-              onClick={this.toggleModal}
+              url="/covidnotif"
               fluid
               className="btnWhite"
             />

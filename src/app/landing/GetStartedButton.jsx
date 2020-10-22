@@ -1,11 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../../components/button';
 
-const GetStartedButton = ({ onClick, ...rest }) => (
+const GetStartedButton = ({ url, ...rest }) => (
   <div className="GetStartedButton">
-    <Button onClick={onClick} {...rest}>
-      Find free services
-    </Button>
+    <Link to={url}>
+      <Button onClick={() => {}} {...rest}>
+        Find free services
+      </Button>
+    </Link>
   </div>
 );
 
