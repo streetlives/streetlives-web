@@ -71,8 +71,10 @@
 	height: 100px;
 	min-width: 10px;
 	border-radius: 2px;
-	padding-left: 0;
-	padding-right: 0;
+	padding: 12px 0 12px 0;
+	border: 1px solid primaryColor;
+	background: primaryColor;
+	font-size: .85rem;
 }
 
 .categoryButton > img {
