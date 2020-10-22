@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 import isMatch from 'lodash.ismatch';
 import { getLocations } from '../../../services/api';
@@ -268,15 +269,14 @@ export default class MapPage extends Component {
       <h5 className="categoriesTitle">Explore these types of services</h5>
       <div className="buttonsContainer">
         {this.props.categories.map(category => (
-          <Button
-            primary
+          <Link
             className="categoryButton"
             key={category.id}
-            onClick={() => this.props.goToCategory(category)}
+            to={this.props.getCategoryUrl(category)}
           >
             <img src={`/icons/${category.name}.svg`} alt={category.name} />
             <small className="serviceCategory">{category.name}</small>
-          </Button>
+          </Link>
         ))}
       </div>
     </div>

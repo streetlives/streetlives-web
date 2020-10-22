@@ -58,17 +58,7 @@ function App() {
                 />
               ))}
               <Route path="/comments" component={withTracker(CommentsRouter)} />
-              <Route
-                path="/find"
-                render={(props) => {
-                  const Component = withTracker(FindRouter);
-                  return (
-                    <Suspense fallback={<LoadingLabel>Loading locations</LoadingLabel>}>
-                      <Component {...props} />
-                    </Suspense>
-                  );
-                }}
-              />
+              <Route path="/find" component={withTracker(FindRouter)} />
               <Route path="*" component={withTracker(NotFound)} />
             </Switch>
           </Suspense>

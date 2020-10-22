@@ -27,15 +27,15 @@ class MapPageContainer extends Component {
     prevSearch: null,
   };
 
+  getCategoryUrl = category => `/find/${category.name}/questions`;
+
   goHome = () => this.props.history.push('/find');
 
   goToCategoryResults = category =>
     this.props.history.push(`/find/${category.name}${this.props.location.search}`);
 
-  goToCategory = (category) => {
-    analytics.track('Category Selected', { categoryName: category.name });
+  goToCategory = category =>
     this.props.history.push(`/find/${category.name}/questions`);
-  }
 
   goToLocationDetails = (locationId) => {
     const { categoryName } = this.props.match.params;
@@ -78,6 +78,7 @@ class MapPageContainer extends Component {
         fetchCategories={this.fetchCategories}
         goHome={this.goHome}
         goToCategory={this.goToCategory}
+        getCategoryUrl={this.getCategoryUrl}
         startQuestionFlow={this.startQuestionFlow}
         goToLocationDetails={this.goToLocationDetails}
       />
