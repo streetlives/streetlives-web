@@ -1,10 +1,13 @@
 import React from 'react';
 import { Marker, InfoWindow } from 'react-google-maps';
 import Button from '../button';
+import OverlayView from './OverlayView';
 
 const MARKER_ICON_MAPPINGS = {
+  /* eslint-disable max-len */
   blue: 'https://www.google.com/maps/vt/icon/name=assets/icons/spotlight/spotlight_pin_v2_shadow-1-small.png,assets/icons/spotlight/spotlight_pin_v2-1-small.png,assets/icons/spotlight/spotlight_pin_v2_dot-1-small.png,assets/icons/spotlight/spotlight_pin_v2_accent-1-small.png&highlight=000000,1400FF,FFFFFF,000000&color=1400FF?scale=1',
   gray: 'https://www.google.com/maps/vt/icon/name=assets/icons/spotlight/spotlight_pin_v2_shadow-1-small.png,assets/icons/spotlight/spotlight_pin_v2-1-small.png,assets/icons/spotlight/spotlight_pin_v2_dot-1-small.png,assets/icons/spotlight/spotlight_pin_v2_accent-1-small.png&highlight=000000,C0C0C0,FFFFFF,000000&color=C0C0C0?scale=1',
+  /* eslint-enable max-len */
 };
 
 function LocationMarker(props) {
@@ -16,6 +19,7 @@ function LocationMarker(props) {
     onClose,
     onSubmit,
     children,
+    locationUrl,
     color = 'blue',
   } = props;
   const position = {
@@ -23,8 +27,13 @@ function LocationMarker(props) {
     lat: mapLocation.position.coordinates[1],
   };
 
-  return (
-    <Marker key={id} position={position} onClick={onClick} icon={{ url: MARKER_ICON_MAPPINGS[color] }}>
+  const marker = (
+    <Marker
+      key={id}
+      position={position}
+      onClick={onClick}
+      icon={{ url: MARKER_ICON_MAPPINGS[color] }}
+    >
       {isOpen && (
         <InfoWindow
           options={{
@@ -52,6 +61,12 @@ function LocationMarker(props) {
         </InfoWindow>
       )}
     </Marker>
+  );
+
+  return (
+    <OverlayView key={id} position={position} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
+      {locationUrl ? <a href={locationUrl}>{marker}</a> : marker}
+    </OverlayView>
   );
 }
 
