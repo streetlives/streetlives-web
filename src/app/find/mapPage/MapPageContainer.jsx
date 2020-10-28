@@ -29,6 +29,13 @@ class MapPageContainer extends Component {
 
   getCategoryUrl = category => `/find/${category.name}/questions`;
 
+  getLocationUrl = (locationId) => {
+    const { categoryName } = this.props.match.params;
+    return categoryName ?
+      `/find/${categoryName}/location/${locationId}` :
+      `/find/location/${locationId}`;
+  }
+
   goHome = () => this.props.history.push('/find');
 
   goToCategoryResults = category =>
@@ -38,11 +45,9 @@ class MapPageContainer extends Component {
     this.props.history.push(`/find/${category.name}/questions`);
 
   goToLocationDetails = (locationId) => {
-    const { categoryName } = this.props.match.params;
-    const url = categoryName ?
-      `/find/${categoryName}/location/${locationId}` :
-      `/find/location/${locationId}`;
+    const url = this.getLocationUrl(locationId);
 
+    const { categoryName } = this.props.match.params;
     analytics.track('Location Clicked', { locationId, url, categoryName });
 
     this.props.history.push(url);
@@ -81,6 +86,7 @@ class MapPageContainer extends Component {
         getCategoryUrl={this.getCategoryUrl}
         startQuestionFlow={this.startQuestionFlow}
         goToLocationDetails={this.goToLocationDetails}
+        getLocationUrl={this.getLocationUrl}
       />
     );
   }

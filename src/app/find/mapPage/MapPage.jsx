@@ -284,7 +284,7 @@ export default class MapPage extends Component {
 
   render() {
     const isFiltering = !!this.getCurrentFilterString();
-    const { category, goToLocationDetails } = this.props;
+    const { category, goToLocationDetails, getLocationUrl } = this.props;
 
     return (
       <div className="Map">
@@ -354,6 +354,7 @@ export default class MapPage extends Component {
                           id={location.id}
                           mapLocation={location}
                           onClick={() => goToLocationDetails(location.id)}
+                          locationUrl={getLocationUrl(location.id)}
                         />
                       ))
                     }
