@@ -17,14 +17,8 @@ class ProofsRequiredEdit extends Component {
   constructor(props) {
     super(props);
 
-    let proofs = [];
-
-    if (this.props.value) {
-      proofs = this.props.value.map(el => el.document);
-    }
-
     this.state = {
-      proofs,
+      proofs: this.props.value,
       showForm: false,
     };
 

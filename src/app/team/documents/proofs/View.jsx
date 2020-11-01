@@ -13,7 +13,7 @@ function ProofsRequiredView({ value, onConfirm, onEdit }) {
 
       <Selector fluid>
         {
-          value.map(({ document }) => (
+          value.map(document => (
             <Selector.Option
               key={`selector-${document}`}
               active
