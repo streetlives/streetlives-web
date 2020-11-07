@@ -44,7 +44,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
       serviceId,
-      params: { eventRelatedInfo: { event: OCCASIONS.COVID19, information } },
+      params: { eventRelatedInfo: { event: OCCASIONS.COVID19, information: information || null } },
       metaDataSection,
       fieldName,
     })),
