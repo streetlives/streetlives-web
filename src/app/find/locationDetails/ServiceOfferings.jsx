@@ -1,7 +1,23 @@
 import React from 'react';
 import InfoItem from './InfoItem';
 
-const formatWearerAge = values => (values.length ? `Clothing for ${values.join(', ')}` : null);
+const formatWearerAge = (values) => {
+  if (!values.length) {
+    return null;
+  }
+
+  const justAgeValues = ['adults', 'children'];
+  const specificValues = ['men', 'women', 'girls', 'boys'];
+
+  let displayValues;
+  if (specificValues.some(specificValue => values.includes(specificValue))) {
+    displayValues = values.filter(value => !justAgeValues.includes(value));
+  } else {
+    displayValues = values;
+  }
+
+  return `Clothing for ${displayValues.join(', ')}`;
+};
 
 const formatTgncClothing = values => (
   (values.length === 1 && values[0] === 'true') ?
