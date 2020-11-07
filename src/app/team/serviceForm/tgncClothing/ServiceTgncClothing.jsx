@@ -14,12 +14,17 @@ const FormComponent = compose(withProps({
   EditComponent: Edit,
 }))(props => <Form {...props} />);
 
-const mapStateToProps = (state, ownProps) => ({
-  resourceData: getService(state, ownProps),
-  value: getServiceTgncClothing(state, ownProps),
-  id: getServiceId(ownProps),
-  resourceLoadError: selectLocationError(state, ownProps),
-});
+const mapStateToProps = (state, ownProps) => {
+  const tgncClothingValues = getServiceTgncClothing(state, ownProps);
+  const value =
+    tgncClothingValues && tgncClothingValues.length === 1 && tgncClothingValues[0] === 'true';
+  return {
+    value,
+    resourceData: getService(state, ownProps),
+    id: getServiceId(ownProps),
+    resourceLoadError: selectLocationError(state, ownProps),
+  };
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
@@ -28,7 +33,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
       locationId: ownProps.match.params.locationId,
       serviceId,
       params: {
-        tgncClothing,
+        tgncClothing: tgncClothing ? ['true'] : ['false'],
       },
       metaDataSection,
       fieldName,

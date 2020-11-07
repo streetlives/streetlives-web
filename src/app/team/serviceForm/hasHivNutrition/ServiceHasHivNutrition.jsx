@@ -14,12 +14,17 @@ const FormComponent = compose(withProps({
   EditComponent: Edit,
 }))(props => <Form {...props} />);
 
-const mapStateToProps = (state, ownProps) => ({
-  resourceData: getService(state, ownProps),
-  value: getServiceHasHivNutrition(state, ownProps),
-  id: getServiceId(ownProps),
-  resourceLoadError: selectLocationError(state, ownProps),
-});
+const mapStateToProps = (state, ownProps) => {
+  const hivNutritionValues = getServiceHasHivNutrition(state, ownProps);
+  const value =
+    hivNutritionValues && hivNutritionValues.length === 1 && hivNutritionValues[0] === 'true';
+  return {
+    value,
+    resourceData: getService(state, ownProps),
+    id: getServiceId(ownProps),
+    resourceLoadError: selectLocationError(state, ownProps),
+  };
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
@@ -28,7 +33,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
       locationId: ownProps.match.params.locationId,
       serviceId,
       params: {
-        hasHivNutrition,
+        hasHivNutrition: hasHivNutrition ? ['true'] : ['false'],
       },
       metaDataSection,
       fieldName,
