@@ -1,11 +1,11 @@
 const options = [
   {
     label: 'None',
-    values: [true, false],
+    values: ['true', 'false'],
   },
   {
     label: 'Client/Member only',
-    values: [true],
+    values: ['true'],
   },
 ];
 
