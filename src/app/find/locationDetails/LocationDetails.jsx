@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import Modal from '../../../components/modal';
 import Header from '../../../components/header';
 import Icon from '../../../components/icon';
@@ -116,10 +117,19 @@ class LocationDetails extends Component {
   }
 
   render() {
-    const { location, locationError, goBack } = this.props;
+    const {
+      location,
+      locationError,
+      goBack,
+      getCanonicalUrl,
+    } = this.props;
+    const canonicalUrl = getCanonicalUrl();
 
     return (
       <Modal className="pb-4">
+        <Helmet>
+          {canonicalUrl && <link rel="canonical" href={getCanonicalUrl()} />}
+        </Helmet>
         <div className="mx-3 mt-4 position-relative">
           <Icon
             name="times"
