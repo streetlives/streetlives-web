@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { Helmet } from 'react-helmet';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
@@ -15,6 +16,8 @@ import './IconLibrary';
 import LandingPage from './landing/LandingPage';
 import NotFound from './notFound/NotFound';
 import LoadingLabel from '../components/form/LoadingLabel';
+
+import { getCanonicalUrl } from '../services/seo';
 
 import withTracker from '../components/routing/withTracker';
 import analytics from '../services/analytics';
@@ -43,6 +46,9 @@ function App() {
   return (
     <Provider store={store}>
       <div className="App">
+        <Helmet>
+          <link rel="canonical" href={getCanonicalUrl()} />
+        </Helmet>
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
             <Switch>

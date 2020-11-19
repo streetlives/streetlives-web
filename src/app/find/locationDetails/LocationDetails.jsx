@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import Modal from '../../../components/modal';
 import Header from '../../../components/header';
@@ -272,10 +273,16 @@ class LocationDetails extends Component {
       goBack,
       goToErrorReport,
       searchCategory,
+      getCanonicalUrl,
     } = this.props;
+
+    const canonicalUrl = getCanonicalUrl();
 
     const headerContent = (
       <div>
+        <Helmet>
+          {canonicalUrl && <link rel="canonical" href={getCanonicalUrl()} />}
+        </Helmet>
         <Icon
           className="locationCloseButton"
           name="times"
