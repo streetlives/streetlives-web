@@ -13,13 +13,61 @@ class FilterSelector extends Component {
   toggleExplanation = () =>
     this.setState({ isShowingExplanation: !this.state.isShowingExplanation });
 
+  renderOption = (option) => {
+    const {
+      multiselect,
+      onSelect,
+      selectedOption,
+    } = this.props;
+
+    let isActive;
+    if (selectedOption == null) {
+      isActive = option.value == null;
+    } else if (multiselect) {
+      isActive = selectedOption.some(selected => selected.value === option.value);
+    } else {
+      isActive = selectedOption.value === option.value;
+    }
+
+    const onClick = () => {
+      if (option.value == null) {
+        return onSelect(null);
+      }
+
+      if (!multiselect) {
+        return onSelect(option);
+      }
+
+      if (isActive) {
+        return onSelect(selectedOption.length === 1
+          ? null
+          : selectedOption.filter(selected => selected.value !== option.value));
+      }
+
+      return onSelect([...(selectedOption || []), option]);
+    };
+
+    return (
+      <Selector.Option
+        key={option.label}
+        onClick={onClick}
+        active={isActive}
+        disablePadding={!multiselect}
+        disableCheckmark={!multiselect}
+        round={multiselect}
+        align="center"
+      >
+        {option.label}
+      </Selector.Option>
+    );
+  }
+
   render() {
     const {
       title,
       options,
       explanation,
-      onSelect,
-      selectedOption,
+      multiselect,
     } = this.props;
 
     return (
@@ -40,21 +88,8 @@ class FilterSelector extends Component {
             />
           )}
         </div>
-        <Selector fluid direction="row">
-          {options.map(option => (
-            <Selector.Option
-              key={option.label}
-              onClick={() => (option.value != null ? onSelect(option) : onSelect(null))}
-              active={selectedOption == null ?
-                option.value == null :
-                selectedOption.value === option.value}
-              disablePadding
-              disableCheckmark
-              align="center"
-            >
-              {option.label}
-            </Selector.Option>
-          ))}
+        <Selector fluid={!multiselect} direction="row">
+          {options.map(this.renderOption)}
         </Selector>
       </div>
     );

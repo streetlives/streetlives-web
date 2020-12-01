@@ -75,6 +75,20 @@ const FluidRowExample = (
   </div>
 );
 
+const RoundRowExample = (
+  <div className="container-fluid">
+    <label className="w-100 mt-4" htmlFor="roundRowSelector">Row with round items</label>
+    <Selector direction="row" id="roundRowSelector">
+      <Selector.Option align="center" round>Any services</Selector.Option>
+      <Selector.Option align="center" round>Toiletries</Selector.Option>
+      <Selector.Option align="center" round>Restrooms</Selector.Option>
+      <Selector.Option align="center" round>Shower</Selector.Option>
+      <Selector.Option align="center" round>Laundry</Selector.Option>
+      <Selector.Option align="center" round>Haircut</Selector.Option>
+    </Selector>
+  </div>
+);
+
 storiesOf('Selector', module)
   .add('Overview', () => [
     OptionExample,
@@ -84,8 +98,10 @@ storiesOf('Selector', module)
     SelectedExample,
     RowExample,
     FluidRowExample,
+    RoundRowExample,
   ])
   .add('Default example', () => DefaultExample)
   .add('Full width example', () => FluidExample)
   .add('Horizontal (row direction) example', () => RowExample)
-  .add('Full width horizontal example', () => FluidRowExample);
+  .add('Full width horizontal example', () => FluidRowExample)
+  .add('Round horizontal example', () => RoundRowExample);
