@@ -9,9 +9,11 @@ import {
 } from '../commonFilters';
 import { categories, selectableSubcategoryNames } from '../../../categories';
 
-const filterSelectableSubcategories = subcategories =>
-  subcategories.filter(({ name }) =>
-    selectableSubcategoryNames[categories.personalCare].includes(name.toLowerCase().trim()));
+const subcategoryNames = selectableSubcategoryNames[categories.personalCare];
+const filterSelectableSubcategories = subcategories => subcategories.map(subcategory => ({
+  ...subcategory,
+  index: subcategoryNames.indexOf(subcategory.name.toLowerCase().trim()),
+})).filter(({ index }) => index !== -1).sort((s1, s2) => s1.index - s2.index);
 
 const PersonalCareFiltersModal = ({
   values,
@@ -20,18 +22,25 @@ const PersonalCareFiltersModal = ({
 }) => {
   const subcategories = filterSelectableSubcategories(category.children);
   const subcategoryOptions = [
-    { label: 'Any', value: null },
+    { label: 'Any services', value: null },
     ...subcategories.map(({ name, id }) =>
-      ({ label: name, value: id, description: `specifically ${name.toLowerCase()}` })),
+      ({ label: name, value: id, description: name.toLowerCase() })),
   ];
 
   return (
     <div>
       <FilterSelector
-        title="Kind"
+        title="View specific services"
+        multiselect
         options={subcategoryOptions}
-        onSelect={subcategoryId => onChange({ subcategoryId })}
-        selectedOption={values.subcategoryId}
+        onSelect={subcategoryIds => onChange({
+          subcategoryIds: subcategoryIds && {
+            value: subcategoryIds,
+            description: `specifically ${
+              subcategoryIds.map(({ description }) => description).join(' or ')}`,
+          },
+        })}
+        selectedOption={values.subcategoryIds && values.subcategoryIds.value}
       />
       <FilterSelector
         title="Opening hours"

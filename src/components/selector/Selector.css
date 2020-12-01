@@ -2,7 +2,7 @@
   margin-bottom: 10px;
 }
 .Selector.Selector-row > .Option {
-  margin-right: 10px;
+  margin-right: 3px;
 }
 
 .Selector.Selector-column > .Option.disable-padding {
@@ -15,12 +15,19 @@
 .Selector.Selector-column.Selector-fluid > .Option {
   width: 100%;
 }
+.Selector.Selector-row > .Option {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 140px;
+}
 .Selector.Selector-row.Selector-fluid > .Option {
   flex: 1;
 }
 
 .Selector.Selector-row {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .Selector {

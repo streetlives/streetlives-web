@@ -9,7 +9,7 @@
   border-radius: 2px;
   color: darkerGray;
   cursor: pointer;
-  padding: 10px;
+  padding: 12px;
   width: fit-content;
   position: relative;
 }
@@ -19,6 +19,9 @@
   border: 1px solid primaryColor;
   color: #ffffff;
   font-weight: 300;
+}
+.Option.Option-round {
+  border-radius: 30px;
 }
 .Option.Option-disabled {
   opacity: 0.8;

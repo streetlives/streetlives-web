@@ -147,6 +147,8 @@ export default class MapPage extends Component {
     let includedCategories;
     if (advancedFilters.subcategoryId) {
       includedCategories = [advancedFilters.subcategoryId.value];
+    } else if (advancedFilters.subcategoryIds) {
+      includedCategories = advancedFilters.subcategoryIds.value.map(({ value }) => value);
     } else if (category) {
       includedCategories = [category.id];
     } else {
