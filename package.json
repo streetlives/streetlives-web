@@ -8,7 +8,7 @@
     "@fortawesome/react-fontawesome": "^0.1.9",
     "aws-amplify": "^1.1.6",
     "aws-amplify-react": "^2.0.7",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.1.0",
     "classnames": "^2.2.5",
