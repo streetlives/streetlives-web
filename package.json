@@ -25,7 +25,7 @@
     "mixpanel-browser": "^2.38.0",
     "moment": "^2.22.0",
     "prop-types": "^15.6.1",
-    "qs": "^6.7.0",
+    "qs": "^6.10.1",
     "react": "^16.6.0",
     "react-dom": "^16.2.0",
     "react-ga": "^2.4.1",
