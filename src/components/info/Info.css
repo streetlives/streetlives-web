@@ -1,7 +1,5 @@
-@value primaryColor from "../../colors.css";
-
 .Info-solid > g > g > circle {
-  fill: primaryColor;
+  fill: var(--primaryColor);
 }
 
 .Info-large {
