@@ -1,12 +1,10 @@
-@value primaryColor from "../../colors.css";
-
 .OptionButtons > .OptionButton {
 	margin-bottom: 16px;
-	border: 2px solid primaryColor;
+	border: 2px solid var(--primaryColor);
 	height: 50px;
 	border-radius: 2px;
 	font-size: 0.85em !important;
 	font-weight: 600;
-	color: primaryColor;
+	color: var(--primaryColor);
 	padding: 0;
 }

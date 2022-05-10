@@ -1,7 +1,5 @@
-@value primaryColor, gray, darkerGray from "../../../colors.css";
-
 .locationHeader {
-  background-color: gray;
+  background-color: var(--gray);
   position: fixed;
   width: 100%;
   /* A bit of a hack: this is copied from Modal.css, to match its rounded corners. */
@@ -149,8 +147,8 @@
 }
 
 .locationLinks {
-  color: primaryColor;
-  border-bottom: 1px solid primaryColor;
+  color: var(--primaryColor);
+  border-bottom: 1px solid var(--primaryColor);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 2vh 0 0 0;
@@ -197,8 +195,8 @@
 }
 
 .reportErrorButton {
-  border-color: darkerGray;
-  color: darkerGray;
+  border-color: var(--darkerGray);
+  color: var(--darkerGray);
   text-transform: none;
 }
 

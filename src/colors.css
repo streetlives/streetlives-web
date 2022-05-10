@@ -1,11 +1,13 @@
-@value darkBorder: #b2b2b2;
+body {
+  --darkBorder: #b2b2b2;
 
-@value gray: #f2f2f2;
-@value borderGray: #DDDDDD;
-@value placeholderGray: #AAAAAA;
-@value darkerGray: #333333;
-@value lightGray: #F0F0F0;
-@value mediumGray: #979797;
-@value blue: #1400ff;
+  --gray: #f2f2f2;
+  --borderGray: #DDDDDD;
+  --placeholderGray: #AAAAAA;
+  --darkerGray: #333333;
+  --lightGray: #F0F0F0;
+  --mediumGray: #979797;
+  --blue: #1400ff;
 
-@value primaryColor: blue;
+  --primaryColor: var(--blue);
+}

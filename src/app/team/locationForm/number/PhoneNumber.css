@@ -1,5 +1,3 @@
-@value primaryColor, borderGray, darkerGray from "../../../../colors.css";
-
 .PhoneNumbers-List {
   list-style: none;
   margin: 0;
@@ -10,11 +8,11 @@
   position: relative;
   margin-bottom: 20px;
   background: white;
-  border: 1px solid borderGray;
+  border: 1px solid var(--borderGray);
   box-sizing: border-box;
   box-shadow: cardShadow;
   border-radius: 2px;
-  color: darkerGray;
+  color: var(--darkerGray);
   padding: 10px;
   width: 100%;
   position: relative;

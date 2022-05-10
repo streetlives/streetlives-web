@@ -1,5 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans&display=swap);
-@value primaryColor from "../../colors.css";
 
 .LandingPage {
   text-align: left;
@@ -24,7 +23,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: primaryColor;
+  color: var(--primaryColor);
   font-size: 28px;
   font-weight: bold;
 }
@@ -120,7 +119,7 @@
 .LandingPage .Testimonials {
   padding-top: 46px;
   padding-bottom: 42px;
-  background-color: primaryColor;
+  background-color: var(--primaryColor);
   color: #FFFFFF;
 }
 
