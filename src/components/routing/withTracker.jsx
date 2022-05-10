@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import GoogleAnalytics from 'react-ga';
+import GoogleAnalytics from 'react-ga4';
 import config from '../../config';
 
 GoogleAnalytics.initialize(config.gaTrackingId);
