@@ -1,11 +1,23 @@
 import React from 'react';
+import cx from 'classnames';
 import Icon from '../../../components/icon';
 
-const InfoItem = ({ icon, children }) => (
-  <div className="infoItem">
-    <Icon name={icon} size="medium" className="float-left mt-1" />
-    <div className="ml-4 pl-1">{children}</div>
-  </div>
-);
+const InfoItem = ({
+  icon,
+  children,
+  coronavirus,
+  customIcon,
+}) => {
+  const classNames = cx('ml-4 pl-1', {
+    coronavirusInfo: coronavirus,
+  });
+
+  return (
+    <div className="infoItem">
+      <Icon name={icon} custom={customIcon} className="float-left mt-1" />
+      <div className={classNames}>{children}</div>
+    </div>
+  );
+};
 
 export default InfoItem;

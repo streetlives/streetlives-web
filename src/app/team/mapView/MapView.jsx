@@ -119,6 +119,14 @@ export default class MapView extends Component {
       .catch(e => console.error('error', e));
   };
 
+  editLocation = (locationId) => {
+    let currentUrl = this.props.match.url;
+    if (currentUrl.endsWith('/')) {
+      currentUrl = currentUrl.slice(0, currentUrl.length - 1);
+    }
+    this.props.history.push(`${currentUrl}/location/${locationId}/recap`);
+  }
+
   renderLocationMarkers = () => (
     <div>
       {this.state.locations &&
@@ -128,6 +136,7 @@ export default class MapView extends Component {
             mapLocation={location}
             isOpen={location.id === this.state.openLocationId}
             onToggleInfo={this.onToggleMarkerInfo}
+            onEnterLocation={this.editLocation}
           />
       ))}
       {this.state.newLocation && (
@@ -199,7 +208,7 @@ export default class MapView extends Component {
               style={{ border: 'none', borderRadius: 0 }}
               type="text"
               className="form-control"
-              placeholder="Type the address, or drop a pin"
+              placeholder="Type the organization name or drop a pin"
               required
             />
           </div>

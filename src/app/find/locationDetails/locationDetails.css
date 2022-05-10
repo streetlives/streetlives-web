@@ -1,98 +1,209 @@
-@value primaryColor from "../../../colors.css";
+.locationHeader {
+  background-color: var(--gray);
+  position: fixed;
+  width: 100%;
+  /* A bit of a hack: this is copied from Modal.css, to match its rounded corners. */
+  border-radius: 20px 20px 0px 0px;
+}
+.locationHeader, .locationHeaderCopyToAvoidCoveringBody {
+  padding-top: 17px;
+  padding-bottom: 6px;
+}
+.locationHeaderCopyToAvoidCoveringBody {
+  visibility: hidden;
+}
+
+.locationCloseButton {
+  position: absolute;
+  right: 17px;
+}
 
 .locationTitle {
-  width: 85%;
+  width: 83%;
   margin-left: auto;
   margin-right: auto;
+  font-size: 17px;
+  font-weight: bold;
+  margin-top: 0;
 }
 
-.locationHeaders{
-	font-size: 0.95rem !important;
-    line-height: 1.33rem;
-    margin: 4.5vh 0 0vh 0;
-    padding-top: 1.2vh;
-    width: 100%;
-    border-top: 1px solid #dadada;
+.locationSubTitle {
+  font-size: 14px;
+  font-weight: normal;
 }
 
-.categoryCard{
-	background-color: #f8f8fc;
-	border: 1px solid #dadada !important;
-	padding: 4vw 4vw 4vw 4vw;
-	box-shadow: 0vw 2vw 2vw rgba(0,0,0,0.15) !important;
-	margin-bottom: 4vh;
-	margin-top: 2vh;
-
+.locationModal {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
 }
 
-.serviceCategoryHeadersContainer{
-	font-size: .85rem !important;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	align-content: center;
+.locationModalBody  {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.serviceCategoryHeaders{
-	font-weight: bold;
-    line-height: 1.33rem;
-    width: 100%;
-    text-transform: uppercase;
-    letter-spacing: 1.66px;
-    margin: 0 !important;
-    padding: 0 !important;
-
+.locationInfo {
+  flex: 1;
 }
 
-.specificServiceHeaders{
-    line-height: 1.33rem;
-    margin: 0 !important;
-    padding-top: 1.2vh;
-    width: 100%;
+.locationFieldHeader {
+  font-size: 0.95rem !important;
+  line-height: 1.33rem;
+  margin: 4.5vh 0 0vh 0;
+  padding-top: 1.2vh;
+  width: 100%;
+  border-top: 1px solid #dadada;
 }
 
-.categoryCard .serviceDescription{
-	line-height: 160%;
-    padding: 2vh 0;
-    font-size: 0.85rem;
+.categoryCard {
+  background-color: #f8f8fc;
+  border: 1px solid #dadada !important;
+  border-radius: 2px;
+  box-shadow: 0px 6px 6px rgba(0,0,0,0.15) !important;
+  margin-bottom: 4vh;
+  margin-top: 2vh;
 }
 
-.detailPageCategories{
-	font-size: 0.8rem !important;
-	text-align: center;
-	font-weight: bold;
-	color:#4c4b4b;
+.serviceSection:last-of-type {
+  border-bottom: none;
 }
 
-.accessibilityText{
-	font-size: 0.85rem;
+.serviceSection .expandArrow {
+  display: inline-block;
+  margin-right: 10px;
 }
 
-.infoItem{
-	padding-top: 4px;
-    font-size: 0.85rem;
-    line-height: 160%;
-    padding-bottom: 0.45rem;
-    overflow-wrap: break-word;
+.serviceCategoryHeadersContainer {
+  font-size: .85rem !important;
+  display: flex;
+  align-items: center;
+  padding: 2vh 3vw;
 }
 
-.infoItem:last-child{
-	padding-top: 4px;
-	line-height: 1.2rem;
-	padding-bottom: 0rem !important;
+.serviceCategoryHeadersContainer .categoryIcon {
+  display: inline-block;
+  margin-right: 10px;
 }
 
-.serviceSchedule{
-    border-top: 1px solid #d8d8ee;
-    padding-top: 2vh;
-    margin: 0 !important;
+.serviceCategoryHeaders {
+  display: inline-block;
+  font-weight: bold;
+  line-height: 1.33rem;
+  text-transform: uppercase;
+  letter-spacing: 1.66px;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.locationLinks{
-	color: primaryColor;
-	border-bottom: 1px solid primaryColor;
-	font-size: 0.85rem;
-	cursor: pointer;
-	padding: 2vh 0 0 0;
-	overflow-wrap: break-word;
+.specificServiceHeaders {
+  line-height: 1.33rem;
+  margin: 0 !important;
+  border-top: 1px solid #DADADA;
+  padding: 2vh 7vw;
+  width: 100%;
+  font-weight: bold;
+}
+.specificServiceHeaders.expandableHeaders {
+  cursor: pointer;
+}
+
+.serviceDetails > div {
+  padding: 1.3vh 7vw;
+}
+
+.categoryCard .serviceDescription {
+  line-height: 160%;
+  padding-bottom: 2vh;
+  font-size: 0.85rem;
+}
+
+.detailPageCategories {
+  font-size: 0.8rem !important;
+  text-align: center;
+  font-weight: bold;
+  color: #4c4b4b;
+  margin-top: 1.3rem;
+}
+
+.accessibilityText {
+  font-size: 0.85rem;
+}
+
+.infoItem {
+  padding-top: 4px;
+  font-size: 0.85rem;
+  line-height: 160%;
+  padding-bottom: 0.45rem;
+  overflow-wrap: break-word;
+}
+
+.serviceSchedule {
+  border-top: 1px solid #d8d8ee;
+  padding-top: 2vh;
+  margin: 0 !important;
+}
+
+.locationLinks {
+  color: var(--primaryColor);
+  border-bottom: 1px solid var(--primaryColor);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 2vh 0 0 0;
+  overflow-wrap: break-word;
+}
+
+.closureInfo {
+  margin-top: 16px;
+  font-weight: normal;
+}
+
+.closureInfo div {
+  font-size: 1rem;
+}
+
+.coronavirusInfo {
+  color: #A02733;
+  font-weight: bold;
+  white-space: pre-wrap;
+}
+
+.lastUpdateLine {
+  font-size: 0.8rem;
+  margin-top: 0.7rem;
+}
+
+.lastUpdateLine .updateText {
+  margin-left: 1.7rem;
+  margin-right: 1.7rem;
+}
+
+.lastUpdateLine.coronavirusInfo {
+  font-weight: normal;
+}
+
+.lastUpdateLine.coronavirusInfo .updateTime {
+  font-weight: bold;
+}
+
+.lastUpdateLine .lastUpdateIcon {
+  float: left;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.reportErrorButton {
+  border-color: var(--darkerGray);
+  color: var(--darkerGray);
+  text-transform: none;
+}
+
+.fpcAttribution {
+  display: inline-block;
+  margin-top: 21px;
+  margin-left: 16px;
+  margin-right: 16px;
+  font-size: 0.85rem;
 }

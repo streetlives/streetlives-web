@@ -1,5 +1,3 @@
-@value primaryColor from "../../colors.css";
-
 .Dropdown {
   overflow-y: auto;
   max-height: 60vh;
@@ -16,5 +14,5 @@
 }
 
 .Dropdown-item:active {
-  background: primaryColor;
+  background: var(--primaryColor);
 }

@@ -1,13 +1,11 @@
-@value placeholderGray, borderGray from "../../colors.css";
-
 .TextArea {
   border: none;
   outline: none;
-  border-bottom: 1px solid borderGray;
+  border-bottom: 1px solid var(--borderGray);
 }
 
 .TextArea::placeholder {
-  color: placeholderGray;
+  color: var(--placeholderGray);
   font-weight: 300;
   padding-right: 1em;
 }

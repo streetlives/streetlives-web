@@ -1,5 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans&display=swap);
-@value primaryColor from "../../colors.css";
 
 .LandingPage {
   text-align: left;
@@ -24,7 +23,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: primaryColor;
+  color: var(--primaryColor);
   font-size: 28px;
   font-weight: bold;
 }
@@ -120,7 +119,7 @@
 .LandingPage .Testimonials {
   padding-top: 46px;
   padding-bottom: 42px;
-  background-color: primaryColor;
+  background-color: var(--primaryColor);
   color: #FFFFFF;
 }
 
@@ -170,6 +169,14 @@
   text-align: left;
 }
 
+.LandingPage .Feedback .SectionInner h2 {
+  margin-bottom: 6px;
+}
+
+.LandingPage .Feedback .SectionInner p {
+  margin-bottom: 16px;
+}
+
 .LandingPage .Feedback .FeedbackEmail {
   background-color: #FFFFFF;
   margin-left: 36px;
@@ -178,6 +185,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.LandingPage .Feedback .SocialIcons {
+  margin: 0px 36px 46px;
+  font-size: 1.1rem;
+}
+
+.LandingPage .Feedback .SocialIcons a {
+  color: #FFFFFF;
+  padding-right: 8px;
 }
 
 .LandingPage h1 {
@@ -210,6 +227,24 @@
 .LandingPage .Emphasis {
   text-decoration: underline;
   font-style: italic;
+}
+
+.LandingPage .covidInfo {
+  color: #fff;
+  background: #0000FF;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.covidModalInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50vh;
+}
+
+.covidModalInner .legal {
+  margin-top: 12px;
 }
 
 .GetStartedButton {

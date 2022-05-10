@@ -24,7 +24,7 @@ function renderAddress(address) {
 class ExistingLocationMarker extends Component {
   constructor(props) {
     super(props);
-    this.handleYesClick = this.handleYesClick.bind(this);
+    this.onEnterLocation = this.onEnterLocation.bind(this);
     this.onToggleInfo = this.onToggleInfo.bind(this);
   }
 
@@ -32,8 +32,8 @@ class ExistingLocationMarker extends Component {
     this.props.onToggleInfo(this.props.mapLocation.id);
   }
 
-  handleYesClick() {
-    this.props.history.push(`${this.props.match.url}/location/${this.props.mapLocation.id}/recap`);
+  onEnterLocation() {
+    this.props.onEnterLocation(this.props.mapLocation.id);
   }
 
   render() {
@@ -49,7 +49,7 @@ class ExistingLocationMarker extends Component {
         {...this.props}
         id={mapLocation.id}
         onClick={this.onToggleInfo}
-        onSubmit={this.handleYesClick}
+        onSubmit={this.onEnterLocation}
         onClose={this.onToggleInfo}
       >
         <div>This location is:</div>

@@ -30,4 +30,8 @@ export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
   hasHivNutrition: 'hasHivNutrition',
 };
 
+export const OCCASIONS = {
+  COVID19: 'COVID19',
+};
+
 export const DESKTOP_BREAKPOINT = '1224px';

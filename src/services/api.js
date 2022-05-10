@@ -14,6 +14,7 @@ export const getLocations = ({
   minResults,
   searchString,
   organizationName,
+  occasion,
   locationFieldsOnly,
   serviceFilters: {
     taxonomyIds,
@@ -32,10 +33,11 @@ export const getLocations = ({
   const params = {
     latitude,
     longitude,
-    minResults,
-    searchString,
     organizationName,
+    occasion,
     locationFieldsOnly,
+    searchString: searchString || undefined,
+    minResults: minResults || undefined,
     radius: radius != null ? Math.min(radius, MAX_RADIUS) : undefined,
     taxonomyId: taxonomyIds != null ? taxonomyIds.join(',') : undefined,
     openAt: openNow ? (new Date()).toISOString() : undefined,
@@ -179,6 +181,7 @@ export const updateLocation = updateResource.bind(this, {
   method: 'patch',
 });
 export const updatePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'patch' });
+export const deletePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'delete' });
 export const createPhone = updateResource.bind(this, {
   pathPrefix: 'locations',
   method: 'post',
@@ -257,3 +260,17 @@ export const removeComment = comment =>
         Authorization: idJwtToken,
       },
     }));
+
+export const postErrorReport = ({ locationId, errorReport }) =>
+  axios
+    .request({
+      url: `${config.baseApi}/errorreports`,
+      method: 'post',
+      data: {
+        locationId,
+        generalLocationError: errorReport.generalLocationError,
+        services: errorReport.services,
+        content: errorReport.content,
+      },
+    })
+    .then(result => result.data);

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { deleteReply, removeComment } from '../../../actions';
 import LinkButton from '../../../components/link';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../../../components/confirmationModal';
 
 const renderDate = date => (
   <small className="flex-grow-1 text-right pull-right" style={{ color: '#AAAAAA' }}>
@@ -90,7 +90,7 @@ class CommentRow extends Component {
     if (this.state.isShowingCommentRemoveConfirmation) {
       return (
         <ConfirmationModal
-          prompt="Are you sure you want to remove this comment?"
+          headerText="Are you sure you want to remove this comment?"
           confirmText="YES"
           cancelText="NO, LET’S KEEP IT"
           onConfirm={this.confirmRemoveComment}
@@ -102,7 +102,7 @@ class CommentRow extends Component {
     if (this.state.isShowingReplyDeleteConfirmation) {
       return (
         <ConfirmationModal
-          prompt="Are you sure you want to delete this reply?"
+          headerText="Are you sure you want to delete this reply?"
           confirmText="YES"
           cancelText="NO, LET’S KEEP IT"
           onConfirm={this.confirmDeleteReply}

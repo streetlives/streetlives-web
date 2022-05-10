@@ -14,7 +14,6 @@ import './App.css';
 import './IconLibrary';
 
 import LandingPage from './landing/LandingPage';
-import About from './about/About';
 import NotFound from './notFound/NotFound';
 import LoadingLabel from '../components/form/LoadingLabel';
 
@@ -54,7 +53,7 @@ function App() {
           <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
             <Switch>
               <Route exact path="/" component={withTracker(LandingPage)} />
-              <Route exact path="/about" component={withTracker(About)} />
+              <Route exact path="/covidnotif" component={withTracker(LandingPage)} />
               <Route path="/team" component={withTracker(TeamRouter)} />
               {feedbackLocations.map(({ name, id }) => (
                 <Route

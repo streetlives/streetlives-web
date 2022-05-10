@@ -56,19 +56,27 @@ class ServicesRecap extends Component {
     }
   }
 
-  onNext = () => {
-    const { locationId } = this.props.match.params;
-    this.props.history.push(`/team/location/${locationId}/services/recap/thanks`);
-  };
+  onNext = () => this.props.history.push(`${this.props.location.pathname}/thanks`);
 
-  onNextSection = () => this.props.history.push('/team');
+  onThanksNext = () => {
+    const { pathname } = this.props.location;
+    const mapViewUrl = pathname.slice(0, pathname.indexOf('/location/'));
+    this.props.history.push(mapViewUrl);
+  }
 
-  onBackSection = () => {
-    this.props.history.push(`/team/location/${this.props.match.params.locationId}/services/recap`);
+  onThanksBack = () => {
+    const { pathname } = this.props.location;
+    const serviceRecapUrl = pathname.slice(0, pathname.indexOf('/thanks'));
+    this.props.history.push(serviceRecapUrl);
+  }
+
+  getServiceCategoriesUrl = () => {
+    const pathnameParts = this.props.location.pathname.split('/');
+    return pathnameParts.slice(0, pathnameParts.length - 1).join('/');
   }
 
   render() {
-    const { taxonomy = [], locationError } = this.props;
+    const { taxonomy = [], locationError, backTarget } = this.props;
     const { services = [] } = this.state;
 
     if (locationError) {
@@ -86,7 +94,7 @@ class ServicesRecap extends Component {
         <div style={overlayStyles(showThanks)}>
           <ThanksOverlay.GaussianBlur />
           <NavBar
-            backButtonTarget={`/team/location/${this.props.match.params.locationId}/services`}
+            backButtonTarget={backTarget || this.getServiceCategoriesUrl()}
             title="Services recap"
           />
           <div style={{ marginBottom: '1em' }} className="px-3 container">
@@ -126,8 +134,8 @@ class ServicesRecap extends Component {
             content={thanksContent}
             nextLabel="BACK TO THE MAP"
             backLabel="KEEP EDITING"
-            onNextSection={this.onNextSection}
-            onBackSection={this.onBackSection}
+            onNextSection={this.onThanksNext}
+            onBackSection={this.onThanksBack}
           />
         )}
       </div>

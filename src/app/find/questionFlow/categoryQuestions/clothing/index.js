@@ -1,7 +1,7 @@
 import ClothingForQuestion from './ClothingForQuestion';
 import GenderQuestion from './GenderQuestion';
 import PhotoIdQuestion from './PhotoIdQuestion';
-import ZipcodeQuestion from './ZipcodeQuestion';
+// import ZipcodeQuestion from './ZipcodeQuestion';
 
 const QuestionsInOrder = [
   {
@@ -19,11 +19,11 @@ const QuestionsInOrder = [
     component: PhotoIdQuestion,
     question: 'Can you provide your photo ID when you go?',
   },
-  {
-    param: 'zipcode',
-    component: ZipcodeQuestion,
-    question: 'Please provide the ZIP at your registered address',
-  },
+  // {
+  //   param: 'zipcode',
+  //   component: ZipcodeQuestion,
+  //   question: 'Please provide the ZIP at your registered address',
+  // },
 ];
 
 export default QuestionsInOrder;

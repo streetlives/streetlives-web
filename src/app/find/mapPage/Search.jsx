@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Speech, { ListeningIndicator } from '../../../components/speech';
+// import Speech, { ListeningIndicator } from '../../../components/speech';
 import Icon from '../../../components/icon';
 import Button from '../../../components/button';
 import { getCategoryIcon } from '../../../services/iconography';
@@ -44,6 +44,11 @@ class Search extends Component {
     this.setState({ modifiedSearchString: searchString });
   }
 
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.submitSearchString();
+  }
+
   submitSearchString = () => {
     const searchString = this.state.modifiedSearchString;
     analytics.track('Search Initiated', { searchString });
@@ -86,7 +91,12 @@ class Search extends Component {
             color: 'white',
           }}
           onClick={this.submitSuggestion}
-          onKeyDown={e => e.keyCode === 13 && this.submitSuggestion()}
+          onKeyDown={(e) => {
+            e.preventDefault();
+            if (e.keyCode === 13) {
+              this.submitSuggestion();
+            }
+          }}
           role="button"
           tabIndex={0}
         >
@@ -101,46 +111,49 @@ class Search extends Component {
     </div>
   );
 
-  renderSpeechElements = () => (
-    <Speech
-      onInterimText={this.updateSearchStringFromSpeech}
-      onGotText={this.submitSearchString}
-    >
-      {({
-        isSpeechSupported,
-        isListening,
-        startSpeechToText,
-      }) => isSpeechSupported && (
-        isListening ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 3,
-              backgroundColor: '#F8F8FC',
-            }}
-          >
-            <div style={{ position: 'relative', top: '50%' }}>
-              <ListeningIndicator />
-            </div>
-          </div>
-        ) : (
-          <Icon
-            name="microphone"
-            custom
-            circle
-            size="2x"
-            alt="search through voice"
-            className="voiceToText"
-            onClick={startSpeechToText}
-          />
-        )
-      )}
-    </Speech>
-  );
+  // Since most users find search in its current form (no NLP etc) confusing when using speech,
+  // we're removing that option for now.
+  renderSpeechElements = () => null;
+  // renderSpeechElements = () => (
+  //   <Speech
+  //     onInterimText={this.updateSearchStringFromSpeech}
+  //     onGotText={this.submitSearchString}
+  //   >
+  //     {({
+  //       isSpeechSupported,
+  //       isListening,
+  //       startSpeechToText,
+  //     }) => isSpeechSupported && (
+  //       isListening ? (
+  //         <div
+  //           style={{
+  //             position: 'absolute',
+  //             left: 0,
+  //             top: 0,
+  //             right: 0,
+  //             bottom: 0,
+  //             zIndex: 3,
+  //             backgroundColor: '#F8F8FC',
+  //           }}
+  //         >
+  //           <div style={{ position: 'relative', top: '50%' }}>
+  //             <ListeningIndicator />
+  //           </div>
+  //         </div>
+  //       ) : (
+  //         <Icon
+  //           name="microphone"
+  //           custom
+  //           circle
+  //           size="2x"
+  //           alt="search through voice"
+  //           className="voiceToText"
+  //           onClick={startSpeechToText}
+  //         />
+  //       )
+  //     )}
+  //   </Speech>
+  // );
 
   renderSearchBar = () => (
     <div
@@ -153,7 +166,7 @@ class Search extends Component {
         zIndex: 4,
       }}
     >
-      <form className="input-group" onSubmit={this.submitSearchString} >
+      <form className="input-group" onSubmit={this.handleSubmit} >
         {this.state.isEnteringSearchString && (
           <Button
             className="backSearch"

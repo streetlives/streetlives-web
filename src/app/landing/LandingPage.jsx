@@ -3,18 +3,13 @@ import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
+import CovidInfoModal from './CovidInfoModal';
 import { DESKTOP_BREAKPOINT } from '../../Constants';
 import './LandingPage.css';
-import analytics from '../../services/analytics';
 
 const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
-  getStarted = () => {
-    analytics.track('Get Started Clicked');
-    this.props.history.push('/find');
-  };
-
   scrollToContent = () => {
     this.contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -27,6 +22,8 @@ class LandingPage extends Component {
   topRef = React.createRef();
 
   render() {
+    const isModalOpen = this.props.location.pathname.endsWith('covidnotif');
+
     return (
       <div className="LandingPage">
         <div className="Intro Section">
@@ -34,7 +31,8 @@ class LandingPage extends Component {
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
-
+          {isModalOpen ? <CovidInfoModal /> : ''}
+          <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">
               <h1>
@@ -54,7 +52,7 @@ class LandingPage extends Component {
               </div>
             </div>
             <div className="IntroBottom">
-              <GetStartedButton onClick={this.getStarted} primary fluid />
+              <GetStartedButton url="/covidnotif" primary fluid />
             </div>
           </div>
         </div>
@@ -144,7 +142,7 @@ class LandingPage extends Component {
                 See the service details, go get what you need. We don’t keep
                 your personal data, so your privacy is protected.
               </p>
-              <GetStartedButton onClick={this.getStarted} primary fluid />
+              <GetStartedButton url="/covidnotif" primary fluid />
             </div>
 
             <picture>
@@ -194,7 +192,7 @@ class LandingPage extends Component {
           </div>
           <div className="TestimonialBtn">
             <GetStartedButton
-              onClick={this.getStarted}
+              url="/covidnotif"
               fluid
               className="btnWhite"
             />
@@ -334,8 +332,32 @@ class LandingPage extends Component {
           </div>
         </div>
 
-        <div className="Feedback Section">
+        <div className="Feedback">
           <div className="SectionInner">
+            <h2>Follow us on:</h2>
+            <div className="SocialIcons">
+              <a
+                href="https://twitter.com/streetlivesnyc"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon name={['fab', 'twitter-square']} size="2x" />
+              </a>
+              <a
+                href="https://www.facebook.com/streetlivesnyc/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon name={['fab', 'facebook-square']} size="2x" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/streetlives/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon name={['fab', 'linkedin']} size="2x" />
+              </a>
+            </div>
             <h2>We’re all about feedback</h2>
             <p>Tell us what you think at:</p>
             <div className="FeedbackEmail">

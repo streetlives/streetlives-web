@@ -1,8 +1,6 @@
-@value gray, darkBorder, primaryColor, darkerGray from "../../colors.css";
-
 .Button {
-  background: gray;
-  border: 1px solid darkBorder;
+  background: var(--gray);
+  border: 1px solid var(--darkBorder);
   color: black;
   font-size: 0.75em;
   font-weight: 600;
@@ -13,7 +11,7 @@
 }
 
 .Button:focus {
-  outline-color: primaryColor;
+  outline-color: var(--primaryColor);
 }
 
 .Button-compact {
@@ -21,8 +19,8 @@
 }
 
 .Button-primary {
-  background: primaryColor;
-  border: 1px solid primaryColor;
+  background: var(--primaryColor);
+  border: 1px solid var(--primaryColor);
   color: #ffffff;
   text-transform: capitalize;
   letter-spacing: 0.05rem;
@@ -31,7 +29,7 @@
 
 .Button-secondary {
     background: #ffffff;
-    border: 2px solid primaryColor;
+    border: 2px solid var(--primaryColor);
     color: #1400ff;
     text-transform: capitalize;
     letter-spacing: 0.05rem;
@@ -54,7 +52,7 @@
   background: white;
   border-width: 3px;
   padding: 10px;
-  color: primaryColor;
+  color: var(--primaryColor);
 }
 
 .Button-basic.Button-secondary {

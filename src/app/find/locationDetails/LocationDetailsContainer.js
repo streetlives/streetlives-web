@@ -9,7 +9,8 @@ const getCanonicalWithoutCategory = () =>
   getCanonicalUrl(window.location.href).replace(/\/find\/[^/]+\/location\//, '/find/location/');
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  goBack: () => ownProps.history.goBack(),
+  goBack: () => ownProps.history.push(ownProps.match.url.split('/location')[0]),
+  goToErrorReport: () => ownProps.history.push(`${ownProps.match.url}/errorreports`),
   getCanonicalUrl: getCanonicalWithoutCategory,
   fetchLocation: () => dispatch(getLocation(ownProps.match.params.locationId)),
 });
@@ -17,6 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
   location: selectLocationData(state, ownProps),
   locationError: selectLocationError(state, ownProps),
+  searchCategory: ownProps.match.params.categoryName,
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LocationDetails));

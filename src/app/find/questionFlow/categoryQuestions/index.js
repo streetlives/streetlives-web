@@ -1,7 +1,7 @@
-import clothing from './clothing';
+// import clothing from './clothing';
 
-import { categories } from '../../categories';
+// import { categories } from '../../categories';
 
 export default {
-  [categories.clothing]: clothing,
+  // [categories.clothing]: clothing,
 };

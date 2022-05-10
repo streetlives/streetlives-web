@@ -1,41 +1,35 @@
-@value primaryColor from "../../../../colors.css";
-
-.filtersHeader{
-	font-size: 1rem !important;
-	padding: 2rem 0rem 0.66rem 0rem;
-	margin: 0 !important;
+.filtersHeader {
+  font-size: 1rem !important;
+  padding: 2rem 0rem 0.66rem 0rem;
+  margin: 0 !important;
 }
 
 .hivContainer {
-    width: 100%;
-    padding-top: 2vh;
-    padding-bottom: 2vh;
-    border-bottom: 1px solid #dadada;
-    margin-top: 1vh;
-    display: flex;
+  width: 100%;
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+  border-bottom: 1px solid #dadada;
+  margin-top: 1vh;
+  display: flex;
 }
 
 input#hivNutrition-checkbox {
-    opacity: 1;
-    position: absolute;
-    cursor: pointer;
-    margin: 0 !important;
-    min-width: 22px;
-    min-height: 22px;
-    padding: 11px;
+  cursor: pointer;
+  min-width: 22px;
+  min-height: 22px;
+  margin-right: 5px;
 }
 
 .Label[for="hivNutrition-checkbox"] {
-    margin-left: 32px;
-    color: #333333;
+  color: #333333;
 }
 
 .filterSubmitBtn {
-    position: fixed;
-    padding: 16px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    background-color: rgba(255, 255, 255, 0.82);
+  position: fixed;
+  padding: 16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.82);
 }

@@ -12,6 +12,7 @@ import { Form, FormEdit, FormView } from '../../../../components/form';
 const EditComponent = compose(withProps({
   headerText: 'How would you describe this service?',
   placeholderText: 'e.g. Free Breakfast & Lunch, 2 helpings',
+  multiline: true,
 }))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({

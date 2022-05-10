@@ -19,6 +19,11 @@ export const getServiceDescription = (state, props) => getService(state, props).
 
 export const getServiceAgesServed = (state, props) => getService(state, props).ages_served;
 
+export const getServiceTaxonomy = (state, props) => {
+  const taxonomy = (getService(state, props).Taxonomies || [])[0];
+  return taxonomy && (taxonomy.parent_name || taxonomy.name);
+};
+
 export const getServiceWhoDoesItServe = (state, props) =>
   getService(state, props).who_does_it_serve;
 
@@ -47,4 +52,39 @@ export const getServiceOpeningHours = (state, props) => (
   }))
 );
 
+export const getIrregularOpeningHours = (state, props) => (
+  (getService(state, props).HolidaySchedules || []).map(({
+    opens_at: opensAt,
+    closes_at: closesAt,
+    weekday,
+    ...otherProps
+  }) => ({
+    ...otherProps,
+    opensAt: parseTimeString(opensAt),
+    closesAt: parseTimeString(closesAt),
+    weekday: DAYS[weekday - 1],
+  }))
+);
+
 export const getServiceAdditionalInfo = (state, props) => getService(state, props).additional_info;
+
+export const getEventRelatedInfo = (state, props) =>
+  getService(state, props).EventRelatedInfos || [];
+
+export const getServiceTaxonomySpecificAttribute = (name, state, props) => {
+  const attributes = getService(state, props).ServiceTaxonomySpecificAttributes || [];
+  const attribute = attributes.find(a => (a.attribute.name === name));
+  return attribute ? attribute.values : null;
+};
+
+export const getServiceHasHivNutrition = (state, props) =>
+  getServiceTaxonomySpecificAttribute('hasHivNutrition', state, props);
+
+export const getServiceTgncClothing = (state, props) =>
+  getServiceTaxonomySpecificAttribute('tgncClothing', state, props);
+
+export const getServiceClothingOccasions = (state, props) =>
+  getServiceTaxonomySpecificAttribute('clothingOccasion', state, props);
+
+export const getServiceWearerAge = (state, props) =>
+  getServiceTaxonomySpecificAttribute('wearerAge', state, props);

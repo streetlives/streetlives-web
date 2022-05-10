@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Input from '../../../../components/input';
+import Icon from '../../../../components/icon';
 import './OpeningHoursEditForm.css';
 
 export default class OpeningHoursEditForm extends Component {
@@ -20,9 +21,7 @@ export default class OpeningHoursEditForm extends Component {
           className="default"
           onClick={() => removeHour(hour)}
         >
-          <i
-            className="fa fa-trash"
-          />
+          <Icon name="trash" />
         </button>
         <div className="table-container">
           <table>

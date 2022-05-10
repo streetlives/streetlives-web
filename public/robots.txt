@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /comments
+Disallow: /team
+Disallow: /team/*
+
+User-agent: Googlebot-Image
+Disallow: /
+
+Sitemap: https://gogetta.nyc/sitemap.xml

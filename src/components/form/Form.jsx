@@ -8,7 +8,7 @@ function isEditing(value) {
     value === null ||
     (typeof value === 'object'
       ? Object.keys(value).every(key => !value[key])
-      : !value)
+      : value === null)
   );
 }
 
@@ -97,7 +97,7 @@ class Form extends Component {
 Form.propTypes = {
   ViewComponent: PropTypes.func.isRequired,
   EditComponent: PropTypes.func.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array, PropTypes.bool]),
   resourceData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   resourceLoadError: PropTypes.string,
   fetchResourceData: PropTypes.func.isRequired,

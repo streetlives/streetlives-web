@@ -29,7 +29,13 @@ import {
   faCamera,
   faPlus,
   faSpinner,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  faTwitterSquare,
+  faFacebookSquare,
+  faLinkedin,
+} from '@fortawesome/free-brands-svg-icons';
 
 library.add(
   faChevronDown,
@@ -61,4 +67,8 @@ library.add(
   faCamera,
   faPlus,
   faSpinner,
+  faTrash,
+  faTwitterSquare,
+  faFacebookSquare,
+  faLinkedin,
 );

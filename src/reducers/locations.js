@@ -8,6 +8,7 @@ import {
   CREATE_PHONE_SUCCESS,
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
+  OPTIMISTIC_DELETE_PHONE,
 } from '../actions';
 import { DAYS } from '../Constants';
 
@@ -61,26 +62,104 @@ const locationsReducer = (state = {}, action) => {
         const {
           metaDataSection, fieldName, locationId, params, serviceId,
         } = action.payload;
-        const { documents = {} } = params;
+        const {
+          documents = {},
+          membership,
+          eventRelatedInfo,
+          area,
+        } = params;
         const location = state[locationId];
         const { Services } = location;
         const serviceIdx = Services.findIndex(service => service.id === serviceId);
         const service = location.Services[serviceIdx];
         const {
-          Languages, DocumentsInfo, RequiredDocuments, RegularSchedules,
+          Languages,
+          DocumentsInfo,
+          RegularSchedules,
+          HolidaySchedules,
+          EventRelatedInfos,
+          ServiceTaxonomySpecificAttributes = [],
+          ServiceAreas = [],
+          Eligibilities = [],
         } = service;
 
-        if (documents.proofs != null) {
-          // TODO: Update when form support multiple proofs
-          // eslint-disable-next-line prefer-destructuring
-          const proof = { ...RequiredDocuments[0], document: documents.proofs[0] };
+        let { RequiredDocuments } = service;
 
-          RequiredDocuments[0] = proof;
+        if (documents.proofs != null) {
+          RequiredDocuments = documents.proofs.map(p => ({ document: p }));
         }
+
+        if (area != null) {
+          ServiceAreas[0] = {
+            ...area,
+            updated_at: dateString,
+          };
+        }
+
+        if (membership) {
+          const membershipEl = Eligibilities
+            .find(e => e.EligibilityParameter.name === 'membership');
+
+          if (membershipEl) {
+            membershipEl.eligible_values = membership.eligible_values;
+            membershipEl.description = membership.description;
+            membershipEl.updated_at = dateString;
+          } else {
+            Eligibilities.push({
+              eligible_values: membership.eligible_values,
+              description: membership.description,
+              updated_at: dateString,
+              EligibilityParameter: {
+                name: 'membership',
+              },
+            });
+          }
+        }
+
+        const taxonomySpecificAttributes = [
+          'hasHivNutrition',
+          'tgncClothing',
+          'clothingOccasion',
+          'wearerAge',
+        ];
+
+        taxonomySpecificAttributes.forEach((attr) => {
+          if (Object.prototype.hasOwnProperty.call(params, attr)) {
+            const fieldIdx = ServiceTaxonomySpecificAttributes
+              .findIndex(el => el.attribute.name === attr);
+
+            if (fieldIdx !== -1) {
+              ServiceTaxonomySpecificAttributes[fieldIdx].values = params[attr];
+              ServiceTaxonomySpecificAttributes[fieldIdx].updated_at = dateString;
+            } else {
+              ServiceTaxonomySpecificAttributes.push({
+                values: params[attr],
+                updated_at: dateString,
+                attribute: {
+                  name: attr,
+                },
+              });
+            }
+          }
+        });
 
         let hours = null;
         if (params.hours) {
           hours = params.hours.map(({ opensAt, closesAt, weekday }) => ({
+            opens_at: `${opensAt}:00`,
+            closes_at: `${closesAt}:00`,
+            weekday: DAYS.indexOf(weekday) + 1,
+          }));
+        }
+        let irregularHours = null;
+        if (params.irregularHours) {
+          irregularHours = params.irregularHours.map(({
+            opensAt,
+            closesAt,
+            weekday,
+            ...otherProps
+          }) => ({
+            ...otherProps,
             opens_at: `${opensAt}:00`,
             closes_at: `${closesAt}:00`,
             weekday: DAYS.indexOf(weekday) + 1,
@@ -103,15 +182,20 @@ const locationsReducer = (state = {}, action) => {
                 metadata: constructUpdatedMetadata(service, metaDataSection, fieldName, dateString),
                 Languages: params.languages || Languages,
                 DocumentsInfo: {
-                  recertification_time: documents.recertificationTime
-                    || (DocumentsInfo && DocumentsInfo.recertification_time),
-                  grace_period: documents.gracePeriod
-                    || (DocumentsInfo && DocumentsInfo.grace_period),
-                  additional_info: documents.additionalInfo
-                    || (DocumentsInfo && DocumentsInfo.additional_info),
+                  recertification_time: documents.recertificationTime ||
+                    (DocumentsInfo && DocumentsInfo.recertification_time),
+                  grace_period: documents.gracePeriod ||
+                    (DocumentsInfo && DocumentsInfo.grace_period),
+                  additional_info: documents.additionalInfo ||
+                    (DocumentsInfo && DocumentsInfo.additional_info),
                 },
                 RequiredDocuments,
                 RegularSchedules: hours || RegularSchedules,
+                HolidaySchedules: irregularHours || HolidaySchedules,
+                EventRelatedInfos: eventRelatedInfo ? [eventRelatedInfo] : EventRelatedInfos,
+                ServiceTaxonomySpecificAttributes,
+                ServiceAreas,
+                Eligibilities,
               },
               ...Services.slice(serviceIdx + 1),
             ],
@@ -152,6 +236,7 @@ const locationsReducer = (state = {}, action) => {
           [id]: {
             ...location,
             ...params,
+            EventRelatedInfos: [params.eventRelatedInfo] || location.EventRelatedInfos,
             metadata: constructUpdatedMetadata(location, metaDataSection, fieldName, dateString),
           },
         };
@@ -183,17 +268,24 @@ const locationsReducer = (state = {}, action) => {
       if (!location.Phones) {
         newPhones = [action.payload.params];
       } else {
-        newPhones = location.Phones.concat(action.payload.params);
+        newPhones = [...location.Phones, action.payload.params];
       }
+      return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
+    }
+    case OPTIMISTIC_DELETE_PHONE: {
+      const location = state[action.payload.locationId];
+      const newPhones = location.Phones.filter(p => p.id !== action.payload.phoneId);
       return constructNewStateWithUpdatedPhones(state, action, newPhones, location, dateString);
     }
     case CREATE_PHONE_SUCCESS: {
       const location = state[action.payload.locationId];
+
       const idx = location.Phones.findIndex(phone =>
         !phone.id &&
           phone.number === action.payload.params.number &&
           phone.extension === action.payload.params.extension);
       const phone = location.Phones[idx];
+
       const newPhones = [
         ...location.Phones.slice(0, idx),
         { ...phone, ...action.payload.params },
