@@ -26,6 +26,8 @@ const ClosureInfoView = compose(withProps({
   topText: 'CLOSURE INFO',
 }))(props => <FormView {...props} />);
 
+const defaultClosureInfo = 'This location is temporarily closed.';
+
 const ClosureInfo = (props) => {
   const { pathname } = props.location;
   const showThanks = pathname.split('/').pop() === 'thanks';
@@ -53,6 +55,7 @@ const ClosureInfo = (props) => {
               EditComponent={ClosureInfoEdit}
               metaDataSection="location"
               fieldName="eventRelatedInfo"
+              value={props.value && props.value.trim().length ? props.value : defaultClosureInfo}
               onFieldVerified={() => props.history.push(`${props.location.pathname}/thanks`)}
             />
           </div>
@@ -93,7 +96,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (closureInfo, organizationId, metaDataSection, fieldName) =>
     dispatch(updateLocation(
       ownProps.match.params.locationId,
-      { eventRelatedInfo: { information: closureInfo, event: OCCASIONS.COVID19 } },
+      { eventRelatedInfo: { information: closureInfo || defaultClosureInfo, event: OCCASIONS.COVID19 } },
       metaDataSection,
       fieldName,
     )),
