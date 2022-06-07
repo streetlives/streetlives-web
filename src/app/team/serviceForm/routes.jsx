@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
+import ServiceName from './name/ServiceName';
 import ServiceDescription from './description/ServiceDescription';
 import ServiceWhoDoesItServe from './whoDoesItServe/ServiceWhoDoesItServe';
 import ServiceLanguages from './languages/ServiceLanguages';
@@ -19,6 +20,13 @@ import ServiceArea from './area/ServiceArea';
 const baseRoute = '/team/location/:locationId/services/:serviceId';
 
 export const SERVICE_FIELDS = [
+  {
+    label: 'Service name',
+    urlFragment: '/name',
+    RouteComponent: ServiceName,
+    metaDataSection: 'service',
+    fieldName: 'name',
+  },
   {
     label: 'Service description',
     urlFragment: '/description',

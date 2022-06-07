@@ -15,6 +15,8 @@ export const getService = (state, props) => {
   return services.filter(el => el.id === serviceId)[0] || {};
 };
 
+export const getServiceName = (state, props) => getService(state, props).name;
+
 export const getServiceDescription = (state, props) => getService(state, props).description;
 
 export const getServiceAgesServed = (state, props) => getService(state, props).ages_served;
