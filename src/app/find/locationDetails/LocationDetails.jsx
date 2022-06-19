@@ -290,8 +290,8 @@ class LocationDetails extends Component {
         />
         <Header size="medium" className="locationTitle">
           {location ? location.Organization.name : 'Loading...'}
-          {location && location.name && location.name.length > 0 && (
-            <div className="locationSubTitle">({location.name})</div>
+          {location && location.name && location.name.trim().length > 0 && (
+            <div className="locationSubTitle">({location.name.trim()})</div>
           )}
         </Header>
       </div>
