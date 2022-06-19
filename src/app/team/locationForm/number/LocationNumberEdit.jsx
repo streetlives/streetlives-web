@@ -11,9 +11,13 @@ import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 
-const convertToPackagePhoneFormat = input => (input ? `${input.replace(/\./g, '')}` : '');
-const convertToOurFormat = input => (input ? `${input.slice(0, 3)}.${input.slice(3, 6)}.${input.slice(6)}` : '');
 const validPhoneNumberLength = input => input.length === 12;
+const convertToPackagePhoneFormat = input => (input ? `${input.replace(/\./g, '')}` : '');
+const convertToOurFormat = (input) => {
+  if (!input) return '';
+  const justDigits = input.replace(/[^\d]/g, '');
+  return `${justDigits.slice(0, 3)}.${justDigits.slice(3, 6)}.${justDigits.slice(6)}`;
+};
 
 class LocationNumberEdit extends Component {
   constructor(props) {
@@ -46,7 +50,7 @@ class LocationNumberEdit extends Component {
   onSubmit = (e) => {
     e.preventDefault();
 
-    const newPhoneNumber = this.state.newPhoneNumber ? this.state.newPhoneNumber : this.state.phoneNumber;
+    const newPhoneNumber = this.state.newPhoneNumber || convertToOurFormat(this.state.phoneNumber);
 
     if (!validPhoneNumberLength(newPhoneNumber)) {
       this.setState({ invalidNumber: true });
