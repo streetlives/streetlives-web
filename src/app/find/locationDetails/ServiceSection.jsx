@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
+import orderBy from 'lodash.orderby';
 import PhoneLink from '../../../components/phoneLink';
 import ServiceOfferings from './ServiceOfferings';
 import ServiceRestrictions from './ServiceRestrictions';
@@ -35,7 +36,7 @@ const renderSchedule = (schedule) => {
     return `${dayNumberToName(start)} to ${dayNumberToName(end)}`;
   };
 
-  const orderedSchedule = schedule.sort(({ weekday: day1 }, { weekday: day2 }) => day1 - day2);
+  const orderedSchedule = orderBy(schedule, ['weekday', 'opens_at']);
 
   const daysGroupedByHours = orderedSchedule.reduce((grouped, day) => {
     const hoursString = formatHours(day.opens_at, day.closes_at);
