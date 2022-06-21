@@ -94,6 +94,7 @@ class ServiceOpeningHours extends Component {
       active: getActive(props.value),
       weekdaysOpen: {},
       hours: props.value.filter(({ closed }) => !closed),
+      latestHoursEntered: null,
     };
   }
 
@@ -138,15 +139,18 @@ class ServiceOpeningHours extends Component {
 
   onChange = (field, hour, newValue) => {
     const idx = this.state.hours.indexOf(hour);
+    const newHoursAtIdx = {
+      ...this.state.hours[idx],
+      [field]: newValue,
+    };
+
     this.setState({
       hours: [
         ...this.state.hours.slice(0, idx),
-        {
-          ...this.state.hours[idx],
-          [field]: newValue,
-        },
+        newHoursAtIdx,
         ...this.state.hours.slice(idx + 1),
       ],
+      latestHoursEntered: newHoursAtIdx,
     });
   }
 
@@ -158,14 +162,15 @@ class ServiceOpeningHours extends Component {
   );
 
   addHour = (day) => {
+    const defaultHours = this.state.latestHoursEntered || {
+      opensAt: null,
+      closesAt: null,
+    };
+
     this.setState({
       hours: [
         ...this.state.hours,
-        {
-          weekday: day,
-          opensAt: null,
-          closesAt: null,
-        },
+        { ...defaultHours, weekday: day },
       ],
     });
   }
