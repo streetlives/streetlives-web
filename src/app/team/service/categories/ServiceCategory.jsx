@@ -47,7 +47,7 @@ class ServiceCategory extends Component {
 
   isSubcategoryActive = (subcategory) => {
     const { currentServices, selected } = this.props;
-    return currentServices.subcategories[subcategory.id].hasExistingService
+    return currentServices.subcategories[subcategory.id].existingService
       || selected[subcategory.id];
   };
 
@@ -79,14 +79,13 @@ class ServiceCategory extends Component {
       key={subcategory.id}
       onClick={() => this.props.onSelectSubcategory(subcategory)}
       active={this.isSubcategoryActive(subcategory)}
-      disabled={subcategory.hasExistingService}
     >
       {subcategory.name}
     </Selector.Option>
   );
 
   renderExistingOtherService = service => (
-    <Selector.Option key={service.name} active disabled>
+    <Selector.Option key={service.name} active onClick={() => this.props.onDeleteService(service)}>
       {service.name}
     </Selector.Option>
   );

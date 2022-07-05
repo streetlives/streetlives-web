@@ -8,6 +8,7 @@ export const GET_COMMENTS_RESPONSE = 'GET_COMMENTS_RESPONSE';
 export const GET_TAXONOMY_RESPONSE = 'GET_TAXONOMY_RESPONSE';
 export const OPTIMISTIC_UPDATE_LOCATION = 'OPTIMISTIC_UPDATE_LOCATION';
 export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
+export const OPTIMISTIC_DELETE_SERVICE = 'OPTIMISTIC_DELETE_SERVICE';
 export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
 export const UPDATE_LOCATION_ERROR = 'UPDATE_LOCATION_ERROR';
 export const UPDATE_SERVICE_ERROR = 'UPDATE_SERVICE_ERROR';
@@ -294,6 +295,22 @@ export const updateService = ({
       payload: { id: locationId, error: e },
     });
   });
+};
+
+export const deleteService = (id, { locationId }) => (dispatch) => {
+  dispatch({
+    type: OPTIMISTIC_DELETE_SERVICE,
+    payload: { serviceId: id, locationId },
+  });
+
+  return api.deleteService({ id })
+    .catch((e) => {
+      console.error('Error deleting service', e);
+      dispatch({
+        type: UPDATE_LOCATION_ERROR,
+        payload: { id: locationId, error: e },
+      });
+    });
 };
 
 export const updateLanguages = ({
