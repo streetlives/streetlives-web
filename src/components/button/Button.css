@@ -43,9 +43,6 @@
 
 .Button-disabled {
   background-color: #5041ff;
-  border: 0 !important;
-  letter-spacing: 0.05rem;
-  font-size: 0.75rem
 }
 
 .Button-basic {

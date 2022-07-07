@@ -8,6 +8,7 @@ import {
   CREATE_PHONE_SUCCESS,
   OPTIMISTIC_UPDATE_ORGANIZATION,
   OPTIMISTIC_UPDATE_SERVICE,
+  OPTIMISTIC_DELETE_SERVICE,
   OPTIMISTIC_DELETE_PHONE,
 } from '../actions';
 import { DAYS } from '../Constants';
@@ -203,6 +204,17 @@ const locationsReducer = (state = {}, action) => {
         };
       }
       break;
+    case OPTIMISTIC_DELETE_SERVICE: {
+      const { locationId, serviceId } = action.payload;
+      const location = state[locationId];
+
+      const newServices = location.Services.filter(s => s.id !== serviceId);
+      return {
+        ...state,
+        [`last/${locationId}`]: location,
+        [locationId]: { ...location, Services: newServices },
+      };
+    }
     case OPTIMISTIC_UPDATE_ORGANIZATION:
       if (action.payload) {
         const {

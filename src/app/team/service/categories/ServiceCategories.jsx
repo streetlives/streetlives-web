@@ -13,14 +13,13 @@ import Accordion from '../../../../components/accordion';
 import Button from '../../../../components/button';
 import NavBar from '../../../../components/navBar';
 import LoadingLabel from '../../../../components/form/LoadingLabel';
+import ConfirmationModal from '../../../../components/confirmationModal';
 import ServiceCategory from './ServiceCategory';
 
 const LoadingView = ({ locationId }) => (
   <div className="d-flex flex-column">
     <NavBar backButtonTarget={`/team/location/${locationId}`} title="Services info" />
-    <p>
-      <LoadingLabel />
-    </p>
+    <LoadingLabel />
   </div>
 );
 
@@ -29,6 +28,8 @@ class ServiceCategories extends Component {
     selected: {},
     newOtherServices: {},
     isLoading: false,
+    isConfirmingDeletion: false,
+    serviceBeingDeleted: null,
   };
 
   componentDidMount() {
@@ -43,8 +44,25 @@ class ServiceCategories extends Component {
 
   onSelectSubcategory = (subcategory) => {
     const { selected } = this.state;
-    const currentSelection = selected[subcategory.id];
-    this.setState({ selected: { ...selected, [subcategory.id]: !currentSelection } });
+    if (subcategory.existingService == null) {
+      const currentSelection = selected[subcategory.id];
+      this.setState({ selected: { ...selected, [subcategory.id]: !currentSelection } });
+    } else {
+      this.onDeleteService(subcategory.existingService);
+    }
+  };
+
+  onDeleteService = (service) => {
+    this.setState({ isConfirmingDeletion: true, serviceBeingDeleted: service });
+  };
+
+  onCancelDelete = () => {
+    this.setState({ isConfirmingDeletion: false, serviceBeingDeleted: null });
+  };
+
+  onConfirmDelete = () => {
+    this.props.deleteService(this.state.serviceBeingDeleted.id);
+    this.setState({ isConfirmingDeletion: false, serviceBeingDeleted: null });
   };
 
   onAddOtherService = (name, categoryId) => this.setState(({ newOtherServices }) => ({
@@ -118,7 +136,12 @@ class ServiceCategories extends Component {
   };
 
   render() {
-    const { isLoading, selected } = this.state;
+    const {
+      isLoading,
+      selected,
+      isConfirmingDeletion,
+      serviceBeingDeleted,
+    } = this.state;
     const { locationData, servicesByCategory, locationError } = this.props;
 
     if (locationError) {
@@ -131,6 +154,18 @@ class ServiceCategories extends Component {
 
     return (
       <div className="text-left">
+        {isConfirmingDeletion && (
+          <ConfirmationModal
+            headerText={`Are you sure you want to permanently delete ${
+              serviceBeingDeleted.name}? This action cannot be undone.`}
+            confirmText="I'M SURE"
+            cancelText="NO, LET’S KEEP IT"
+            onCancel={this.onCancelDelete}
+            onConfirm={this.onConfirmDelete}
+            isHighRisk
+          />
+        )}
+
         <NavBar
           backButtonTarget={`/team/location/${this.props.match.params.locationId}`}
           title="Services info"
@@ -149,6 +184,7 @@ class ServiceCategories extends Component {
               onSelectSubcategory={this.onSelectSubcategory}
               onSelectOtherService={this.onSelectOtherService}
               onAddOtherService={this.onAddOtherService}
+              onDeleteService={this.onDeleteService}
             />
           ))}
         </Accordion>
@@ -167,7 +203,7 @@ const getServicesByCategory = (state, props) => {
   let allCategoriesWithServices = {};
   services.forEach((service) => {
     service.Taxonomies.forEach((category) => {
-      allCategoriesWithServices = { ...allCategoriesWithServices, [category.id]: true };
+      allCategoriesWithServices = { ...allCategoriesWithServices, [category.id]: service };
     });
   });
 
@@ -177,7 +213,7 @@ const getServicesByCategory = (state, props) => {
     (category.children || []).forEach((subcategory) => {
       subcategories[subcategory.id] = {
         ...subcategory,
-        hasExistingService: allCategoriesWithServices[subcategory.id],
+        existingService: allCategoriesWithServices[subcategory.id],
       };
     });
 
@@ -205,6 +241,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: bindActionCreators(actions.getLocation, dispatch),
   getTaxonomy: bindActionCreators(actions.getTaxonomy, dispatch),
+  deleteService: id =>
+    dispatch(actions.deleteService(id, { locationId: ownProps.match.params.locationId })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceCategories);

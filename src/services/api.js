@@ -195,6 +195,10 @@ export const updateService = updateResource.bind(this, {
   pathPrefix: 'services',
   method: 'patch',
 });
+export const deleteService = updateResource.bind(this, {
+  pathPrefix: 'services',
+  method: 'delete',
+});
 
 export const getComments = ({ locationId }) =>
   axios
