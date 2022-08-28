@@ -30,6 +30,7 @@ import {
   faPlus,
   faSpinner,
   faTrash,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faTwitterSquare,
@@ -71,4 +72,5 @@ library.add(
   faTwitterSquare,
   faFacebookSquare,
   faLinkedin,
+  faBars,
 );

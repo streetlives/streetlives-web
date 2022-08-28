@@ -91,3 +91,30 @@
 	min-height: 50px;
 	box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
 }
+
+.sideMenu {
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	height: 100vh;
+	width: 75vw;
+	padding-left: 14px;
+	padding-right: 14px;
+	text-align: left;
+}
+.sideMenu .hamburger {
+	display: block;
+	margin-left: auto;
+	margin-top: 28px;
+	margin-bottom: 24px;
+	color: var(--primaryColor);
+}
+.sideMenu .menuLink {
+	display: block;
+	margin-bottom: 40px;
+	color: inherit;
+}
+.sideMenu .feedbackButton {
+	margin-top: auto;
+	margin-bottom: 14px;
+}

@@ -36,6 +36,7 @@ export default class MapPage extends Component {
     isFilterModalOpen: false,
     filters: initialFiltersState,
     hasResults: false,
+    isMenuOpen: false,
   };
 
   componentDidMount() {
@@ -221,6 +222,10 @@ export default class MapPage extends Component {
     this.setState({ isFilterModalOpen: true });
   }
 
+  toggleMenu = () => {
+    this.setState(({ isMenuOpen }) => ({ isMenuOpen: !isMenuOpen }));
+  };
+
   renderFiltersButton = () => {
     const { category } = this.props;
 
@@ -284,12 +289,44 @@ export default class MapPage extends Component {
     </div>
   );
 
+  renderSideMenu = () => (
+    <div>
+      <div className="sideMenu modal fade show">
+        <Icon name="bars" size="lg" className="hamburger" onClick={this.toggleMenu} />
+        <a className="menuLink" href={this.props.homeUrl}>
+          Home
+        </a>
+        <a className="menuLink" href={this.props.tosUrl} target="_blank" rel="noopener noreferrer">
+          Terms of service
+        </a>
+        <a
+          className="menuLink"
+          href={this.props.privacyPolicyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Privacy policy
+        </a>
+        <Button
+          primary
+          fluid
+          className="feedbackButton"
+          onClick={this.props.leaveFeedback}
+        >
+          Leave your feedback!
+        </Button>
+      </div>
+      <div className="modal-backdrop show" onClick={this.toggleMenu} role="none" />
+    </div>
+  );
+
   render() {
     const isFiltering = !!this.getCurrentFilterString();
     const { category, goToLocationDetails, getLocationUrl } = this.props;
 
     return (
       <div className="Map">
+        {this.state.isMenuOpen && this.renderSideMenu()}
         {this.state.isFilterModalOpen && category && (
           <FiltersModal
             category={category}
@@ -301,6 +338,7 @@ export default class MapPage extends Component {
           suggestions={this.props.categories}
           onSubmitString={this.setSearchString}
           onSubmitSuggestion={this.props.goToCategory}
+          onHamburgerClicked={this.toggleMenu}
         >
           {({ renderSearchBar, renderSearchOverlay, renderSpeechElements }) => (
             <div

@@ -16,17 +16,20 @@
 	border-right: 2px solid rgba(20,0,255,0.5);
 }
 
-.backSearchChevron{
+.backSearchChevron {
 	display: flex;
 	align-self: center;
 }
 
-.input-group{
+.input-group {
 	border: 2px solid var(--primaryColor);
 	border-radius: 2px;
+	background-color: #ffffff;
+	flex: 1;
+	align-items: center;
 }
 
-.searchSubmit{
+.searchSubmit {
 	min-width: 50px;
 	min-height: 50px;
 	display: flex;
@@ -35,4 +38,10 @@
 	background-color: var(--primaryColor);
 	justify-content: center;
 	border: none !important;
+}
+
+.searchHamburger {
+	margin-left: 12px;
+	margin-right: 12px;
+	color: var(--primaryColor);
 }

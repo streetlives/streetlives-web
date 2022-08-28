@@ -167,14 +167,19 @@ class Search extends Component {
       }}
     >
       <form className="input-group" onSubmit={this.handleSubmit} >
-        {this.state.isEnteringSearchString && (
+        {this.state.isEnteringSearchString ? (
           <Button
             className="backSearch"
             onClick={this.cancelSearchMode}
           >
             <img className="backSearchChevron" src="/icons/back.svg" alt="back" />
           </Button>
-        )}
+        ) : <Icon
+          name="bars"
+          size="lg"
+          className="searchHamburger"
+          onClick={this.props.onHamburgerClicked}
+        />}
         <input
           onChange={this.updateSearchString}
           onFocus={this.enterSearchMode}

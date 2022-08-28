@@ -6,6 +6,7 @@ import { getTaxonomy } from '../../../services/api';
 import MapPage from './MapPage';
 import { selectableCategoryNames } from '../categories';
 import analytics from '../../../services/analytics';
+import config from '../../../config';
 
 class MapPageContainer extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -70,6 +71,10 @@ class MapPageContainer extends Component {
       .catch(e => console.error('Error fetching taxonomy', e));
   };
 
+  leaveFeedback = () => {
+    window.location.href = `mailto:${config.feedbackEmail}`;
+  };
+
   render() {
     const { categoryName } = this.props.match.params;
     const { categories, eligibilityParams } = this.state;
@@ -87,6 +92,10 @@ class MapPageContainer extends Component {
         startQuestionFlow={this.startQuestionFlow}
         goToLocationDetails={this.goToLocationDetails}
         getLocationUrl={this.getLocationUrl}
+        leaveFeedback={this.leaveFeedback}
+        tosUrl={config.termsOfUseUrl}
+        privacyPolicyUrl={config.privacyUrl}
+        homeUrl="/"
       />
     );
   }
