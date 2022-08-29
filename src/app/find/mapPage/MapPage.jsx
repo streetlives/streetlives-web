@@ -292,7 +292,7 @@ export default class MapPage extends Component {
   renderSideMenu = () => (
     <div>
       <div className="sideMenu modal fade show">
-        <Icon name="bars" size="lg" className="hamburger" onClick={this.toggleMenu} />
+        <Icon name="arrow-left" size="lg" className="closeButton" onClick={this.toggleMenu} />
         <a className="menuLink" href={this.props.homeUrl}>
           Home
         </a>
