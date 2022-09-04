@@ -188,7 +188,7 @@ const renderLocation = (location, searchCategory) => {
               <div className="lastUpdateLine coronavirusInfo">
                 <Icon custom name="coronavirus" className="lastUpdateIcon" alt="" />
                 <div className="updateText">
-                  Information during coronavirus pandemic was
+                  Information was
                   <span className="updateTime"> updated {lastUpdateString}.</span>
                 </div>
               </div>

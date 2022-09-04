@@ -4,6 +4,7 @@ import {
   faChevronUp,
   faChevronLeft,
   faChevronRight,
+  faArrowLeft,
   faMicrophone,
   faSearch,
   faTimes,
@@ -30,6 +31,7 @@ import {
   faPlus,
   faSpinner,
   faTrash,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faTwitterSquare,
@@ -42,6 +44,7 @@ library.add(
   faChevronUp,
   faChevronLeft,
   faChevronRight,
+  faArrowLeft,
   faMicrophone,
   faSearch,
   faTimes,
@@ -71,4 +74,5 @@ library.add(
   faTwitterSquare,
   faFacebookSquare,
   faLinkedin,
+  faBars,
 );

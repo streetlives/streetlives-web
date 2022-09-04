@@ -3,11 +3,9 @@ import Icon from '../../components/icon';
 import GetStartedButton from './GetStartedButton';
 import Testimonial from './Testimonial';
 import PartnerPicture from './PartnerPicture';
-import CovidInfoModal from './CovidInfoModal';
 import { DESKTOP_BREAKPOINT } from '../../Constants';
+import config from '../../config';
 import './LandingPage.css';
-
-const feedbackEmail = 'gogetta@streetlives.nyc';
 
 class LandingPage extends Component {
   scrollToContent = () => {
@@ -22,8 +20,6 @@ class LandingPage extends Component {
   topRef = React.createRef();
 
   render() {
-    const isModalOpen = this.props.location.pathname.endsWith('covidnotif');
-
     return (
       <div className="LandingPage">
         <div className="Intro Section">
@@ -31,7 +27,6 @@ class LandingPage extends Component {
             <img src="/img/gogetta_logo.svg" alt="" />
             <div>GoGetta</div>
           </div>
-          {isModalOpen ? <CovidInfoModal /> : ''}
           <div className="covidInfo">COVID-19 response version</div>
           <div className="IntroBody">
             <div className="IntroTop">
@@ -52,7 +47,7 @@ class LandingPage extends Component {
               </div>
             </div>
             <div className="IntroBottom">
-              <GetStartedButton url="/covidnotif" primary fluid />
+              <GetStartedButton url="/find" primary fluid />
             </div>
           </div>
         </div>
@@ -142,7 +137,7 @@ class LandingPage extends Component {
                 See the service details, go get what you need. We don’t keep
                 your personal data, so your privacy is protected.
               </p>
-              <GetStartedButton url="/covidnotif" primary fluid />
+              <GetStartedButton url="/find" primary fluid />
             </div>
 
             <picture>
@@ -192,7 +187,7 @@ class LandingPage extends Component {
           </div>
           <div className="TestimonialBtn">
             <GetStartedButton
-              url="/covidnotif"
+              url="/find"
               fluid
               className="btnWhite"
             />
@@ -361,7 +356,7 @@ class LandingPage extends Component {
             <h2>We’re all about feedback</h2>
             <p>Tell us what you think at:</p>
             <div className="FeedbackEmail">
-              <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>
+              <a href={`mailto:${config.feedbackEmail}`}>{config.feedbackEmail}</a>
             </div>
             <div className="arrowUp" onClick={this.scrollToContentTop}>
               <Icon name="chevron-up" size="2x" />
