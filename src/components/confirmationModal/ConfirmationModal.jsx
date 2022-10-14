@@ -16,7 +16,8 @@ function ConfirmationModal({
   isHighRisk,
 }) {
   const [inputText, setInputText] = useState('');
-  const canConfirm = () => !isHighRisk || inputText === highRiskConfirmationText;
+  const canConfirm = () => !isHighRisk ||
+    inputText.toLowerCase() === highRiskConfirmationText.toLowerCase();
 
   return (
     <Modal>
