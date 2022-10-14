@@ -71,8 +71,8 @@ class ServicesRecap extends Component {
   }
 
   getServiceCategoriesUrl = () => {
-    const pathnameParts = this.props.location.pathname.split('/');
-    return pathnameParts.slice(0, pathnameParts.length - 1).join('/');
+    const pathnameParts = this.props.location.pathname.split('/services');
+    return `${pathnameParts.slice(0, pathnameParts.length - 1).join('/')}/services`;
   }
 
   render() {
@@ -117,6 +117,7 @@ class ServicesRecap extends Component {
                       key={service.id}
                       service={service}
                       originalService={originalService}
+                      url={`${this.getServiceCategoriesUrl()}/${service.id}`}
                     />
                   );
                 })}

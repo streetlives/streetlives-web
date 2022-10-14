@@ -24,9 +24,9 @@ function getProgress(service, originalService) {
   return Math.round((fieldsWithUpdatedMetadata / totalNumberOfFields) * 100);
 }
 
-function ListItem({ service, originalService }) {
+function ListItem({ service, originalService, url }) {
   return (
-    <Link to={service.id} className="ListItem d-block py-4 border-top border-bottom">
+    <Link to={url} className="ListItem d-block py-4 border-top border-bottom">
       <div className="container d-flex justify-content-between align-items-center">
         <div>
           <h5 className="font-weight-normal m-0">{service.name}</h5>
