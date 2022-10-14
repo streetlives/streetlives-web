@@ -42,6 +42,15 @@ const feedbackLocations = [
   { name: 'holy-vol', id: '7db4cde4-add1-40ad-9209-9a0e8c57078f' },
 ];
 
+const routeFixingDoubleSlashes = () => (
+  <Route
+    exact
+    strict
+    path="(.*//+.*)"
+    render={({ location }) => <Redirect to={location.pathname.replace(/\/\/+/g, '/')} />}
+  />
+);
+
 function App() {
   return (
     <Provider store={store}>
@@ -52,6 +61,8 @@ function App() {
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingLabel>Loading</LoadingLabel>}>
             <Switch>
+              {routeFixingDoubleSlashes()}
+
               <Route exact path="/" component={withTracker(LandingPage)} />
               <Route exact path="/covidnotif" component={withTracker(LandingPage)} />
               <Route path="/team" component={withTracker(TeamRouter)} />
