@@ -289,9 +289,15 @@ class LocationDetails extends Component {
           onClick={goBack}
         />
         <Header size="medium" className="locationTitle">
-          {location ? location.Organization.name : 'Loading...'}
-          {location && location.name && location.name.trim().length > 0 && (
-            <div className="locationSubTitle">({location.name.trim()})</div>
+          {location ? (
+            <span>
+              {location.Organization.name}
+              {location.name && location.name.trim().length > 0 && (
+                <div className="locationSubTitle">({location.name.trim()})</div>
+              )}
+            </span>
+          ) : (
+            <span>Loading...</span>
           )}
         </Header>
       </div>
