@@ -28,7 +28,10 @@ $ git clone git@github.com:streetlives/streetlives-web.git
 
 ```bash
 $ cd streetlives-web
-$ npm install
+$ nvm install v16.20.2
+$ nvm use v16.20.2
+$ npm install -g yarn@1.22.19
+$ yarn
 ```
 
 ## Getting Started
