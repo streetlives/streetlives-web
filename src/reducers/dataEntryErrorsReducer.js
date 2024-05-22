@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/browser';
+
 import {
   UPDATE_LOCATION_ERROR,
   UPDATE_SERVICE_ERROR,
@@ -11,7 +13,16 @@ const locationErrorsReducer = (state = [], action) => {
       if (!action.payload || !action.payload.error) {
         return state;
       }
-
+      const extra = {
+        response: {
+          payload: action.payload.error.response.data,
+          ...action.payload.error.response,
+        },
+      };
+      Sentry.captureException(action.payload.error, {
+        contexts: extra,
+        extra,
+      });
       return [action.payload.error, ...state];
 
     case DISMISS_DATA_ENTRY_ERRORS:

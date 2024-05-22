@@ -14,4 +14,5 @@ export default {
   adminGroupName: process.env.REACT_APP_ADMIN_GROUP_NAME || 'StreetlivesAdmins',
   disableAuth: parseBoolean(process.env.REACT_APP_DISABLE_AUTH),
   mixpanelToken: process.env.REACT_APP_MIXPANEL_TOKEN || '8dd3b51f7a1de357a05e954495ae616f',
+  sentryDsn: 'https://f7a71e0f6282e1a79ba6f604080ec88e@o4507232810631168.ingest.us.sentry.io/4507235352313856',
 };
