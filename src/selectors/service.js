@@ -26,8 +26,22 @@ export const getServiceTaxonomy = (state, props) => {
   return taxonomy && (taxonomy.parent_name || taxonomy.name);
 };
 
-export const getServiceWhoDoesItServe = (state, props) =>
-  getService(state, props).who_does_it_serve;
+export const getServiceWhoDoesItServe = (state, props) => {
+
+  const eligibilities = getService(state, props).Eligibilities;
+
+  if (eligibilities) {
+    console.log(eligibilities)
+
+    const whoDoesItServe = eligibilities.find(item => item.EligibilityParameter.name === 'age')
+  
+    if (whoDoesItServe) return whoDoesItServe.eligible_values
+
+  }
+  
+  return getService(state, props).who_does_it_serve;
+}
+  
 
 export const getServiceLanguages = (state, props) => getService(state, props).Languages || [];
 

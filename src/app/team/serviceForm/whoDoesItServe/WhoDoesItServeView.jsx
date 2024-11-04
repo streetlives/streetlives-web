@@ -26,8 +26,8 @@ function FormView({ value, onConfirm, onEdit }) {
 FormView.propTypes = {
   value: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
-    minAge: PropTypes.number.isRequired,
-    maxAge: PropTypes.number.isRequired,
+    // minAge: PropTypes.number.isRequired,
+    // maxAge: PropTypes.number.isRequired,
   })),
   onConfirm: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,

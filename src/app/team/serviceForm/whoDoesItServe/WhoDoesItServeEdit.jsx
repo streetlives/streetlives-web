@@ -19,7 +19,9 @@ class WhoDoesItServe extends Component {
 
     // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
     const serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
-    this.state = { serviceGroups };
+    this.state = { 
+      serviceGroups,
+    };
 
     this.onCheckInputClick = this.onCheckInputClick.bind(this);
   }
@@ -153,6 +155,8 @@ class WhoDoesItServe extends Component {
 
   render() {
     const { state: { serviceGroups } } = this;
+    console.log(this.state);
+    console.log(this.props)
     return (
       <div className="w-100 WhoDoesItServe">
         <Header className="mb-3">Which groups does this service serve?</Header>
