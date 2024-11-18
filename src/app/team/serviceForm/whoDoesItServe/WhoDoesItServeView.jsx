@@ -16,7 +16,7 @@ function FormView({ value, onConfirm, onEdit }) {
         {
           value.length ?
             value.map((group, i) => (
-              <li key={group.name}>{ formatLabel(group.name, group.minAge, group.maxAge) }</li>
+              <li key={group.name}>{ formatLabel(group.name, group.age_min, group.age_max) }</li>
             )) :
             'None'
         }

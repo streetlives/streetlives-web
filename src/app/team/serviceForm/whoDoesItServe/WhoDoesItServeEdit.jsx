@@ -59,6 +59,9 @@ class WhoDoesItServe extends Component {
   }
 
   getForm(groupName, group, serviceGroups) {
+
+    console.log(this.state);
+
     return (
       <form
         key={`editForm-${groupName}`}
@@ -99,9 +102,9 @@ class WhoDoesItServe extends Component {
               <Input
                 disabled={group.all_ages}
                 type="number"
-                defaultValue={group.minAge}
+                defaultValue={group.age_min}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'minAge', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_min', e.target.value);
                 }}
               />
             </div>
@@ -110,9 +113,9 @@ class WhoDoesItServe extends Component {
               <Input
                 disabled={group.all_ages}
                 type="number"
-                defaultValue={group.maxAge}
+                defaultValue={group.age_max}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'maxAge', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_max', e.target.value);
                 }}
               />
             </div>
@@ -173,8 +176,8 @@ class WhoDoesItServe extends Component {
           {
             SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
               const group = this.state.serviceGroups.find(_group => _group.name === groupName);
-              const minAge = (group && group.minAge) || defaultMinAge;
-              const maxAge = (group && group.maxAge) || defaultMaxAge;
+              const age_min = (group && group.age_min) || defaultMinAge;
+              const age_max = (group && group.age_max) || defaultMaxAge;
               const isActive = !!group;
               const showForm = isActive && i !== 0;
               return [
@@ -185,7 +188,7 @@ class WhoDoesItServe extends Component {
                   hide={false}
                   onClick={() => this.onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge)}
                 >
-                  {formatLabel(groupName, minAge, maxAge)}
+                  {formatLabel(groupName, age_min, age_max)}
                 </Selector.Option>,
               ].concat(showForm ?
                 this.getForm(groupName, group, serviceGroups) :
