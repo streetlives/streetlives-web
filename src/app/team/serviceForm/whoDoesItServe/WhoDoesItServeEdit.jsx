@@ -34,7 +34,10 @@ class WhoDoesItServe extends Component {
       serviceGroups.splice(groupIndex, 1);
     } else {
       serviceGroups.push({
-        allAges: true, minAge: defaultMinAge, maxAge: defaultMaxAge, name: groupName,
+        all_ages: true, 
+        age_min: defaultMinAge, 
+        age_max: defaultMaxAge, 
+        name: groupName,
       });
     }
     this.setState({ serviceGroups });
@@ -44,7 +47,7 @@ class WhoDoesItServe extends Component {
     e.stopPropagation();
     e.preventDefault();
 
-    this.updateServiceGroups(group, serviceGroups, 'allAges', value);
+    this.updateServiceGroups(group, serviceGroups, 'all_ages', value);
   }
 
   getCustomGroups() {
@@ -71,7 +74,7 @@ class WhoDoesItServe extends Component {
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={group.allAges}
+              checked={group.all_ages}
             />
             <span>All ages in this group</span>
           </li>
@@ -84,7 +87,7 @@ class WhoDoesItServe extends Component {
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={!group.allAges}
+              checked={!group.all_ages}
             />
             <span>Specific ages in this group</span>
           </li>
@@ -94,7 +97,7 @@ class WhoDoesItServe extends Component {
             <div> From: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={group.all_ages}
                 type="number"
                 defaultValue={group.minAge}
                 onChange={(e) => {
@@ -105,7 +108,7 @@ class WhoDoesItServe extends Component {
             <div> To: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={group.all_ages}
                 type="number"
                 defaultValue={group.maxAge}
                 onChange={(e) => {
@@ -141,17 +144,23 @@ class WhoDoesItServe extends Component {
 
   addCustomGroup() {
     const { state: { serviceGroups } } = this;
-    serviceGroups.push({ allAges: true, name: '' });
+    serviceGroups.push({ all_ages: true, name: '' });
     const customGroups = this.getCustomGroups();
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
 
-  updateValue = e => this.props.updateValue(
-    this.state.serviceGroups,
-    this.props.id,
-    this.props.metaDataSection,
-    this.props.fieldName,
-  );
+  updateValue = e => {
+
+    console.log('update value');
+    console.log(this.state.serviceGroups);
+
+    return this.props.updateValue(
+      this.state.serviceGroups,
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName,
+    );
+  }
 
   render() {
     const { state: { serviceGroups } } = this;

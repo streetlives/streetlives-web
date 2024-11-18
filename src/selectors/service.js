@@ -29,9 +29,14 @@ export const getServiceTaxonomy = (state, props) => {
 export const getServiceWhoDoesItServe = (state, props) => {
 
   const eligibilities = getService(state, props).Eligibilities;
+  const currentValues = getService(state, props).who_does_it_serve;
+
+  if (currentValues) return currentValues;
+
 
   if (eligibilities) {
-    console.log(eligibilities)
+    
+    // console.log(eligibilities)
 
     const whoDoesItServe = eligibilities.find(item => item.EligibilityParameter.name === 'age')
   
@@ -39,7 +44,6 @@ export const getServiceWhoDoesItServe = (state, props) => {
 
   }
   
-  return getService(state, props).who_does_it_serve;
 }
   
 

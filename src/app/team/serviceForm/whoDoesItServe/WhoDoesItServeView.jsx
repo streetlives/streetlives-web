@@ -4,6 +4,9 @@ import ConfirmationOptions from '../../../../components/form/ConfirmationOptions
 import { formatLabel } from './util';
 
 function FormView({ value, onConfirm, onEdit }) {
+
+  // console.log(value)
+
   return (
     <div className="w-100">
       <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
