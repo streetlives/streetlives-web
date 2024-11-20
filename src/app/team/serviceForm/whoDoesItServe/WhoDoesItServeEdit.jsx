@@ -104,7 +104,7 @@ class WhoDoesItServe extends Component {
                 type="number"
                 defaultValue={group.age_min}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'age_min', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_min', parseInt(e.target.value));
                 }}
               />
             </div>
@@ -115,7 +115,7 @@ class WhoDoesItServe extends Component {
                 type="number"
                 defaultValue={group.age_max}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'age_max', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_max', parseInt(e.target.value));
                 }}
               />
             </div>
