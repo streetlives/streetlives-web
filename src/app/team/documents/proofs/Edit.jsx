@@ -6,7 +6,7 @@ import Selector from '../../../../components/selector';
 import Input from '../../../../components/input';
 
 const DEFAULT_PROOFS = [
-  'None',
+  'No documents required',
   'Photo ID',
   'Proof of address',
   'Proof of income',
@@ -46,8 +46,12 @@ class ProofsRequiredEdit extends Component {
   onProofClick(name) {
     let { proofs } = this.state;
 
-    if (name === 'None') {
-      proofs = ['None'];
+    if (name === 'No documents required') {
+      if (proofs.includes('No documents required')) {
+        proofs = [];
+      } else {
+        proofs = ['No documents required'];
+      }
     } else {
       const proofIndex = proofs.findIndex(el => el === name);
 
@@ -57,8 +61,8 @@ class ProofsRequiredEdit extends Component {
         proofs.push(name);
       }
 
-      if (proofs.includes('None')) {
-        proofs = proofs.filter(p => p !== 'None');
+      if (proofs.includes('No documents required')) {
+        proofs = proofs.filter(p => p !== 'No documents required');
       }
     }
 
