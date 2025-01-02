@@ -19,7 +19,7 @@ class WhoDoesItServe extends Component {
 
     // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
     const serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
-    this.state = { 
+    this.state = {
       serviceGroups,
     };
 
@@ -34,9 +34,9 @@ class WhoDoesItServe extends Component {
       serviceGroups.splice(groupIndex, 1);
     } else {
       serviceGroups.push({
-        all_ages: true, 
-        age_min: defaultMinAge, 
-        age_max: defaultMaxAge, 
+        all_ages: true,
+        age_min: defaultMinAge,
+        age_max: defaultMaxAge,
         name: groupName,
       });
     }
@@ -60,7 +60,6 @@ class WhoDoesItServe extends Component {
 
   getForm(groupName, group, serviceGroups) {
 
-    console.log(this.state);
 
     return (
       <form
@@ -152,10 +151,7 @@ class WhoDoesItServe extends Component {
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
 
-  updateValue = e => {
-
-    console.log('update value');
-    console.log(this.state.serviceGroups);
+  updateValue = (e) => {
 
     return this.props.updateValue(
       this.state.serviceGroups,
@@ -167,8 +163,6 @@ class WhoDoesItServe extends Component {
 
   render() {
     const { state: { serviceGroups } } = this;
-    console.log(this.state);
-    console.log(this.props)
     return (
       <div className="w-100 WhoDoesItServe">
         <Header className="mb-3">Which groups does this service serve?</Header>
