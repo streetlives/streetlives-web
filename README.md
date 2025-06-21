@@ -24,7 +24,16 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 $ git clone git@github.com:streetlives/streetlives-web.git
 ```
 
-2. Install the dependencies:
+2. Install [nvm]([url](https://github.com/nvm-sh/nvm))
+
+3. Install node version 12
+
+```bash
+nvm install 12
+nvm use 12
+```
+
+5. Install the dependencies:
 
 ```bash
 $ cd streetlives-web
