@@ -19,7 +19,9 @@ class WhoDoesItServe extends Component {
 
     // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
     const serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
-    this.state = { serviceGroups };
+    this.state = {
+      serviceGroups,
+    };
 
     this.onCheckInputClick = this.onCheckInputClick.bind(this);
   }
@@ -32,7 +34,10 @@ class WhoDoesItServe extends Component {
       serviceGroups.splice(groupIndex, 1);
     } else {
       serviceGroups.push({
-        allAges: true, minAge: defaultMinAge, maxAge: defaultMaxAge, name: groupName,
+        all_ages: true,
+        age_min: defaultMinAge,
+        age_max: defaultMaxAge,
+        name: groupName,
       });
     }
     this.setState({ serviceGroups });
@@ -42,7 +47,7 @@ class WhoDoesItServe extends Component {
     e.stopPropagation();
     e.preventDefault();
 
-    this.updateServiceGroups(group, serviceGroups, 'allAges', value);
+    this.updateServiceGroups(group, serviceGroups, 'all_ages', value);
   }
 
   getCustomGroups() {
@@ -54,6 +59,8 @@ class WhoDoesItServe extends Component {
   }
 
   getForm(groupName, group, serviceGroups) {
+
+
     return (
       <form
         key={`editForm-${groupName}`}
@@ -69,7 +76,7 @@ class WhoDoesItServe extends Component {
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={group.allAges}
+              checked={group.all_ages}
             />
             <span>All ages in this group</span>
           </li>
@@ -82,7 +89,7 @@ class WhoDoesItServe extends Component {
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={!group.allAges}
+              checked={!group.all_ages}
             />
             <span>Specific ages in this group</span>
           </li>
@@ -92,22 +99,22 @@ class WhoDoesItServe extends Component {
             <div> From: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={group.all_ages}
                 type="number"
-                defaultValue={group.minAge}
+                defaultValue={group.age_min}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'minAge', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_min', parseInt(e.target.value));
                 }}
               />
             </div>
             <div> To: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={group.all_ages}
                 type="number"
-                defaultValue={group.maxAge}
+                defaultValue={group.age_max}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'maxAge', e.target.value);
+                  this.updateServiceGroups(group, serviceGroups, 'age_max', parseInt(e.target.value));
                 }}
               />
             </div>
@@ -139,17 +146,20 @@ class WhoDoesItServe extends Component {
 
   addCustomGroup() {
     const { state: { serviceGroups } } = this;
-    serviceGroups.push({ allAges: true, name: '' });
+    serviceGroups.push({ all_ages: true, name: '' });
     const customGroups = this.getCustomGroups();
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
 
-  updateValue = e => this.props.updateValue(
-    this.state.serviceGroups,
-    this.props.id,
-    this.props.metaDataSection,
-    this.props.fieldName,
-  );
+  updateValue = (e) => {
+
+    return this.props.updateValue(
+      this.state.serviceGroups,
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName,
+    );
+  }
 
   render() {
     const { state: { serviceGroups } } = this;
@@ -160,8 +170,8 @@ class WhoDoesItServe extends Component {
           {
             SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
               const group = this.state.serviceGroups.find(_group => _group.name === groupName);
-              const minAge = (group && group.minAge) || defaultMinAge;
-              const maxAge = (group && group.maxAge) || defaultMaxAge;
+              const age_min = (group && group.age_min) || defaultMinAge;
+              const age_max = (group && group.age_max) || defaultMaxAge;
               const isActive = !!group;
               const showForm = isActive && i !== 0;
               return [
@@ -172,7 +182,7 @@ class WhoDoesItServe extends Component {
                   hide={false}
                   onClick={() => this.onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge)}
                 >
-                  {formatLabel(groupName, minAge, maxAge)}
+                  {formatLabel(groupName, age_min, age_max)}
                 </Selector.Option>,
               ].concat(showForm ?
                 this.getForm(groupName, group, serviceGroups) :

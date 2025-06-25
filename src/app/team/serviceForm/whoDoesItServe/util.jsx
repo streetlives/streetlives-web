@@ -1,20 +1,20 @@
 import React from 'react';
 import { EVERYONE } from '../../../../Constants';
 
-const ifMinOrMaxAge = (minAge, maxAge) => (
-  (minAge || maxAge) ?
-    ` (${minAge}${maxAge ? `-${maxAge}` : '+'})` :
+const ifMinOrMaxAge = (age_min, age_max) => (
+  (age_min || age_max) ?
+    ` (${age_min}${age_max ? `-${age_max}` : '+'})` :
     ' (all ages)'
 );
 
-export const formatLabel = (groupName, minAge, maxAge) => (
+export const formatLabel = (groupName, age_min, age_max) => (
   <div>
     <span>{groupName}</span>
     <span>
       {
         EVERYONE === groupName ?
           '' :
-          ifMinOrMaxAge(minAge, maxAge)
+          ifMinOrMaxAge(age_min, age_max)
       }
     </span>
   </div>

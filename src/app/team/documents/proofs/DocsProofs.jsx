@@ -10,9 +10,12 @@ import { Form } from '../../../../components/form';
 import Edit from './Edit';
 import View from './View';
 
+export const isEditing = value => !Array.isArray(value);
+
 const FormComponent = compose(withProps({
   ViewComponent: View,
   EditComponent: Edit,
+  isEditing,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
@@ -25,9 +28,6 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
   updateValue: (proofs, serviceId, metaDataSection, fieldName) => {
-    if (proofs.length === 0) {
-      return null;
-    }
 
     return dispatch(actions.updateService({
       locationId: ownProps.match.params.locationId,
