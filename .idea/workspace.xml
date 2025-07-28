@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e61b73b8-01f3-4070-b214-ac1ee4a36a8b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/app/team/locationForm/streetview/LocationStreetview.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/team/locationForm/streetview/LocationStreetviewEdit.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/team/locationForm/streetview/LocationStreetviewView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/team/locationForm/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/team/locationForm/routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +29,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/streetview&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/shakil/projects/streetlives/streetlives-web&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -77,7 +74,8 @@
       <workItem from="1753444955116" duration="34000" />
       <workItem from="1753445001073" duration="743000" />
       <workItem from="1753446325746" duration="1000" />
-      <workItem from="1753531403446" duration="2152000" />
+      <workItem from="1753531403446" duration="2826000" />
+      <workItem from="1753544310015" duration="13000" />
     </task>
     <servers />
   </component>
