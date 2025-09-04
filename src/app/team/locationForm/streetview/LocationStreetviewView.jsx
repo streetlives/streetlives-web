@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
+import config from '../../../../config';
 
 function extractStreetViewData(url) {
   if (!url) return null;
@@ -52,7 +53,7 @@ function LocationStreetviewView({ value, onConfirm, onEdit }) {
             Here&quot;s the updated streetview
           </div>
           <img
-            src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=AIzaSyABZdHZ1R0cssL9BL9Kx3LpbmDfDJ6oPEc&fov=100&location=${streetview}`}
+            src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=${config.googleMapApiKey}&fov=100&location=${streetview}`}
             loading="lazy"
             alt="Streetview of the location"
           />
