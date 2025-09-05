@@ -48,7 +48,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src/ --ext js,jsx",

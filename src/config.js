@@ -1,4 +1,7 @@
 /* eslint-disable max-len */
+import assert from 'assert';
+
+assert.ok(process.env.REACT_APP_GMAPS_API_KEY, 'REACT_APP_GMAPS_API_KEY is not set');
 
 const parseBoolean = (value, defaultValue = false) =>
   (value == null ? defaultValue : value.toLowerCase() === 'true');
