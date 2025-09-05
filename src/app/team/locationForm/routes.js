@@ -11,6 +11,7 @@ import LocationWebsite, { selectValue as selectValueLocationWebsite }
   from './website/LocationWebsite';
 import OrganizationDescription, { selectValue as selectValueOrganizationDescription }
   from './description/OrganizationDescription';
+import LocationStreetview, { selectValue as selectValueLocationStreetview } from './streetview/LocationStreetview';
 // import AdditionalInfo from './additional-info/AdditionalInfo';
 
 const routes = [
@@ -61,6 +62,14 @@ const routes = [
     metaDataSection: 'organization',
     fieldName: 'url',
     selectValue: selectValueLocationWebsite,
+  },
+  {
+    urlFragment: 'questions/street-view',
+    RouteComponent: LocationStreetview,
+    label: 'Streetview',
+    metaDataSection: 'location',
+    fieldName: 'streetview_url',
+    selectValue: selectValueLocationStreetview,
   },
 ];
 
