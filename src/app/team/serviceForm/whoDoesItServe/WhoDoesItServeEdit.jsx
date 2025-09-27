@@ -24,9 +24,12 @@ class WhoDoesItServe extends Component {
     this.normalizeDefaultAge = this.normalizeDefaultAge.bind(this);
     this.parseAgeValue = this.parseAgeValue.bind(this);
     this.normalizeAgeValueForPayload = this.normalizeAgeValueForPayload.bind(this);
+    this.normalizeServiceGroups = this.normalizeServiceGroups.bind(this);
 
-    // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
-    const serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
+    // serviceGroups -> { allAges: true, customMinAge, customMaxAge, population_served}
+    const serviceGroups = isEditing(this.props.value)
+      ? []
+      : this.normalizeServiceGroups(this.props.value || []);
     this.state = {
       serviceGroups,
     };
@@ -34,10 +37,27 @@ class WhoDoesItServe extends Component {
     this.onCheckInputClick = this.onCheckInputClick.bind(this);
   }
 
+  normalizeServiceGroups(serviceGroups = []) {
+    return serviceGroups.map((group) => {
+      const {
+        name,
+        population_served,
+        ...rest
+      } = group;
+
+      return {
+        ...rest,
+        population_served: population_served !== undefined && population_served !== null
+          ? population_served
+          : (name || ''),
+      };
+    });
+  }
+
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge) {
     // toggle it
     const { state: { serviceGroups } } = this;
-    const groupIndex = serviceGroups.findIndex(group => group.name === groupName);
+    const groupIndex = serviceGroups.findIndex(group => group.population_served === groupName);
     if (groupIndex > -1) {
       serviceGroups.splice(groupIndex, 1);
     } else {
@@ -45,7 +65,7 @@ class WhoDoesItServe extends Component {
         all_ages: this.shouldSetAllAgesFlag(groupName, true),
         age_min: this.normalizeDefaultAge(defaultMinAge),
         age_max: this.normalizeDefaultAge(defaultMaxAge),
-        name: groupName,
+        population_served: groupName,
         __uiSelection: 'all',
       });
     }
@@ -57,11 +77,11 @@ class WhoDoesItServe extends Component {
     e.preventDefault();
 
     const updates = {
-      all_ages: this.shouldSetAllAgesFlag(group.name, value),
+      all_ages: this.shouldSetAllAgesFlag(group.population_served, value),
       __uiSelection: value ? 'all' : 'specific',
     };
 
-    if (this.isCustomGroup(group.name)) {
+    if (this.isCustomGroup(group.population_served)) {
       if (value) {
         updates.age_min = null;
         updates.age_max = null;
@@ -79,10 +99,10 @@ class WhoDoesItServe extends Component {
 
   getCustomGroups() {
     const builtInGroupNames = SERVICE_GROUPS.map(group => group[0]);
-    const allGroupNames = this.state.serviceGroups.map(group => group.name);
+    const allGroupNames = this.state.serviceGroups.map(group => group.population_served);
     return this.state.serviceGroups
-      .filter(group => builtInGroupNames.indexOf(group.name) === -1)
-      .map(group => [group, allGroupNames.lastIndexOf(group.name)]);
+      .filter(group => builtInGroupNames.indexOf(group.population_served) === -1)
+      .map(group => [group, allGroupNames.lastIndexOf(group.population_served)]);
   }
 
   getDefaultAgesForGroup(groupName) {
@@ -97,16 +117,16 @@ class WhoDoesItServe extends Component {
     return { defaultMinAge, defaultMaxAge };
   }
 
-  isCustomGroup(groupName) {
-    return SERVICE_GROUPS.findIndex(([name]) => name === groupName) === -1;
+  isCustomGroup(populationServed) {
+    return SERVICE_GROUPS.findIndex(([name]) => name === populationServed) === -1;
   }
 
-  shouldSetAllAgesFlag(groupName, value = true) {
-    if (this.isCustomGroup(groupName)) {
+  shouldSetAllAgesFlag(populationServed, value = true) {
+    if (this.isCustomGroup(populationServed)) {
       return value;
     }
 
-    const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(groupName);
+    const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(populationServed);
 
     return defaultMinAge === null && defaultMaxAge === null;
   }
@@ -120,7 +140,7 @@ class WhoDoesItServe extends Component {
       return group.__uiSelection;
     }
 
-    if (this.isCustomGroup(group.name)) {
+    if (this.isCustomGroup(group.population_served)) {
       return group.all_ages ? 'all' : 'specific';
     }
 
@@ -272,7 +292,13 @@ class WhoDoesItServe extends Component {
 
   addCustomGroup() {
     const { state: { serviceGroups } } = this;
-    serviceGroups.push({ all_ages: true, name: '', age_min: null, age_max: null, __uiSelection: 'all' });
+    serviceGroups.push({
+      all_ages: true,
+      population_served: '',
+      age_min: null,
+      age_max: null,
+      __uiSelection: 'all',
+    });
     const customGroups = this.getCustomGroups();
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
@@ -289,7 +315,10 @@ class WhoDoesItServe extends Component {
         ...groupWithoutUiSelection,
         age_min,
         age_max,
-        all_ages: this.shouldSetAllAgesFlag(groupWithoutUiSelection.name, groupWithoutUiSelection.all_ages),
+        all_ages: this.shouldSetAllAgesFlag(
+          groupWithoutUiSelection.population_served,
+          groupWithoutUiSelection.all_ages,
+        ),
       };
     });
 
@@ -309,7 +338,7 @@ class WhoDoesItServe extends Component {
         <Selector fluid>
           {
             SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
-              const group = serviceGroups.find(_group => _group.name === groupName);
+              const group = serviceGroups.find(_group => _group.population_served === groupName);
               const age_min = (group && group.age_min) !== undefined ? group.age_min : defaultMinAge;
               const age_max = (group && group.age_max) !== undefined ? group.age_max : defaultMaxAge;
               const isActive = !!group;
@@ -343,10 +372,10 @@ class WhoDoesItServe extends Component {
                     this.updateServiceGroups(
                       serviceGroups[i],
                       serviceGroups,
-                      { name: e.target.value },
+                      { population_served: e.target.value },
                     );
                   }}
-                  value={group.name}
+                  value={group.population_served}
                 />
                 <button
                   className="default"
@@ -355,7 +384,7 @@ class WhoDoesItServe extends Component {
                   <Icon name="times-circle" />
                 </button>
                 {
-                  this.getForm(group.name, group, serviceGroups, group.age_min, group.age_max)
+                  this.getForm(group.population_served, group, serviceGroups, group.age_min, group.age_max)
                 }
               </div>
             ))
