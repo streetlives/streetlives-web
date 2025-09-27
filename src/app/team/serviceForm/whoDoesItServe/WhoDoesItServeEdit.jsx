@@ -20,6 +20,7 @@ class WhoDoesItServe extends Component {
     this.isCustomGroup = this.isCustomGroup.bind(this);
     this.shouldSetAllAgesFlag = this.shouldSetAllAgesFlag.bind(this);
     this.isAllAgesSelection = this.isAllAgesSelection.bind(this);
+    this.getSelectionType = this.getSelectionType.bind(this);
     this.normalizeDefaultAge = this.normalizeDefaultAge.bind(this);
     this.parseAgeValue = this.parseAgeValue.bind(this);
     this.normalizeAgeValueForPayload = this.normalizeAgeValueForPayload.bind(this);
@@ -45,6 +46,7 @@ class WhoDoesItServe extends Component {
         age_min: this.normalizeDefaultAge(defaultMinAge),
         age_max: this.normalizeDefaultAge(defaultMaxAge),
         name: groupName,
+        __uiSelection: 'all',
       });
     }
     this.setState({ serviceGroups });
@@ -56,21 +58,20 @@ class WhoDoesItServe extends Component {
 
     const updates = {
       all_ages: this.shouldSetAllAgesFlag(group.name, value),
+      __uiSelection: value ? 'all' : 'specific',
     };
 
-    if (value) {
-      updates.age_min = this.normalizeDefaultAge(defaultMinAge);
-      updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
-    } else if (!this.isCustomGroup(group.name)) {
-      const defaultMin = defaultMinAge !== undefined ? defaultMinAge : null;
-      const defaultMax = defaultMaxAge !== undefined ? defaultMaxAge : null;
-      const currentMin = group.age_min !== undefined ? group.age_min : null;
-      const currentMax = group.age_max !== undefined ? group.age_max : null;
-
-      if (currentMin === defaultMin && currentMax === defaultMax) {
+    if (this.isCustomGroup(group.name)) {
+      if (value) {
         updates.age_min = null;
         updates.age_max = null;
       }
+    } else if (value) {
+      updates.age_min = this.normalizeDefaultAge(defaultMinAge);
+      updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
+    } else {
+      updates.age_min = this.normalizeDefaultAge(defaultMinAge);
+      updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
     }
 
     this.updateServiceGroups(group, serviceGroups, updates);
@@ -110,26 +111,34 @@ class WhoDoesItServe extends Component {
     return defaultMinAge === null && defaultMaxAge === null;
   }
 
-  isAllAgesSelection(group, defaultMinAge, defaultMaxAge) {
+  getSelectionType(group, defaultMinAge, defaultMaxAge) {
     if (!group) {
-      return false;
+      return 'specific';
+    }
+
+    if (group.__uiSelection) {
+      return group.__uiSelection;
     }
 
     if (this.isCustomGroup(group.name)) {
-      return !!group.all_ages;
+      return group.all_ages ? 'all' : 'specific';
     }
 
     const expectedMin = defaultMinAge !== undefined ? defaultMinAge : null;
     const expectedMax = defaultMaxAge !== undefined ? defaultMaxAge : null;
 
     if (expectedMin === null && expectedMax === null) {
-      return true;
+      return 'all';
     }
 
     const currentMin = group.age_min !== undefined ? group.age_min : null;
     const currentMax = group.age_max !== undefined ? group.age_max : null;
 
-    return currentMin === expectedMin && currentMax === expectedMax;
+    return currentMin === expectedMin && currentMax === expectedMax ? 'all' : 'specific';
+  }
+
+  isAllAgesSelection(group, defaultMinAge, defaultMaxAge) {
+    return this.getSelectionType(group, defaultMinAge, defaultMaxAge) === 'all';
   }
 
   normalizeDefaultAge(age) {
@@ -156,7 +165,8 @@ class WhoDoesItServe extends Component {
 
   getForm(groupName, group, serviceGroups, defaultMinAge, defaultMaxAge) {
     const isCustom = this.isCustomGroup(groupName);
-    const isAllAgesSelected = this.isAllAgesSelection(group, defaultMinAge, defaultMaxAge);
+    const selectionType = this.getSelectionType(group, defaultMinAge, defaultMaxAge);
+    const isAllAgesSelected = selectionType === 'all';
     const disableAgeInputs = isCustom
       ? !!group.all_ages
       : (defaultMinAge === undefined && defaultMaxAge === undefined)
@@ -203,12 +213,15 @@ class WhoDoesItServe extends Component {
               <Input
                 disabled={disableAgeInputs}
                 type="number"
-                defaultValue={group.age_min}
+                value={group.age_min !== undefined && group.age_min !== null ? group.age_min : ''}
                 onChange={(e) => {
                   this.updateServiceGroups(
                     group,
                     serviceGroups,
-                    { age_min: this.parseAgeValue(e.target.value) },
+                    {
+                      age_min: this.parseAgeValue(e.target.value),
+                      __uiSelection: 'specific',
+                    },
                   );
                 }}
               />
@@ -218,12 +231,15 @@ class WhoDoesItServe extends Component {
               <Input
                 disabled={disableAgeInputs}
                 type="number"
-                defaultValue={group.age_max}
+                value={group.age_max !== undefined && group.age_max !== null ? group.age_max : ''}
                 onChange={(e) => {
                   this.updateServiceGroups(
                     group,
                     serviceGroups,
-                    { age_max: this.parseAgeValue(e.target.value) },
+                    {
+                      age_max: this.parseAgeValue(e.target.value),
+                      __uiSelection: 'specific',
+                    },
                   );
                 }}
               />
@@ -256,20 +272,24 @@ class WhoDoesItServe extends Component {
 
   addCustomGroup() {
     const { state: { serviceGroups } } = this;
-    serviceGroups.push({ all_ages: true, name: '', age_min: null, age_max: null });
+    serviceGroups.push({ all_ages: true, name: '', age_min: null, age_max: null, __uiSelection: 'all' });
     const customGroups = this.getCustomGroups();
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
 
   updateValue = () => {
     const formattedServiceGroups = this.state.serviceGroups.map((group) => {
-      const age_min = this.normalizeAgeValueForPayload(group.age_min);
-      const age_max = this.normalizeAgeValueForPayload(group.age_max);
+      const {
+        __uiSelection,
+        ...groupWithoutUiSelection
+      } = group;
+      const age_min = this.normalizeAgeValueForPayload(groupWithoutUiSelection.age_min);
+      const age_max = this.normalizeAgeValueForPayload(groupWithoutUiSelection.age_max);
       return {
-        ...group,
+        ...groupWithoutUiSelection,
         age_min,
         age_max,
-        all_ages: this.shouldSetAllAgesFlag(group.name, group.all_ages),
+        all_ages: this.shouldSetAllAgesFlag(groupWithoutUiSelection.name, groupWithoutUiSelection.all_ages),
       };
     });
 
