@@ -61,6 +61,16 @@ class WhoDoesItServe extends Component {
     if (value) {
       updates.age_min = this.normalizeDefaultAge(defaultMinAge);
       updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
+    } else if (!this.isCustomGroup(group.name)) {
+      const defaultMin = defaultMinAge !== undefined ? defaultMinAge : null;
+      const defaultMax = defaultMaxAge !== undefined ? defaultMaxAge : null;
+      const currentMin = group.age_min !== undefined ? group.age_min : null;
+      const currentMax = group.age_max !== undefined ? group.age_max : null;
+
+      if (currentMin === defaultMin && currentMax === defaultMax) {
+        updates.age_min = null;
+        updates.age_max = null;
+      }
     }
 
     this.updateServiceGroups(group, serviceGroups, updates);
