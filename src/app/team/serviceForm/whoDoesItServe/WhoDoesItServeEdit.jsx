@@ -5,7 +5,7 @@ import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 import Input from '../../../../components/input';
 import Icon from '../../../../components/icon';
-import { SERVICE_GROUPS } from '../../../../Constants';
+import { SERVICE_GROUPS, EVERYONE } from '../../../../Constants';
 import { formatLabel, isEditing } from './util';
 import './WhoDoesItServeEditForm.css';
 
@@ -19,6 +19,7 @@ class WhoDoesItServe extends Component {
     this.getDefaultAgesForGroup = this.getDefaultAgesForGroup.bind(this);
     this.isCustomGroup = this.isCustomGroup.bind(this);
     this.shouldSetAllAgesFlag = this.shouldSetAllAgesFlag.bind(this);
+    this.isAllAgesLockedGroup = this.isAllAgesLockedGroup.bind(this);
     this.isAllAgesSelection = this.isAllAgesSelection.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
     this.normalizeDefaultAge = this.normalizeDefaultAge.bind(this);
@@ -76,6 +77,10 @@ class WhoDoesItServe extends Component {
     e.stopPropagation();
     e.preventDefault();
 
+    if (!this.isCustomGroup(group.population_served) && !value && this.isAllAgesLockedGroup(group.population_served)) {
+      return;
+    }
+
     const updates = {
       all_ages: this.shouldSetAllAgesFlag(group.population_served, value),
       __uiSelection: value ? 'all' : 'specific',
@@ -122,8 +127,18 @@ class WhoDoesItServe extends Component {
   }
 
   shouldSetAllAgesFlag(populationServed, value = true) {
-    if (this.isCustomGroup(populationServed)) {
+    if (this.isCustomGroup(populationServed) || populationServed === EVERYONE) {
       return value;
+    }
+
+    const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(populationServed);
+
+    return defaultMinAge === null && defaultMaxAge === null;
+  }
+
+  isAllAgesLockedGroup(populationServed) {
+    if (populationServed === EVERYONE || this.isCustomGroup(populationServed)) {
+      return false;
     }
 
     const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(populationServed);
@@ -189,7 +204,7 @@ class WhoDoesItServe extends Component {
     const isAllAgesSelected = selectionType === 'all';
     const disableAgeInputs = isCustom
       ? !!group.all_ages
-      : (defaultMinAge === undefined && defaultMaxAge === undefined)
+      : this.isAllAgesLockedGroup(groupName)
         ? true
         : isAllAgesSelected;
 
@@ -342,7 +357,7 @@ class WhoDoesItServe extends Component {
               const age_min = (group && group.age_min) !== undefined ? group.age_min : defaultMinAge;
               const age_max = (group && group.age_max) !== undefined ? group.age_max : defaultMaxAge;
               const isActive = !!group;
-              const showForm = isActive && i !== 0;
+              const showForm = isActive && (i !== 0 || groupName === EVERYONE);
               return [
                 <Selector.Option
                   key={`selector-${groupName}`}

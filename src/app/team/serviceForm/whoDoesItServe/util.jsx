@@ -13,7 +13,9 @@ export const formatLabel = (groupName, age_min, age_max) => (
     <span>
       {
         EVERYONE === groupName ?
-          '' :
+          ((age_min !== undefined && age_min !== null) || (age_max !== undefined && age_max !== null)
+            ? ifMinOrMaxAge(age_min, age_max)
+            : '') :
           ifMinOrMaxAge(age_min, age_max)
       }
     </span>
