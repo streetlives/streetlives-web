@@ -5,7 +5,7 @@ import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 import Input from '../../../../components/input';
 import Icon from '../../../../components/icon';
-import { SERVICE_GROUPS } from '../../../../Constants';
+import { SERVICE_GROUPS, EVERYONE } from '../../../../Constants';
 import { formatLabel, isEditing } from './util';
 import './WhoDoesItServeEditForm.css';
 
@@ -16,44 +16,198 @@ class WhoDoesItServe extends Component {
     this.updateValue = this.updateValue.bind(this);
     this.addCustomGroup = this.addCustomGroup.bind(this);
     this.getCustomGroups = this.getCustomGroups.bind(this);
+    this.getDefaultAgesForGroup = this.getDefaultAgesForGroup.bind(this);
+    this.isCustomGroup = this.isCustomGroup.bind(this);
+    this.shouldSetAllAgesFlag = this.shouldSetAllAgesFlag.bind(this);
+    this.isAllAgesLockedGroup = this.isAllAgesLockedGroup.bind(this);
+    this.isAllAgesSelection = this.isAllAgesSelection.bind(this);
+    this.getSelectionType = this.getSelectionType.bind(this);
+    this.normalizeDefaultAge = this.normalizeDefaultAge.bind(this);
+    this.parseAgeValue = this.parseAgeValue.bind(this);
+    this.normalizeAgeValueForPayload = this.normalizeAgeValueForPayload.bind(this);
+    this.normalizeServiceGroups = this.normalizeServiceGroups.bind(this);
 
-    // serviceGroups -> { allAges: true, customMinAge, customMaxAge, name}
-    const serviceGroups = isEditing(this.props.value) ? [] : this.props.value;
-    this.state = { serviceGroups };
+    // serviceGroups -> { allAges: true, customMinAge, customMaxAge, population_served}
+    const serviceGroups = isEditing(this.props.value)
+      ? []
+      : this.normalizeServiceGroups(this.props.value || []);
+    this.state = {
+      serviceGroups,
+    };
 
     this.onCheckInputClick = this.onCheckInputClick.bind(this);
+  }
+
+  normalizeServiceGroups(serviceGroups = []) {
+    return serviceGroups.map((group) => {
+      const {
+        name,
+        population_served,
+        ...rest
+      } = group;
+
+      return {
+        ...rest,
+        population_served: population_served !== undefined && population_served !== null
+          ? population_served
+          : (name || ''),
+      };
+    });
   }
 
   onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge) {
     // toggle it
     const { state: { serviceGroups } } = this;
-    const groupIndex = serviceGroups.findIndex(group => group.name === groupName);
+    const groupIndex = serviceGroups.findIndex(group => group.population_served === groupName);
     if (groupIndex > -1) {
       serviceGroups.splice(groupIndex, 1);
     } else {
       serviceGroups.push({
-        allAges: true, minAge: defaultMinAge, maxAge: defaultMaxAge, name: groupName,
+        all_ages: this.shouldSetAllAgesFlag(groupName, true),
+        age_min: this.normalizeDefaultAge(defaultMinAge),
+        age_max: this.normalizeDefaultAge(defaultMaxAge),
+        population_served: groupName,
+        __uiSelection: 'all',
       });
     }
     this.setState({ serviceGroups });
   }
 
-  onCheckInputClick(group, serviceGroups, value, e) {
+  onCheckInputClick(group, serviceGroups, value, defaultMinAge, defaultMaxAge, e) {
     e.stopPropagation();
     e.preventDefault();
 
-    this.updateServiceGroups(group, serviceGroups, 'allAges', value);
+    if (!this.isCustomGroup(group.population_served) && !value && this.isAllAgesLockedGroup(group.population_served)) {
+      return;
+    }
+
+    const updates = {
+      all_ages: this.shouldSetAllAgesFlag(group.population_served, value),
+      __uiSelection: value ? 'all' : 'specific',
+    };
+
+    if (this.isCustomGroup(group.population_served)) {
+      if (value) {
+        updates.age_min = null;
+        updates.age_max = null;
+      }
+    } else if (value) {
+      updates.age_min = this.normalizeDefaultAge(defaultMinAge);
+      updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
+    } else {
+      updates.age_min = this.normalizeDefaultAge(defaultMinAge);
+      updates.age_max = this.normalizeDefaultAge(defaultMaxAge);
+    }
+
+    this.updateServiceGroups(group, serviceGroups, updates);
   }
 
   getCustomGroups() {
     const builtInGroupNames = SERVICE_GROUPS.map(group => group[0]);
-    const allGroupNames = this.state.serviceGroups.map(group => group.name);
+    const allGroupNames = this.state.serviceGroups.map(group => group.population_served);
     return this.state.serviceGroups
-      .filter(group => builtInGroupNames.indexOf(group.name) === -1)
-      .map(group => [group, allGroupNames.lastIndexOf(group.name)]);
+      .filter(group => builtInGroupNames.indexOf(group.population_served) === -1)
+      .map(group => [group, allGroupNames.lastIndexOf(group.population_served)]);
   }
 
-  getForm(groupName, group, serviceGroups) {
+  getDefaultAgesForGroup(groupName) {
+    const groupDefinition = SERVICE_GROUPS.find(([name]) => name === groupName);
+    if (!groupDefinition) {
+      return { defaultMinAge: null, defaultMaxAge: null };
+    }
+
+    const defaultMinAge = groupDefinition[1] !== undefined ? groupDefinition[1] : null;
+    const defaultMaxAge = groupDefinition[2] !== undefined ? groupDefinition[2] : null;
+
+    return { defaultMinAge, defaultMaxAge };
+  }
+
+  isCustomGroup(populationServed) {
+    return SERVICE_GROUPS.findIndex(([name]) => name === populationServed) === -1;
+  }
+
+  shouldSetAllAgesFlag(populationServed, value = true) {
+    if (this.isCustomGroup(populationServed) || populationServed === EVERYONE) {
+      return value;
+    }
+
+    const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(populationServed);
+
+    return defaultMinAge === null && defaultMaxAge === null;
+  }
+
+  isAllAgesLockedGroup(populationServed) {
+    if (populationServed === EVERYONE || this.isCustomGroup(populationServed)) {
+      return false;
+    }
+
+    const { defaultMinAge, defaultMaxAge } = this.getDefaultAgesForGroup(populationServed);
+
+    return defaultMinAge === null && defaultMaxAge === null;
+  }
+
+  getSelectionType(group, defaultMinAge, defaultMaxAge) {
+    if (!group) {
+      return 'specific';
+    }
+
+    if (group.__uiSelection) {
+      return group.__uiSelection;
+    }
+
+    if (this.isCustomGroup(group.population_served)) {
+      return group.all_ages ? 'all' : 'specific';
+    }
+
+    const expectedMin = defaultMinAge !== undefined ? defaultMinAge : null;
+    const expectedMax = defaultMaxAge !== undefined ? defaultMaxAge : null;
+
+    if (expectedMin === null && expectedMax === null) {
+      return 'all';
+    }
+
+    const currentMin = group.age_min !== undefined ? group.age_min : null;
+    const currentMax = group.age_max !== undefined ? group.age_max : null;
+
+    return currentMin === expectedMin && currentMax === expectedMax ? 'all' : 'specific';
+  }
+
+  isAllAgesSelection(group, defaultMinAge, defaultMaxAge) {
+    return this.getSelectionType(group, defaultMinAge, defaultMaxAge) === 'all';
+  }
+
+  normalizeDefaultAge(age) {
+    return age !== undefined ? age : null;
+  }
+
+  parseAgeValue(value) {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+
+    const parsed = parseInt(value, 10);
+
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  normalizeAgeValueForPayload(age) {
+    if (age === undefined || age === null || Number.isNaN(age)) {
+      return null;
+    }
+
+    return age;
+  }
+
+  getForm(groupName, group, serviceGroups, defaultMinAge, defaultMaxAge) {
+    const isCustom = this.isCustomGroup(groupName);
+    const selectionType = this.getSelectionType(group, defaultMinAge, defaultMaxAge);
+    const isAllAgesSelected = selectionType === 'all';
+    const disableAgeInputs = isCustom
+      ? !!group.all_ages
+      : this.isAllAgesLockedGroup(groupName)
+        ? true
+        : isAllAgesSelected;
+
     return (
       <form
         key={`editForm-${groupName}`}
@@ -62,27 +216,27 @@ class WhoDoesItServe extends Component {
         <ul>
           <li
             role="presentation"
-            onClick={e => this.onCheckInputClick(group, serviceGroups, true, e)}
+            onClick={e => this.onCheckInputClick(group, serviceGroups, true, defaultMinAge, defaultMaxAge, e)}
           >
             <Input
               onChange={() => null}
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={group.allAges}
+              checked={isAllAgesSelected}
             />
             <span>All ages in this group</span>
           </li>
           <li
             role="presentation"
-            onClick={e => this.onCheckInputClick(group, serviceGroups, false, e)}
+            onClick={e => this.onCheckInputClick(group, serviceGroups, false, defaultMinAge, defaultMaxAge, e)}
           >
             <Input
               onChange={() => null}
               className="form-check-input"
               type="radio"
               name="ages"
-              checked={!group.allAges}
+              checked={!isAllAgesSelected}
             />
             <span>Specific ages in this group</span>
           </li>
@@ -92,22 +246,36 @@ class WhoDoesItServe extends Component {
             <div> From: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={disableAgeInputs}
                 type="number"
-                defaultValue={group.minAge}
+                value={group.age_min !== undefined && group.age_min !== null ? group.age_min : ''}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'minAge', e.target.value);
+                  this.updateServiceGroups(
+                    group,
+                    serviceGroups,
+                    {
+                      age_min: this.parseAgeValue(e.target.value),
+                      __uiSelection: 'specific',
+                    },
+                  );
                 }}
               />
             </div>
             <div> To: </div>
             <div>
               <Input
-                disabled={group.allAges}
+                disabled={disableAgeInputs}
                 type="number"
-                defaultValue={group.maxAge}
+                value={group.age_max !== undefined && group.age_max !== null ? group.age_max : ''}
                 onChange={(e) => {
-                  this.updateServiceGroups(group, serviceGroups, 'maxAge', e.target.value);
+                  this.updateServiceGroups(
+                    group,
+                    serviceGroups,
+                    {
+                      age_max: this.parseAgeValue(e.target.value),
+                      __uiSelection: 'specific',
+                    },
+                  );
                 }}
               />
             </div>
@@ -117,13 +285,13 @@ class WhoDoesItServe extends Component {
     );
   }
 
-  updateServiceGroups(group, serviceGroups, prop, value) {
+  updateServiceGroups(group, serviceGroups, updates) {
     const idx = serviceGroups.indexOf(group);
     const updatedServiceGroups = [
       ...serviceGroups.slice(0, idx),
       {
         ...group,
-        [prop]: value,
+        ...updates,
       },
       ...serviceGroups.slice(idx + 1),
     ];
@@ -139,17 +307,43 @@ class WhoDoesItServe extends Component {
 
   addCustomGroup() {
     const { state: { serviceGroups } } = this;
-    serviceGroups.push({ allAges: true, name: '' });
+    serviceGroups.push({
+      all_ages: true,
+      population_served: '',
+      age_min: null,
+      age_max: null,
+      __uiSelection: 'all',
+    });
     const customGroups = this.getCustomGroups();
     this.setState({ serviceGroups, lastAddedIndex: customGroups.length - 1 });
   }
 
-  updateValue = e => this.props.updateValue(
-    this.state.serviceGroups,
-    this.props.id,
-    this.props.metaDataSection,
-    this.props.fieldName,
-  );
+  updateValue = () => {
+    const formattedServiceGroups = this.state.serviceGroups.map((group) => {
+      const {
+        __uiSelection,
+        ...groupWithoutUiSelection
+      } = group;
+      const age_min = this.normalizeAgeValueForPayload(groupWithoutUiSelection.age_min);
+      const age_max = this.normalizeAgeValueForPayload(groupWithoutUiSelection.age_max);
+      return {
+        ...groupWithoutUiSelection,
+        age_min,
+        age_max,
+        all_ages: this.shouldSetAllAgesFlag(
+          groupWithoutUiSelection.population_served,
+          groupWithoutUiSelection.all_ages,
+        ),
+      };
+    });
+
+    return this.props.updateValue(
+      formattedServiceGroups,
+      this.props.id,
+      this.props.metaDataSection,
+      this.props.fieldName,
+    );
+  }
 
   render() {
     const { state: { serviceGroups } } = this;
@@ -159,11 +353,11 @@ class WhoDoesItServe extends Component {
         <Selector fluid>
           {
             SERVICE_GROUPS.map(([groupName, defaultMinAge, defaultMaxAge], i) => {
-              const group = this.state.serviceGroups.find(_group => _group.name === groupName);
-              const minAge = (group && group.minAge) || defaultMinAge;
-              const maxAge = (group && group.maxAge) || defaultMaxAge;
+              const group = serviceGroups.find(_group => _group.population_served === groupName);
+              const age_min = (group && group.age_min) !== undefined ? group.age_min : defaultMinAge;
+              const age_max = (group && group.age_max) !== undefined ? group.age_max : defaultMaxAge;
               const isActive = !!group;
-              const showForm = isActive && i !== 0;
+              const showForm = isActive && (i !== 0 || groupName === EVERYONE);
               return [
                 <Selector.Option
                   key={`selector-${groupName}`}
@@ -172,10 +366,10 @@ class WhoDoesItServe extends Component {
                   hide={false}
                   onClick={() => this.onServiceGroupClick(groupName, defaultMinAge, defaultMaxAge)}
                 >
-                  {formatLabel(groupName, minAge, maxAge)}
+                  {formatLabel(groupName, age_min, age_max)}
                 </Selector.Option>,
               ].concat(showForm ?
-                this.getForm(groupName, group, serviceGroups) :
+                this.getForm(groupName, group, serviceGroups, defaultMinAge, defaultMaxAge) :
                 []);
             })
           }
@@ -193,11 +387,10 @@ class WhoDoesItServe extends Component {
                     this.updateServiceGroups(
                       serviceGroups[i],
                       serviceGroups,
-                      'name',
-                      e.target.value,
+                      { population_served: e.target.value },
                     );
                   }}
-                  value={group.name}
+                  value={group.population_served}
                 />
                 <button
                   className="default"
@@ -206,7 +399,7 @@ class WhoDoesItServe extends Component {
                   <Icon name="times-circle" />
                 </button>
                 {
-                  this.getForm(group.name, group, serviceGroups)
+                  this.getForm(group.population_served, group, serviceGroups, group.age_min, group.age_max)
                 }
               </div>
             ))

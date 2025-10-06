@@ -8,7 +8,8 @@ const parseBoolean = (value, defaultValue = false) =>
 
 export default {
   gaTrackingId: process.env.REACT_APP_GA_TRACKING_ID || 'G-8YQSKLWB8R',
-  baseApi: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  // baseApi: process.env.REACT_APP_API_URL || 'https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage',
+  baseApi: process.env.REACT_APP_API_URL,
   privacyUrl: process.env.PRIVACY_URL || 'https://docs.google.com/document/d/e/2PACX-1vQ8djXWiASXKkcKJ2LSHNXMgrQ1PhQPskSs_Thk5oLTZMnKvMy7Nqz1t4Xs18mGGKuORXOj8yNNhJUq/pub',
   termsOfUseUrl: process.env.TOU_URL || 'https://docs.google.com/document/d/e/2PACX-1vTBNI2Sv5QC8DSBwBL7WHNBdMI-9kPLuN2ev_Y2VDSo-bLeh8qssi7iBv-w0EEQurX9fgFQF4_2lItn/pub',
   commentGuidelinesUrl: process.env.COMMENT_GUIDELINES_URL || 'https://docs.google.com/document/d/e/2PACX-1vTi6AR2Q-PpTNMLTimvdVg8yDuLJ5DURswQ-heCToXj3OwuqNXyt-LIBs-By9znC2A_0HxqlO8vQ_DJ/pub',
