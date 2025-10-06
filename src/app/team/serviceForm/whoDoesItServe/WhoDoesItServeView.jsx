@@ -15,8 +15,10 @@ function FormView({ value, onConfirm, onEdit }) {
       <ul>
         {
           value.length ?
-            value.map((group, i) => (
-              <li key={group.name}>{ formatLabel(group.name, group.age_min, group.age_max) }</li>
+            value.map(group => (
+              <li key={group.population_served}>
+                { formatLabel(group.population_served, group.age_min, group.age_max) }
+              </li>
             )) :
             'None'
         }
@@ -28,7 +30,7 @@ function FormView({ value, onConfirm, onEdit }) {
 
 FormView.propTypes = {
   value: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    population_served: PropTypes.string.isRequired,
     // minAge: PropTypes.number.isRequired,
     // maxAge: PropTypes.number.isRequired,
   })),
