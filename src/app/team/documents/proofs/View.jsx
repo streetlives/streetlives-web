@@ -11,8 +11,9 @@ function ProofsRequiredView({ value, onConfirm, onEdit }) {
         What proofs are required to use this service?
       </div>
 
-      <Selector fluid>
-        {
+      {value.length ?
+        <Selector fluid>
+          {
           value.map(document => (
             <Selector.Option
               key={`selector-${document}`}
@@ -23,7 +24,10 @@ function ProofsRequiredView({ value, onConfirm, onEdit }) {
             </Selector.Option>
           ))
         }
-      </Selector>
+        </Selector>
+        :
+        <p>Empty</p>
+ }
       <ConfirmationOptions onConfirm={onConfirm} onEdit={onEdit} />
     </div>
   );
