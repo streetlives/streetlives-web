@@ -49,7 +49,7 @@ export const SERVICE_FIELDS = [
   //   fieldName: 'hours',
   // },
   {
-    label: 'Opening hours (coronavirus)',
+    label: 'Opening hours',
     urlFragment: '/opening-hours',
     metaDataSection: 'service',
     RouteComponent: CoronavirusOpeningHours,
