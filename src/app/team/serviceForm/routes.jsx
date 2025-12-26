@@ -116,7 +116,7 @@ export const SERVICE_FIELDS = [
     metaDataSection: 'service',
   },
   {
-    label: 'Other info (coronavirus)',
+    label: 'Other Important info',
     urlFragment: '/other-info',
     metaDataSection: 'service',
     RouteComponent: CoronavirusOtherInfo,

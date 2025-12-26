@@ -124,7 +124,7 @@ export default class MapView extends Component {
     if (currentUrl.endsWith('/')) {
       currentUrl = currentUrl.slice(0, currentUrl.length - 1);
     }
-    this.props.history.push(`${currentUrl}/location/${locationId}/recap`);
+    this.props.history.push(`${currentUrl}/location/${locationId}/isClosed`);
   }
 
   renderLocationMarkers = () => (
