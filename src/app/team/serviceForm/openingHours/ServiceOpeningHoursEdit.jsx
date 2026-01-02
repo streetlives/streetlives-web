@@ -4,7 +4,6 @@ import moment from 'moment';
 import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
-import Input from '../../../../components/input';
 import { DAYS } from '../../../../Constants';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
 
@@ -14,9 +13,6 @@ const IS_NOT_247_ACTIVE = 1;
 const IS_CLOSED = 2;
 const MIDNIGHT = '00:00';
 const ELEVEN_FIFTY_NINE = '23:59';
-
-const inputPlaceholder =
-  'e.g. Drop-in opens at 6pm, but you should be there by 4pm if you want to get in, etc';
 
 function getActive(hours) {
   if (hours.length > 0 && hours.filter(({ closed }) => !closed).length === 0) {
@@ -224,12 +220,6 @@ class ServiceOpeningHours extends Component {
             This service is <strong>not</strong> 24/7
           </Selector.Option>
         </Selector>
-        {active === IS_247_ACTIVE && (
-          <div>
-            <p>Is there anything else you would like to add about their opening times?</p>
-            <Input fluid placeholder={inputPlaceholder} />
-          </div>
-        )}
         {active === IS_NOT_247_ACTIVE && (
           <div className="mb-3">
             {
