@@ -79,6 +79,12 @@ export const getLocations = ({
     .then(result => result.data);
 };
 
+export const getLocationsWithoutServices = () => axios.request({
+  url: `${config.baseApi}/locations/no-services`,
+  method: 'get',
+})
+  .then(result => result.data);
+
 export const getLocation = ({ id }) =>
   axios
     .request({
