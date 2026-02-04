@@ -69,14 +69,14 @@ export const SERVICE_FIELDS = [
   //   RouteComponent: ServiceOtherInfo,
   //   fieldName: 'additional_info',
   // },
-  {
-    label: 'PLHIV',
-    urlFragment: '/plhiv',
-    RouteComponent: ServiceHasHivNutrition,
-    fieldName: 'hasHivNutrition',
-    metaDataSection: 'service',
-    serviceTaxonomy: 'Food',
-  },
+  // {
+  //   label: 'PLHIV',
+  //   urlFragment: '/plhiv',
+  //   RouteComponent: ServiceHasHivNutrition,
+  //   fieldName: 'hasHivNutrition',
+  //   metaDataSection: 'service',
+  //   serviceTaxonomy: 'Food',
+  // },
   {
     label: 'Occasions',
     urlFragment: '/occasions',

@@ -25,11 +25,14 @@ function getProgress(service, originalService) {
 }
 
 function ListItem({ service, originalService, url }) {
+
+  const taxonomyName = service.Taxonomies[0].name;
+
   return (
     <Link to={url} className="ListItem d-block py-4 border-top border-bottom">
       <div className="container d-flex justify-content-between align-items-center">
         <div>
-          <h5 className="font-weight-normal m-0">{service.name}</h5>
+          <h5 className="font-weight-normal m-0">{service.name} {service.name.toLowerCase().trim() !== taxonomyName.toLowerCase().trim() && `(${taxonomyName})`}</h5>
           <span className="text-secondary">{getProgress(service, originalService)}% completed</span>
         </div>
         <Icon name="chevron-right" size="lg" />

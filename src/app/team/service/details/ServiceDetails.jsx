@@ -61,11 +61,13 @@ const ServiceDetails = ({
     return <LoadingView />;
   }
 
+  const taxonomyName = service.Taxonomies[0].name;
+
   return (
     <div className="text-left d-flex flex-column">
       <NavBar backButtonTarget={backButtonTarget} title="Service Details" />
       <ProgressBar step={0} steps={serviceFields.length} />
-      <ServiceHeader>Check all the {service.name} details</ServiceHeader>
+      <ServiceHeader>Check all the {service.name} {service.name.toLowerCase().trim() !== taxonomyName.toLowerCase().trim() && `(${taxonomyName})`} details</ServiceHeader>
 
       {serviceFields.map(field => (
         <ListItem
