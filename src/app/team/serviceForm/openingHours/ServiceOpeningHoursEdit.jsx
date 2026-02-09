@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { act, Component } from 'react';
 import moment from 'moment';
 
 import Header from '../../../../components/header';
@@ -117,6 +117,9 @@ class ServiceOpeningHours extends Component {
         closed: true,
       }];
     }
+    if (active === IS_NOT_247_ACTIVE) {
+      newState.hours = [];
+    }
     this.setState(newState);
   }
 
@@ -201,21 +204,21 @@ class ServiceOpeningHours extends Component {
           <Selector.Option
             hide={this.props.viewMode && active !== IS_CLOSED}
             active={active === IS_CLOSED}
-            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_CLOSED)}
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(active === IS_CLOSED ? NOTHING_ACTIVE : IS_CLOSED)}
           >
             This service is <strong>closed</strong>
           </Selector.Option>
           <Selector.Option
             hide={this.props.viewMode && active !== IS_247_ACTIVE}
             active={active === IS_247_ACTIVE}
-            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_247_ACTIVE)}
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(active === IS_247_ACTIVE ? NOTHING_ACTIVE : IS_247_ACTIVE)}
           >
             This service is 24/7
           </Selector.Option>
           <Selector.Option
             hide={this.props.viewMode}
             active={active === IS_NOT_247_ACTIVE}
-            onClick={this.props.viewMode ? undefined : () => this.onSelect(IS_NOT_247_ACTIVE)}
+            onClick={this.props.viewMode ? undefined : () => this.onSelect(active === IS_NOT_247_ACTIVE ? NOTHING_ACTIVE : IS_NOT_247_ACTIVE)}
           >
             This service is <strong>not</strong> 24/7
           </Selector.Option>
