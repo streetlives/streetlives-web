@@ -117,7 +117,7 @@ class ServiceOpeningHours extends Component {
         closed: true,
       }];
     }
-    if (active === IS_NOT_247_ACTIVE) {
+    if (active === NOTHING_ACTIVE) {
       newState.hours = [];
     }
     this.setState(newState);
@@ -284,7 +284,7 @@ class ServiceOpeningHours extends Component {
               <Button
                 onClick={this.updateValue}
                 primary
-                disabled={active === -1 || !allHoursValid}
+                disabled={!allHoursValid}
               >
                 OK
               </Button>&nbsp;
