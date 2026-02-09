@@ -114,6 +114,7 @@ export default class MapView extends Component {
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
+      noServices: true,
     })
       .then((locations) => {
         console.log('fetched locations', locations);
@@ -121,12 +122,6 @@ export default class MapView extends Component {
       }) // TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
 
-    getLocationsWithoutServices()
-      .then((locations) => {
-        console.log('fetched locations without services', locations);
-        this.setState({ locationsWithoutServices: locations });
-      })
-      .catch(e => console.error('error', e));
   };
 
   editLocation = (locationId) => {
@@ -144,23 +139,12 @@ export default class MapView extends Component {
           <ExistingLocationMarker
             key={location.id}
             mapLocation={location}
+            color={(location.Services && location.Services.length) || (location.services && location.services.length) ? 'blue' : 'red'}
             isOpen={location.id === this.state.openLocationId}
             onToggleInfo={this.onToggleMarkerInfo}
             onEnterLocation={this.editLocation}
           />
       ))}
-      {this.state.locationsWithoutServices && (
-        this.state.locationsWithoutServices.map(location => (
-          <ExistingLocationMarker
-            key={location.id}
-            mapLocation={location}
-            isOpen={location.id === this.state.openLocationId}
-            onToggleInfo={this.onToggleMarkerInfo}
-            onEnterLocation={this.editLocation}
-            color="red"
-          />
-        ))
-      ) }
       {this.state.newLocation && (
         <NewLocationMarker
           key="new"
