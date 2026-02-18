@@ -5,10 +5,12 @@ import MapPageContainer from './mapPage/MapPageContainer';
 import QuestionFlowContainer from './questionFlow/QuestionFlowContainer';
 import LocationDetailsContainer from './locationDetails/LocationDetailsContainer';
 import ErrorReportContainer from './errorReports/ErrorReportContainer';
+import MoveToYourPeerModal from '../../components/modal/MoveToYourpeerModal';
 
 export default function Router({ match }) {
   return (
     <div>
+      <MoveToYourPeerModal isOpen={true} onClose={() => {}} />
       <Route
         path={`${match.path}/:categoryName?`}
         component={MapPageContainer}
