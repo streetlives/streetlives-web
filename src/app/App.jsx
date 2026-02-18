@@ -21,6 +21,7 @@ import { getCanonicalUrl } from '../services/seo';
 
 import withTracker from '../components/routing/withTracker';
 import analytics from '../services/analytics';
+import MoveToYourPeerModal from '../components/modal/MoveToYourpeerModal';
 
 const TeamRouter = React.lazy(() => import('./team/Router'));
 const CommentsRouter = React.lazy(() => import('./comments/Router'));
