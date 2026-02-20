@@ -49,7 +49,7 @@ export const SERVICE_FIELDS = [
   //   fieldName: 'hours',
   // },
   {
-    label: 'Opening hours (coronavirus)',
+    label: 'Opening hours',
     urlFragment: '/opening-hours',
     metaDataSection: 'service',
     RouteComponent: CoronavirusOpeningHours,
@@ -69,14 +69,14 @@ export const SERVICE_FIELDS = [
   //   RouteComponent: ServiceOtherInfo,
   //   fieldName: 'additional_info',
   // },
-  {
-    label: 'PLHIV',
-    urlFragment: '/plhiv',
-    RouteComponent: ServiceHasHivNutrition,
-    fieldName: 'hasHivNutrition',
-    metaDataSection: 'service',
-    serviceTaxonomy: 'Food',
-  },
+  // {
+  //   label: 'PLHIV',
+  //   urlFragment: '/plhiv',
+  //   RouteComponent: ServiceHasHivNutrition,
+  //   fieldName: 'hasHivNutrition',
+  //   metaDataSection: 'service',
+  //   serviceTaxonomy: 'Food',
+  // },
   {
     label: 'Occasions',
     urlFragment: '/occasions',
@@ -116,7 +116,7 @@ export const SERVICE_FIELDS = [
     metaDataSection: 'service',
   },
   {
-    label: 'Other info (coronavirus)',
+    label: 'Other Important info',
     urlFragment: '/other-info',
     metaDataSection: 'service',
     RouteComponent: CoronavirusOtherInfo,

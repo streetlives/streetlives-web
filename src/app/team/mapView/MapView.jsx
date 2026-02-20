@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations } from '../../../services/api';
+import { getLocations, getLocationsWithoutServices } from '../../../services/api';
 import { getAddressForLocation } from '../../../services/geocoding';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
@@ -114,9 +114,14 @@ export default class MapView extends Component {
       latitude: center.lat(),
       longitude: center.lng(),
       radius: Math.floor(radius),
+      noServices: true,
     })
-      .then(locations => this.setState({ locations })) // TODO: we can save these in the redux store
+      .then((locations) => {
+        console.log('fetched locations', locations);
+        this.setState({ locations });
+      }) // TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
+
   };
 
   editLocation = (locationId) => {
@@ -124,7 +129,7 @@ export default class MapView extends Component {
     if (currentUrl.endsWith('/')) {
       currentUrl = currentUrl.slice(0, currentUrl.length - 1);
     }
-    this.props.history.push(`${currentUrl}/location/${locationId}/recap`);
+    this.props.history.push(`${currentUrl}/location/${locationId}/isClosed`);
   }
 
   renderLocationMarkers = () => (
@@ -134,6 +139,7 @@ export default class MapView extends Component {
           <ExistingLocationMarker
             key={location.id}
             mapLocation={location}
+            color={(location.Services && location.Services.length) || (location.services && location.services.length) ? 'blue' : 'red'}
             isOpen={location.id === this.state.openLocationId}
             onToggleInfo={this.onToggleMarkerInfo}
             onEnterLocation={this.editLocation}

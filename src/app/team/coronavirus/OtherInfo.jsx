@@ -18,7 +18,7 @@ const EditComponent = compose(withProps({
 }))(props => <FormEdit {...props} />);
 
 const ViewComponent = compose(withProps({
-  topText: 'OTHER INFORMATION',
+  topText: 'OTHER IMPORTANT INFORMATION',
 }))(props => <FormView {...props} />);
 
 const FormComponent = compose(withProps({

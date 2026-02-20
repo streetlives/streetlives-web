@@ -9,7 +9,13 @@ function FormView(props) {
       <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
         {props.topText}
       </div>
-      <ServiceOpeningHoursEdit viewMode {...props} />
+      {props.value.length === 0 ? (
+        <div className="mb-3">
+          No opening hours have been added for this service yet.
+        </div>
+      ) : (
+        <ServiceOpeningHoursEdit viewMode {...props} />
+      )}
       <ConfirmationOptions onConfirm={props.onConfirm} onEdit={props.onEdit} />
     </div>
   );
