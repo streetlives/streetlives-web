@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations, getLocationsWithoutServices } from '../../../services/api';
+import { getLocations } from '../../../services/api';
 import { getAddressForLocation } from '../../../services/geocoding';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
