@@ -61,7 +61,7 @@ const ServiceDetails = ({
     return <LoadingView />;
   }
 
-  const taxonomyName = service.Taxonomies[0].name;
+  const taxonomyName = service.Taxonomies && service.Taxonomies[0] && service.Taxonomies[0].name;
 
   return (
     <div className="text-left d-flex flex-column">
