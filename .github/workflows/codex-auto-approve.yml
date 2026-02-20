@@ -25,27 +25,13 @@ jobs:
           # Optional but often helps: ensures history exists locally
           fetch-depth: 0
 
+
       - name: Pre-fetch base and head refs
         run: |
           git fetch --no-tags origin \
             ${{ github.event.pull_request.base.ref }} \
             +refs/pull/${{ github.event.pull_request.number }}/head
 
-
-      - name: Load allowlist from protected base commit
-        id: allow
-        run: |
-          set -euo pipefail
-          mkdir -p .codex-protected
-          git show ${{ github.event.pull_request.base.sha }}:.github/codex/allowlists/auto-approve.json \
-            > .codex-protected/auto-approve.json
-
-          author="${{ github.event.pull_request.user.login }}"
-          if jq -e --arg a "$author" 'index($a) != null' .codex-protected/auto-approve.json > /dev/null; then
-            echo "trusted=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "trusted=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Materialize protected prompt/schema from master branch head
         run: |
@@ -59,6 +45,20 @@ jobs:
 
           git show origin/master:.github/codex/schemas/pr-approval.schema.json \
             > .codex-protected/pr-approval.schema.json
+
+          git show origin/master:.github/codex/allowlists/auto-approve.json \
+            > .codex-protected/auto-approve.json
+
+      - name: Load allowlist from protected base commit
+        id: allow
+        run: |
+          author="${{ github.event.pull_request.user.login }}"
+          if jq -e --arg a "$author" 'index($a) != null' .codex-protected/auto-approve.json > /dev/null; then
+            echo "trusted=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "trusted=false" >> "$GITHUB_OUTPUT"
+          fi
+
 
       - name: Build protected run prompt with PR diff
         run: |
