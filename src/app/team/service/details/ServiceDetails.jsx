@@ -27,9 +27,6 @@ const LoadingView = () => (
 function getUpdatedAt(service, route) {
   const { metaDataSection, fieldName } = route;
 
-  console.log(service);
-  console.log(route)
-
   const subFields = service.metadata[metaDataSection];
   const field = subFields.find(el => el.field_name === fieldName);
   return field ? field.last_action_date : null;

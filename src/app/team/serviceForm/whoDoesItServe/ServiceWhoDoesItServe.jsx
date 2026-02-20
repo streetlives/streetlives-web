@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { compose, withProps } from 'recompose';
-import { getService, getServiceWhoDoesItServe, getServiceId } from '../../../../selectors/service';
+import { getService, getServiceId, getServiceWhoDoesItServe } from '../../../../selectors/service';
 import { selectLocationError } from '../../../../selectors/location';
 import * as actions from '../../../../actions';
 import { Form } from '../../../../components/form';
@@ -25,14 +25,13 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchResourceData: bindActionCreators(actions.getLocation, dispatch),
-  updateValue: (whoDoesItServe, serviceId, metaDataSection, fieldName) =>
-    dispatch(actions.updateService({
-      locationId: ownProps.match.params.locationId,
-      serviceId,
-      params: { whoDoesItServe },
-      metaDataSection,
-      fieldName,
-    })),
+  updateValue: (whoDoesItServe, serviceId, metaDataSection, fieldName) => dispatch(actions.updateService({
+    locationId: ownProps.match.params.locationId,
+    serviceId,
+    params: { whoDoesItServe },
+    metaDataSection,
+    fieldName,
+  })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormComponent);
