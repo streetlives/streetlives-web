@@ -26,7 +26,7 @@ function getProgress(service, originalService) {
 
 function ListItem({ service, originalService, url }) {
 
-  const taxonomyName = service.Taxonomies[0].name;
+  const taxonomyName = service.Taxonomies && service.Taxonomies[0] && service.Taxonomies[0].name;
 
   return (
     <Link to={url} className="ListItem d-block py-4 border-top border-bottom">
