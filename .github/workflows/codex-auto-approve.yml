@@ -110,7 +110,7 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Approve PR if Codex says APPROVE and author is trusted
-        if: steps.parse.outputs.decision == 'APPROVE' && steps.trust.outputs.trusted == 'true'
+        if: steps.parse.outputs.decision == 'APPROVE' && steps.allow.outputs.trusted == 'true'
         uses: actions/github-script@v7
         env:
           SUMMARY: ${{ steps.parse.outputs.summary }}
