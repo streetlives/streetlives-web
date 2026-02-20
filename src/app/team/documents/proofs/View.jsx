@@ -7,23 +7,24 @@ import ConfirmationOptions from '../../../../components/form/ConfirmationOptions
 function ProofsRequiredView({ value, onConfirm, onEdit }) {
   return (
     <div className="w-100">
-      <div style={{ fontSize: '13px', marginBottom: '1em' }} className="font-weight-bold mt-2">
+      <div
+        style={{ fontSize: '13px', marginBottom: '1em' }}
+        className="font-weight-bold mt-2"
+      >
         What proofs are required to use this service?
       </div>
 
-      <Selector fluid>
-        {
-          value.map(document => (
-            <Selector.Option
-              key={`selector-${document}`}
-              active
-              hide={false}
-            >
+      {value.length ? (
+        <Selector fluid>
+          {value.map(document => (
+            <Selector.Option key={`selector-${document}`} active hide={false}>
               {document}
             </Selector.Option>
-          ))
-        }
-      </Selector>
+          ))}
+        </Selector>
+      ) : (
+        <p>Empty</p>
+      )}
       <ConfirmationOptions onConfirm={onConfirm} onEdit={onEdit} />
     </div>
   );
