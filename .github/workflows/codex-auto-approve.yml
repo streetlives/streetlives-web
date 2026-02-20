@@ -18,20 +18,17 @@ jobs:
       pull-requests: write
 
     steps:
-
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1 (tag v5)
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
           # Optional but often helps: ensures history exists locally
           fetch-depth: 0
-
 
       - name: Pre-fetch base and head refs
         run: |
           git fetch --no-tags origin \
             ${{ github.event.pull_request.base.ref }} \
             +refs/pull/${{ github.event.pull_request.number }}/head
-
 
       - name: Materialize protected prompt/schema from master branch head
         run: |
@@ -58,7 +55,6 @@ jobs:
           else
             echo "trusted=false" >> "$GITHUB_OUTPUT"
           fi
-
 
       - name: Build protected run prompt with PR diff
         run: |
@@ -92,7 +88,7 @@ jobs:
 
       - name: Run Codex (structured decision using protected prompt)
         id: run_codex
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@086169432f1d2ab2f4057540b1754d550f6a1189 # v1.4 (tag v1)
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: .codex-run/prompt.md
@@ -111,7 +107,7 @@ jobs:
 
       - name: Approve PR if Codex says APPROVE and author is trusted
         if: steps.parse.outputs.decision == 'APPROVE' && steps.allow.outputs.trusted == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0 (tag v7)
         env:
           SUMMARY: ${{ steps.parse.outputs.summary }}
         with:
