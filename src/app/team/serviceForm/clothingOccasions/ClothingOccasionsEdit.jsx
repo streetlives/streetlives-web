@@ -10,10 +10,10 @@ const OCCASIONS = [
   'Job Interview',
 ];
 
-const occasionOptions = [
-  { text: 'Casual', value: 'Everyday' },
-  { text: 'Professional', value: 'Job Interview' },
-];
+// const occasionOptions = [
+//   { text: 'Casual', value: 'Everyday' },
+//   { text: 'Professional', value: 'Job Interview' },
+// ];
 
 class ClothingOccasionsEdit extends Component {
   constructor(props) {

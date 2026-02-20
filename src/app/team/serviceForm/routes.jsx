@@ -10,7 +10,7 @@ import CoronavirusOpeningHours from '../coronavirus/OpeningHours';
 // import ServiceOtherInfo from './otherInfo/ServiceOtherInfo';
 import CoronavirusOtherInfo from '../coronavirus/OtherInfo';
 
-import ServiceHasHivNutrition from './hasHivNutrition/ServiceHasHivNutrition';
+// import ServiceHasHivNutrition from './hasHivNutrition/ServiceHasHivNutrition';
 import ServiceClothingOccasions from './clothingOccasions/ServiceClothingOccasions';
 import ServiceWhoIsThisClothingFor from './whoIsThisClothingFor/ServiceWhoIsThisClothingFor';
 import ServiceTgncClothing from './tgncClothing/ServiceTgncClothing';
