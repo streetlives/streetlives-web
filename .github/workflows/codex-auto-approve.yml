@@ -49,17 +49,17 @@ jobs:
             ${{ github.event.pull_request.base.ref }} \
             +refs/pull/${{ github.event.pull_request.number }}/head
 
-      - name: Materialize protected prompt/schema from develop branch head
+      - name: Materialize protected prompt/schema from master branch head
         run: |
           set -euo pipefail
           mkdir -p .codex-protected
 
-          git fetch --no-tags origin develop:refs/remotes/origin/develop --depth=1
+          git fetch --no-tags origin master:refs/remotes/origin/master --depth=1
 
-          git show origin/develop:.github/codex/prompts/pr-approval.md \
+          git show origin/master:.github/codex/prompts/pr-approval.md \
             > .codex-protected/pr-approval.md
 
-          git show origin/develop:.github/codex/schemas/pr-approval.schema.json \
+          git show origin/master:.github/codex/schemas/pr-approval.schema.json \
             > .codex-protected/pr-approval.schema.json
 
       - name: Run Codex (structured decision using protected prompt)
