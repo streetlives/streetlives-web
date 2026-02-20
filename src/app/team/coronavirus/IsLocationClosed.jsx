@@ -23,7 +23,10 @@ class IsLocationClosed extends Component {
     return pathname.slice(0, pathname.indexOf('/isClosed'));
   };
 
-  getBackButtonTarget = () => `${this.getLocationUrl()}/recap`;
+  getBackButtonTarget = () => {
+    const { pathname } = this.props.location;
+    return pathname.slice(0, pathname.indexOf('/location'));
+  };
 
   selectOpen = () => {
     this.props.markOpen(this.props.locationData);
@@ -56,7 +59,7 @@ class IsLocationClosed extends Component {
           title="Location info"
         />
         <div className="row p-4 mb-3">
-          Is this location still open during the Coronavirus outbreak?
+          Is this location still open?
         </div>
         <div
           style={{

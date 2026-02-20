@@ -131,6 +131,7 @@ class Map extends Component {
     }
 
     const oldBounds = this.mapRef.getBounds();
+    if (!oldBounds) return;
 
     const zoomedOutBounds = oldBounds;
     nextProps.zoomedLocations.forEach((location) => {

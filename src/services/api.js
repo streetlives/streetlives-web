@@ -11,6 +11,7 @@ export const getLocations = ({
   latitude,
   longitude,
   radius,
+  noServices = false,
   minResults,
   searchString,
   organizationName,
@@ -34,6 +35,7 @@ export const getLocations = ({
     latitude,
     longitude,
     organizationName,
+    noServices,
     occasion,
     locationFieldsOnly,
     searchString: searchString || undefined,
@@ -78,6 +80,12 @@ export const getLocations = ({
     })
     .then(result => result.data);
 };
+
+export const getLocationsWithoutServices = () => axios.request({
+  url: `${config.baseApi}/locations/no-services`,
+  method: 'get',
+})
+  .then(result => result.data);
 
 export const getLocation = ({ id }) =>
   axios

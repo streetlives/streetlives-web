@@ -11,7 +11,7 @@ import ServiceOpeningHoursEdit from '../serviceForm/openingHours/ServiceOpeningH
 import ServiceOpeningHoursView from '../serviceForm/openingHours/ServiceOpeningHoursView';
 
 const ViewComponent = compose(withProps({
-  topText: 'CORONAVIRUS OPENING HOURS',
+  topText: 'OPENING HOURS',
 }))(props => <ServiceOpeningHoursView {...props} />);
 
 const EditComponent = compose(withProps({
@@ -21,6 +21,7 @@ const EditComponent = compose(withProps({
 const FormComponent = compose(withProps({
   ViewComponent,
   EditComponent,
+  isEditing: value => !Array.isArray(value),
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({

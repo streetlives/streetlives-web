@@ -28,7 +28,7 @@ function getUpdatedAt(service, route) {
   const { metaDataSection, fieldName } = route;
 
   console.log(service);
-  console.log(route)
+  console.log(route);
 
   const subFields = service.metadata[metaDataSection];
   const field = subFields.find(el => el.field_name === fieldName);
@@ -54,18 +54,32 @@ const ServiceDetails = ({
     return <ErrorLabel errorMessage={locationError} />;
   }
 
-  if (!locationData ||
+  if (
+    !locationData ||
     Object.keys(locationData).length === 0 ||
     !service ||
-    Object.keys(service).length === 0) {
+    Object.keys(service).length === 0
+  ) {
     return <LoadingView />;
   }
+
+  const taxonomyName =
+    service.Taxonomies && service.Taxonomies[0] && service.Taxonomies[0].name;
 
   return (
     <div className="text-left d-flex flex-column">
       <NavBar backButtonTarget={backButtonTarget} title="Service Details" />
       <ProgressBar step={0} steps={serviceFields.length} />
-      <ServiceHeader>Check all the {service.name} details</ServiceHeader>
+      {taxonomyName ? (
+        <ServiceHeader>
+          Check all the {service.name}{' '}
+          {service.name.toLowerCase().trim() !==
+            taxonomyName.toLowerCase().trim() && `(${taxonomyName})`}{' '}
+          details
+        </ServiceHeader>
+      ) : (
+        <ServiceHeader>Check all the {service.name} details</ServiceHeader>
+      )}
 
       {serviceFields.map(field => (
         <ListItem
