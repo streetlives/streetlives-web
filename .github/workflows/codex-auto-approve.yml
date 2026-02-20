@@ -19,6 +19,19 @@ jobs:
 
     steps:
 
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          # Optional but often helps: ensures history exists locally
+          fetch-depth: 0
+
+      - name: Pre-fetch base and head refs
+        run: |
+          git fetch --no-tags origin \
+            ${{ github.event.pull_request.base.ref }} \
+            +refs/pull/${{ github.event.pull_request.number }}/head
+
+
       - name: Load allowlist from protected base commit
         id: allow
         run: |
@@ -33,18 +46,6 @@ jobs:
           else
             echo "trusted=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - uses: actions/checkout@v5
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-          # Optional but often helps: ensures history exists locally
-          fetch-depth: 0
-
-      - name: Pre-fetch base and head refs
-        run: |
-          git fetch --no-tags origin \
-            ${{ github.event.pull_request.base.ref }} \
-            +refs/pull/${{ github.event.pull_request.number }}/head
 
       - name: Materialize protected prompt/schema from master branch head
         run: |
