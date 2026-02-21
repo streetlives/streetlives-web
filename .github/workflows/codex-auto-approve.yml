@@ -63,6 +63,11 @@ jobs:
 
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          PR_TITLE_JSON='${{ toJson(github.event.pull_request.title) }}'
+          PR_BODY_JSON='${{ toJson(github.event.pull_request.body) }}'
+
+          PR_TITLE="$(printf '%s' "$PR_TITLE_JSON" | jq -r '.')"
+          PR_BODY="$(printf '%s' "$PR_BODY_JSON" | jq -r '. // ""')"
 
           {
             # 1) Protected instructions (from master)
@@ -74,6 +79,16 @@ jobs:
             echo "PR: #${{ github.event.pull_request.number }}"
             echo "Base: ${{ github.event.pull_request.base.ref }} @ ${BASE_SHA}"
             echo "Head: ${{ github.event.pull_request.head.ref }} @ ${HEAD_SHA}"
+            echo ""
+            echo "## PR title"
+            echo "<<<BEGIN_PR_TITLE>>>"
+            printf '%s\n' "$PR_TITLE"
+            echo "<<<END_PR_TITLE>>>"
+            echo ""
+            echo "## PR description"
+            echo "<<<BEGIN_PR_DESCRIPTION>>>"
+            printf '%s\n' "$PR_BODY"
+            echo "<<<END_PR_DESCRIPTION>>>"
             echo ""
             echo "## Changed files"
             echo "<<<BEGIN_CHANGED_FILES>>>"
