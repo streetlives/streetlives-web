@@ -88,14 +88,13 @@ function MoveToYourPeerModal({ isOpen = true }) {
           &times;
         </button>
         <div style={headerStyle}>
-          <h3 style={{ margin: 0, fontWeight: 'bold', marginTop: 20 }}>Gogetta Moved to YourPeer</h3>
+          <h3 style={{ margin: 0, fontWeight: 'bold', marginTop: 20 }}>GoGetta is now part of YourPeer</h3>
         </div>
 
         <div style={{ marginTop: "16px" }}>
-          <p style={{fontSize: '16px', color: '#606060'}}>
-            See the latest service information on YourPeer, New York City's
-            peer-powered resource tool
-          </p>
+          <p style={{fontSize: '16px', color: '#606060'}}>Same trusted team. Same privacy. Even more up-to-date information. <br />
+
+            Find the latest service information on YourPeer, New York City’s peer-powered resource tool.</p>
         </div>
 
         <div style={buttonContainerStyle}>
