@@ -63,11 +63,6 @@ jobs:
 
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          PR_TITLE_JSON='${{ toJson(github.event.pull_request.title) }}'
-          PR_BODY_JSON='${{ toJson(github.event.pull_request.body) }}'
-
-          PR_TITLE="$(printf '%s' "$PR_TITLE_JSON" | jq -r '.')"
-          PR_BODY="$(printf '%s' "$PR_BODY_JSON" | jq -r '. // ""')"
 
           {
             # 1) Protected instructions (from master)
@@ -79,16 +74,6 @@ jobs:
             echo "PR: #${{ github.event.pull_request.number }}"
             echo "Base: ${{ github.event.pull_request.base.ref }} @ ${BASE_SHA}"
             echo "Head: ${{ github.event.pull_request.head.ref }} @ ${HEAD_SHA}"
-            echo ""
-            echo "## PR title"
-            echo "<<<BEGIN_PR_TITLE>>>"
-            printf '%s\n' "$PR_TITLE"
-            echo "<<<END_PR_TITLE>>>"
-            echo ""
-            echo "## PR description"
-            echo "<<<BEGIN_PR_DESCRIPTION>>>"
-            printf '%s\n' "$PR_BODY"
-            echo "<<<END_PR_DESCRIPTION>>>"
             echo ""
             echo "## Changed files"
             echo "<<<BEGIN_CHANGED_FILES>>>"
@@ -119,7 +104,7 @@ jobs:
           echo "summary<<EOF" >> "$GITHUB_OUTPUT"
           jq -r .summary codex-review.json >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "blocking_issues=$(jq -c .blocking_issues codex-review.json)" >> "$GITHUB_OUTPUT"
+          echo "blocking_issues_json=$(jq -c '.blocking_issues' codex-review.json)" >> "$GITHUB_OUTPUT"
 
       - name: Approve PR if Codex says APPROVE and author is trusted
         if: steps.parse.outputs.decision == 'APPROVE' && steps.allow.outputs.trusted == 'true'
@@ -143,21 +128,27 @@ jobs:
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0 (tag v7)
         env:
           SUMMARY: ${{ steps.parse.outputs.summary }}
-          BLOCKING_ISSUES_JSON: ${{ steps.parse.outputs.blocking_issues }}
+          BLOCKING_ISSUES_JSON: ${{ steps.parse.outputs.blocking_issues_json }}
         with:
           github-token: ${{ github.token }}
           script: |
-            const blockingIssues = JSON.parse(process.env.BLOCKING_ISSUES_JSON || '[]');
-            const summary = process.env.SUMMARY || "Codex requested changes.";
-            const issuesBody = blockingIssues.length
+            const blockingIssues = JSON.parse(process.env.BLOCKING_ISSUES_JSON || "[]");
+            const issueList = blockingIssues.length
               ? blockingIssues.map((issue) => `- ${issue}`).join("\n")
               : "- No blocking issues were returned.";
+
+            const body = [
+              process.env.SUMMARY || "Codex: changes requested.",
+              "",
+              "### Blocking issues",
+              issueList,
+            ].join("\n");
 
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               event: "REQUEST_CHANGES",
-              body: `${summary}\n\n### Blocking issues\n${issuesBody}`,
+              body,
               commit_id: context.payload.pull_request.head.sha,
             });
