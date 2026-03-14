@@ -34,7 +34,7 @@ class IsLocationClosed extends Component {
   };
 
   selectClosed = () => {
-    // Wen no longer need mark this location as closed instantly, but we want to show the closure info page where the user can add more details about the closure
+    // We no longer need to mark this location as closed instantly, but we want to show the closure info page where the user can add more details about the closure
     this.props.history.push(`${this.getLocationUrl()}/closureInfo`);
   };
 
