@@ -157,7 +157,7 @@ class ClothingOccasionsEdit extends Component {
 
         <Button
           onClick={this.updateValue}
-          disabled={this.state.occasions.length === 0}
+          disabled={!this.state.occasions}
           primary
         >
           OK

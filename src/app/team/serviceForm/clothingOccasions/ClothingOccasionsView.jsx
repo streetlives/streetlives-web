@@ -13,7 +13,7 @@ function ClothingOccasionsView({ value, onConfirm, onEdit }) {
 
       <Selector fluid>
         {
-          value.map(name => (
+          value.length > 0 ? value.map(name => (
             <Selector.Option
               key={`selector-${name}`}
               active
@@ -21,7 +21,7 @@ function ClothingOccasionsView({ value, onConfirm, onEdit }) {
             >
               {name}
             </Selector.Option>
-          ))
+          )) : <div className="font-italic">No clothing occasions specified</div>
         }
       </Selector>
       <ConfirmationOptions onConfirm={onConfirm} onEdit={onEdit} />

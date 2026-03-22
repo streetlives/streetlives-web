@@ -13,9 +13,12 @@ import { Form } from '../../../../components/form';
 import ClothingOccasionsEdit from './ClothingOccasionsEdit';
 import ClothingOccasionsView from './ClothingOccasionsView';
 
+export const isEditing = value => !Array.isArray(value);
+
 const FormComponent = compose(withProps({
   ViewComponent: ClothingOccasionsView,
   EditComponent: ClothingOccasionsEdit,
+  isEditing,
 }))(props => <Form {...props} />);
 
 const mapStateToProps = (state, ownProps) => ({
