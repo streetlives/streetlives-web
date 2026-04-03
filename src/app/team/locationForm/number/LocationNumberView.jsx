@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { deletePhone, getLocation } from '../../../../actions';
+import { deletePhone, updatePhone, getLocation } from '../../../../actions';
 import { getPhoneNumbers } from '../../../../selectors/location';
 
 import Button from '../../../../components/button';
@@ -71,8 +71,16 @@ class LocationNumberView extends Component {
   }
 
   render() {
-    const { phones, onConfirm } = this.props;
+    const { phones, onConfirm, updatePhone: patchPhone } = this.props;
     const { isEditing, showDeleteModal, phoneBeingDeleted } = this.state;
+
+    const onConfirmWithPatch = () => {
+      if (phones && phones.length > 0) {
+        const phone = phones[0];
+        patchPhone(phone.id, { number: phone.number, type: phone.type, extension: phone.extension });
+      }
+      onConfirm();
+    };
 
     return (
       <div className="w-100">
@@ -139,7 +147,7 @@ class LocationNumberView extends Component {
             >
               Done Editing
             </Button> :
-            <ConfirmationOptions onConfirm={onConfirm} onEdit={this.toggleEdit} />
+            <ConfirmationOptions onConfirm={onConfirmWithPatch} onEdit={this.toggleEdit} />
         }
       </div>
     );
@@ -161,6 +169,13 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   deletePhone: id => dispatch(deletePhone(ownProps.match.params.locationId, id)),
+  updatePhone: (phoneId, params) => dispatch(updatePhone(
+    ownProps.match.params.locationId,
+    phoneId,
+    params,
+    'location',
+    'phones',
+  )),
   fetchResourceData: () => {
     dispatch(getLocation(ownProps.match.params.locationId));
   },
