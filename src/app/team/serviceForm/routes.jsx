@@ -89,7 +89,7 @@ export const SERVICE_FIELDS = [
     label: 'Gender and age',
     urlFragment: '/gender-and-age',
     RouteComponent: ServiceWhoIsThisClothingFor,
-    fieldName: 'genderAndAge',
+    fieldName: 'wearerAge',
     metaDataSection: 'service',
     serviceTaxonomy: 'Clothing',
   },
