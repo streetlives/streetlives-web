@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations } from '../../../services/api';
+import { getLocations, getTeamSearchLocations } from '../../../services/api';
 import { getAddressForLocation } from '../../../services/geocoding';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
@@ -77,7 +77,7 @@ export default class MapView extends Component {
   }, debouncePeriod);
 
   onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
-    getLocations({ organizationName: searchString })
+    getTeamSearchLocations(searchString)
       .then((locations) => {
         const searchStringAtTimeOfResponse = this.state.searchString;
         const searchResponseStillValid =
@@ -121,7 +121,6 @@ export default class MapView extends Component {
         this.setState({ locations });
       }) // TODO: we can save these in the redux store
       .catch(e => console.error('error', e));
-
   };
 
   editLocation = (locationId) => {
@@ -135,16 +134,22 @@ export default class MapView extends Component {
   renderLocationMarkers = () => (
     <div>
       {this.state.locations &&
-        this.state.locations.map(location => (
-          <ExistingLocationMarker
-            key={location.id}
-            mapLocation={location}
-            color={(location.Services && location.Services.length) || (location.services && location.services.length) ? 'blue' : 'red'}
-            isOpen={location.id === this.state.openLocationId}
-            onToggleInfo={this.onToggleMarkerInfo}
-            onEnterLocation={this.editLocation}
-          />
-      ))}
+        this.state.locations.map((location) => {
+          const hasServices =
+            (location.Services && location.Services.length) ||
+            (location.services && location.services.length);
+
+          return (
+            <ExistingLocationMarker
+              key={location.id}
+              mapLocation={location}
+              color={hasServices ? 'blue' : 'red'}
+              isOpen={location.id === this.state.openLocationId}
+              onToggleInfo={this.onToggleMarkerInfo}
+              onEnterLocation={this.editLocation}
+            />
+          );
+        })}
       {this.state.newLocation && (
         <NewLocationMarker
           key="new"

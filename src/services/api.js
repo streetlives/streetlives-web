@@ -13,6 +13,7 @@ export const getLocations = ({
   radius,
   noServices = false,
   minResults,
+  maxResults,
   searchString,
   organizationName,
   occasion,
@@ -40,6 +41,7 @@ export const getLocations = ({
     locationFieldsOnly,
     searchString: searchString || undefined,
     minResults: minResults || undefined,
+    maxResults: maxResults || undefined,
     radius: radius != null ? Math.min(radius, MAX_RADIUS) : undefined,
     taxonomyId: taxonomyIds != null ? taxonomyIds.join(',') : undefined,
     openAt: openNow ? (new Date()).toISOString() : undefined,
@@ -79,6 +81,53 @@ export const getLocations = ({
       paramsSerializer: rawParams => qs.stringify(rawParams),
     })
     .then(result => result.data);
+};
+
+const NYC_SEARCH_CENTER = {
+  latitude: 40.7831,
+  longitude: -73.9712,
+};
+const TEAM_SEARCH_RADIUS = MAX_RADIUS;
+const TEAM_SEARCH_MAX_RESULTS = 50;
+
+const dedupeLocations = (locations) => {
+  const seen = {};
+
+  return locations.filter((location) => {
+    if (seen[location.id]) {
+      return false;
+    }
+
+    seen[location.id] = true;
+    return true;
+  });
+};
+
+export const getTeamSearchLocations = (searchString) => {
+  const trimmedSearchString = searchString.trim();
+
+  if (!trimmedSearchString) {
+    return Promise.resolve([]);
+  }
+
+  const sharedParams = {
+    ...NYC_SEARCH_CENTER,
+    radius: TEAM_SEARCH_RADIUS,
+    noServices: true,
+    maxResults: TEAM_SEARCH_MAX_RESULTS,
+  };
+
+  return axios.all([
+    getLocations({
+      ...sharedParams,
+      organizationName: trimmedSearchString,
+    }),
+    getLocations({
+      ...sharedParams,
+      searchString: trimmedSearchString,
+    }),
+  ])
+    .then(results => dedupeLocations([].concat(...results)));
 };
 
 export const getLocationsWithoutServices = () => axios.request({
