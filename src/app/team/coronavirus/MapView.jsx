@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
-import { getLocations } from '../../../services/api';
+import { getLocations, getTeamSearchLocations } from '../../../services/api';
 import Map from '../../../components/map';
 import Dropdown from '../../../components/dropdown';
 import Icon from '../../../components/icon';
@@ -49,7 +49,7 @@ export default class MapView extends Component {
   }, debouncePeriod);
 
   onSuggestionsFetchRequested = debounce(({ searchString, reason }) => {
-    getLocations({ organizationName: searchString })
+    getTeamSearchLocations(searchString)
       .then((locations) => {
         const searchStringAtTimeOfResponse = this.state.searchString;
         const searchResponseStillValid =
