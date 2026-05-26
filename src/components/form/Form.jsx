@@ -76,6 +76,7 @@ class Form extends Component {
           metaDataSection={this.props.metaDataSection}
           fieldName={this.props.fieldName}
           id={this.props.id}
+          resourceData={this.props.resourceData}
         />
       );
     }

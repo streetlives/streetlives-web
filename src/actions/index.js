@@ -127,6 +127,48 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
+export const updateLocationStreetview = (
+  locationId,
+  streetviewData,
+  metaDataSection,
+  fieldName,
+) => (dispatch, getState) => {
+  const state = getState();
+  const location = state.locations[locationId];
+  const originalStreetview = location ? location.Streetview : null;
+
+  const allNull = !streetviewData ||
+    Object.values(streetviewData).every(v => v === null || v === undefined || v === '');
+
+  if (allNull && !originalStreetview) {
+    return;
+  }
+
+  const newStreetview = allNull ? null : streetviewData;
+
+  // Optimistic update uses uppercase key to match the GET response shape in Redux state.
+  dispatch({
+    type: OPTIMISTIC_UPDATE_LOCATION,
+    payload: {
+      id: locationId,
+      params: { Streetview: newStreetview },
+      metaDataSection,
+      fieldName,
+    },
+  });
+
+  // API PATCH body uses lowercase key as expected by the backend.
+  api
+    .updateLocation({ id: locationId, params: { streetview: newStreetview } })
+    .catch((e) => {
+      console.error('Error updating streetview', e);
+      dispatch({
+        type: UPDATE_LOCATION_ERROR,
+        payload: { id: locationId, error: e },
+      });
+    });
+};
+
 export const deletePhone = (locationId, id) => (dispatch) => {
   dispatch({
     type: OPTIMISTIC_DELETE_PHONE,
