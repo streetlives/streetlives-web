@@ -21,13 +21,8 @@ const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
   const locationError = selectLocationError(state, ownProps);
 
-  // Treat resourceData as unloaded when the streetview key is absent from the cached location
-  // data (stale fetch from before the backend added this field). This causes Form to re-fetch.
-  const streetviewKeyPresent = locationData &&
-    Object.prototype.hasOwnProperty.call(locationData, 'Streetview');
-
   return {
-    resourceData: streetviewKeyPresent ? locationData : null,
+    resourceData: locationData,
     value: selectValue(locationData),
     resourceLoadError: locationError,
   };
