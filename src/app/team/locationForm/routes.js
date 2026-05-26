@@ -68,7 +68,7 @@ const routes = [
     RouteComponent: LocationStreetview,
     label: 'Streetview',
     metaDataSection: 'location',
-    fieldName: 'streetview_url',
+    fieldName: 'streetview',
     selectValue: selectValueLocationStreetview,
   },
 ];
