@@ -39,6 +39,24 @@ function validate({
       errors.fov = 'Must be a whole number between 10 and 120';
     }
   }
+
+  // Cross-field: lat and lng must be provided together
+  if (lat !== '' && !errors.lat && lng === '') {
+    errors.lng = 'Required when latitude is provided';
+  }
+  if (lng !== '' && !errors.lng && lat === '') {
+    errors.lat = 'Required when longitude is provided';
+  }
+
+  // Cross-field: any field data requires a valid Street View anchor (panoId or lat+lng)
+  const hasPanoId = !!(panoId && panoId.trim() && !errors.panoId);
+  const hasValidCoords = lat !== '' && !errors.lat && lng !== '' && !errors.lng;
+  const hasValidAnchor = hasPanoId || hasValidCoords;
+  const hasAnyData = !!(panoId && panoId.trim()) || lat !== '' || lng !== '' || heading !== '' || pitch !== '' || fov !== '';
+  if (hasAnyData && !hasValidAnchor && !errors.lat && !errors.lng) {
+    errors._form = 'A Pano ID or both latitude and longitude are required to save a Street View override';
+  }
+
   return errors;
 }
 
@@ -136,12 +154,6 @@ class PanoramaPicker extends Component {
       if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time) {
         this.setState({ historicalPanos: [] });
         return;
-      }
-
-      // Log raw shape so we can confirm field names in this API version
-      if (data.time.length > 0) {
-        // eslint-disable-next-line no-console
-        console.log('[StreetView] data.time[0] keys:', Object.keys(data.time[0]), data.time[0]);
       }
 
       if (data.time.length <= 1) {
@@ -462,6 +474,8 @@ class LocationStreetviewEdit extends Component {
           </div>
 
         </div>
+
+        <FieldError message={errors._form} />
 
         <Button primary className="mt-3" onClick={this.onSubmit}>
           OK
