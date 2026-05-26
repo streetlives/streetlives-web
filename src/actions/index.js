@@ -140,13 +140,9 @@ export const updateLocationStreetview = (
   const allNull = !streetviewData ||
     Object.values(streetviewData).every(v => v === null || v === undefined || v === '');
 
-  if (allNull && !originalStreetview) {
-    return;
-  }
-
   const newStreetview = allNull ? null : streetviewData;
 
-  // Optimistic update uses uppercase key to match the GET response shape in Redux state.
+  // Always dispatch optimistic update to complete the form cycle
   dispatch({
     type: OPTIMISTIC_UPDATE_LOCATION,
     payload: {
@@ -156,6 +152,11 @@ export const updateLocationStreetview = (
       fieldName,
     },
   });
+
+  // Skip API call only if clearing a non-existent override
+  if (allNull && !originalStreetview) {
+    return;
+  }
 
   // API PATCH body uses lowercase key as expected by the backend.
   api
