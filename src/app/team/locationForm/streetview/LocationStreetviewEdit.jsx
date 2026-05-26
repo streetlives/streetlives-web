@@ -14,7 +14,7 @@ function validate({
   panoId, lat, lng, heading, pitch, fov,
 }) {
   const errors = {};
-  if (panoId && panoId.length > 128) {
+  if (panoId && panoId.trim().length > 128) {
     errors.panoId = 'Must be 128 characters or fewer';
   }
   if (lat !== '') {
@@ -188,7 +188,7 @@ class PanoramaPicker extends Component {
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     this.props.onCapture({
-      pano_id: this.state.selectedYearPanoId || null,
+      pano_id: this.state.selectedYearPanoId || this.state.currentPano || null,
       lat: position ? position.lat() : null,
       lng: position ? position.lng() : null,
       heading: pov.heading !== undefined ? pov.heading : null,
@@ -337,7 +337,7 @@ class LocationStreetviewEdit extends Component {
       return;
     }
     const streetviewData = {
-      pano_id: panoId || null,
+      pano_id: panoId.trim() || null,
       lat: lat !== '' ? parseFloat(lat) : null,
       lng: lng !== '' ? parseFloat(lng) : null,
       heading: heading !== '' ? parseFloat(heading) : null,
