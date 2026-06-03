@@ -139,7 +139,7 @@ export default class MapView extends Component {
           <ExistingLocationMarker
             key={location.id}
             mapLocation={location}
-            color={(location.Services && location.Services.length) || (location.services && location.services.length) ? 'blue' : 'red'}
+            color={(location.Services && location.Services.length) || (location.services && location.services.length) ? location.closed ? 'gray' :  'blue' : 'red'}
             isOpen={location.id === this.state.openLocationId}
             onToggleInfo={this.onToggleMarkerInfo}
             onEnterLocation={this.editLocation}
