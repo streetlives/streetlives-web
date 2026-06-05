@@ -52,6 +52,7 @@ class IsLocationClosed extends Component {
       return <LoadingLabel />;
     }
 
+    // eslint-disable-next-line no-nested-ternary
     const closedStatus = locationData.closed === true
       ? 'closed'
       : locationData.closed === false
@@ -117,24 +118,10 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getLocation: bindActionCreators(actions.getLocation, dispatch),
-  markClosed: location => location.Services.forEach(service =>
-    dispatch(actions.updateService({
-      locationId: location.id,
-      serviceId: service.id,
-      params: { irregularHours: [{ occasion: OCCASIONS.CLOSURE, closed: true }] },
-      metaDataSection: 'service',
-      fieldName: 'irregularHours',
-    }))),
   markOpen: (location) => {
     dispatch(actions.updateLocation(
       location.id,
       { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE }, closed: false },
-      'location',
-      'eventRelatedInfo',
-    ));
-    dispatch(actions.updateLocation(
-      location.id,
-      { eventRelatedInfo: { information: null, event: OCCASIONS.COVID19 } },
       'location',
       'eventRelatedInfo',
     ));
