@@ -73,7 +73,7 @@ function ServiceSection({ service, showOnMount }) {
 
   const schedule =
     service.HolidaySchedules &&
-    service.HolidaySchedules.filter(({ occasion, closed }) => occasion === OCCASIONS.COVID19);
+    service.HolidaySchedules.filter(({ occasion }) => occasion === OCCASIONS.CLOSURE || occasion === OCCASIONS.COVID19);
   const isScheduleKnown = schedule && schedule.length;
 
   let isClosed = false;

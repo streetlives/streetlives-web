@@ -125,12 +125,20 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
       metaDataSection: 'service',
       fieldName: 'irregularHours',
     }))),
-  markOpen: location => dispatch(actions.updateLocation(
-    location.id,
-    { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE }, closed: false },
-    'location',
-    'eventRelatedInfo',
-  )),
+  markOpen: (location) => {
+    dispatch(actions.updateLocation(
+      location.id,
+      { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE }, closed: false },
+      'location',
+      'eventRelatedInfo',
+    ));
+    dispatch(actions.updateLocation(
+      location.id,
+      { eventRelatedInfo: { information: null, event: OCCASIONS.COVID19 } },
+      'location',
+      'eventRelatedInfo',
+    ));
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(IsLocationClosed));
