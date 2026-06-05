@@ -82,7 +82,7 @@ export const selectValue = locationData => (
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
   const eventRelatedInfo = selectEventRelatedInfo(state, ownProps)
-    .filter(({ event }) => event === OCCASIONS.COVID19)[0];
+    .filter(({ event }) => event === OCCASIONS.CLOSURE || event === OCCASIONS.COVID19)[0];
 
   return {
     resourceData: locationData,

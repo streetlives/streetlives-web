@@ -52,7 +52,18 @@ class IsLocationClosed extends Component {
       return <LoadingLabel />;
     }
 
-    const isCurrentlyClosed = locationData.closed;
+    const closedStatus = locationData.closed === true
+      ? 'closed'
+      : locationData.closed === false
+        ? 'open'
+        : 'unknown';
+
+    const statusLabel = { closed: 'CURRENTLY CLOSED', open: 'CURRENTLY OPEN', unknown: 'STATUS UNKNOWN' }[closedStatus];
+    const statusStyle = {
+      closed: { backgroundColor: '#e0e0e0', color: '#555' },
+      open: { backgroundColor: '#d4edda', color: '#155724' },
+      unknown: { backgroundColor: '#fff3cd', color: '#856404' },
+    }[closedStatus];
 
     return (
       <div className="text-left">
@@ -68,11 +79,10 @@ class IsLocationClosed extends Component {
               borderRadius: '12px',
               fontSize: '0.8rem',
               fontWeight: 'bold',
-              backgroundColor: isCurrentlyClosed ? '#e0e0e0' : '#d4edda',
-              color: isCurrentlyClosed ? '#555' : '#155724',
+              ...statusStyle,
             }}
           >
-            {isCurrentlyClosed ? 'CURRENTLY CLOSED' : 'CURRENTLY OPEN'}
+            {statusLabel}
           </div>
         </div>
         <div className="row p-4 mb-3">
@@ -91,7 +101,7 @@ class IsLocationClosed extends Component {
               YES, IT’S OPEN
             </Button>
             <Button onClick={this.selectClosed} primary basic fluid className="mt-2">
-              {isCurrentlyClosed ? 'UPDATE CLOSURE INFO' : "NO, IT'S CLOSED"}
+              {closedStatus === 'closed' ? 'UPDATE CLOSURE INFO' : "NO, IT'S CLOSED"}
             </Button>
           </div>
         </div>
@@ -111,13 +121,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     dispatch(actions.updateService({
       locationId: location.id,
       serviceId: service.id,
-      params: { irregularHours: [{ occasion: OCCASIONS.COVID19, closed: true }] },
+      params: { irregularHours: [{ occasion: OCCASIONS.CLOSURE, closed: true }] },
       metaDataSection: 'service',
       fieldName: 'irregularHours',
     }))),
   markOpen: location => dispatch(actions.updateLocation(
     location.id,
-    { eventRelatedInfo: { information: null, event: OCCASIONS.COVID19 } },
+    { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE } },
     'location',
     'eventRelatedInfo',
   )),

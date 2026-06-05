@@ -69,7 +69,7 @@ function ServiceSection({ service, showOnMount }) {
 
   const coronavirusInfo =
     service.EventRelatedInfos &&
-    service.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
+    service.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.CLOSURE || event === OCCASIONS.COVID19);
 
   const schedule =
     service.HolidaySchedules &&
