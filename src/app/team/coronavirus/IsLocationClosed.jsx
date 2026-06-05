@@ -127,7 +127,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }))),
   markOpen: location => dispatch(actions.updateLocation(
     location.id,
-    { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE } },
+    { eventRelatedInfo: { information: null, event: OCCASIONS.CLOSURE }, closed: false },
     'location',
     'eventRelatedInfo',
   )),
