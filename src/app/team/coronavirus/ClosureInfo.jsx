@@ -96,7 +96,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (closureInfo, organizationId, metaDataSection, fieldName) =>
     dispatch(updateLocation(
       ownProps.match.params.locationId,
-      { eventRelatedInfo: { information: closureInfo || defaultClosureInfo, event: OCCASIONS.COVID19 } },
+      { eventRelatedInfo: { information: closureInfo || defaultClosureInfo, event: OCCASIONS.CLOSURE } },
       metaDataSection,
       fieldName,
     )),

@@ -31,6 +31,7 @@ export const TAXONOMY_SPECIFIC_ATTRIBUTES = {
 
 export const OCCASIONS = {
   COVID19: 'COVID19',
+  CLOSURE: 'CLOSURE',
 };
 
 export const DESKTOP_BREAKPOINT = '1224px';
