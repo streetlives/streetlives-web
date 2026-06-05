@@ -52,12 +52,29 @@ class IsLocationClosed extends Component {
       return <LoadingLabel />;
     }
 
+    const isCurrentlyClosed = locationData.closed;
+
     return (
       <div className="text-left">
         <NavBar
           backButtonTarget={this.getBackButtonTarget()}
           title="Location info"
         />
+        <div className="row p-4 mb-1">
+          <div
+            style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              backgroundColor: isCurrentlyClosed ? '#e0e0e0' : '#d4edda',
+              color: isCurrentlyClosed ? '#555' : '#155724',
+            }}
+          >
+            {isCurrentlyClosed ? 'CURRENTLY CLOSED' : 'CURRENTLY OPEN'}
+          </div>
+        </div>
         <div className="row p-4 mb-3">
           Is this location still open?
         </div>
@@ -74,7 +91,7 @@ class IsLocationClosed extends Component {
               YES, IT’S OPEN
             </Button>
             <Button onClick={this.selectClosed} primary basic fluid className="mt-2">
-              NO, IT’S CLOSED
+              {isCurrentlyClosed ? 'UPDATE CLOSURE INFO' : "NO, IT'S CLOSED"}
             </Button>
           </div>
         </div>
