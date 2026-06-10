@@ -81,8 +81,10 @@ export const selectValue = locationData => (
 
 const mapStateToProps = (state, ownProps) => {
   const locationData = selectLocationData(state, ownProps);
-  const eventRelatedInfo = selectEventRelatedInfo(state, ownProps)
-    .filter(({ event }) => event === OCCASIONS.COVID19)[0];
+  const allEventRelatedInfos = selectEventRelatedInfo(state, ownProps);
+  const eventRelatedInfo =
+    allEventRelatedInfos.find(({ event }) => event === OCCASIONS.CLOSURE) ||
+    allEventRelatedInfos.find(({ event }) => event === OCCASIONS.COVID19);
 
   return {
     resourceData: locationData,
@@ -96,7 +98,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   updateValue: (closureInfo, organizationId, metaDataSection, fieldName) =>
     dispatch(updateLocation(
       ownProps.match.params.locationId,
-      { eventRelatedInfo: { information: closureInfo || defaultClosureInfo, event: OCCASIONS.COVID19 } },
+      { eventRelatedInfo: { information: closureInfo || defaultClosureInfo, event: OCCASIONS.CLOSURE }, closed: true },
       metaDataSection,
       fieldName,
     )),

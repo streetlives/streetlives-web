@@ -147,7 +147,7 @@ const sortedCategoryNames = (categories, searchCategoryName) =>
 
 const renderLocation = (location, searchCategory) => {
   const coronavirusInfo = location.EventRelatedInfos &&
-    location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.COVID19);
+    location.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.CLOSURE || event === OCCASIONS.COVID19);
   const isClosed = !!(coronavirusInfo && coronavirusInfo.length);
   const closureInfo = isClosed && coronavirusInfo[0].information;
 
