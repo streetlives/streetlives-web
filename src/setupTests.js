@@ -1,4 +1,10 @@
-import { configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+const unitTestRun = process.argv.some(arg => arg.includes('src/utils'));
 
-configure({ adapter: new Adapter() });
+if (!unitTestRun) {
+  // eslint-disable-next-line global-require
+  const { configure } = require('enzyme');
+  // eslint-disable-next-line global-require
+  const Adapter = require('enzyme-adapter-react-16');
+
+  configure({ adapter: new Adapter() });
+}

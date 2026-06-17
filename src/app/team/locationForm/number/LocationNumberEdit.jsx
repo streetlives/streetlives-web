@@ -1,22 +1,33 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
 
 import { getPhoneNumber } from '../../../../selectors/location';
 import { updatePhone, createPhone } from '../../../../actions';
+import {
+  PHONE_USE,
+  PHONE_USE_OPTIONS,
+  isValidPhoneNumberForUse,
+  normalizePhoneDigits,
+  normalizePhoneUse,
+  phoneCanHaveExtension,
+  phoneUseToTypeLabel,
+} from '../../../../utils/phones';
 
 import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 
-const validPhoneNumberLength = input => input.length === 12;
-const convertToPackagePhoneFormat = input => (input ? `${input.replace(/\./g, '')}` : '');
-const convertToOurFormat = (input) => {
-  if (!input) return '';
-  const justDigits = input.replace(/[^\d]/g, '');
-  return `${justDigits.slice(0, 3)}.${justDigits.slice(3, 6)}.${justDigits.slice(6)}`;
+const getPhoneLabel = (phone) => {
+  const phoneUse = normalizePhoneUse(phone && phone.type);
+
+  if (phoneUse === PHONE_USE.PHONE) {
+    return phone && phone.type && phone.type !== phoneUseToTypeLabel(PHONE_USE.PHONE)
+      ? phone.type
+      : '';
+  }
+
+  return '';
 };
 
 class LocationNumberEdit extends Component {
@@ -25,18 +36,33 @@ class LocationNumberEdit extends Component {
     this.state = {
       extension: '',
       type: '',
+      phoneUse: PHONE_USE.PHONE,
       phoneNumber: '',
       newPhoneNumber: '',
+      loadedPhoneId: null,
+      loadedPhoneNumber: null,
       invalidNumber: false,
     };
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.phone && props.phone.number !== state.phoneNumber) {
+    if (
+      props.phone &&
+      (
+        props.phone.id !== state.loadedPhoneId ||
+        props.phone.number !== state.loadedPhoneNumber
+      )
+    ) {
+      const phoneUse = normalizePhoneUse(props.phone.type);
+
       return {
-        extension: (props.phone && props.phone.extension) || '',
-        type: (props.phone && props.phone.type) || '',
-        phoneNumber: props.phone && props.phone.number,
+        extension: phoneCanHaveExtension(phoneUse) ? props.phone.extension || '' : '',
+        type: getPhoneLabel(props.phone),
+        phoneUse,
+        phoneNumber: normalizePhoneDigits(props.phone.number),
+        newPhoneNumber: '',
+        loadedPhoneId: props.phone.id,
+        loadedPhoneNumber: props.phone.number,
       };
     }
 
@@ -50,21 +76,23 @@ class LocationNumberEdit extends Component {
   onSubmit = (e) => {
     e.preventDefault();
 
-    const newPhoneNumber = this.state.newPhoneNumber || convertToOurFormat(this.state.phoneNumber);
+    const phoneNumberInput = this.state.newPhoneNumber || this.state.phoneNumber;
+    const newPhoneNumber = normalizePhoneDigits(phoneNumberInput);
 
-    if (!validPhoneNumberLength(newPhoneNumber)) {
+    if (!isValidPhoneNumberForUse(newPhoneNumber, this.state.phoneUse)) {
       this.setState({ invalidNumber: true });
       return;
     }
 
+    const canHaveExtension = phoneCanHaveExtension(this.state.phoneUse);
+    const type = this.state.phoneUse === PHONE_USE.PHONE
+      ? this.state.type || phoneUseToTypeLabel(PHONE_USE.PHONE)
+      : phoneUseToTypeLabel(this.state.phoneUse);
     const params = {
       number: newPhoneNumber,
-      extension: parseInt(this.state.extension, 10) || null,
+      extension: canHaveExtension ? parseInt(this.state.extension, 10) || null : null,
+      type,
     };
-
-    if (this.state.type) {
-      params.type = this.state.type;
-    }
 
     this.props.updateValue(
       params,
@@ -75,43 +103,77 @@ class LocationNumberEdit extends Component {
   }
 
   render() {
+    const canHaveExtension = phoneCanHaveExtension(this.state.phoneUse);
+    const phoneNumber = this.state.newPhoneNumber || this.state.phoneNumber;
+
     return (
       <form
         className="container"
         onSubmit={this.onSubmit}
       >
         <Header>What&apos;s this location&apos;s phone number?</Header>
+        <select
+          className="Input Input-fluid mb-3"
+          value={this.state.phoneUse}
+          onChange={(e) => {
+            const phoneUse = e.target.value;
+            this.setState({
+              phoneUse,
+              extension: phoneCanHaveExtension(phoneUse) ? this.state.extension : '',
+              invalidNumber: false,
+            });
+          }}
+        >
+          {PHONE_USE_OPTIONS.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
         <div className="phone-wrapper">
-          <PhoneInput
-            country="us"
-            disableCountryCode
-            disableDropdown
-            onlyCountries={['us']}
-            value={convertToPackagePhoneFormat(this.state.phoneNumber)}
-            placeholder="(111) 111-1111"
-            limitMaxLength
-            onChange={(newNumber) => {
-              this.setState({ newPhoneNumber: convertToOurFormat(newNumber) });
-            }}
-          />
-          &nbsp;-&nbsp;
           <Input
             onFocus={this.props.onInputFocus}
             onBlur={this.props.onInputBlur}
             type="tel"
-            size="4"
-            value={this.state.extension}
-            onChange={e => this.setState({ extension: e.target.value })}
+            value={phoneNumber}
+            placeholder="7185551212 or 988"
+            fluid
+            onChange={(e) => {
+              this.setState({
+                newPhoneNumber: normalizePhoneDigits(e.target.value),
+                invalidNumber: false,
+              });
+            }}
           />
+          {canHaveExtension && (
+            <>
+              &nbsp;-&nbsp;
+              <Input
+                onFocus={this.props.onInputFocus}
+                onBlur={this.props.onInputBlur}
+                type="tel"
+                size="4"
+                value={this.state.extension}
+                placeholder="Ext"
+                onChange={e => this.setState({ extension: e.target.value })}
+              />
+            </>
+          )}
         </div>
-        <Input
-          placeholder="Type (e.g. Main Office, Hotline, Spanish, etc)"
-          fluid
-          value={this.state.type}
-          onChange={e => this.setState({ type: e.target.value })}
-        />
+        {this.state.phoneUse === PHONE_USE.PHONE && (
+          <Input
+            placeholder="Label (e.g. Main Office, Hotline, Spanish, etc)"
+            fluid
+            value={this.state.type}
+            onChange={e => this.setState({ type: e.target.value })}
+          />
+        )}
         <div>
-          {this.state.invalidNumber ? <h5 className="invalid-number-warning">Please enter a valid phone number</h5> : ''}
+          {this.state.invalidNumber ? (
+            <h5 className="invalid-number-warning">
+              Please enter 3 to 10 digits. WhatsApp numbers need 10 digits.
+            </h5>
+          ) : ''}
         </div>
         <div>
           <input type="submit" className="Button Button-primary mt-3" value="OK" />&nbsp;
