@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/claude-cloud-session-start.sh"
+            "command": "bash -lc 'for d in \"${CLAUDE_PROJECT_DIR:-}\" \"$PWD\" \"$PWD/streetlives-web\" \"$HOME/streetlives-web\" /home/user/streetlives-web /workspace/streetlives-web; do if [ -f \"$d/scripts/claude-cloud-session-start.sh\" ]; then exec bash \"$d/scripts/claude-cloud-session-start.sh\"; fi; done; echo \"claude-cloud-session-start.sh not found\" >&2; exit 1'"
           }
         ]
       }
