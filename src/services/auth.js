@@ -1,9 +1,19 @@
 import Amplify from 'aws-amplify';
 import config from '../config';
+import {
+  getLocalDevStreetliIdToken,
+  shouldUseLocalDevStreetliAuth,
+} from './devStreetliAuth';
 
 const getIdToken = () => new Promise((resolve) => {
   if (config.disableAuth) {
     return resolve(null);
+  }
+
+  if (shouldUseLocalDevStreetliAuth()) {
+    return getLocalDevStreetliIdToken()
+      .then(idToken => resolve(idToken))
+      .catch(() => resolve(null));
   }
 
   return Amplify.Auth.currentAuthenticatedUser().then((user) => {

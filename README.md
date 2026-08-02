@@ -52,6 +52,27 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
+### Local Streetli dev auth for agent/browser testing
+
+To open protected `/team` routes locally without an interactive Cognito login, start the
+CRA dev server with the scheduled patch admin token in its environment:
+
+```bash
+STREETLIVES_SCHEDULED_PATCH_ADMIN_TOKEN="<token>" npm start
+```
+
+Then open:
+
+```text
+http://localhost:3000/team?devStreetliAuth=1
+```
+
+The dev server exposes `GET/POST /__dev/streetli-auth/relogin` only to loopback
+requests, exchanges the admin token for short-lived Streetli Cognito JWTs, and
+the browser stores those tokens in `sessionStorage` for the current local
+testing session. Open once with `?devStreetliAuth=0` to clear the session and
+return to normal Cognito auth.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.<br>
