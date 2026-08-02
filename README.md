@@ -55,10 +55,14 @@ You will also see any lint errors in the console.
 ### Local Streetli dev auth for agent/browser testing
 
 To open protected `/team` routes locally without an interactive Cognito login, start the
-CRA dev server with the scheduled patch admin token in its environment:
+CRA dev server with the scheduled patch admin token, Maps browser key, and API
+URL in its environment:
 
 ```bash
-STREETLIVES_SCHEDULED_PATCH_ADMIN_TOKEN="<token>" npm start
+STREETLIVES_SCHEDULED_PATCH_ADMIN_TOKEN="<token>" \
+REACT_APP_GMAPS_API_KEY="<browser key>" \
+REACT_APP_API_URL="https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod" \
+npm start
 ```
 
 Then open:
