@@ -4,8 +4,7 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 
-import Amplify from 'aws-amplify';
-import { AmplifyTheme } from 'aws-amplify-react';
+import { Amplify } from 'aws-amplify';
 import awsExports from './aws-exports';
 
 import { store, history } from '../store/index';
@@ -84,8 +83,5 @@ function App() {
     </Provider>
   );
 }
-
-AmplifyTheme.container.paddingRight = 0;
-AmplifyTheme.container.paddingLeft = 0;
 
 export default App;
