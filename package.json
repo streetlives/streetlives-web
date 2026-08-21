@@ -47,13 +47,13 @@
     "retry-axios": "^2.2.1"
   },
   "scripts": {
-    "start": "NODE_OPTIONS=--openssl-legacy-provider craco start",
-    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && NODE_OPTIONS=--openssl-legacy-provider craco build",
-    "test": "NODE_OPTIONS=--openssl-legacy-provider craco test --env=jsdom",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider craco start",
+    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && cross-env NODE_OPTIONS=--openssl-legacy-provider craco build",
+    "test": "cross-env NODE_OPTIONS=--openssl-legacy-provider craco test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src/ --ext js,jsx",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 9009 -s public",
-    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook -s public",
+    "storybook": "cross-env NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 9009 -s public",
+    "build-storybook": "cross-env NODE_OPTIONS=--openssl-legacy-provider build-storybook -s public",
     "deploy": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' REACT_APP_ENVIRONMENT='staging' npm run build && aws s3 cp --recursive ./build s3://streetlives-web-stag/ &&  aws cloudfront create-invalidation --distribution-id E147V24YAA2KKQ --paths '/*'",
     "deploy-prod": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod' REACT_APP_ENVIRONMENT='production' npm run build && aws s3 cp --recursive ./build s3://streetlives-web2/ &&  aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
@@ -62,7 +62,8 @@
     "@craco/craco": "^5.9.0",
     "@storybook/addon-actions": "^3.3.15",
     "@storybook/addon-links": "^3.3.15",
-    "@storybook/react": "^3.3.15"
+    "@storybook/react": "^3.3.15",
+    "cross-env": "^10.1.0"
   },
   "browserslist": [
     ">0.01% in US",
