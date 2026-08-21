@@ -15,6 +15,7 @@ jobs:
 
     permissions:
       contents: read
+      issues: read
       pull-requests: write
 
     steps:
@@ -25,10 +26,13 @@ jobs:
           fetch-depth: 0
 
       - name: Pre-fetch base and head refs
+        env:
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           git fetch --no-tags origin \
-            ${{ github.event.pull_request.base.ref }} \
-            +refs/pull/${{ github.event.pull_request.number }}/head
+            "$PR_BASE_REF" \
+            "+refs/pull/$PR_NUMBER/head"
 
       - name: Materialize protected prompt/schema from master branch head
         run: |
@@ -48,42 +52,99 @@ jobs:
 
       - name: Load allowlist from protected base commit
         id: allow
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
-          author="${{ github.event.pull_request.user.login }}"
-          if jq -e --arg a "$author" 'index($a) != null' .codex-protected/auto-approve.json > /dev/null; then
+          if jq -e --arg a "$PR_AUTHOR" 'index($a) != null' .codex-protected/auto-approve.json > /dev/null; then
             echo "trusted=true" >> "$GITHUB_OUTPUT"
           else
             echo "trusted=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build protected run prompt with PR diff
+      - name: Build protected run prompt and bounded PR context
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p .codex-run
 
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          git --no-pager diff --name-status "$BASE_SHA...$HEAD_SHA" > .codex-run/changed-files.txt
+          git --no-pager diff --stat "$BASE_SHA...$HEAD_SHA" > .codex-run/diff-stat.txt
+          git --no-pager log --oneline "$BASE_SHA...$HEAD_SHA" > .codex-run/commits.txt
+
+          jq '{
+            number: .pull_request.number,
+            title: .pull_request.title,
+            body: .pull_request.body,
+            author: .pull_request.user.login,
+            base: { ref: .pull_request.base.ref, sha: .pull_request.base.sha },
+            head: { ref: .pull_request.head.ref, sha: .pull_request.head.sha }
+          }' "$GITHUB_EVENT_PATH" > .codex-run/pr.json
+
+          gh api "/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" \
+            --jq '[.[] | {user: .user.login, created_at, body}]' \
+            > .codex-run/pr-comments.json
+
+          gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews?per_page=100" \
+            --jq '[.[] | {user: .user.login, state, submitted_at, body}]' \
+            > .codex-run/pr-reviews.json
+
+          gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/comments?per_page=100" \
+            --jq '[.[] | {user: .user.login, path, line, original_line, side, body}]' \
+            > .codex-run/pr-review-comments.json
+
+          jq -r '[.pull_request.title // "", .pull_request.body // ""] | join("\n")' "$GITHUB_EVENT_PATH" \
+            | grep -Eio '(close[sd]?|fix(e[sd])?|resolve[sd]?) +([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)?#[0-9]+' \
+            | grep -Eo '[0-9]+' \
+            | sort -un > .codex-run/linked-issue-numbers.txt || true
+
+          : > .codex-run/linked-issues.jsonl
+          : > .codex-run/linked-issue-comments.jsonl
+          while IFS= read -r issue_number; do
+            test -n "$issue_number" || continue
+            gh api "/repos/$GITHUB_REPOSITORY/issues/$issue_number" \
+              --jq '{number, title, state, user: .user.login, body}' \
+              >> .codex-run/linked-issues.jsonl
+            gh api "/repos/$GITHUB_REPOSITORY/issues/$issue_number/comments?per_page=100" \
+              --jq '[.[] | {issue_number: '"$issue_number"', user: .user.login, created_at, body}]' \
+              >> .codex-run/linked-issue-comments.jsonl
+          done < .codex-run/linked-issue-numbers.txt
+
+          cat > .codex-run/context.md <<EOF
+          Repo: $GITHUB_REPOSITORY
+          PR: #$PR_NUMBER
+          Base: $PR_BASE_REF @ $BASE_SHA
+          Head: $PR_HEAD_REF @ $HEAD_SHA
+
+          Generated files:
+          - .codex-run/pr.json
+          - .codex-run/changed-files.txt
+          - .codex-run/diff-stat.txt
+          - .codex-run/commits.txt
+          - .codex-run/pr-comments.json
+          - .codex-run/pr-reviews.json
+          - .codex-run/pr-review-comments.json
+          - .codex-run/linked-issue-numbers.txt
+          - .codex-run/linked-issues.jsonl
+          - .codex-run/linked-issue-comments.jsonl
+
+          The full PR diff is intentionally not embedded in this prompt. Inspect it selectively with:
+          git --no-pager diff --unified=80 "$BASE_SHA...$HEAD_SHA" -- <path>
+          git --no-pager diff --name-only "$BASE_SHA...$HEAD_SHA"
+          EOF
 
           {
-            # 1) Protected instructions (from master)
             cat .codex-protected/pr-approval.md
-
             echo ""
-            echo "## PR context (generated by workflow)"
-            echo "Repo: ${{ github.repository }}"
-            echo "PR: #${{ github.event.pull_request.number }}"
-            echo "Base: ${{ github.event.pull_request.base.ref }} @ ${BASE_SHA}"
-            echo "Head: ${{ github.event.pull_request.head.ref }} @ ${HEAD_SHA}"
+            echo "## Workflow-generated context"
+            cat .codex-run/context.md
             echo ""
-            echo "## Changed files"
-            echo "<<<BEGIN_CHANGED_FILES>>>"
-            git --no-pager diff --name-status "${BASE_SHA}...${HEAD_SHA}" || true
-            echo "<<<END_CHANGED_FILES>>>"
-            echo ""
-            echo "## Unified diff"
-            echo "<<<BEGIN_DIFF>>>"
-            git --no-pager diff --unified=5 "${BASE_SHA}...${HEAD_SHA}" || true
-            echo "<<<END_DIFF>>>"
+            echo "Use the local repository and generated files to gather only the context needed for the review."
           } > .codex-run/prompt.md
 
       - name: Run Codex (structured decision using protected prompt)
