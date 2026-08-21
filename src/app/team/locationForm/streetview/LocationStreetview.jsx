@@ -1,9 +1,8 @@
-/* eslint-disable max-len */
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 import { selectLocationData, selectLocationError } from '../../../../selectors/location';
-import { updateLocation, getLocation } from '../../../../actions';
+import { updateLocationStreetview, getLocation } from '../../../../actions';
 import { Form } from '../../../../components/form';
 import LocationStreetviewView from './LocationStreetviewView';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
@@ -11,10 +10,11 @@ import LocationStreetviewEdit from './LocationStreetviewEdit';
 const LocationStreetview = compose(withProps({
   ViewComponent: LocationStreetviewView,
   EditComponent: LocationStreetviewEdit,
+  isEditing: value => !value,
 }))(props => <Form {...props} />);
 
 export const selectValue = locationData => (
-  locationData ? locationData.streetview_url : null
+  locationData ? locationData.Streetview : null
 );
 
 const mapStateToProps = (state, ownProps) => {
@@ -29,8 +29,13 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateValue: (name, _, metaDataSection, fieldName) =>
-    dispatch(updateLocation(ownProps.match.params.locationId, { streetview_url: name }, metaDataSection, fieldName)),
+  updateValue: (streetviewData, id, metaDataSection, fieldName) =>
+    dispatch(updateLocationStreetview(
+      ownProps.match.params.locationId,
+      streetviewData,
+      metaDataSection,
+      fieldName,
+    )),
   fetchResourceData: (locationId) => {
     dispatch(getLocation(locationId));
   },
