@@ -16,6 +16,7 @@ const withAuth = (Component) => {
 
   return (props) => {
     const [authState, setAuthState] = useState(null);
+    const [missingAttributes, setMissingAttributes] = useState([]);
 
     useEffect(() => {
       getCurrentUser()
@@ -43,11 +44,15 @@ const withAuth = (Component) => {
       case 'forgotPassword':
         return <ForgotPassword changeState={setAuthState} />;
       case 'requireNewPassword':
-        return <RequireNewPassword changeState={setAuthState} />;
+        return (
+          <RequireNewPassword changeState={setAuthState} missingAttributes={missingAttributes} />
+        );
       case 'verifyContact':
         return <VerifyContact changeState={setAuthState} />;
       case 'signIn':
-        return <SignIn changeState={setAuthState} />;
+        return (
+          <SignIn changeState={setAuthState} setMissingAttributes={setMissingAttributes} />
+        );
       default:
         return null;
     }

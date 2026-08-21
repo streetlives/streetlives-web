@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
 import Input from '../../components/input';
 import Button from '../../components/button';
@@ -6,6 +6,7 @@ import { Grid, Row, Col } from '../../components/layout/bootstrap';
 
 const StreetlivesConfirmSignUp = ({ changeState }) => {
   const inputs = useRef({});
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -13,17 +14,25 @@ const StreetlivesConfirmSignUp = ({ changeState }) => {
   };
 
   const handleConfirm = () => {
+    setError(null);
     confirmSignUp({
       username: inputs.current.username,
       confirmationCode: inputs.current.code,
     })
       .then(() => changeState('signIn'))
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
   };
 
   const handleResend = () => {
+    setError(null);
     resendSignUpCode({ username: inputs.current.username })
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
   };
 
   return (
@@ -67,6 +76,13 @@ const StreetlivesConfirmSignUp = ({ changeState }) => {
           />
         </Col>
       </Row>
+      {error && (
+        <Row>
+          <Col>
+            <p style={{ color: 'red' }}>{error}</p>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col>
           <Button primary onClick={handleConfirm}>

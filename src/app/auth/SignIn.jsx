@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { signIn } from 'aws-amplify/auth';
 import Input from '../../components/input';
 import './SignIn.css';
 import { Row, Col } from '../../components/layout/bootstrap';
 import checkContact from './checkContact';
 
-const StreetlivesSignIn = ({ changeState }) => {
+const StreetlivesSignIn = ({ changeState, setMissingAttributes }) => {
   const inputs = useRef({});
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -15,6 +16,7 @@ const StreetlivesSignIn = ({ changeState }) => {
 
   const doSignIn = (e) => {
     e.preventDefault();
+    setError(null);
 
     signIn({ username: inputs.current.username, password: inputs.current.password })
       .then(({ isSignedIn, nextStep }) => {
@@ -23,12 +25,20 @@ const StreetlivesSignIn = ({ changeState }) => {
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
           changeState('confirmSignUp');
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+          setMissingAttributes(nextStep.missingAttributes || []);
           changeState('requireNewPassword');
         } else if (nextStep.signInStep === 'RESET_PASSWORD') {
           changeState('forgotPassword');
         }
       })
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        const isBadCredentials = err.name === 'UserNotFoundException'
+          || err.name === 'NotAuthorizedException';
+        setError(isBadCredentials
+          ? 'Incorrect username or password.'
+          : (err.message || 'Unable to sign in.'));
+      });
   };
 
   return (
@@ -79,6 +89,13 @@ const StreetlivesSignIn = ({ changeState }) => {
           />
         </Col>
       </Row>
+      {error && (
+        <Row>
+          <Col>
+            <p style={{ color: 'red' }}>{error}</p>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col>
           <input type="submit" className="Button Button-primary mt-3" value="Login" />

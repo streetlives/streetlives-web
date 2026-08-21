@@ -5,7 +5,14 @@ import Button from '../../components/button';
 import { Grid, Row, Col } from '../../components/layout/bootstrap';
 import checkContact from './checkContact';
 
-const StreetlivesRequireNewPassword = ({ changeState }) => {
+const attributeFields = {
+  email: { label: 'Email', placeholder: 'Enter your email', type: 'email' },
+  phone_number: {
+    label: 'Phone Number', placeholder: 'Enter your phone number', type: 'phone_number',
+  },
+};
+
+const StreetlivesRequireNewPassword = ({ changeState, missingAttributes = [] }) => {
   const inputs = useRef({});
 
   const handleInputChange = (e) => {
@@ -14,7 +21,16 @@ const StreetlivesRequireNewPassword = ({ changeState }) => {
   };
 
   const handleSubmit = () => {
-    confirmSignIn({ challengeResponse: inputs.current.password })
+    const options = missingAttributes.length
+      ? {
+        userAttributes: missingAttributes.reduce((attributes, attribute) => ({
+          ...attributes,
+          [attribute]: inputs.current[attribute],
+        }), {}),
+      }
+      : undefined;
+
+    confirmSignIn({ challengeResponse: inputs.current.password, options })
       .then(({ isSignedIn }) => {
         if (isSignedIn) {
           checkContact(changeState);
@@ -51,6 +67,30 @@ const StreetlivesRequireNewPassword = ({ changeState }) => {
           />
         </Col>
       </Row>
+      {missingAttributes.map((attribute) => {
+        const field = attributeFields[attribute] || {
+          label: attribute,
+          placeholder: `Enter your ${attribute}`,
+          type: 'text',
+        };
+
+        return (
+          <Row key={attribute}>
+            <Col>
+              <label className="w-100" htmlFor={attribute}>{field.label}</label>
+              <Input
+                fluid
+                placeholder={field.placeholder}
+                id={attribute}
+                key={attribute}
+                name={attribute}
+                type={field.type}
+                onChange={handleInputChange}
+              />
+            </Col>
+          </Row>
+        );
+      })}
       <Row>
         <Col>
           <Button primary onClick={handleSubmit}>

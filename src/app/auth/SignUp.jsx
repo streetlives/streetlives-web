@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { signUp } from 'aws-amplify/auth';
 import Input from '../../components/input';
 import Button from '../../components/button';
@@ -6,6 +6,7 @@ import { Grid, Row, Col } from '../../components/layout/bootstrap';
 
 const StreetlivesSignUp = ({ changeState }) => {
   const inputs = useRef({});
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -13,6 +14,7 @@ const StreetlivesSignUp = ({ changeState }) => {
   };
 
   const handleSignUp = () => {
+    setError(null);
     const {
       username, password, email, phone_number: phoneNumber,
     } = inputs.current;
@@ -34,7 +36,10 @@ const StreetlivesSignUp = ({ changeState }) => {
           changeState('signIn');
         }
       })
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
   };
 
   return (
@@ -106,6 +111,13 @@ const StreetlivesSignUp = ({ changeState }) => {
           />
         </Col>
       </Row>
+      {error && (
+        <Row>
+          <Col>
+            <p style={{ color: 'red' }}>{error}</p>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col>
           <Button primary onClick={handleSignUp}>

@@ -7,6 +7,7 @@ import { Grid, Row, Col } from '../../components/layout/bootstrap';
 const StreetlivesForgotPassword = ({ changeState }) => {
   const inputs = useRef({});
   const [delivery, setDelivery] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -14,19 +15,27 @@ const StreetlivesForgotPassword = ({ changeState }) => {
   };
 
   const handleSend = () => {
+    setError(null);
     resetPassword({ username: inputs.current.username })
       .then(() => setDelivery(true))
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
   };
 
   const handleSubmit = () => {
+    setError(null);
     confirmResetPassword({
       username: inputs.current.username,
       confirmationCode: inputs.current.code,
       newPassword: inputs.current.password,
     })
       .then(() => changeState('signIn'))
-      .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
   };
 
   const sendView = () => [
@@ -119,6 +128,13 @@ const StreetlivesForgotPassword = ({ changeState }) => {
         </Col>
       </Row>
       {delivery ? submitView() : sendView()}
+      {error && (
+        <Row>
+          <Col>
+            <p style={{ color: 'red' }}>{error}</p>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col>
           <button
