@@ -47,13 +47,13 @@
     "retry-axios": "^2.2.1"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && craco build",
-    "test": "craco test --env=jsdom",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider craco start",
+    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && NODE_OPTIONS=--openssl-legacy-provider craco build",
+    "test": "NODE_OPTIONS=--openssl-legacy-provider craco test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src/ --ext js,jsx",
-    "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public",
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 9009 -s public",
+    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook -s public",
     "deploy": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' REACT_APP_ENVIRONMENT='staging' npm run build && aws s3 cp --recursive ./build s3://streetlives-web-stag/ &&  aws cloudfront create-invalidation --distribution-id E147V24YAA2KKQ --paths '/*'",
     "deploy-prod": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod' REACT_APP_ENVIRONMENT='production' npm run build && aws s3 cp --recursive ./build s3://streetlives-web2/ &&  aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
