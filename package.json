@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-amplify/ui-react": "^6.7.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-brands-svg-icons": "^5.14.0",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/react-fontawesome": "^0.1.9",
     "@sentry/browser": "^7.114.0",
-    "aws-amplify": "^4.2.8",
-    "aws-amplify-react": "^2.0.7",
+    "aws-amplify": "^6.6.0",
     "axios": "^0.21.3",
     "bootstrap": "^4.1.0",
     "classnames": "^2.2.5",
@@ -47,9 +47,9 @@
     "retry-axios": "^2.2.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "start": "craco start",
+    "build": "test -n \"$REACT_APP_GMAPS_API_KEY\" || (echo 'Error: REACT_APP_GMAPS_API_KEY environment variable is not set' && exit 1) && craco build",
+    "test": "craco test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src/ --ext js,jsx",
     "storybook": "start-storybook -p 9009 -s public",
@@ -58,6 +58,8 @@
     "deploy-prod": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod' REACT_APP_ENVIRONMENT='production' npm run build && aws s3 cp --recursive ./build s3://streetlives-web2/ &&  aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.20.7",
+    "@craco/craco": "^5.9.0",
     "@storybook/addon-actions": "^3.3.15",
     "@storybook/addon-links": "^3.3.15",
     "@storybook/react": "^3.3.15"

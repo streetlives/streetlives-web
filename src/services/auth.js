@@ -1,19 +1,17 @@
-import Amplify from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import config from '../config';
 
-const getIdToken = () => new Promise((resolve) => {
+const getIdToken = () => {
   if (config.disableAuth) {
-    return resolve(null);
+    return Promise.resolve(null);
   }
 
-  return Amplify.Auth.currentAuthenticatedUser().then((user) => {
-    const idToken = user.signInUserSession.getIdToken();
-    resolve(idToken);
-  })
-    .catch(() => resolve(null));
-});
+  return fetchAuthSession()
+    .then(({ tokens }) => (tokens ? tokens.idToken : null))
+    .catch(() => null);
+};
 
-export const getAuthToken = () => getIdToken().then(idToken => idToken && idToken.getJwtToken());
+export const getAuthToken = () => getIdToken().then(idToken => idToken && idToken.toString());
 
 export const getUserOrganizations = () => getIdToken()
   .then((idToken) => {
