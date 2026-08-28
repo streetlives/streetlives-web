@@ -26,4 +26,4 @@ jobs:
         run: npm test -- --watchAll=false
         env:
           CI: true
-          REACT_APP_GMAPS_API_KEY: ${{ secrets.REACT_APP_GMAPS_API_KEY }}
+          REACT_APP_GMAPS_API_KEY: ${{ secrets.REACT_APP_GMAPS_API_KEY || 'test-key' }}
