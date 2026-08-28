@@ -57,6 +57,9 @@
     "deploy": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage' REACT_APP_ENVIRONMENT='staging' npm run build && aws s3 cp --recursive ./build s3://streetlives-web-stag/ &&  aws cloudfront create-invalidation --distribution-id E147V24YAA2KKQ --paths '/*'",
     "deploy-prod": "REACT_APP_API_URL='https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod' REACT_APP_ENVIRONMENT='production' npm run build && aws s3 cp --recursive ./build s3://streetlives-web2/ &&  aws cloudfront create-invalidation --distribution-id E38C5HBQO22F80 --paths '/*'"
   },
+  "overrides": {
+    "cheerio": "1.0.0-rc.12"
+  },
   "devDependencies": {
     "@babel/plugin-proposal-logical-assignment-operators": "^7.20.7",
     "@craco/craco": "^5.9.0",

@@ -3,6 +3,6 @@ import { shallow } from 'enzyme';
 import Dropdown from './Dropdown';
 
 it('renders without crashing', () => {
-  const wrapper = shallow(<Dropdown />);
+  const wrapper = shallow(<Dropdown options={[]} />);
   expect(wrapper).toHaveLength(1);
 });
