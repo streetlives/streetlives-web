@@ -1,4 +1,4 @@
-name: Run tests on pull request
+name: Run tests
 
 on:
   pull_request:
@@ -26,4 +26,4 @@ jobs:
         run: npm test -- --watchAll=false
         env:
           CI: true
-          REACT_APP_GMAPS_API_KEY: ${{ secrets.REACT_APP_GMAPS_API_KEY_STAGING }}
+          REACT_APP_GMAPS_API_KEY: ${{ secrets.REACT_APP_GMAPS_API_KEY }}
