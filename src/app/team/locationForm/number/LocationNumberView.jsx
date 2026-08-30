@@ -10,11 +10,12 @@ import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import ConfirmationModal from '../../../../components/confirmationModal';
+import { formatPhoneNumberForDisplay } from '../../../../utils/phones';
 
 const formatPhoneNumber = phone =>
-  `${phone.number.replace(/\./g, '-')}${
-    phone.extension ? ` ext. ${phone.extension}` : ''
-  }`;
+  formatPhoneNumberForDisplay(phone.number, phone.extension, phone.type);
+
+const formatPhoneType = phone => (phone.type === 'Phone' ? '' : phone.type);
 
 class LocationNumberView extends Component {
   constructor(props) {
@@ -77,7 +78,11 @@ class LocationNumberView extends Component {
     const onConfirmWithPatch = () => {
       if (phones && phones.length > 0) {
         const phone = phones[0];
-        patchPhone(phone.id, { number: phone.number, type: phone.type, extension: phone.extension });
+        patchPhone(phone.id, {
+          number: phone.number,
+          type: phone.type,
+          extension: phone.extension,
+        });
       }
       onConfirm();
     };
@@ -112,7 +117,7 @@ class LocationNumberView extends Component {
                   </button>
                 }
                 <p className="PhoneNumber-Number">{ formatPhoneNumber(phone) }</p>
-                <p className="PhoneNumber-Type">{phone.type}</p>
+                <p className="PhoneNumber-Type">{formatPhoneType(phone)}</p>
 
                 { isEditing &&
                   <Button
