@@ -45,7 +45,7 @@ describe('LocationStreetviewView', () => {
         />,
       );
       const img = screen.getByAltText('Street View preview');
-      expect(img.src).toContain('location=40.7128%2C-74.006');
+      expect(img.src).toContain('location=40.7128,-74.006');
     });
 
     it('includes heading, pitch, and fov in URL', () => {

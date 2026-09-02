@@ -1,14 +1,18 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import * as api from '../../../services/api';
+import * as api from '../services/api';
 import { updateLocationStreetview, OPTIMISTIC_UPDATE_LOCATION } from './index';
 
-jest.mock('../../../services/api');
+jest.mock('../services/api');
 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 describe('updateLocationStreetview action', () => {
+  beforeEach(() => {
+    api.updateLocation.mockResolvedValue({});
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });

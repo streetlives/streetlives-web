@@ -3,13 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
 
-// Mock the compose/withProps/withScriptjs to avoid loading Google Maps in tests
-jest.mock('recompose', () => ({
-  ...jest.requireActual('recompose'),
-  withScriptjs: (Component) => {
-    const MockComponent = (props) => <Component {...props} isScriptLoaded />;
-    return MockComponent;
-  },
+// Bypass the real script-loading gate so the wrapped panorama picker mounts immediately.
+jest.mock('react-google-maps', () => ({
+  ...jest.requireActual('react-google-maps'),
+  withScriptjs: Component => props => <Component {...props} />,
 }));
 
 describe('LocationStreetviewEdit validation', () => {
@@ -32,8 +29,30 @@ describe('LocationStreetviewEdit validation', () => {
     );
   };
 
+  beforeEach(() => {
+    global.window.google = {
+      maps: {
+        StreetViewPanorama: jest.fn().mockImplementation(() => ({
+          addListener: jest.fn(),
+          setPano: jest.fn(),
+          setPosition: jest.fn(),
+          setPov: jest.fn(),
+          getPov: jest.fn(() => ({ heading: 0, pitch: 0, zoom: 1 })),
+          getPosition: jest.fn(() => null),
+          getPano: jest.fn(() => null),
+        })),
+        StreetViewService: jest.fn().mockImplementation(() => ({
+          getPanorama: jest.fn(),
+        })),
+        LatLng: jest.fn((lat, lng) => ({ lat, lng })),
+        StreetViewStatus: { OK: 'OK' },
+      },
+    };
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+    delete global.window.google;
   });
 
   describe('field-level validation', () => {
