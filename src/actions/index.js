@@ -127,6 +127,49 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
+export const updateLocationStreetview = (
+  locationId,
+  streetviewData,
+  metaDataSection,
+  fieldName,
+) => (dispatch, getState) => {
+  const state = getState();
+  const location = state.locations[locationId];
+  const originalStreetview = location ? location.Streetview : null;
+
+  const allNull = !streetviewData ||
+    Object.values(streetviewData).every(v => v === null || v === undefined || v === '');
+
+  const newStreetview = allNull ? null : streetviewData;
+
+  // Always dispatch optimistic update to complete the form cycle
+  dispatch({
+    type: OPTIMISTIC_UPDATE_LOCATION,
+    payload: {
+      id: locationId,
+      params: { Streetview: newStreetview },
+      metaDataSection,
+      fieldName,
+    },
+  });
+
+  // Skip API call only if clearing a non-existent override
+  if (allNull && !originalStreetview) {
+    return;
+  }
+
+  // API PATCH body uses lowercase key as expected by the backend.
+  api
+    .updateLocation({ id: locationId, params: { streetview: newStreetview } })
+    .catch((e) => {
+      console.error('Error updating streetview', e);
+      dispatch({
+        type: UPDATE_LOCATION_ERROR,
+        payload: { id: locationId, error: e },
+      });
+    });
+};
+
 export const deletePhone = (locationId, id) => (dispatch) => {
   dispatch({
     type: OPTIMISTIC_DELETE_PHONE,
