@@ -94,6 +94,7 @@ class PanoramaPicker extends Component {
       historicalPanos: [],
       currentPano: props.initialPanoId || null,
       selectedYearPanoId: props.initialPanoId || null,
+      yearChanged: false
     };
   }
 
@@ -139,7 +140,7 @@ class PanoramaPicker extends Component {
   onSelectYear = (panoId) => {
     if (!this.panorama || !panoId) return;
     this.panorama.setPano(panoId);
-    this.setState({ currentPano: panoId, selectedYearPanoId: panoId });
+    this.setState({ currentPano: panoId, selectedYearPanoId: panoId, yearChanged: true });
   };
 
   fetchHistoricalPanos = (position) => {
@@ -188,7 +189,7 @@ class PanoramaPicker extends Component {
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     this.props.onCapture({
-      pano_id: this.state.selectedYearPanoId || this.state.currentPano || null,
+      pano_id: this.state.yearChanged ? (this.state.selectedYearPanoId || this.state.currentPano) : null,
       lat: position ? position.lat() : null,
       lng: position ? position.lng() : null,
       heading: pov.heading !== undefined ? pov.heading : null,
@@ -207,7 +208,7 @@ class PanoramaPicker extends Component {
       }
       this.panorama.setPov({ heading: 0, pitch: 0, zoom: 1 });
     }
-    this.setState({ historicalPanos: [], currentPano: null, selectedYearPanoId: null });
+    this.setState({ historicalPanos: [], currentPano: null, selectedYearPanoId: null, yearChanged: false });
     this.props.onReset();
   };
 
