@@ -10,6 +10,61 @@ describe('LocationStreetviewView', () => {
     jest.clearAllMocks();
   });
 
+  describe('default preview when no override is set', () => {
+    // GeoJSON order: [lng, lat].
+    const resourceData = { position: { coordinates: [-74.0060, 40.7128] } };
+
+    const renderDefault = (value = null, data = resourceData) => render(
+      <LocationStreetviewView
+        value={value}
+        resourceData={data}
+        onConfirm={mockOnConfirm}
+        onEdit={mockOnEdit}
+      />,
+    );
+
+    it("previews the location's own coordinates when there is no override", () => {
+      renderDefault();
+      const img = screen.getByAltText('Default Street View preview');
+      expect(img.src).toContain('location=40.7128,-74.006');
+    });
+
+    it('uses a default point of view for the default preview', () => {
+      renderDefault();
+      const img = screen.getByAltText('Default Street View preview');
+      expect(img.src).toContain('fov=90');
+      expect(img.src).toContain('heading=0');
+      expect(img.src).toContain('pitch=0');
+    });
+
+    it('still reports that no override is set', () => {
+      renderDefault();
+      expect(screen.getByText('Using Google default')).toBeInTheDocument();
+      expect(screen.getByText(/the image above is Google/)).toBeInTheDocument();
+    });
+
+    it('prefers the override image over the default one', () => {
+      renderDefault({ pano_id: null, lat: 35.6762, lng: 139.6503 });
+      expect(screen.queryByAltText('Default Street View preview')).not.toBeInTheDocument();
+      const img = screen.getByAltText('Street View preview');
+      expect(img.src).toContain('location=35.6762,139.6503');
+    });
+
+    it('falls back to the default when the override has no anchor of its own', () => {
+      renderDefault({
+        pano_id: null, lat: null, lng: null, heading: 45,
+      });
+      const img = screen.getByAltText('Default Street View preview');
+      expect(img.src).toContain('location=40.7128,-74.006');
+    });
+
+    it('renders no image when the location has no coordinates', () => {
+      renderDefault(null, {});
+      expect(screen.queryByAltText(/Street View preview/)).not.toBeInTheDocument();
+      expect(screen.getByText(/Google.s default view will be used/)).toBeInTheDocument();
+    });
+  });
+
   describe('buildStaticImageUrl', () => {
     it('returns null when no value provided', () => {
       render(

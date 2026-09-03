@@ -10,7 +10,7 @@ import LocationStreetviewEdit from './LocationStreetviewEdit';
 const LocationStreetview = compose(withProps({
   ViewComponent: LocationStreetviewView,
   EditComponent: LocationStreetviewEdit,
-  isEditing: value => !value,
+  isEditing: value => false,
 }))(props => <Form {...props} />);
 
 export const selectValue = locationData => (

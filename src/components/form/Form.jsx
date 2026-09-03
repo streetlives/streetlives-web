@@ -86,6 +86,7 @@ class Form extends Component {
         value={this.props.value}
         onConfirm={this.onConfirm}
         onEdit={this.onEdit}
+        resourceData={this.props.resourceData}
         updateValue={this.props.updateValue}
         metaDataSection={this.props.metaDataSection}
         fieldName={this.props.fieldName}
