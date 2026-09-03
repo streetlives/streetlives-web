@@ -3,12 +3,9 @@ import PropTypes from 'prop-types';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import config from '../../../../config';
 
-function buildStaticImageUrl(streetview) {
-  if (!streetview) return null;
-  const {
-    pano_id, lat, lng, heading, pitch, fov,
-  } = streetview;
-
+function buildImageUrl({
+  pano_id, lat, lng, heading, pitch, fov,
+}) {
   const base = 'https://maps.googleapis.com/maps/api/streetview';
   const common = `size=600x400&key=${config.googleMapApiKey}&fov=${fov || 90}&heading=${heading || 0}&pitch=${pitch || 0}`;
 
@@ -20,6 +17,21 @@ function buildStaticImageUrl(streetview) {
   }
   return null;
 }
+
+function buildStaticImageUrl(streetview) {
+  return streetview ? buildImageUrl(streetview) : null;
+}
+
+// What Google shows with no override: the location's own coordinates, default POV.
+function buildDefaultImageUrl(resourceData) {
+  const coords = resourceData && resourceData.position && resourceData.position.coordinates;
+  return coords ? buildImageUrl({ lat: coords[1], lng: coords[0] }) : null;
+}
+
+const DEFAULT_SHOWN_MESSAGE =
+  'No Street View override is set — the image above is Google\u2019s default for this location.';
+const NO_DEFAULT_MESSAGE =
+  'No Street View override is set. Google\u2019s default view will be used.';
 
 function hasOverride(streetview) {
   if (!streetview) return false;
@@ -36,9 +48,16 @@ function Row({ label, value, unit }) {
   );
 }
 
-function LocationStreetviewView({ value, onConfirm, onEdit }) {
-  const imageUrl = buildStaticImageUrl(value);
+function LocationStreetviewView({
+  value, resourceData, onConfirm, onEdit,
+}) {
   const overrideActive = hasOverride(value);
+  const overrideImageUrl = buildStaticImageUrl(value);
+  // Fall back to the default view whenever the override cannot produce an image of its
+  // own — no override at all, or a partial one with neither a pano ID nor coordinates.
+  const defaultImageUrl = buildDefaultImageUrl(resourceData);
+  const imageUrl = overrideImageUrl || defaultImageUrl;
+  const showingDefault = !overrideImageUrl && !!defaultImageUrl;
 
   return (
     <div className="w-100">
@@ -53,7 +72,7 @@ function LocationStreetviewView({ value, onConfirm, onEdit }) {
           <img
             src={imageUrl}
             loading="lazy"
-            alt="Street View preview"
+            alt={showingDefault ? 'Default Street View preview' : 'Street View preview'}
             style={{ maxWidth: '100%', display: 'block' }}
           />
         </div>
@@ -79,7 +98,7 @@ function LocationStreetviewView({ value, onConfirm, onEdit }) {
 
       {!overrideActive && (
         <p className="text-muted" style={{ fontSize: '13px', marginTop: 4 }}>
-          No Street View override is set. Google&apos;s default view will be used.
+          {showingDefault ? DEFAULT_SHOWN_MESSAGE : NO_DEFAULT_MESSAGE}
         </p>
       )}
 
@@ -89,6 +108,7 @@ function LocationStreetviewView({ value, onConfirm, onEdit }) {
 }
 
 LocationStreetviewView.propTypes = {
+  resourceData: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   value: PropTypes.shape({
     pano_id: PropTypes.string,
     lat: PropTypes.number,

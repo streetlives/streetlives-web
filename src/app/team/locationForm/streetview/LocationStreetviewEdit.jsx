@@ -93,8 +93,6 @@ class PanoramaPicker extends Component {
     this.state = {
       historicalPanos: [],
       currentPano: props.initialPanoId || null,
-      selectedYearPanoId: props.initialPanoId || null,
-      yearChanged: false
     };
   }
 
@@ -140,7 +138,17 @@ class PanoramaPicker extends Component {
   onSelectYear = (panoId) => {
     if (!this.panorama || !panoId) return;
     this.panorama.setPano(panoId);
-    this.setState({ currentPano: panoId, selectedYearPanoId: panoId, yearChanged: true });
+    this.setState({ currentPano: panoId });
+  };
+
+  // A pano ID is only needed to pin an older image. When the newest capture is on screen,
+  // saving its pano would freeze the override on today's imagery — lat/lng + POV keeps it
+  // following whatever Google publishes next. Unknown pano list is treated as "latest".
+  getPanoIdToPin = () => {
+    const { historicalPanos, currentPano } = this.state;
+    if (!currentPano || historicalPanos.length === 0) return null;
+    const [latest] = historicalPanos; // sorted newest first
+    return currentPano === latest.panoId ? null : currentPano;
   };
 
   fetchHistoricalPanos = (position) => {
@@ -152,13 +160,10 @@ class PanoramaPicker extends Component {
 
     const sv = new window.google.maps.StreetViewService();
     sv.getPanorama({ location: latLng, radius: 50 }, (data, status) => {
-      if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time) {
+      // A single capture date means there is nothing to choose between, so no picker.
+      if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time ||
+          data.time.length <= 1) {
         this.setState({ historicalPanos: [] });
-        return;
-      }
-
-      if (data.time.length <= 1) {
-        this.setState({ historicalPanos: [], selectedYearPanoId: null });
         return;
       }
 
@@ -176,11 +181,7 @@ class PanoramaPicker extends Component {
         .filter(Boolean)
         .sort((a, b) => b.date - a.date); // newest first
 
-      // Keep selectedYearPanoId only if it still exists in the new pano list
-      // (same physical location). Clear it if the user walked to a different spot.
-      const { selectedYearPanoId } = this.state;
-      const stillValid = selectedYearPanoId && panos.some(p => p.panoId === selectedYearPanoId);
-      this.setState({ historicalPanos: panos, selectedYearPanoId: stillValid ? selectedYearPanoId : null });
+      this.setState({ historicalPanos: panos });
     });
   };
 
@@ -189,7 +190,7 @@ class PanoramaPicker extends Component {
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     this.props.onCapture({
-      pano_id: this.state.yearChanged ? (this.state.selectedYearPanoId || this.state.currentPano) : null,
+      pano_id: this.getPanoIdToPin(),
       lat: position ? position.lat() : null,
       lng: position ? position.lng() : null,
       heading: pov.heading !== undefined ? pov.heading : null,
@@ -200,15 +201,15 @@ class PanoramaPicker extends Component {
 
   reset = () => {
     if (this.panorama) {
-      const { initialPanoId, initialPosition } = this.props;
-      if (initialPanoId) {
-        this.panorama.setPano(initialPanoId);
-      } else if (initialPosition) {
-        this.panorama.setPosition(initialPosition);
+      // Back to the location's own coordinates and the latest imagery there — not to the
+      // saved override, which is exactly what "reset to default" is meant to undo.
+      const { defaultPosition } = this.props;
+      if (defaultPosition) {
+        this.panorama.setPosition(defaultPosition);
       }
       this.panorama.setPov({ heading: 0, pitch: 0, zoom: 1 });
     }
-    this.setState({ historicalPanos: [], currentPano: null, selectedYearPanoId: null, yearChanged: false });
+    this.setState({ historicalPanos: [], currentPano: null });
     this.props.onReset();
   };
 
@@ -256,9 +257,12 @@ class PanoramaPicker extends Component {
   }
 }
 
+const positionShape = PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number });
+
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
-  initialPosition: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
+  initialPosition: positionShape,
+  defaultPosition: positionShape,
   onCapture: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
 };
@@ -354,17 +358,19 @@ class LocationStreetviewEdit extends Component {
     return (value && value.pano_id) || null;
   }
 
+  getDefaultPosition() {
+    const { resourceData } = this.props;
+    const coords = resourceData && resourceData.position && resourceData.position.coordinates;
+    return coords ? { lat: parseFloat(coords[1]), lng: parseFloat(coords[0]) } : null;
+  }
+
   getInitialPosition() {
-    const { value, resourceData } = this.props;
+    const { value } = this.props;
     if (value && value.lat !== null && value.lat !== undefined &&
         value.lng !== null && value.lng !== undefined) {
       return { lat: parseFloat(value.lat), lng: parseFloat(value.lng) };
     }
-    const coords = resourceData && resourceData.position && resourceData.position.coordinates;
-    if (coords) {
-      return { lat: parseFloat(coords[1]), lng: parseFloat(coords[0]) };
-    }
-    return null;
+    return this.getDefaultPosition();
   }
 
   render() {
@@ -380,6 +386,7 @@ class LocationStreetviewEdit extends Component {
         <PanoramaPickerWithScript
           initialPanoId={this.getInitialPanoId()}
           initialPosition={this.getInitialPosition()}
+          defaultPosition={this.getDefaultPosition()}
           onCapture={this.onCapture}
           onReset={this.onReset}
         />
