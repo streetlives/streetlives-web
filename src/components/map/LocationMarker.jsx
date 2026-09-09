@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Marker, InfoWindow } from 'react-google-maps';
 import Button from '../button';
 import OverlayView from './OverlayView';
@@ -10,64 +10,88 @@ const MARKER_ICON_MAPPINGS = {
   /* eslint-enable max-len */
 };
 
-function LocationMarker(props) {
-  const {
-    id,
-    mapLocation,
-    isOpen,
-    onClick,
-    onClose,
-    onSubmit,
-    children,
-    locationUrl,
-    color = 'blue',
-  } = props;
-  const position = {
-    lng: mapLocation.position.coordinates[0],
-    lat: mapLocation.position.coordinates[1],
-  };
+// react-google-maps compares props by identity and pushes any change straight to the Google Maps
+// marker (setIcon/setPosition). A fresh object literal per render would therefore make every marker
+// on the map redraw itself whenever the map page re-renders, so these are cached.
+const iconsByColor = {};
+const getIcon = (color) => {
+  if (!iconsByColor[color]) {
+    iconsByColor[color] = { url: MARKER_ICON_MAPPINGS[color] };
+  }
+  return iconsByColor[color];
+};
 
-  const marker = (
-    <Marker
-      key={id}
-      position={position}
-      onClick={onClick}
-      icon={{ url: MARKER_ICON_MAPPINGS[color] }}
-    >
-      {isOpen && (
-        <InfoWindow
-          options={{
-            maxWidth: window.innerWidth - 100,
-          }}
-          onCloseClick={onClose}
-        >
-          <div
-            style={{
-              textAlign: 'left',
-              maxHeight: window.innerHeight - 200,
-              overflowY: 'auto',
+class LocationMarker extends Component {
+  getPosition() {
+    const [lng, lat] = this.props.mapLocation.position.coordinates;
+
+    if (!this.position || this.position.lat !== lat || this.position.lng !== lng) {
+      this.position = { lat, lng };
+    }
+
+    return this.position;
+  }
+
+  render() {
+    const {
+      id,
+      isOpen,
+      onClick,
+      onClose,
+      onSubmit,
+      children,
+      locationUrl,
+      color = 'blue',
+    } = this.props;
+    const position = this.getPosition();
+
+    const marker = (
+      <Marker
+        position={position}
+        onClick={onClick}
+        icon={getIcon(color)}
+      >
+        {isOpen && (
+          <InfoWindow
+            options={{
+              maxWidth: window.innerWidth - 100,
             }}
+            onCloseClick={onClose}
           >
-            {children}
-            <br />
-            <Button primary fluid onClick={onSubmit}>
-              <span>YES</span>
-            </Button>
-            <div style={{ margin: '.5em' }} />
-            <Button primary basic fluid onClick={onClose}>
-              <span>NO THANKS</span>
-            </Button>
-          </div>
-        </InfoWindow>
-      )}
-    </Marker>
-  );
+            <div
+              style={{
+                textAlign: 'left',
+                maxHeight: window.innerHeight - 200,
+                overflowY: 'auto',
+              }}
+            >
+              {children}
+              <br />
+              <Button primary fluid onClick={onSubmit}>
+                <span>YES</span>
+              </Button>
+              <div style={{ margin: '.5em' }} />
+              <Button primary basic fluid onClick={onClose}>
+                <span>NO THANKS</span>
+              </Button>
+            </div>
+          </InfoWindow>
+        )}
+      </Marker>
+    );
 
-  return (
-    <OverlayView key={id} position={position} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
-      {locationUrl ? <a href={locationUrl}>{marker}</a> : marker}
-    </OverlayView>
-  );
+    // The overlay only exists to put a crawlable <a> on the map. Without a URL it would render
+    // nothing while still costing a repositioned DOM node per marker on every pan frame.
+    if (!locationUrl) {
+      return marker;
+    }
+
+    return (
+      <OverlayView key={id} position={position} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
+        <a href={locationUrl}>{marker}</a>
+      </OverlayView>
+    );
+  }
 }
 
 export default LocationMarker;
