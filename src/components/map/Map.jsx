@@ -9,6 +9,40 @@ const defaultZoom = 14;
 const minZoom = 11;
 const geolocationTimeout = 5000;
 
+// react-google-maps diffs props by identity and forwards changes to map.setOptions, which
+// re-applies the style rules to every tile. Keeping these constant avoids restyling on re-render.
+const mapOptions = {
+  minZoom,
+  disableDefaultUI: true,
+  gestureHandling: 'greedy',
+  clickableIcons: false,
+  styles: [
+    {
+      featureType: 'poi',
+      elementType: 'labels',
+      stylers: [
+        { visibility: 'off' },
+      ],
+    },
+  ],
+};
+
+// Built lazily because it depends on the Google Maps script having loaded.
+let userPositionMarkerIcon;
+const getUserPositionMarkerIcon = () => {
+  if (!userPositionMarkerIcon) {
+    userPositionMarkerIcon = {
+      path: window.google.maps.SymbolPath.CIRCLE,
+      scale: 12,
+      strokeWeight: 4,
+      strokeColor: '#FFFFFF',
+      fillColor: '#4A90E2',
+      fillOpacity: 1,
+    };
+  }
+  return userPositionMarkerIcon;
+};
+
 const MyMap = compose(
   withProps({
     googleMapURL: config.googleMaps,
@@ -30,9 +64,11 @@ const MyMap = compose(
             return;
           }
 
-          const bounds = mapRef.getBounds();
+          const bounds = mapRef && mapRef.getBounds();
+          if (!bounds) return;
+
           const center = bounds.getCenter();
-          if (!bounds || !center) return;
+          if (!center) return;
           const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
             center,
             bounds.getSouthWest(),
@@ -55,21 +91,7 @@ const MyMap = compose(
 )(props => (
   <GoogleMap
     {...props}
-    options={{
-      minZoom,
-      disableDefaultUI: true,
-      gestureHandling: 'greedy',
-      clickableIcons: false,
-      styles: [
-          {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [
-                    { visibility: 'off' },
-              ],
-          },
-      ],
-    }}
+    options={mapOptions}
     defaultZoom={defaultZoom}
     defaultCenter={defaultCenter}
     ref={props.onMapMounted}
@@ -78,14 +100,7 @@ const MyMap = compose(
       <Marker
         position={props.userPosition}
         zIndex={window.google.maps.Marker.MAX_ZINDEX + 1}
-        icon={{
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          strokeWeight: 4,
-          strokeColor: '#FFFFFF',
-          fillColor: '#4A90E2',
-          fillOpacity: 1,
-        }}
+        icon={getUserPositionMarkerIcon()}
       />
     }
     {typeof props.children === 'function' ?

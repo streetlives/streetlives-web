@@ -73,6 +73,16 @@ export default class MapPage extends Component {
     });
   }, debouncePeriod);
 
+  // Cached so that markers keep the same handler identity across re-renders - otherwise every
+  // marker on the map re-registers its Google Maps click listener each time this page renders.
+  getLocationClickHandler = (locationId) => {
+    if (!this.locationClickHandlers[locationId]) {
+      this.locationClickHandlers[locationId] = () => this.props.goToLocationDetails(locationId);
+    }
+
+    return this.locationClickHandlers[locationId];
+  };
+
   getAdvancedFilterValues = () =>
     Object.values(this.state.filters.advancedFilters).filter(option => option != null);
 
@@ -122,6 +132,8 @@ export default class MapPage extends Component {
   };
 
   setSearchString = searchString => this.setFilters({ searchString });
+
+  locationClickHandlers = {};
 
   toggleOpenNow = () => this.setAdvancedFilters({
     openNow: this.state.filters.advancedFilters.openNow ?
@@ -322,7 +334,7 @@ export default class MapPage extends Component {
 
   render() {
     const isFiltering = !!this.getCurrentFilterString();
-    const { category, goToLocationDetails, getLocationUrl } = this.props;
+    const { category, getLocationUrl } = this.props;
 
     return (
       <div className="Map">
@@ -393,7 +405,7 @@ export default class MapPage extends Component {
                           key={location.id}
                           id={location.id}
                           mapLocation={location}
-                          onClick={() => goToLocationDetails(location.id)}
+                          onClick={this.getLocationClickHandler(location.id)}
                           locationUrl={getLocationUrl(location.id)}
                         />
                       ))
