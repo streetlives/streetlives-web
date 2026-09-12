@@ -4,9 +4,15 @@ import userEvent from '@testing-library/user-event';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
 
 // Bypass the real script-loading gate so the wrapped panorama picker mounts immediately.
+// The real withScriptjs renders a placeholder until the Maps script loads. Default to
+// "already loaded"; the slow-script test flips this to exercise the other mount order.
+let mockScriptLoaded = true;
+
 jest.mock('react-google-maps', () => ({
   ...jest.requireActual('react-google-maps'),
-  withScriptjs: Component => props => <Component {...props} />,
+  withScriptjs: Component => props => (
+    mockScriptLoaded ? <Component {...props} /> : <div>loading</div>
+  ),
 }));
 
 describe('LocationStreetviewEdit validation', () => {
@@ -14,7 +20,7 @@ describe('LocationStreetviewEdit validation', () => {
   const mockOnSubmit = jest.fn();
   const mockOnCancel = jest.fn();
 
-  const renderComponent = (value = null) => {
+  const renderCollapsed = (value = null) => {
     return render(
       <LocationStreetviewEdit
         value={value}
@@ -29,12 +35,24 @@ describe('LocationStreetviewEdit validation', () => {
     );
   };
 
+  // The heading/pitch/FOV/pano-ID fields are collapsed by default now. Existing tests are
+  // all about those fields, so the shared helper expands them; tests that care about the
+  // collapsed state call renderComponent.collapsed instead.
+  const renderComponent = (value = null) => {
+    const result = renderCollapsed(value);
+    const toggle = screen.queryByText('Show advanced fields');
+    // A value with a pano_id mounts already expanded, so the button reads "Hide ...".
+    if (toggle) fireEvent.click(toggle);
+    return result;
+  };
+
   // Populated on mount so tests can fire panorama events and drive the pano service.
   let listeners;
   let panoramaMock;
   let panoramaResult;
 
   beforeEach(() => {
+    mockScriptLoaded = true;
     listeners = {};
     panoramaResult = null;
     panoramaMock = {
@@ -42,7 +60,10 @@ describe('LocationStreetviewEdit validation', () => {
       setPano: jest.fn(),
       setPosition: jest.fn(),
       setPov: jest.fn(),
-      getPov: jest.fn(() => ({ heading: 0, pitch: 0, zoom: 1 })),
+      setZoom: jest.fn(),
+      // The real StreetViewPov has only heading and pitch; zoom is its own property.
+      getPov: jest.fn(() => ({ heading: 0, pitch: 0 })),
+      getZoom: jest.fn(() => 1),
       getPosition: jest.fn(() => null),
       getPano: jest.fn(() => null),
     };
@@ -331,7 +352,9 @@ describe('LocationStreetviewEdit validation', () => {
 
       fireEvent.click(screen.getByText('Reset to default'));
 
-      expect(panoramaMock.setPov).toHaveBeenCalledWith({ heading: 0, pitch: 0, zoom: 1 });
+      expect(panoramaMock.setPov).toHaveBeenCalledWith({ heading: 0, pitch: 0 });
+      // Zoom is reset through its own setter, not smuggled through the pov.
+      expect(panoramaMock.setZoom).toHaveBeenCalledWith(1);
     });
 
     it('captures the reset location after resetting', () => {
@@ -503,6 +526,306 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByLabelText(/Pitch/).value).toBe('');
       expect(screen.getByLabelText(/FOV/).value).toBe('');
       expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+    });
+  });
+
+  describe('pasting a Street View URL', () => {
+    // A real legacy URL: @-path plus an encoded thumbnail carrying panoid/yaw/pitch.
+    // eslint-disable-next-line max-len
+    const PANO_URL = 'https://www.google.com/maps/place/The+Fit+Faction/@40.7453108,-73.9925804,3a,75y,14.82h,88.07t/data=!3m7!1e1!3m5!1smyCPoMyIAezPN3iaT7KA_w!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D1.932283034172798%26panoid%3DmyCPoMyIAezPN3iaT7KA_w%26yaw%3D14.81575811159139!7i16384!8i8192';
+    // eslint-disable-next-line max-len
+    const COORDS_ONLY_URL = 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/';
+    // The !5s token is how Google marks a deliberately chosen older capture date. Only
+    // those keep their pano ID; current imagery is anchored by coordinates instead.
+    const HISTORICAL_URL = PANO_URL.replace('!2e0!6s', '!2e0!5s20240901T000000!6s');
+
+    const urlField = () => screen.getByLabelText(/Street View URL/);
+    const pasteUrl = url => fireEvent.change(urlField(), { target: { value: url } });
+
+    it('populates every field from a pasted URL', () => {
+      renderComponent();
+      pasteUrl(PANO_URL);
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7453108');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-73.9925804');
+      expect(screen.getByLabelText(/Heading/).value).toBe('14.81575811159139');
+      expect(screen.getByLabelText(/Pitch/).value).toBe('1.932283034172798');
+      expect(screen.getByLabelText(/FOV/).value).toBe('75');
+      // Current imagery, so no pano is pinned — the override tracks future captures.
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+    });
+
+    it('pins the pano only when the URL names an older capture date', () => {
+      renderComponent();
+      pasteUrl(HISTORICAL_URL);
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('myCPoMyIAezPN3iaT7KA_w');
+    });
+
+    it('derives pitch from the tilt segment when the URL has no explicit pitch', () => {
+      renderComponent();
+      pasteUrl(COORDS_ONLY_URL);
+
+      // 87t is 3 degrees above level.
+      expect(screen.getByLabelText(/Pitch/).value).toBe('3');
+    });
+
+    it('points the panorama at a pasted pano, without also moving its position', () => {
+      renderComponent();
+      pasteUrl(HISTORICAL_URL);
+
+      expect(panoramaMock.setPano).toHaveBeenCalledWith('myCPoMyIAezPN3iaT7KA_w');
+      // Setting a position afterwards would snap off the pinned image.
+      expect(panoramaMock.setPosition).not.toHaveBeenCalled();
+    });
+
+    it('moves the panorama by position when the URL has no pano', () => {
+      renderComponent();
+      pasteUrl(COORDS_ONLY_URL);
+
+      expect(panoramaMock.setPosition)
+        .toHaveBeenCalledWith({ lat: 40.694652, lng: -73.9425529 });
+      expect(panoramaMock.setPano).not.toHaveBeenCalled();
+    });
+
+    it('applies the pasted point of view', () => {
+      renderComponent();
+      pasteUrl(PANO_URL);
+
+      const [pov] = panoramaMock.setPov.mock.calls[0];
+      expect(pov.heading).toBe(14.81575811159139);
+      expect(pov.pitch).toBe(1.932283034172798);
+      // Zoom is set separately — StreetViewPov would ignore it.
+      const [zoom] = panoramaMock.setZoom.mock.calls[0];
+      expect(zoom).toBeCloseTo(Math.log2(180 / 75), 5);
+    });
+
+    it('captures the widest view from a fully zoomed-out panorama', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
+      panoramaMock.getZoom = jest.fn(() => 0);
+      fireEvent.click(screen.getByText('Capture current view'));
+
+      expect(screen.getByLabelText(/FOV/).value).toBe('120');
+    });
+
+    it('captures the real field of view rather than a fixed 90', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
+      panoramaMock.getZoom = jest.fn(() => 2);
+      fireEvent.click(screen.getByText('Capture current view'));
+
+      // getPov() has no zoom, so reading it from there always produced 90.
+      expect(screen.getByLabelText(/FOV/).value).toBe('45');
+    });
+
+    it('re-applies when the same URL is pasted again', () => {
+      renderComponent();
+      pasteUrl(HISTORICAL_URL);
+      // Somebody walks away from the pasted view, then pastes the same link to get back.
+      pasteUrl('');
+      pasteUrl(HISTORICAL_URL);
+
+      expect(panoramaMock.setPano).toHaveBeenCalledTimes(2);
+    });
+
+    it('applies a URL pasted before the Maps script finished loading', () => {
+      // The picker's first render is the one carrying the target, so componentDidUpdate
+      // never sees a change and the paste would otherwise be silently dropped.
+      mockScriptLoaded = false;
+      renderComponent();
+      pasteUrl(HISTORICAL_URL);
+      expect(panoramaMock.setPano).not.toHaveBeenCalled();
+
+      mockScriptLoaded = true;
+      // Any re-render now mounts the picker for the first time.
+      fireEvent.click(screen.getByText('Hide advanced fields'));
+
+      expect(panoramaMock.setPano).toHaveBeenCalledWith('myCPoMyIAezPN3iaT7KA_w');
+    });
+
+    it('still captures the refined view after a paste', () => {
+      renderComponent();
+      pasteUrl(COORDS_ONLY_URL);
+
+      // The specialist walks down the street from where the URL landed.
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
+      panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5, zoom: 1 }));
+      fireEvent.click(screen.getByText('Capture current view'));
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-75');
+      expect(screen.getByLabelText(/Heading/).value).toBe('200');
+    });
+
+    // The parser promises that anything it accepts also satisfies the form's own
+    // validate(), so a paste can never be followed by an unexplained refusal to save.
+    describe('anything the parser accepts also saves', () => {
+      const share = params => `https://www.google.com/maps/@?api=1&map_action=pano&${params}`;
+
+      it.each([
+        ['a current-imagery URL', PANO_URL],
+        ['a historical URL', HISTORICAL_URL],
+        ['a coordinates-only URL', COORDS_ONLY_URL],
+        ['a share link', share('viewpoint=40.74,-73.99&heading=180&pitch=0&fov=90')],
+        ['an out-of-range latitude beside a pano',
+          share('pano=abc1234567&viewpoint=999,-73.99')],
+        ['an out-of-range longitude beside a pano',
+          share('pano=abc1234567&viewpoint=40.74,-999')],
+        ['an out-of-range fov', share('viewpoint=40.7,-73.9&fov=400')],
+        ['a wrapped negative heading', share('viewpoint=40.7,-73.9&heading=-30')],
+      ])('saves after pasting %s', (_label, url) => {
+        renderComponent();
+        pasteUrl(url);
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).toHaveBeenCalled();
+        expect(screen.queryByText(/Required when/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Must be between/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/A Pano ID or both latitude/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('clears the URL box on reset', () => {
+      renderComponent();
+      pasteUrl(PANO_URL);
+      fireEvent.click(screen.getByText('Reset to default'));
+
+      expect(urlField().value).toBe('');
+      expect(screen.getByLabelText(/Latitude/).value).toBe('');
+    });
+  });
+
+  describe('a URL that cannot be read', () => {
+    const urlField = () => screen.getByLabelText(/Street View URL/);
+
+    it('reports it on blur, without touching what is already entered', async () => {
+      renderComponent();
+      await userEvent.type(screen.getByLabelText(/Latitude/), '40.7128');
+
+      fireEvent.change(urlField(), { target: { value: 'https://example.com/nope' } });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
+    });
+
+    it('rejects an ordinary map link and keeps the existing view intact', async () => {
+      renderComponent({
+        pano_id: 'kept-pano', lat: 40.7453108, lng: -73.9925804, heading: 15, pitch: 2, fov: 75,
+      });
+
+      // A map link, not a Street View one: these coordinates are just the map centre.
+      fireEvent.change(urlField(), {
+        target: { value: 'https://www.google.com/maps/@40.1,-73.1,15z' },
+      });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7453108');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-73.9925804');
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('kept-pano');
+      expect(screen.getByLabelText(/FOV/).value).toBe('75');
+      expect(panoramaMock.setPosition).not.toHaveBeenCalled();
+    });
+
+    it('rejects a truncated share link instead of fabricating a coordinate', async () => {
+      renderComponent({
+        pano_id: 'kept-pano', lat: 40.7453108, lng: -73.9925804, heading: 15, pitch: 2, fov: 75,
+      });
+
+      // Number('') is 0, so this used to be accepted as longitude 0.
+      fireEvent.change(urlField(), {
+        target: { value: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=40.7,' },
+      });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7453108');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-73.9925804');
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('kept-pano');
+      expect(panoramaMock.setPosition).not.toHaveBeenCalled();
+    });
+
+    it('says nothing while a URL is still being typed', () => {
+      renderComponent();
+      fireEvent.change(urlField(), { target: { value: 'https://www.google.com/ma' } });
+
+      expect(screen.queryByText(/Couldn’t find a Street View/)).not.toBeInTheDocument();
+    });
+
+    it('gives short share links their own explanation', async () => {
+      renderComponent();
+      fireEvent.change(urlField(), { target: { value: 'https://maps.app.goo.gl/abc123' } });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Short share links/)).toBeInTheDocument());
+    });
+
+    it('clears the error once a readable URL is pasted', async () => {
+      renderComponent();
+      fireEvent.change(urlField(), { target: { value: 'nonsense' } });
+      fireEvent.blur(urlField());
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+
+      fireEvent.change(urlField(), {
+        target: { value: 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/' },
+      });
+
+      expect(screen.queryByText(/Couldn’t find a Street View/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('advanced fields', () => {
+    it('are collapsed by default', () => {
+      renderCollapsed();
+
+      expect(screen.queryByLabelText(/Heading/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Pano ID/)).not.toBeInTheDocument();
+      // The fields a specialist actually needs stay put.
+      expect(screen.getByLabelText(/Latitude/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Street View URL/)).toBeInTheDocument();
+    });
+
+    it('appear when the toggle is clicked', () => {
+      renderCollapsed();
+      fireEvent.click(screen.getByText('Show advanced fields'));
+
+      expect(screen.getByLabelText(/Heading/)).toBeInTheDocument();
+      expect(screen.getByText('Hide advanced fields')).toBeInTheDocument();
+    });
+
+    it('start expanded when a pinned historical image is already saved', () => {
+      renderCollapsed({
+        pano_id: 'pinned-pano', lat: 40.7, lng: -73.9, heading: 10, pitch: 0, fov: 90,
+      });
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pinned-pano');
+    });
+
+    it('stay collapsed for a record with no pinned image', () => {
+      renderCollapsed({
+        pano_id: null, lat: 40.7, lng: -73.9, heading: 10, pitch: 0, fov: 90,
+      });
+
+      expect(screen.queryByLabelText(/Pano ID/)).not.toBeInTheDocument();
+    });
+
+    it('expand on submit so a hidden field’s error is not invisible', async () => {
+      renderComponent();
+      await userEvent.type(screen.getByLabelText(/FOV/), '500');
+      fireEvent.click(screen.getByText('Hide advanced fields'));
+      expect(screen.queryByLabelText(/FOV/)).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('OK'));
+
+      await waitFor(() => expect(screen.getByLabelText(/FOV/)).toBeInTheDocument());
+      expect(screen.getByText('Must be a whole number between 10 and 120')).toBeInTheDocument();
+      expect(mockUpdateValue).not.toHaveBeenCalled();
     });
   });
 });

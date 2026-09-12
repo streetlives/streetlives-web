@@ -7,8 +7,9 @@ import config from '../../../../config';
 import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
-
-const fovFromZoom = zoom => Math.min(120, Math.max(10, Math.round(180 / (2 ** (zoom || 1)))));
+import {
+  parseStreetviewUrl, isShortStreetviewLink, fovFromZoom, zoomFromFov,
+} from './utils';
 
 function validate({
   panoId, lat, lng, heading, pitch, fov,
@@ -98,7 +99,10 @@ class PanoramaPicker extends Component {
 
   componentDidMount() {
     const { initialPanoId, initialPosition } = this.props;
-    const opts = { visible: true, pov: { heading: 0, pitch: 0, zoom: 1 }, imageDateControl: true };
+    // zoom is a panorama option in its own right; StreetViewPov carries only heading/pitch.
+    const opts = {
+      visible: true, pov: { heading: 0, pitch: 0 }, zoom: 1, imageDateControl: true,
+    };
     if (initialPanoId) {
       opts.pano = initialPanoId;
     } else if (initialPosition) {
@@ -117,6 +121,14 @@ class PanoramaPicker extends Component {
     if (initialPosition) {
       this.fetchHistoricalPanos(initialPosition);
     }
+
+    // A URL pasted while the Maps script was still loading leaves a target waiting that
+    // componentDidUpdate would never see, because this mount is its first render.
+    if (this.props.targetKey) this.applyTarget();
+  }
+
+  componentDidUpdate() {
+    if (this.props.targetKey !== this.appliedTargetKey) this.applyTarget();
   }
 
   componentWillUnmount() {
@@ -149,6 +161,33 @@ class PanoramaPicker extends Component {
     if (!currentPano || historicalPanos.length === 0) return null;
     const [latest] = historicalPanos; // sorted newest first
     return currentPano === latest.panoId ? null : currentPano;
+  };
+
+  // Re-points the panorama at a pasted URL. The parent bumps targetKey on every successful
+  // paste rather than us diffing target, so pasting the same URL twice still brings the
+  // view back after the user has walked away from it. Recording what was last applied on
+  // the instance, rather than comparing prevProps, is what makes this work in both mount
+  // orders.
+  applyTarget = () => {
+    const { target, targetKey } = this.props;
+    this.appliedTargetKey = targetKey;
+    if (!this.panorama || !target) return;
+
+    // Exclusive, mirroring componentDidMount's pano-over-position precedence. Setting a
+    // position after a pano would snap off the pinned image onto the nearest current one.
+    if (target.panoId) {
+      this.panorama.setPano(target.panoId);
+      this.setState({ currentPano: target.panoId });
+    } else if (target.position) {
+      this.panorama.setPosition(target.position);
+    }
+
+    // Last, because setPano/setPosition can reset the point of view.
+    this.panorama.setPov({
+      heading: target.heading !== null ? target.heading : 0,
+      pitch: target.pitch !== null ? target.pitch : 0,
+    });
+    this.panorama.setZoom(zoomFromFov(target.fov));
   };
 
   fetchHistoricalPanos = (position) => {
@@ -195,7 +234,8 @@ class PanoramaPicker extends Component {
       lng: position ? position.lng() : null,
       heading: pov.heading !== undefined ? pov.heading : null,
       pitch: pov.pitch !== undefined ? pov.pitch : null,
-      fov: fovFromZoom(pov.zoom),
+      // getPov() carries no zoom — reading it there silently pinned every capture at 90.
+      fov: fovFromZoom(this.panorama.getZoom()),
     });
   };
 
@@ -207,7 +247,8 @@ class PanoramaPicker extends Component {
       if (defaultPosition) {
         this.panorama.setPosition(defaultPosition);
       }
-      this.panorama.setPov({ heading: 0, pitch: 0, zoom: 1 });
+      this.panorama.setPov({ heading: 0, pitch: 0 });
+      this.panorama.setZoom(1);
     }
     this.setState({ historicalPanos: [], currentPano: null });
     this.props.onReset();
@@ -259,10 +300,28 @@ class PanoramaPicker extends Component {
 
 const positionShape = PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number });
 
+// The fields a pasted URL normally fills in for you, kept out of the way by default.
+const ADVANCED_FIELDS = ['heading', 'pitch', 'fov', 'panoId'];
+
+const NO_STREETVIEW_ERROR = 'Couldn\u2019t find a Street View in that link. Open the view in ' +
+  'Google Maps, then copy the URL from your browser\u2019s address bar.';
+
+const SHORT_LINK_ERROR = 'Short share links can\u2019t be read. Open the link in your browser, ' +
+  'then copy the full URL from the address bar.';
+
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
   initialPosition: positionShape,
   defaultPosition: positionShape,
+  // Where a pasted URL wants the panorama pointed, applied whenever targetKey changes.
+  target: PropTypes.shape({
+    panoId: PropTypes.string,
+    position: positionShape,
+    heading: PropTypes.number,
+    pitch: PropTypes.number,
+    fov: PropTypes.number,
+  }),
+  targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
 };
@@ -295,12 +354,64 @@ class LocationStreetviewEdit extends Component {
       heading: value ? fieldVal(value.heading) : '',
       pitch: value ? fieldVal(value.pitch) : '',
       fov: value ? fieldVal(value.fov) : '',
+      url: '',
+      urlError: null,
+      // Where a successful paste wants the panorama pointed, plus a counter the picker
+      // watches so re-pasting the same URL re-applies it.
+      target: null,
+      targetKey: 0,
+      // Start expanded when an existing override pins a historical image, so nobody edits
+      // a location without seeing the pano ID doing the pinning. Heading/pitch/fov are set
+      // on practically every saved record, so keying off those would expand it always.
+      showAdvanced: !!(value && value.pano_id),
       errors: {},
     };
   }
 
   onChange = (field, val) => {
     this.setState({ [field]: val, errors: { ...this.state.errors, [field]: undefined } });
+  };
+
+  // A paste replaces all six fields rather than merging. Letting a stale heading or pano
+  // ID from an earlier URL ride along with new coordinates is the exact class of mismatch
+  // this field exists to prevent.
+  onUrlChange = (url) => {
+    const parsed = parseStreetviewUrl(url);
+    if (!parsed) {
+      // Deliberately no error yet — someone typing or correcting a URL by hand would see
+      // one on almost every keystroke. onUrlBlur reports it once they are done.
+      this.setState({ url, urlError: null });
+      return;
+    }
+
+    const hasCoords = parsed.lat !== null && parsed.lng !== null;
+    this.setState(prevState => ({
+      url,
+      urlError: null,
+      panoId: parsed.pano_id || '',
+      lat: fieldVal(parsed.lat),
+      lng: fieldVal(parsed.lng),
+      heading: fieldVal(parsed.heading),
+      pitch: fieldVal(parsed.pitch),
+      fov: fieldVal(parsed.fov),
+      errors: {},
+      target: {
+        panoId: parsed.pano_id,
+        position: hasCoords ? { lat: parsed.lat, lng: parsed.lng } : null,
+        heading: parsed.heading,
+        pitch: parsed.pitch,
+        fov: parsed.fov,
+      },
+      targetKey: prevState.targetKey + 1,
+    }));
+  };
+
+  onUrlBlur = () => {
+    const { url } = this.state;
+    if (!url.trim() || parseStreetviewUrl(url)) return;
+    this.setState({
+      urlError: isShortStreetviewLink(url) ? SHORT_LINK_ERROR : NO_STREETVIEW_ERROR,
+    });
   };
 
   onCapture = ({
@@ -325,6 +436,8 @@ class LocationStreetviewEdit extends Component {
       heading: '',
       pitch: '',
       fov: '',
+      url: '',
+      urlError: null,
       errors: {},
     });
   };
@@ -338,7 +451,13 @@ class LocationStreetviewEdit extends Component {
       panoId, lat, lng, heading, pitch, fov,
     });
     if (Object.keys(errors).length > 0) {
-      this.setState({ errors });
+      // An error on a collapsed field would otherwise refuse the save with nothing on
+      // screen to explain why. One-way, so submitting never collapses what the user opened.
+      const hasHiddenError = ADVANCED_FIELDS.some(key => errors[key]);
+      this.setState(prevState => ({
+        errors,
+        showAdvanced: prevState.showAdvanced || hasHiddenError,
+      }));
       return;
     }
     const streetviewData = {
@@ -373,34 +492,49 @@ class LocationStreetviewEdit extends Component {
     return this.getDefaultPosition();
   }
 
+  toggleAdvanced = () => {
+    this.setState(prevState => ({ showAdvanced: !prevState.showAdvanced }));
+  };
+
   render() {
     const { onCancel } = this.props;
     const {
-      panoId, lat, lng, heading, pitch, fov, errors,
+      panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
+      target, targetKey,
     } = this.state;
 
     return (
       <div>
         <Header>What is the Street View for this location?</Header>
 
+        <div style={{ marginBottom: '1.5em' }}>
+          <label htmlFor="sv-url">Street View URL</label>
+          <Input
+            id="sv-url"
+            fluid
+            value={url}
+            onChange={e => this.onUrlChange(e.target.value)}
+            onBlur={this.onUrlBlur}
+            placeholder="Paste a Google Maps Street View link"
+          />
+          <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 }}>
+            Paste a link and the fields below fill in for you. You can then fine-tune the
+            view and press &quot;Capture current view&quot;.
+          </div>
+          <FieldError message={urlError} />
+        </div>
+
         <PanoramaPickerWithScript
           initialPanoId={this.getInitialPanoId()}
           initialPosition={this.getInitialPosition()}
           defaultPosition={this.getDefaultPosition()}
+          target={target}
+          targetKey={targetKey}
           onCapture={this.onCapture}
           onReset={this.onReset}
         />
 
         <div style={{ marginTop: '1.5em' }}>
-          <p style={{ fontSize: '0.85em', color: 'var(--darkerGray)' }}>
-            You can also paste values directly from a URL.{' '}
-            The two numbers after <code>@</code> are the <strong>latitude</strong> and <strong>longitude</strong>;
-            the number before <code>y</code> is the <strong>FOV</strong>;
-            the number before <code>h</code> is the <strong>heading</strong>;
-            the number before <code>t</code> is the <strong>pitch</strong>;
-            and the value between <code>!1s</code> and <code>!2e</code> is the <strong>Pano ID</strong>.
-          </p>
-
           <div style={{ marginTop: '1em' }}>
             <label htmlFor="sv-lat">Latitude</label>
             <Input
@@ -427,59 +561,73 @@ class LocationStreetviewEdit extends Component {
             <FieldError message={errors.lng} />
           </div>
 
-          <div style={{ marginTop: '1em' }}>
-            <label htmlFor="sv-heading">Heading (°)</label>
-            <Input
-              id="sv-heading"
-              fluid
-              type="number"
-              value={heading}
-              onChange={e => this.onChange('heading', e.target.value)}
-              placeholder="0–360"
-            />
-            <FieldError message={errors.heading} />
-          </div>
+          <Button
+            basic
+            primary
+            compact
+            className="mt-3"
+            onClick={this.toggleAdvanced}
+          >
+            {showAdvanced ? 'Hide advanced fields' : 'Show advanced fields'}
+          </Button>
 
-          <div style={{ marginTop: '1em' }}>
-            <label htmlFor="sv-pitch">Pitch (°)</label>
-            <Input
-              id="sv-pitch"
-              fluid
-              type="number"
-              value={pitch}
-              onChange={e => this.onChange('pitch', e.target.value)}
-              placeholder="-90–90"
-            />
-            <FieldError message={errors.pitch} />
-          </div>
-
-          <div style={{ marginTop: '1em' }}>
-            <label htmlFor="sv-fov">FOV (°)</label>
-            <Input
-              id="sv-fov"
-              fluid
-              type="number"
-              value={fov}
-              onChange={e => this.onChange('fov', e.target.value)}
-              placeholder="10–120"
-            />
-            <FieldError message={errors.fov} />
-          </div>
-
-          <div style={{ marginTop: '1em' }}>
-            <label htmlFor="sv-pano-id">Pano ID</label>
-            <Input
-              id="sv-pano-id"
-              fluid
-              value={panoId}
-              onChange={e => this.onChange('panoId', e.target.value)}
-              placeholder="e.g. CAoSLEFBIFBJWFdBQ…"
-            />
-            <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 }}>
-              Only include this when pinning a historical image (use the year picker above).
+          {showAdvanced && (
+          <div>
+            <div style={{ marginTop: '1em' }}>
+              <label htmlFor="sv-heading">Heading (°)</label>
+              <Input
+                id="sv-heading"
+                fluid
+                type="number"
+                value={heading}
+                onChange={e => this.onChange('heading', e.target.value)}
+                placeholder="0–360"
+              />
+              <FieldError message={errors.heading} />
             </div>
-            <FieldError message={errors.panoId} />
+
+            <div style={{ marginTop: '1em' }}>
+              <label htmlFor="sv-pitch">Pitch (°)</label>
+              <Input
+                id="sv-pitch"
+                fluid
+                type="number"
+                value={pitch}
+                onChange={e => this.onChange('pitch', e.target.value)}
+                placeholder="-90–90"
+              />
+              <FieldError message={errors.pitch} />
+            </div>
+
+            <div style={{ marginTop: '1em' }}>
+              <label htmlFor="sv-fov">FOV (°)</label>
+              <Input
+                id="sv-fov"
+                fluid
+                type="number"
+                value={fov}
+                onChange={e => this.onChange('fov', e.target.value)}
+                placeholder="10–120"
+              />
+              <FieldError message={errors.fov} />
+            </div>
+
+            <div style={{ marginTop: '1em' }}>
+              <label htmlFor="sv-pano-id">Pano ID</label>
+              <Input
+                id="sv-pano-id"
+                fluid
+                value={panoId}
+                onChange={e => this.onChange('panoId', e.target.value)}
+                placeholder="e.g. CAoSLEFBIFBJWFdBQ…"
+              />
+              <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 }}>
+                Only include this when pinning a historical image (use the year picker above).
+              </div>
+              <FieldError message={errors.panoId} />
+            </div>
           </div>
+          )}
 
         </div>
 
