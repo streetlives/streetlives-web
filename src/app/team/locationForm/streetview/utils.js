@@ -238,9 +238,12 @@ export function parseStreetviewUrl(url) {
 
 // Google's panorama exposes zoom; we store a field of view. These two are inverses, and
 // live together so the round trip can be tested.
-export const fovFromZoom = zoom => (
-  Math.min(120, Math.max(10, Math.round(180 / (2 ** (zoom || 1)))))
-);
+// `zoom || 1` cannot tell a real zoom of 0 — fully zoomed out, a 180 degree view — from a
+// missing one, and reports 90 for both. Only substitute when it is genuinely absent.
+export const fovFromZoom = (zoom) => {
+  const level = (zoom === null || zoom === undefined) ? 1 : zoom;
+  return Math.min(120, Math.max(10, Math.round(180 / (2 ** level))));
+};
 
 export function zoomFromFov(fov) {
   return Math.log2(180 / (fov || 90));

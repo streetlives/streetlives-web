@@ -290,6 +290,23 @@ describe('parseStreetviewUrl', () => {
   });
 });
 
+describe('fovFromZoom', () => {
+  it('treats a fully zoomed-out panorama as the widest view we can store', () => {
+    // 180 / 2**0 is 180 degrees, clamped to the 120 the column accepts. `zoom || 1`
+    // reported 90 here, indistinguishable from a missing zoom.
+    expect(fovFromZoom(0)).toBe(120);
+  });
+
+  it.each([[null], [undefined]])('falls back to the default view for %s', (missing) => {
+    expect(fovFromZoom(missing)).toBe(90);
+  });
+
+  it('still reads ordinary zoom levels', () => {
+    expect(fovFromZoom(1)).toBe(90);
+    expect(fovFromZoom(2)).toBe(45);
+  });
+});
+
 describe('zoomFromFov', () => {
   it('round-trips through fovFromZoom across the accepted range', () => {
     [10, 20, 45, 75, 90, 120].forEach((fov) => {

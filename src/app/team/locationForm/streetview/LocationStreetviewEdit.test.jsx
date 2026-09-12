@@ -600,6 +600,15 @@ describe('LocationStreetviewEdit validation', () => {
       expect(zoom).toBeCloseTo(Math.log2(180 / 75), 5);
     });
 
+    it('captures the widest view from a fully zoomed-out panorama', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
+      panoramaMock.getZoom = jest.fn(() => 0);
+      fireEvent.click(screen.getByText('Capture current view'));
+
+      expect(screen.getByLabelText(/FOV/).value).toBe('120');
+    });
+
     it('captures the real field of view rather than a fixed 90', () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
