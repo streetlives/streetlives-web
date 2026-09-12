@@ -15,7 +15,8 @@ describe('parseStreetviewUrl', () => {
   describe('place/coordinate links', () => {
     it('extracts every field from a legacy URL with an encoded thumbnail', () => {
       expect(parseStreetviewUrl(PLACE_URL)).toEqual({
-        pano_id: 'myCPoMyIAezPN3iaT7KA_w',
+        // Current imagery, so the pano is deliberately not pinned — see the describe below.
+        pano_id: null,
         lat: 40.7453108,
         lng: -73.9925804,
         heading: 14.81575811159139,
@@ -30,7 +31,39 @@ describe('parseStreetviewUrl', () => {
     });
 
     it('reads the pano ID from the !1s…!2e0 data blob when there is no thumbnail', () => {
-      expect(parseStreetviewUrl(SHORT_URL).pano_id).toBe('vPnCYh8aDPKJ08AC1GqOjg');
+      const historical = SHORT_URL.replace('!2e0!7i', '!2e0!5s20220801T000000!7i');
+      expect(parseStreetviewUrl(historical).pano_id).toBe('vPnCYh8aDPKJ08AC1GqOjg');
+    });
+  });
+
+  describe('pinning only deliberately historical imagery', () => {
+    it('drops the pano ID when the URL points at current imagery', () => {
+      // Saving this pano would freeze the override on today's picture. The coordinates
+      // and POV resolve to the same image now and track future imagery afterwards.
+      expect(parseStreetviewUrl(PLACE_URL).lat).toBe(40.7453108);
+      expect(parseStreetviewUrl(PLACE_URL).pano_id).toBeNull();
+    });
+
+    it('keeps the pano ID when the URL names an older capture date', () => {
+      const historical = PLACE_URL.replace('!2e0!6s', '!2e0!5s20240901T000000!6s');
+      expect(parseStreetviewUrl(historical).pano_id).toBe('myCPoMyIAezPN3iaT7KA_w');
+    });
+
+    it('keeps the pano ID when there are no coordinates to fall back on', () => {
+      // Nothing else could anchor this view, so dropping the pano would reject the URL.
+      const url = 'https://www.google.com/maps/data=!3m4!1sAbCdEfGhIjKlMnOpQrStUv!2e0';
+      expect(parseStreetviewUrl(url)).toEqual({
+        pano_id: 'AbCdEfGhIjKlMnOpQrStUv',
+        lat: null,
+        lng: null,
+        heading: null,
+        pitch: null,
+        fov: null,
+      });
+    });
+
+    it('leaves share-link panos alone, since those come from our own records', () => {
+      expect(parseStreetviewUrl(SHARE_URL).pano_id).toBe('vPnCYh8aDPKJ08AC1GqOjg');
     });
   });
 
@@ -144,6 +177,21 @@ describe('parseStreetviewUrl', () => {
 
     it('returns null for a maps URL with no Street View data', () => {
       expect(parseStreetviewUrl('https://www.google.com/maps/search/pizza')).toBeNull();
+    });
+
+    it.each([
+      ['a plain map link with a zoom token', 'https://www.google.com/maps/@40.7,-73.9,15z'],
+      ['a place link with no Street View', 'https://www.google.com/maps/place/Foo/@40.7,-73.9,17z/data=!3m1!4b1'],
+    ])('returns null for %s', (_label, url) => {
+      // The coordinates in these are the map centre, not a chosen view. Accepting them
+      // would silently replace a good override with wherever the map was panned to.
+      expect(parseStreetviewUrl(url)).toBeNull();
+    });
+
+    it('still accepts a Street View path link that has only coordinates', () => {
+      // The 3a marker is what separates this from the map links above.
+      const url = 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/';
+      expect(parseStreetviewUrl(url).lat).toBe(40.694652);
     });
 
     it('returns null when coordinates are out of range and there is no pano ID', () => {

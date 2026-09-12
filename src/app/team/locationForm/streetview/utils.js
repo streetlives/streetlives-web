@@ -92,6 +92,21 @@ function parseShareLink(parsedUrl) {
   return result;
 }
 
+// Google marks a Street View @-segment with `3a`; a plain map link carries a zoom token
+// like `15z` instead. Without this check an ordinary map URL parses as a Street View whose
+// coordinates are simply wherever the map happened to be centred, quietly replacing a good
+// override with the map centre and clearing the rest of the view.
+function hasStreetViewMarker(decoded) {
+  return /@[^/]*,3a[,/]/.test(decoded);
+}
+
+// Google adds a !5s<timestamp> token once you deliberately pick an older capture date.
+// Its absence means the link points at current imagery, and storing that pano would
+// freeze the override on today's picture instead of following whatever Google publishes
+// next — the same reasoning as the picker's getPanoIdToPin(). Coordinates plus a point of
+// view resolve to that very image today and keep tracking it afterwards.
+const HISTORICAL_CAPTURE = /!5s\d{8}T\d{6}/;
+
 function parsePlaceLink(url) {
   const result = {
     pano_id: null, lat: null, lng: null, heading: null, pitch: null, fov: null,
@@ -133,6 +148,21 @@ function parsePlaceLink(url) {
     result.pitch = parseFloat(pitchMatch[1]);
   } else if (tiltMatch) {
     result.pitch = pitchFromTilt(parseFloat(tiltMatch[1]));
+  }
+
+  // Coordinates alone are not evidence of a Street View. A pano ID is; so is the 3a
+  // marker. With neither, drop everything so the caller reports an unreadable link rather
+  // than overwriting good values with a map centre.
+  if (!result.pano_id && !hasStreetViewMarker(decoded)) {
+    return {
+      pano_id: null, lat: null, lng: null, heading: null, pitch: null, fov: null,
+    };
+  }
+
+  // Only pin a pano the user actually went looking for. Needs coordinates to fall back on.
+  const hasCoords = result.lat !== null && result.lng !== null;
+  if (result.pano_id && hasCoords && !HISTORICAL_CAPTURE.test(decoded)) {
+    result.pano_id = null;
   }
 
   return result;

@@ -60,7 +60,10 @@ describe('LocationStreetviewEdit validation', () => {
       setPano: jest.fn(),
       setPosition: jest.fn(),
       setPov: jest.fn(),
-      getPov: jest.fn(() => ({ heading: 0, pitch: 0, zoom: 1 })),
+      setZoom: jest.fn(),
+      // The real StreetViewPov has only heading and pitch; zoom is its own property.
+      getPov: jest.fn(() => ({ heading: 0, pitch: 0 })),
+      getZoom: jest.fn(() => 1),
       getPosition: jest.fn(() => null),
       getPano: jest.fn(() => null),
     };
@@ -349,7 +352,9 @@ describe('LocationStreetviewEdit validation', () => {
 
       fireEvent.click(screen.getByText('Reset to default'));
 
-      expect(panoramaMock.setPov).toHaveBeenCalledWith({ heading: 0, pitch: 0, zoom: 1 });
+      expect(panoramaMock.setPov).toHaveBeenCalledWith({ heading: 0, pitch: 0 });
+      // Zoom is reset through its own setter, not smuggled through the pov.
+      expect(panoramaMock.setZoom).toHaveBeenCalledWith(1);
     });
 
     it('captures the reset location after resetting', () => {
@@ -530,6 +535,9 @@ describe('LocationStreetviewEdit validation', () => {
     const PANO_URL = 'https://www.google.com/maps/place/The+Fit+Faction/@40.7453108,-73.9925804,3a,75y,14.82h,88.07t/data=!3m7!1e1!3m5!1smyCPoMyIAezPN3iaT7KA_w!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D1.932283034172798%26panoid%3DmyCPoMyIAezPN3iaT7KA_w%26yaw%3D14.81575811159139!7i16384!8i8192';
     // eslint-disable-next-line max-len
     const COORDS_ONLY_URL = 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/';
+    // The !5s token is how Google marks a deliberately chosen older capture date. Only
+    // those keep their pano ID; current imagery is anchored by coordinates instead.
+    const HISTORICAL_URL = PANO_URL.replace('!2e0!6s', '!2e0!5s20240901T000000!6s');
 
     const urlField = () => screen.getByLabelText(/Street View URL/);
     const pasteUrl = url => fireEvent.change(urlField(), { target: { value: url } });
@@ -543,6 +551,14 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByLabelText(/Heading/).value).toBe('14.81575811159139');
       expect(screen.getByLabelText(/Pitch/).value).toBe('1.932283034172798');
       expect(screen.getByLabelText(/FOV/).value).toBe('75');
+      // Current imagery, so no pano is pinned — the override tracks future captures.
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+    });
+
+    it('pins the pano only when the URL names an older capture date', () => {
+      renderComponent();
+      pasteUrl(HISTORICAL_URL);
+
       expect(screen.getByLabelText(/Pano ID/).value).toBe('myCPoMyIAezPN3iaT7KA_w');
     });
 
@@ -556,7 +572,7 @@ describe('LocationStreetviewEdit validation', () => {
 
     it('points the panorama at a pasted pano, without also moving its position', () => {
       renderComponent();
-      pasteUrl(PANO_URL);
+      pasteUrl(HISTORICAL_URL);
 
       expect(panoramaMock.setPano).toHaveBeenCalledWith('myCPoMyIAezPN3iaT7KA_w');
       // Setting a position afterwards would snap off the pinned image.
@@ -579,15 +595,27 @@ describe('LocationStreetviewEdit validation', () => {
       const [pov] = panoramaMock.setPov.mock.calls[0];
       expect(pov.heading).toBe(14.81575811159139);
       expect(pov.pitch).toBe(1.932283034172798);
-      expect(pov.zoom).toBeCloseTo(Math.log2(180 / 75), 5);
+      // Zoom is set separately — StreetViewPov would ignore it.
+      const [zoom] = panoramaMock.setZoom.mock.calls[0];
+      expect(zoom).toBeCloseTo(Math.log2(180 / 75), 5);
+    });
+
+    it('captures the real field of view rather than a fixed 90', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
+      panoramaMock.getZoom = jest.fn(() => 2);
+      fireEvent.click(screen.getByText('Capture current view'));
+
+      // getPov() has no zoom, so reading it from there always produced 90.
+      expect(screen.getByLabelText(/FOV/).value).toBe('45');
     });
 
     it('re-applies when the same URL is pasted again', () => {
       renderComponent();
-      pasteUrl(PANO_URL);
+      pasteUrl(HISTORICAL_URL);
       // Somebody walks away from the pasted view, then pastes the same link to get back.
       pasteUrl('');
-      pasteUrl(PANO_URL);
+      pasteUrl(HISTORICAL_URL);
 
       expect(panoramaMock.setPano).toHaveBeenCalledTimes(2);
     });
@@ -597,7 +625,7 @@ describe('LocationStreetviewEdit validation', () => {
       // never sees a change and the paste would otherwise be silently dropped.
       mockScriptLoaded = false;
       renderComponent();
-      pasteUrl(PANO_URL);
+      pasteUrl(HISTORICAL_URL);
       expect(panoramaMock.setPano).not.toHaveBeenCalled();
 
       mockScriptLoaded = true;
@@ -644,6 +672,26 @@ describe('LocationStreetviewEdit validation', () => {
       await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
         .toBeInTheDocument());
       expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
+    });
+
+    it('rejects an ordinary map link and keeps the existing view intact', async () => {
+      renderComponent({
+        pano_id: 'kept-pano', lat: 40.7453108, lng: -73.9925804, heading: 15, pitch: 2, fov: 75,
+      });
+
+      // A map link, not a Street View one: these coordinates are just the map centre.
+      fireEvent.change(urlField(), {
+        target: { value: 'https://www.google.com/maps/@40.1,-73.1,15z' },
+      });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7453108');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-73.9925804');
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('kept-pano');
+      expect(screen.getByLabelText(/FOV/).value).toBe('75');
+      expect(panoramaMock.setPosition).not.toHaveBeenCalled();
     });
 
     it('says nothing while a URL is still being typed', () => {

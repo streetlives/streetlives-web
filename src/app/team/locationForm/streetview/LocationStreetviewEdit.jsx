@@ -99,7 +99,10 @@ class PanoramaPicker extends Component {
 
   componentDidMount() {
     const { initialPanoId, initialPosition } = this.props;
-    const opts = { visible: true, pov: { heading: 0, pitch: 0, zoom: 1 }, imageDateControl: true };
+    // zoom is a panorama option in its own right; StreetViewPov carries only heading/pitch.
+    const opts = {
+      visible: true, pov: { heading: 0, pitch: 0 }, zoom: 1, imageDateControl: true,
+    };
     if (initialPanoId) {
       opts.pano = initialPanoId;
     } else if (initialPosition) {
@@ -183,8 +186,8 @@ class PanoramaPicker extends Component {
     this.panorama.setPov({
       heading: target.heading !== null ? target.heading : 0,
       pitch: target.pitch !== null ? target.pitch : 0,
-      zoom: zoomFromFov(target.fov),
     });
+    this.panorama.setZoom(zoomFromFov(target.fov));
   };
 
   fetchHistoricalPanos = (position) => {
@@ -231,7 +234,8 @@ class PanoramaPicker extends Component {
       lng: position ? position.lng() : null,
       heading: pov.heading !== undefined ? pov.heading : null,
       pitch: pov.pitch !== undefined ? pov.pitch : null,
-      fov: fovFromZoom(pov.zoom),
+      // getPov() carries no zoom — reading it there silently pinned every capture at 90.
+      fov: fovFromZoom(this.panorama.getZoom()),
     });
   };
 
@@ -243,7 +247,8 @@ class PanoramaPicker extends Component {
       if (defaultPosition) {
         this.panorama.setPosition(defaultPosition);
       }
-      this.panorama.setPov({ heading: 0, pitch: 0, zoom: 1 });
+      this.panorama.setPov({ heading: 0, pitch: 0 });
+      this.panorama.setZoom(1);
     }
     this.setState({ historicalPanos: [], currentPano: null });
     this.props.onReset();
