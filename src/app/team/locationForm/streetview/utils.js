@@ -222,8 +222,14 @@ export function parseStreetviewUrl(url) {
   result.heading = inRange(normalizeHeading(result.heading), 0, 360);
   result.pitch = inRange(result.pitch, -90, 90);
   result.fov = clamp(result.fov, 10, 120);
-  result.lat = inRange(result.lat, -90, 90);
-  result.lng = inRange(result.lng, -180, 180);
+  // Coordinates only mean anything as a pair, and the form enforces that too, so keeping
+  // half of one would parse cleanly and then be refused on save with an error about a
+  // field the user never touched.
+  const lat = inRange(result.lat, -90, 90);
+  const lng = inRange(result.lng, -180, 180);
+  const hasPair = lat !== null && lng !== null;
+  result.lat = hasPair ? lat : null;
+  result.lng = hasPair ? lng : null;
   result.pano_id = sanitizePanoId(result.pano_id);
 
   const hasAnchor = !!result.pano_id || (result.lat !== null && result.lng !== null);

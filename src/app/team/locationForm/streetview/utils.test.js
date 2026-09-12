@@ -247,6 +247,26 @@ describe('parseStreetviewUrl', () => {
       expect(parseStreetviewUrl(url).lat).toBe(40.694652);
     });
 
+    it.each([
+      ['latitude', 'viewpoint=999,-73.9925804'],
+      ['longitude', 'viewpoint=40.7453108,-999'],
+    ])('clears both coordinates when the %s is out of range', (_label, viewpointParam) => {
+      // Half a pair parses cleanly and is then refused by the form's own cross-field rule.
+      const url = `https://www.google.com/maps/@?api=1&map_action=pano&pano=abc1234567&${viewpointParam}`;
+      const parsed = parseStreetviewUrl(url);
+      expect(parsed.pano_id).toBe('abc1234567');
+      expect(parsed.lat).toBeNull();
+      expect(parsed.lng).toBeNull();
+    });
+
+    it.each([
+      ['latitude', 'viewpoint=999,-73.9925804'],
+      ['longitude', 'viewpoint=40.7453108,-999'],
+    ])('rejects the URL when the %s is out of range and nothing else anchors it', (_l, vp) => {
+      const url = `https://www.google.com/maps/@?api=1&map_action=pano&${vp}`;
+      expect(parseStreetviewUrl(url)).toBeNull();
+    });
+
     it('returns null when coordinates are out of range and there is no pano ID', () => {
       const url = 'https://www.google.com/maps/@999.5,-73.9925804,3a,75y,14.82h,88.07t/data=x';
       expect(parseStreetviewUrl(url)).toBeNull();

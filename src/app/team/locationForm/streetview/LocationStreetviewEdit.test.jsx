@@ -649,6 +649,34 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByLabelText(/Heading/).value).toBe('200');
     });
 
+    // The parser promises that anything it accepts also satisfies the form's own
+    // validate(), so a paste can never be followed by an unexplained refusal to save.
+    describe('anything the parser accepts also saves', () => {
+      const share = params => `https://www.google.com/maps/@?api=1&map_action=pano&${params}`;
+
+      it.each([
+        ['a current-imagery URL', PANO_URL],
+        ['a historical URL', HISTORICAL_URL],
+        ['a coordinates-only URL', COORDS_ONLY_URL],
+        ['a share link', share('viewpoint=40.74,-73.99&heading=180&pitch=0&fov=90')],
+        ['an out-of-range latitude beside a pano',
+          share('pano=abc1234567&viewpoint=999,-73.99')],
+        ['an out-of-range longitude beside a pano',
+          share('pano=abc1234567&viewpoint=40.74,-999')],
+        ['an out-of-range fov', share('viewpoint=40.7,-73.9&fov=400')],
+        ['a wrapped negative heading', share('viewpoint=40.7,-73.9&heading=-30')],
+      ])('saves after pasting %s', (_label, url) => {
+        renderComponent();
+        pasteUrl(url);
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).toHaveBeenCalled();
+        expect(screen.queryByText(/Required when/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Must be between/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/A Pano ID or both latitude/)).not.toBeInTheDocument();
+      });
+    });
+
     it('clears the URL box on reset', () => {
       renderComponent();
       pasteUrl(PANO_URL);
