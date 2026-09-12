@@ -123,6 +123,38 @@ describe('parseStreetviewUrl', () => {
       });
     });
 
+    it.each([
+      ['an empty viewpoint', 'viewpoint=', null],
+      ['a bare comma', 'viewpoint=,', null],
+      ['a missing longitude', 'viewpoint=40.7453108,', null],
+      ['a missing latitude', 'viewpoint=,-73.9925804', null],
+      ['a single component', 'viewpoint=40.7453108', null],
+      ['three components', 'viewpoint=40.7,-73.9,5', null],
+      ['non-numeric components', 'viewpoint=north,west', null],
+    ])('ignores %s rather than inventing a coordinate', (_label, viewpointParam) => {
+      // Number('') is 0, so a truncated viewpoint used to yield (40.7, 0) or (0, 0).
+      const url = `https://www.google.com/maps/@?api=1&map_action=pano&${viewpointParam}`;
+      expect(parseStreetviewUrl(url)).toBeNull();
+    });
+
+    it('still reads a pano when the viewpoint beside it is malformed', () => {
+      const url = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=40.7,&pano=abc1234567';
+      expect(parseStreetviewUrl(url)).toEqual({
+        pano_id: 'abc1234567',
+        lat: null,
+        lng: null,
+        heading: null,
+        pitch: null,
+        fov: null,
+      });
+    });
+
+    it('tolerates whitespace around the viewpoint components', () => {
+      const url = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=40.7453108%20,%20-73.9925804';
+      expect(parseStreetviewUrl(url).lat).toBe(40.7453108);
+      expect(parseStreetviewUrl(url).lng).toBe(-73.9925804);
+    });
+
     it('parses a share link that carries a pano but no viewpoint', () => {
       const url = 'https://www.google.com/maps/@?api=1&map_action=pano&pano=abc123';
       expect(parseStreetviewUrl(url)).toEqual({
@@ -154,6 +186,27 @@ describe('parseStreetviewUrl', () => {
       const longId = 'a'.repeat(129);
       const url = `https://www.google.com/maps/@?api=1&map_action=pano&pano=${longId}&viewpoint=40.7,-73.9`;
       expect(parseStreetviewUrl(url).pano_id).toBeNull();
+    });
+
+    it.each([
+      ['an encoded space', '%20'],
+      ['an empty pano', ''],
+      ['a tab', '%09'],
+    ])('rejects a pano ID that is just %s', (_label, encoded) => {
+      // " " is truthy, so this used to anchor the parse all on its own.
+      const url = `https://www.google.com/maps/@?api=1&map_action=pano&pano=${encoded}`;
+      expect(parseStreetviewUrl(url)).toBeNull();
+    });
+
+    it('rejects a pano ID with whitespace inside it', () => {
+      // Trimming alone would let this through as a truthy, unusable pano.
+      const url = 'https://www.google.com/maps/@?api=1&map_action=pano&pano=abc%20123def';
+      expect(parseStreetviewUrl(url)).toBeNull();
+    });
+
+    it('trims surrounding whitespace off a pano ID', () => {
+      const url = 'https://www.google.com/maps/@?api=1&map_action=pano&pano=%20abc1234567%20';
+      expect(parseStreetviewUrl(url).pano_id).toBe('abc1234567');
     });
 
     it('keeps a pano ID of exactly 128 characters', () => {

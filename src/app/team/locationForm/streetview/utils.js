@@ -20,8 +20,37 @@ function safeDecodeURIComponent(value) {
   }
 }
 
+// A pano ID has to survive being put in a URL and stored in a STRING(128) column. An
+// encoded space decodes to " ", which is truthy and would anchor the whole parse, so
+// reject anything blank, whitespace-bearing or over-length rather than only over-length.
+// Deliberately not a charset whitelist — refusing a pano Google considers valid would be
+// a worse failure than accepting an odd-looking one.
+function sanitizePanoId(panoId) {
+  if (!panoId) return null;
+  const trimmed = panoId.trim();
+  if (!trimmed || /\s/.test(trimmed) || trimmed.length > MAX_PANO_ID_LENGTH) return null;
+  return trimmed;
+}
+
 function finiteOrNull(value) {
   return Number.isFinite(value) ? value : null;
+}
+
+// "lat,lng", strictly. Number('') is 0, so splitting and mapping Number turns a truncated
+// `viewpoint=40.7,` into the fabricated (40.7, 0) and a bare `viewpoint=,` into (0, 0) —
+// both of which look perfectly valid downstream. Demand two non-empty numeric components.
+function parseCoordPair(value) {
+  const parts = String(value).split(',');
+  if (parts.length !== 2) return null;
+
+  const [latText, lngText] = parts.map(part => part.trim());
+  if (!latText || !lngText) return null;
+
+  const lat = Number(latText);
+  const lng = Number(lngText);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return { lat, lng };
 }
 
 // Google writes the camera angle two different ways. The `t` segment of an @-path is a
@@ -75,10 +104,10 @@ function parseShareLink(parsedUrl) {
   };
 
   const viewpoint = parsedUrl.searchParams.get('viewpoint');
-  if (viewpoint) {
-    const [lat, lng] = viewpoint.split(',').map(Number);
-    result.lat = finiteOrNull(lat);
-    result.lng = finiteOrNull(lng);
+  const coords = viewpoint ? parseCoordPair(viewpoint) : null;
+  if (coords) {
+    result.lat = coords.lat;
+    result.lng = coords.lng;
   }
 
   result.heading = finiteOrNull(parseFloat(parsedUrl.searchParams.get('heading')));
@@ -195,11 +224,7 @@ export function parseStreetviewUrl(url) {
   result.fov = clamp(result.fov, 10, 120);
   result.lat = inRange(result.lat, -90, 90);
   result.lng = inRange(result.lng, -180, 180);
-  // The column is STRING(128) and the API's Joi schema rejects anything longer, so a
-  // greedy capture must be dropped here rather than failing on save.
-  if (result.pano_id && result.pano_id.length > MAX_PANO_ID_LENGTH) {
-    result.pano_id = null;
-  }
+  result.pano_id = sanitizePanoId(result.pano_id);
 
   const hasAnchor = !!result.pano_id || (result.lat !== null && result.lng !== null);
   return hasAnchor ? result : null;

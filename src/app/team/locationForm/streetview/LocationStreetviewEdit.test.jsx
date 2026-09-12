@@ -694,6 +694,25 @@ describe('LocationStreetviewEdit validation', () => {
       expect(panoramaMock.setPosition).not.toHaveBeenCalled();
     });
 
+    it('rejects a truncated share link instead of fabricating a coordinate', async () => {
+      renderComponent({
+        pano_id: 'kept-pano', lat: 40.7453108, lng: -73.9925804, heading: 15, pitch: 2, fov: 75,
+      });
+
+      // Number('') is 0, so this used to be accepted as longitude 0.
+      fireEvent.change(urlField(), {
+        target: { value: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=40.7,' },
+      });
+      fireEvent.blur(urlField());
+
+      await waitFor(() => expect(screen.getByText(/Couldn’t find a Street View/))
+        .toBeInTheDocument());
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7453108');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-73.9925804');
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('kept-pano');
+      expect(panoramaMock.setPosition).not.toHaveBeenCalled();
+    });
+
     it('says nothing while a URL is still being typed', () => {
       renderComponent();
       fireEvent.change(urlField(), { target: { value: 'https://www.google.com/ma' } });
