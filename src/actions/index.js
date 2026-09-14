@@ -127,6 +127,20 @@ export const updateLocation = (locationId, params, metaDataSection, fieldName) =
     });
 };
 
+const STREETVIEW_FIELDS = ['pano_id', 'lat', 'lng', 'heading', 'pitch', 'fov'];
+
+// The confirm-without-editing path hands us `location.Streetview` straight from the API,
+// which carries id/location_id/createdAt/updatedAt. The backend schema rejects unknown
+// keys, so only the editable fields may be sent. Keys absent from the input stay absent:
+// the backend reads omission as "leave unchanged".
+function pickStreetviewFields(streetviewData) {
+  if (!streetviewData) return streetviewData;
+
+  return STREETVIEW_FIELDS.reduce((picked, field) => (
+    field in streetviewData ? { ...picked, [field]: streetviewData[field] } : picked
+  ), {});
+}
+
 export const updateLocationStreetview = (
   locationId,
   streetviewData,
@@ -137,10 +151,12 @@ export const updateLocationStreetview = (
   const location = state.locations[locationId];
   const originalStreetview = location ? location.Streetview : null;
 
-  const allNull = !streetviewData ||
-    Object.values(streetviewData).every(v => v === null || v === undefined || v === '');
+  const streetviewFields = pickStreetviewFields(streetviewData);
 
-  const newStreetview = allNull ? null : streetviewData;
+  const allNull = !streetviewFields ||
+    Object.values(streetviewFields).every(v => v === null || v === undefined || v === '');
+
+  const newStreetview = allNull ? null : streetviewFields;
 
   // Always dispatch optimistic update to complete the form cycle
   dispatch({
