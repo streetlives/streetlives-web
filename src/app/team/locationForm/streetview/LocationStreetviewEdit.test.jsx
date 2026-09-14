@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
 
@@ -45,6 +45,20 @@ describe('LocationStreetviewEdit validation', () => {
     if (toggle) fireEvent.click(toggle);
     return result;
   };
+
+  // There is no capture button any more: the fields follow the panorama once the
+  // specialist has handled it. A mouse press on the container is that signal, and the
+  // panorama event is the move itself.
+  const moveView = () => {
+    fireEvent.mouseDown(screen.getByTestId('streetview-panorama'));
+    listeners.pov_changed();
+  };
+
+  // Let the capture debounce elapse, so a test can tell a capture that ran from one that
+  // deliberately did not.
+  const settle = () => act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+  });
 
   // Populated on mount so tests can fire panorama events and drive the pano service.
   let listeners;
@@ -357,28 +371,132 @@ describe('LocationStreetviewEdit validation', () => {
       expect(panoramaMock.setZoom).toHaveBeenCalledWith(1);
     });
 
-    it('captures the reset location after resetting', () => {
+    // Google walks the panorama to the default position after a reset, firing the same
+    // events a specialist's drag would.
+    const settleOnDefault = () => {
       panoramaResult = {
         time: [
           { pano: 'home-2020', date: new Date('2020-06-01') },
           { pano: 'home-2024', date: new Date('2024-06-01') },
         ],
       };
-      renderComponent(overrideElsewhere);
-
-      fireEvent.click(screen.getByText('Reset to default'));
-
-      // The panorama settles on the location's latest imagery, so no pin is needed.
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 40.7128, lng: () => -74.0060 }));
       panoramaMock.getPano = jest.fn(() => 'home-2024');
       listeners.pano_changed();
       listeners.position_changed();
+    };
 
-      fireEvent.click(screen.getByText('Capture current view'));
+    it('leaves the fields empty while the panorama settles', async () => {
+      renderComponent(overrideElsewhere);
+
+      fireEvent.click(screen.getByText('Reset to default'));
+      settleOnDefault();
+      await settle();
+
+      // The panorama moving itself is not the specialist asking for an override, so the
+      // fields reset just cleared stay cleared.
+      expect(screen.getByLabelText(/Latitude/).value).toBe('');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('');
+    });
+
+    it('takes the reset location once the specialist moves the view again', async () => {
+      renderComponent(overrideElsewhere);
+
+      fireEvent.click(screen.getByText('Reset to default'));
+      settleOnDefault();
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
       expect(screen.getByLabelText(/Longitude/).value).toBe('-74.006');
+      // The location's latest imagery is showing, so no pin is needed.
       expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+    });
+  });
+
+  describe('capture: the fields follow the panorama', () => {
+    const atSpot = { lat: () => 41, lng: () => -75 };
+
+    it('has no capture button to press', () => {
+      renderComponent();
+
+      expect(screen.queryByText('Capture current view')).not.toBeInTheDocument();
+      expect(screen.getByText('Reset to default')).toBeInTheDocument();
+    });
+
+    it('fills the fields once the specialist moves the view', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5 }));
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-75');
+      expect(screen.getByLabelText(/Heading/).value).toBe('200');
+      expect(screen.getByLabelText(/Pitch/).value).toBe('5');
+    });
+
+    it('takes the view as soon as a drag ends, without waiting', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 120, pitch: 0 }));
+
+      const panorama = screen.getByTestId('streetview-panorama');
+      fireEvent.mouseDown(panorama);
+      listeners.pov_changed();
+      fireEvent.mouseUp(panorama);
+
+      // No settle(): letting go and pressing OK straight away must keep the adjustment.
+      expect(screen.getByLabelText(/Heading/).value).toBe('120');
+    });
+
+    it('keeps the fields empty while the panorama loads on its own', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Google fires these as the panorama comes up, before anyone has touched it.
+      // Capturing them would turn simply opening the editor into an override.
+      listeners.position_changed();
+      listeners.pov_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('');
+      expect(mockUpdateValue).not.toHaveBeenCalled();
+    });
+
+    it('records only the view a drag settles on', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Every frame of a drag fires pov_changed; only the last one should reach the form.
+      fireEvent.mouseDown(screen.getByTestId('streetview-panorama'));
+      panoramaMock.getPov = jest.fn(() => ({ heading: 10, pitch: 0 }));
+      listeners.pov_changed();
+      panoramaMock.getPov = jest.fn(() => ({ heading: 90, pitch: 0 }));
+      listeners.pov_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Heading/).value).toBe('90');
+    });
+
+    it('treats picking a capture year as handling the panorama', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
     });
   });
 
@@ -400,46 +518,50 @@ describe('LocationStreetviewEdit validation', () => {
 
     const panoIdField = () => screen.getByLabelText(/Pano ID/);
 
-    it('leaves Pano ID empty when the latest image is showing', () => {
+    it('leaves Pano ID empty when the latest image is showing', async () => {
       panoramaResult = twoYears;
       renderComponent();
       showPano('pano-2023');
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('fills Pano ID after the user picks an older year', () => {
+    it('fills Pano ID after the user picks an older year', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('pano-2019');
     });
 
-    it('leaves Pano ID empty when the user picks the latest year', () => {
+    it('leaves Pano ID empty when the user picks the latest year', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('keeps an existing pin while its older image is still showing', () => {
+    it('keeps an existing pin while its older image is still showing', async () => {
       panoramaResult = twoYears;
       renderComponent({ pano_id: 'pano-2019', lat: 40.7128, lng: -74.0060 });
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('pano-2019');
     });
 
-    it('clears a stale pin once the user walks to the latest image elsewhere', () => {
+    it('clears a stale pin once the user walks to the latest image elsewhere', async () => {
       panoramaResult = twoYears;
       renderComponent({ pano_id: 'pano-2019', lat: 40.7128, lng: -74.0060 });
 
@@ -454,12 +576,13 @@ describe('LocationStreetviewEdit validation', () => {
       showPano('other-2024');
       listeners.position_changed();
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('pins the new pano when an older image is showing after walking', () => {
+    it('pins the new pano when an older image is showing after walking', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
@@ -473,17 +596,19 @@ describe('LocationStreetviewEdit validation', () => {
       showPano('other-2020');
       listeners.position_changed();
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('other-2020');
     });
 
-    it('leaves Pano ID empty when the spot has only one capture date', () => {
+    it('leaves Pano ID empty when the spot has only one capture date', async () => {
       panoramaResult = { time: [{ pano: 'only-pano', date: new Date('2023-06-01') }] };
       renderComponent();
       showPano('only-pano');
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
       expect(panoIdField().value).toBe('');
@@ -600,20 +725,22 @@ describe('LocationStreetviewEdit validation', () => {
       expect(zoom).toBeCloseTo(Math.log2(180 / 75), 5);
     });
 
-    it('captures the widest view from a fully zoomed-out panorama', () => {
+    it('captures the widest view from a fully zoomed-out panorama', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getZoom = jest.fn(() => 0);
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/FOV/).value).toBe('120');
     });
 
-    it('captures the real field of view rather than a fixed 90', () => {
+    it('captures the real field of view rather than a fixed 90', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getZoom = jest.fn(() => 2);
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       // getPov() has no zoom, so reading it from there always produced 90.
       expect(screen.getByLabelText(/FOV/).value).toBe('45');
@@ -644,14 +771,15 @@ describe('LocationStreetviewEdit validation', () => {
       expect(panoramaMock.setPano).toHaveBeenCalledWith('myCPoMyIAezPN3iaT7KA_w');
     });
 
-    it('still captures the refined view after a paste', () => {
+    it('still captures the refined view after a paste', async () => {
       renderComponent();
       pasteUrl(COORDS_ONLY_URL);
 
       // The specialist walks down the street from where the URL landed.
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5, zoom: 1 }));
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/Latitude/).value).toBe('41');
       expect(screen.getByLabelText(/Longitude/).value).toBe('-75');

@@ -84,6 +84,20 @@ function getDateFromTimeEntry(t) {
   return Object.values(t).map(toDate).find(Boolean) || null;
 }
 
+// The panorama fires pov and position events continuously while the view is being
+// dragged. The fields only need the view it settles on.
+const CAPTURE_DEBOUNCE_MS = 250;
+
+// What counts as the specialist handling the panorama. Bound natively in the capture
+// phase on the container, because the Maps API stops some of these on the way up and
+// React's delegated listeners would never see them.
+const INTERACTION_EVENTS = ['mousedown', 'touchstart', 'wheel', 'keydown'];
+
+// Releasing a drag means the view is where the specialist wants it. Capturing there and
+// then, rather than a debounce later, is what lets someone let go and press OK straight
+// away without losing the adjustment they just made.
+const SETTLE_EVENTS = ['mouseup', 'touchend'];
+
 function formatCaptureDate(date) {
   return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
 }
@@ -116,6 +130,16 @@ class PanoramaPicker extends Component {
     // We intentionally do NOT listen to pano_changed for this to avoid triggering a refetch
     // every time setPano() is called from the year picker.
     this.panorama.addListener('position_changed', this.onPositionChanged);
+    // The fields follow the view rather than waiting for a button, so every way the
+    // panorama can move has to feed a capture. Turning and zooming change nothing the two
+    // listeners above would notice.
+    this.panorama.addListener('pov_changed', this.scheduleCapture);
+    this.panorama.addListener('zoom_changed', this.scheduleCapture);
+
+    INTERACTION_EVENTS.forEach(name =>
+      this.container.addEventListener(name, this.startCapturing, true));
+    SETTLE_EVENTS.forEach(name =>
+      this.container.addEventListener(name, this.captureNow, true));
 
     // Seed the year list immediately if we already have a position.
     if (initialPosition) {
@@ -132,12 +156,21 @@ class PanoramaPicker extends Component {
   }
 
   componentWillUnmount() {
+    clearTimeout(this.captureTimer);
+    this.capturing = false;
+    if (this.container) {
+      INTERACTION_EVENTS.forEach(name =>
+        this.container.removeEventListener(name, this.startCapturing, true));
+      SETTLE_EVENTS.forEach(name =>
+        this.container.removeEventListener(name, this.captureNow, true));
+    }
     this.panorama = null;
   }
 
   onPanoChanged = () => {
     if (this.panorama) {
       this.setState({ currentPano: this.panorama.getPano() });
+      this.scheduleCapture();
     }
   };
 
@@ -145,12 +178,16 @@ class PanoramaPicker extends Component {
     if (!this.panorama) return;
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
+    this.scheduleCapture();
   };
 
   onSelectYear = (panoId) => {
     if (!this.panorama || !panoId) return;
+    // Picking a year is the specialist choosing an image, so it counts as handling the
+    // panorama even though the pointer never entered it.
+    this.startCapturing();
     this.panorama.setPano(panoId);
-    this.setState({ currentPano: panoId });
+    this.setState({ currentPano: panoId }, this.scheduleCapture);
   };
 
   // A pano ID is only needed to pin an older image. When the newest capture is on screen,
@@ -202,7 +239,9 @@ class PanoramaPicker extends Component {
       // A single capture date means there is nothing to choose between, so no picker.
       if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time ||
           data.time.length <= 1) {
-        this.setState({ historicalPanos: [] });
+        // The pin decision reads this list, so a capture waiting on a walk to a new spot
+        // has to be redone against the list that belongs to it.
+        this.setState({ historicalPanos: [] }, this.scheduleCapture);
         return;
       }
 
@@ -220,8 +259,27 @@ class PanoramaPicker extends Component {
         .filter(Boolean)
         .sort((a, b) => b.date - a.date); // newest first
 
-      this.setState({ historicalPanos: panos });
+      this.setState({ historicalPanos: panos }, this.scheduleCapture);
     });
+  };
+
+  // Nothing is captured until the specialist actually handles the panorama. Google moves
+  // it on its own — on load, and while it settles after a reset — and capturing those
+  // would write an override nobody asked for over fields that are meant to stay empty.
+  startCapturing = () => {
+    this.capturing = true;
+  };
+
+  scheduleCapture = () => {
+    if (!this.capturing) return;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
+  };
+
+  captureNow = () => {
+    if (!this.capturing) return;
+    clearTimeout(this.captureTimer);
+    this.capture();
   };
 
   capture = () => {
@@ -240,6 +298,10 @@ class PanoramaPicker extends Component {
   };
 
   reset = () => {
+    // The panorama keeps firing move events while it settles onto the default position;
+    // each one would otherwise refill the fields this reset is clearing.
+    this.capturing = false;
+    clearTimeout(this.captureTimer);
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.
@@ -286,10 +348,14 @@ class PanoramaPicker extends Component {
             </select>
           </div>
         )}
-        <div ref={(r) => { this.container = r; }} style={{ height: 400, width: '100%' }} />
-        <Button primary className="mt-3" onClick={this.capture}>
-          Capture current view
-        </Button>&nbsp;
+        <div
+          ref={(r) => { this.container = r; }}
+          data-testid="streetview-panorama"
+          style={{ height: 400, width: '100%' }}
+        />
+        <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: '0.5em' }}>
+          Move the view above and the fields below follow it.
+        </div>
         <Button basic primary className="mt-3" onClick={this.reset}>
           Reset to default
         </Button>
@@ -519,7 +585,7 @@ class LocationStreetviewEdit extends Component {
           />
           <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 }}>
             Paste a link and the fields below fill in for you. You can then fine-tune the
-            view and press &quot;Capture current view&quot;.
+            view in the panorama.
           </div>
           <FieldError message={urlError} />
         </div>
