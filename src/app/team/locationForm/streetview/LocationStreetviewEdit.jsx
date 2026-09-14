@@ -139,7 +139,8 @@ class PanoramaPicker extends Component {
     INTERACTION_EVENTS.forEach(name =>
       this.container.addEventListener(name, this.startCapturing, true));
     SETTLE_EVENTS.forEach(name =>
-      this.container.addEventListener(name, this.captureNow, true));
+      this.container.addEventListener(name, this.flushCapture, true));
+    this.props.captureHandle.flush = this.flushCapture;
 
     // Seed the year list immediately if we already have a position.
     if (initialPosition) {
@@ -157,12 +158,16 @@ class PanoramaPicker extends Component {
 
   componentWillUnmount() {
     clearTimeout(this.captureTimer);
+    this.captureTimer = null;
     this.capturing = false;
+    if (this.props.captureHandle.flush === this.flushCapture) {
+      this.props.captureHandle.flush = null;
+    }
     if (this.container) {
       INTERACTION_EVENTS.forEach(name =>
         this.container.removeEventListener(name, this.startCapturing, true));
       SETTLE_EVENTS.forEach(name =>
-        this.container.removeEventListener(name, this.captureNow, true));
+        this.container.removeEventListener(name, this.flushCapture, true));
     }
     this.panorama = null;
   }
@@ -229,6 +234,11 @@ class PanoramaPicker extends Component {
 
   fetchHistoricalPanos = (position) => {
     if (!position || !window.google) return;
+    // Walking fires one of these per step and the responses can land out of order. An
+    // earlier spot's year list would both replace the right one and, because the pin
+    // decision reads it, pin the wrong image for where the panorama actually is.
+    this.panoRequestId = (this.panoRequestId || 0) + 1;
+    const requestId = this.panoRequestId;
     // Accept both google.maps.LatLng and plain {lat, lng}
     const latLng = (typeof position.lat === 'function')
       ? position
@@ -236,6 +246,7 @@ class PanoramaPicker extends Component {
 
     const sv = new window.google.maps.StreetViewService();
     sv.getPanorama({ location: latLng, radius: 50 }, (data, status) => {
+      if (requestId !== this.panoRequestId || !this.panorama) return;
       // A single capture date means there is nothing to choose between, so no picker.
       if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time ||
           data.time.length <= 1) {
@@ -276,17 +287,23 @@ class PanoramaPicker extends Component {
     this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
   };
 
-  captureNow = () => {
-    if (!this.capturing) return;
-    clearTimeout(this.captureTimer);
-    this.capture();
+  // Takes a waiting capture now and hands back what it read. The form submits on the
+  // fields, and setState inside an event handler does not land before the handler
+  // finishes, so pressing OK on a view adjusted a moment ago has to read the view here
+  // rather than wait for the debounce that is still pending. A capture is only waiting
+  // when something actually moved, so a click that changed nothing captures nothing.
+  flushCapture = () => {
+    if (!this.captureTimer) return null;
+    return this.capture();
   };
 
   capture = () => {
-    if (!this.panorama) return;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = null;
+    if (!this.panorama) return null;
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
-    this.props.onCapture({
+    const view = {
       pano_id: this.getPanoIdToPin(),
       lat: position ? position.lat() : null,
       lng: position ? position.lng() : null,
@@ -294,7 +311,9 @@ class PanoramaPicker extends Component {
       pitch: pov.pitch !== undefined ? pov.pitch : null,
       // getPov() carries no zoom — reading it there silently pinned every capture at 90.
       fov: fovFromZoom(this.panorama.getZoom()),
-    });
+    };
+    this.props.onCapture(view);
+    return view;
   };
 
   reset = () => {
@@ -302,6 +321,7 @@ class PanoramaPicker extends Component {
     // each one would otherwise refill the fields this reset is clearing.
     this.capturing = false;
     clearTimeout(this.captureTimer);
+    this.captureTimer = null;
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.
@@ -390,6 +410,8 @@ PanoramaPicker.propTypes = {
   targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
+  // Mutable handle the form submits through — see flushCapture.
+  captureHandle: PropTypes.shape({ flush: PropTypes.func }).isRequired,
 };
 
 const PanoramaPickerWithScript = compose(
@@ -404,6 +426,19 @@ function fieldVal(v) {
   return (v !== null && v !== undefined) ? String(v) : '';
 }
 
+function fieldsFromView({
+  pano_id: panoId, lat, lng, heading, pitch, fov,
+}) {
+  return {
+    panoId: panoId || '',
+    lat: fieldVal(lat),
+    lng: fieldVal(lng),
+    heading: fieldVal(heading),
+    pitch: fieldVal(pitch),
+    fov: fieldVal(fov),
+  };
+}
+
 function FieldError({ message }) {
   if (!message) return null;
   return <div style={{ color: 'red', fontSize: '0.85em', marginTop: 2 }}>{message}</div>;
@@ -413,6 +448,9 @@ class LocationStreetviewEdit extends Component {
   constructor(props) {
     super(props);
     const { value } = props;
+    // Filled in by the picker once it mounts; the form submits through it so a capture
+    // still waiting on the debounce is taken before the fields are read.
+    this.captureHandle = {};
     this.state = {
       panoId: (value && value.pano_id) ? value.pano_id : '',
       lat: value ? fieldVal(value.lat) : '',
@@ -480,18 +518,8 @@ class LocationStreetviewEdit extends Component {
     });
   };
 
-  onCapture = ({
-    pano_id: capturedPanoId, lat, lng, heading, pitch, fov,
-  }) => {
-    this.setState({
-      panoId: capturedPanoId || '',
-      lat: lat !== null ? String(lat) : '',
-      lng: lng !== null ? String(lng) : '',
-      heading: heading !== null ? String(heading) : '',
-      pitch: pitch !== null ? String(pitch) : '',
-      fov: fov !== null ? String(fov) : '',
-      errors: {},
-    });
+  onCapture = (view) => {
+    this.setState({ ...fieldsFromView(view), errors: {} });
   };
 
   onReset = () => {
@@ -510,9 +538,13 @@ class LocationStreetviewEdit extends Component {
 
   onSubmit = (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    // A view adjusted and OK'd inside the same quarter-second would otherwise be saved as
+    // the fields stood before it: the capture is still pending, and the setState it will
+    // make could not have landed in this handler anyway.
+    const pending = this.captureHandle.flush && this.captureHandle.flush();
     const {
       panoId, lat, lng, heading, pitch, fov,
-    } = this.state;
+    } = pending ? fieldsFromView(pending) : this.state;
     const errors = validate({
       panoId, lat, lng, heading, pitch, fov,
     });
@@ -596,6 +628,7 @@ class LocationStreetviewEdit extends Component {
           defaultPosition={this.getDefaultPosition()}
           target={target}
           targetKey={targetKey}
+          captureHandle={this.captureHandle}
           onCapture={this.onCapture}
           onReset={this.onReset}
         />

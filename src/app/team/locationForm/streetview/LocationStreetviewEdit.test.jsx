@@ -64,11 +64,17 @@ describe('LocationStreetviewEdit validation', () => {
   let listeners;
   let panoramaMock;
   let panoramaResult;
+  // Every getPanorama call, so a test can answer them in whatever order it likes.
+  let panoRequests;
+  // Set by tests that answer the requests themselves.
+  let deferPanoResponses;
 
   beforeEach(() => {
     mockScriptLoaded = true;
     listeners = {};
     panoramaResult = null;
+    panoRequests = [];
+    deferPanoResponses = false;
     panoramaMock = {
       addListener: jest.fn((event, handler) => { listeners[event] = handler; }),
       setPano: jest.fn(),
@@ -87,7 +93,8 @@ describe('LocationStreetviewEdit validation', () => {
         StreetViewPanorama: jest.fn().mockImplementation(() => panoramaMock),
         StreetViewService: jest.fn().mockImplementation(() => ({
           getPanorama: jest.fn((req, cb) => {
-            if (panoramaResult) cb(panoramaResult, 'OK');
+            panoRequests.push({ req, cb });
+            if (!deferPanoResponses && panoramaResult) cb(panoramaResult, 'OK');
           }),
         })),
         LatLng: jest.fn((lat, lng) => ({ lat, lng })),
@@ -450,6 +457,57 @@ describe('LocationStreetviewEdit validation', () => {
 
       // No settle(): letting go and pressing OK straight away must keep the adjustment.
       expect(screen.getByLabelText(/Heading/).value).toBe('120');
+    });
+
+    it('saves the view when OK is pressed before the capture settles', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5 }));
+
+      // A wheel zoom, an arrow key, or a drag released off the panorama leaves the
+      // capture pending; OK pressed inside that quarter-second must still save the view.
+      moveView();
+      fireEvent.click(screen.getByText('OK'));
+
+      await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+      expect(mockUpdateValue).toHaveBeenCalledWith(
+        expect.objectContaining({ lat: 41, lng: -75, heading: 200 }),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it('ignores a year list that arrives after a newer one', async () => {
+      deferPanoResponses = true;
+      renderComponent();
+
+      // Walk to a new spot. Its request is issued second but answered first.
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPano = jest.fn(() => 'here-2020');
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      const [stale, fresh] = panoRequests;
+      fresh.cb({
+        time: [
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+          { pano: 'here-2024', date: new Date('2024-06-01') },
+        ],
+      }, 'OK');
+      // The spot we left, answering late. Its newest image happens to be the pano now on
+      // screen, so letting it through would drop the pin the current spot needs.
+      stale.cb({
+        time: [
+          { pano: 'gone-2019', date: new Date('2019-06-01') },
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+        ],
+      }, 'OK');
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('here-2020');
     });
 
     it('keeps the fields empty while the panorama loads on its own', async () => {
