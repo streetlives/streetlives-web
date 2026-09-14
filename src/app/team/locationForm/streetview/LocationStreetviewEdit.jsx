@@ -179,6 +179,7 @@ class PanoramaPicker extends Component {
     const pano = this.panorama.getPano();
     // Walking off the image the specialist picked retires their choice with it.
     if (this.pinnedByUser !== pano) this.pinnedByUser = null;
+    if (this.panoSwitchPending === pano) this.panoSwitchPending = null;
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
@@ -192,12 +193,20 @@ class PanoramaPicker extends Component {
 
   onSelectYear = (panoId) => {
     if (!this.panorama || !panoId) return;
+    const { historicalPanos } = this.state;
     // Picking a year is the specialist choosing an image, so it counts as handling the
     // panorama even though the pointer never entered it.
     this.startCapturing();
     this.pinnedByUser = panoId;
+    // setPano only starts the switch. Until pano_changed reports it done, the position
+    // and point of view still belong to the image being replaced, so a capture here
+    // would pin the chosen year onto the outgoing image's coordinates. The choice itself
+    // is already certain, so the pin is settled now and the rest of the fields wait.
+    this.panoSwitchPending = panoId;
     this.panorama.setPano(panoId);
-    this.setState({ currentPano: panoId }, this.scheduleCapture);
+    const [latest] = historicalPanos;
+    this.props.onPinChange(latest && panoId === latest.panoId ? null : panoId);
+    this.setState({ currentPano: panoId });
   };
 
   // A pano ID is only needed to pin an older image. When the newest capture is on screen,
@@ -328,7 +337,9 @@ class PanoramaPicker extends Component {
   capture = () => {
     clearTimeout(this.captureTimer);
     this.captureTimer = null;
-    if (!this.panorama) return null;
+    // Mid-switch there is nothing worth reading: the panorama still reports the image on
+    // its way out. pano_changed clears this and schedules the capture that replaces it.
+    if (!this.panorama || this.panoSwitchPending) return null;
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     const view = {
@@ -349,6 +360,7 @@ class PanoramaPicker extends Component {
     // each one would otherwise refill the fields this reset is clearing.
     this.stopCapturing();
     this.pinnedByUser = null;
+    this.panoSwitchPending = null;
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.
@@ -436,6 +448,7 @@ PanoramaPicker.propTypes = {
   }),
   targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
+  onPinChange: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
   // Mutable handle the form submits through — see flushCapture.
   captureHandle: PropTypes.shape({
@@ -556,6 +569,12 @@ class LocationStreetviewEdit extends Component {
     this.setState({ ...fieldsFromView(view), errors: {} });
   };
 
+  // Picking a capture year settles the pin on its own, ahead of the coordinates and
+  // point of view, which only become readable once the image has finished switching.
+  onPinChange = (panoId) => {
+    this.setState({ panoId: panoId || '', errors: { ...this.state.errors, panoId: undefined } });
+  };
+
   onReset = () => {
     this.setState({
       panoId: '',
@@ -664,6 +683,7 @@ class LocationStreetviewEdit extends Component {
           targetKey={targetKey}
           captureHandle={this.captureHandle}
           onCapture={this.onCapture}
+          onPinChange={this.onPinChange}
           onReset={this.onReset}
         />
 

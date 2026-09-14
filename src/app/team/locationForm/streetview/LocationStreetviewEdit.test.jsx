@@ -579,6 +579,70 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
     });
 
+    describe('picking a year while the image is still switching', () => {
+      const years = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+
+      // setPano only starts the switch; until pano_changed reports it, the panorama still
+      // answers with the image on its way out.
+      const finishSwitch = (panoId) => {
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => panoId);
+        listeners.pano_changed();
+        listeners.position_changed();
+      };
+
+      it('saves the picked year when OK is pressed before the switch lands', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019' }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('does not take the outgoing image\u2019s coordinates for the new pin', async () => {
+        panoramaResult = years;
+        renderComponent();
+        // Where the panorama still is: the image being replaced.
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 10, lng: () => 20 }));
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        listeners.pov_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('');
+
+        // Once the switch lands, the chosen image's own position is what gets recorded.
+        finishSwitch('pano-2019');
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      });
+
+      it('pins nothing when the year picked is the latest', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+      });
+    });
+
     it('keeps the fields empty while the panorama loads on its own', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => atSpot);
@@ -620,9 +684,15 @@ describe('LocationStreetviewEdit validation', () => {
       panoramaMock.getPosition = jest.fn(() => atSpot);
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+      // The pin is settled by the choice itself; the coordinates follow the image once
+      // it has finished switching.
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+
+      panoramaMock.getPano = jest.fn(() => 'pano-2019');
+      listeners.pano_changed();
+      listeners.position_changed();
       await settle();
 
-      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
       expect(screen.getByLabelText(/Latitude/).value).toBe('41');
     });
   });
