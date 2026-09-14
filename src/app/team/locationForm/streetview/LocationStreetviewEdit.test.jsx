@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
 
@@ -46,15 +46,35 @@ describe('LocationStreetviewEdit validation', () => {
     return result;
   };
 
+  // There is no capture button any more: the fields follow the panorama once the
+  // specialist has handled it. A mouse press on the container is that signal, and the
+  // panorama event is the move itself.
+  const moveView = () => {
+    fireEvent.mouseDown(screen.getByTestId('streetview-panorama'));
+    listeners.pov_changed();
+  };
+
+  // Let the capture debounce elapse, so a test can tell a capture that ran from one that
+  // deliberately did not.
+  const settle = () => act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+  });
+
   // Populated on mount so tests can fire panorama events and drive the pano service.
   let listeners;
   let panoramaMock;
   let panoramaResult;
+  // Every getPanorama call, so a test can answer them in whatever order it likes.
+  let panoRequests;
+  // Set by tests that answer the requests themselves.
+  let deferPanoResponses;
 
   beforeEach(() => {
     mockScriptLoaded = true;
     listeners = {};
     panoramaResult = null;
+    panoRequests = [];
+    deferPanoResponses = false;
     panoramaMock = {
       addListener: jest.fn((event, handler) => { listeners[event] = handler; }),
       setPano: jest.fn(),
@@ -73,7 +93,8 @@ describe('LocationStreetviewEdit validation', () => {
         StreetViewPanorama: jest.fn().mockImplementation(() => panoramaMock),
         StreetViewService: jest.fn().mockImplementation(() => ({
           getPanorama: jest.fn((req, cb) => {
-            if (panoramaResult) cb(panoramaResult, 'OK');
+            panoRequests.push({ req, cb });
+            if (!deferPanoResponses && panoramaResult) cb(panoramaResult, 'OK');
           }),
         })),
         LatLng: jest.fn((lat, lng) => ({ lat, lng })),
@@ -357,28 +378,682 @@ describe('LocationStreetviewEdit validation', () => {
       expect(panoramaMock.setZoom).toHaveBeenCalledWith(1);
     });
 
-    it('captures the reset location after resetting', () => {
+    // Google walks the panorama to the default position after a reset, firing the same
+    // events a specialist's drag would.
+    const settleOnDefault = () => {
       panoramaResult = {
         time: [
           { pano: 'home-2020', date: new Date('2020-06-01') },
           { pano: 'home-2024', date: new Date('2024-06-01') },
         ],
       };
-      renderComponent(overrideElsewhere);
-
-      fireEvent.click(screen.getByText('Reset to default'));
-
-      // The panorama settles on the location's latest imagery, so no pin is needed.
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 40.7128, lng: () => -74.0060 }));
       panoramaMock.getPano = jest.fn(() => 'home-2024');
       listeners.pano_changed();
       listeners.position_changed();
+    };
 
-      fireEvent.click(screen.getByText('Capture current view'));
+    it('still follows the view after resetting an already-default panorama', async () => {
+      renderComponent(overrideElsewhere);
+      // The panorama is loaded and settled on the image at the default location.
+      panoramaMock.getPano = jest.fn(() => 'already-here');
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 40.7128, lng: () => -74.0060 }));
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      // Reset moves it nowhere, so no event arrives to say what it is showing.
+      fireEvent.click(screen.getByText('Reset to default'));
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
       expect(screen.getByLabelText(/Longitude/).value).toBe('-74.006');
+    });
+
+    it('leaves the fields empty while the panorama settles', async () => {
+      renderComponent(overrideElsewhere);
+
+      fireEvent.click(screen.getByText('Reset to default'));
+      settleOnDefault();
+      await settle();
+
+      // The panorama moving itself is not the specialist asking for an override, so the
+      // fields reset just cleared stay cleared.
+      expect(screen.getByLabelText(/Latitude/).value).toBe('');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('');
+    });
+
+    it('takes the reset location once the specialist moves the view again', async () => {
+      renderComponent(overrideElsewhere);
+
+      fireEvent.click(screen.getByText('Reset to default'));
+      settleOnDefault();
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-74.006');
+      // The location's latest imagery is showing, so no pin is needed.
       expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+    });
+  });
+
+  describe('capture: the fields follow the panorama', () => {
+    const atSpot = { lat: () => 41, lng: () => -75 };
+
+    it('has no capture button to press', () => {
+      renderComponent();
+
+      expect(screen.queryByText('Capture current view')).not.toBeInTheDocument();
+      expect(screen.getByText('Reset to default')).toBeInTheDocument();
+    });
+
+    it('fills the fields once the specialist moves the view', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5 }));
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-75');
+      expect(screen.getByLabelText(/Heading/).value).toBe('200');
+      expect(screen.getByLabelText(/Pitch/).value).toBe('5');
+    });
+
+    it('takes the view as soon as a drag ends, without waiting', () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 120, pitch: 0 }));
+
+      const panorama = screen.getByTestId('streetview-panorama');
+      fireEvent.mouseDown(panorama);
+      listeners.pov_changed();
+      fireEvent.mouseUp(panorama);
+
+      // No settle(): letting go and pressing OK straight away must keep the adjustment.
+      expect(screen.getByLabelText(/Heading/).value).toBe('120');
+    });
+
+    it('saves the view when OK is pressed before the capture settles', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5 }));
+
+      // A wheel zoom, an arrow key, or a drag released off the panorama leaves the
+      // capture pending; OK pressed inside that quarter-second must still save the view.
+      moveView();
+      fireEvent.click(screen.getByText('OK'));
+
+      await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+      expect(mockUpdateValue).toHaveBeenCalledWith(
+        expect.objectContaining({ lat: 41, lng: -75, heading: 200 }),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it('ignores a year list that arrives after a newer one', async () => {
+      deferPanoResponses = true;
+      renderComponent();
+
+      // Walk to a new spot. Its request is issued second but answered first.
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPano = jest.fn(() => 'here-2020');
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      const [stale, fresh] = panoRequests;
+      fresh.cb({
+        time: [
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+          { pano: 'here-2024', date: new Date('2024-06-01') },
+        ],
+      }, 'OK');
+      // The spot we left, answering late. Its newest image happens to be the pano now on
+      // screen, so letting it through would drop the pin the current spot needs.
+      stale.cb({
+        time: [
+          { pano: 'gone-2019', date: new Date('2019-06-01') },
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+        ],
+      }, 'OK');
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('here-2020');
+    });
+
+    it('does not let a late year list overwrite a manual edit', async () => {
+      deferPanoResponses = true;
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      moveView();
+      await settle();
+      // The specialist corrects a coordinate by hand after moving the view.
+      fireEvent.change(screen.getByLabelText(/Latitude/), { target: { value: '40.5' } });
+
+      // The year list for that move comes back afterwards and schedules its own capture.
+      panoRequests[panoRequests.length - 1].cb({
+        time: [
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+          { pano: 'here-2024', date: new Date('2024-06-01') },
+        ],
+      }, 'OK');
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.5');
+    });
+
+    it('pins nothing while the year list for a new spot is still coming', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'there-2019', date: new Date('2019-06-01') },
+          { pano: 'there-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+
+      // Walk somewhere else and save before its year list arrives. The list we hold
+      // describes the spot we left, and against it this pano looks historical — pinning
+      // it would freeze the override on what may be the newest image here.
+      deferPanoResponses = true;
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPano = jest.fn(() => 'here-2024');
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+    });
+
+    it('keeps a picked year even before its list comes back', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Historical images sit at slightly different coordinates, so picking a year can
+      // itself start a new request. The choice was explicit and must survive it.
+      deferPanoResponses = true;
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+      panoramaMock.getPano = jest.fn(() => 'pano-2019');
+      listeners.pano_changed();
+      listeners.position_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+    });
+
+    describe('picking a year while the image is still switching', () => {
+      const years = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+
+      // setPano only starts the switch; until pano_changed reports it, the panorama still
+      // answers with the image on its way out.
+      const finishSwitch = (panoId) => {
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => panoId);
+        listeners.pano_changed();
+        listeners.position_changed();
+      };
+
+    it('refuses to save while the picked image is still switching', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        fireEvent.click(screen.getByText('OK'));
+
+        // Saving here would store the outgoing image's coordinates under the incoming
+        // image's pin, so it says so instead.
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        finishSwitch('pano-2019');
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('refuses to save the old coordinates when the latest year is picked', async () => {
+        panoramaResult = years;
+        // An override pinned to the historical image, whose coordinates are in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+
+        // Picking the latest year clears the pin, which would leave the historical
+        // image's coordinates standing alone and point the override somewhere else.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        // Untouched: the fields still describe the image that is actually on screen.
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+
+        finishSwitch('pano-2023');
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // The latest image's own coordinates, and no pin, so it tracks future captures.
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('does not take the outgoing image\u2019s coordinates for the new pin', async () => {
+        panoramaResult = years;
+        renderComponent();
+        // Where the panorama still is: the image being replaced.
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 10, lng: () => 20 }));
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        listeners.pov_changed();
+        await settle();
+
+        // Neither half of the outgoing image reaches the fields.
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('');
+
+        // Once the switch lands, the chosen image's own position is what gets recorded.
+        finishSwitch('pano-2019');
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      });
+
+      it('keeps refusing until the picked image reports its position', async () => {
+        panoramaResult = years;
+        // An override on the historical image, so its coordinates are what OK would save.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        // The id changes first; the position still belongs to the image on its way out.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+        listeners.pano_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        // Now the position lands, and with it a view worth saving.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      // Two images can sit close enough together that position_changed never fires, so
+      // the wait gives up rather than block saving for good. What it does then depends on
+      // whether the picked image is the one on screen.
+      const waitOutTheSwitch = (panoId) => {
+        jest.useFakeTimers();
+        try {
+          fireEvent.change(screen.getByRole('combobox'), { target: { value: panoId } });
+          act(() => {
+            jest.advanceTimersByTime(5000);
+            jest.advanceTimersByTime(300);
+          });
+        } finally {
+          jest.useRealTimers();
+        }
+      };
+
+      it('writes off a switch whose position never arrives', async () => {
+        panoramaResult = years;
+        // An override on the historical image; those are the coordinates in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        // The id says the newest image is up, but the position is still the old one — and
+        // nothing here can tell a position that will not change from one that is late.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+
+        waitOutTheSwitch('pano-2023');
+
+        // The screen now shows one image while the fields describe another, and the form
+        // says which one saving would store rather than leave that to be discovered.
+        expect(screen.getByText(/never finished loading/)).toBeInTheDocument();
+
+        // Giving up on the wait only unblocks saving. The panorama is no more readable
+        // than it was, so a later turn of the view still captures nothing from it.
+        listeners.pov_changed();
+        await settle();
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('35.6762');
+
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // What saves is the last image that did settle, coordinates and pin together.
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('reads the panorama again once its late position turns up', async () => {
+        panoramaResult = years;
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+
+        waitOutTheSwitch('pano-2023');
+
+        expect(screen.getByText(/never finished loading/)).toBeInTheDocument();
+
+        // The position finally arrives, long after anyone stopped waiting for it.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        // Screen and fields agree again, so there is nothing left to warn about.
+        expect(screen.queryByText(/never finished loading/)).not.toBeInTheDocument();
+      });
+
+      it('puts the year back when the picked image never arrives', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        // Still showing the newest image: the pick never took.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+
+        waitOutTheSwitch('pano-2019');
+
+        // The dropdown goes back to what is on screen, nothing is pinned from a pick that
+        // did not happen, and saving is allowed again.
+        expect(screen.getByRole('combobox').value).toBe('pano-2023');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
+      it('refuses to save a walk before its position lands', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        moveView();
+        await settle();
+
+        // Clicking an arrow changes the pano first; the coordinates and the year list for
+        // where we have arrived both come later.
+        panoramaMock.getPano = jest.fn(() => 'walked-2024');
+        listeners.pano_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        panoramaResult = {
+          time: [
+            { pano: 'walked-2020', date: new Date('2020-06-01') },
+            { pano: 'walked-2024', date: new Date('2024-06-01') },
+          ],
+        };
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 42, lng: () => -76 }));
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // Where we actually are, and the newest image there, so no pin.
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 42, lng: -76 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('does not wait for news it already has, whichever order it comes in', async () => {
+        panoramaResult = years;
+        renderComponent();
+        moveView();
+        await settle();
+
+        // The position can land before the id it belongs to. Waiting for a position
+        // already in hand would block saving until the wait timed out.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => 'walked-2024');
+        listeners.position_changed();
+        listeners.pano_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
+      it('settles a picked year whose position arrives before its id', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // Nothing was abandoned on the way here, so this position can only be the picked
+        // image's — even though it has yet to announce itself.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        listeners.pano_changed();
+        await settle();
+
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('reads nothing while a move back to the settled image is in flight', async () => {
+        panoramaResult = years;
+        // Settled on the historical image, whose coordinates are in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+        listeners.position_changed();
+
+        // Off to another year, which announces itself, then straight back again. The id
+        // now matches what was settled before any of this — but the image on its way has
+        // made that settlement stale, and its position is still coming.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        moveView();
+        await settle();
+
+        // Nothing of the other image reached the fields.
+        expect(screen.getByLabelText(/Latitude/).value).toBe('35.6762');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      });
+
+      it('is not settled by the position of a year already given up on', async () => {
+        panoramaResult = years;
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+
+        // Pick one year, see it arrive, then change your mind before its position lands.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // setPano takes effect on the id at once, so from here the panorama answers with
+        // the year just picked — which is what makes the next event so hard to place.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+
+        // The abandoned year's position turns up. It reads as the new year's, but it
+        // belongs to an image nobody is waiting for and says nothing about the one still
+        // coming.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        // The year actually picked lands, both halves of it.
+        listeners.pano_changed();
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('leaves the newest year unpinned even before its list arrives', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+
+        // The switch lands and asks for the year list of where it settled; the answer is
+        // still out. Nothing here may put back the pin the choice just cleared.
+        deferPanoResponses = true;
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        listeners.position_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+      });
+
+      it('lets a pasted link retire a year switch that never landed', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // The specialist gives up on it and pastes a link instead. A link with only
+        // coordinates never fires pano_changed, so nothing else would end that wait and
+        // OK would go on refusing to save.
+        fireEvent.change(screen.getByLabelText(/Street View URL/), {
+          target: { value: 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/' },
+        });
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
+      it('pins nothing when the year picked is the latest', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+      });
+    });
+
+    it('keeps the fields empty while the panorama loads on its own', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Google fires these as the panorama comes up, before anyone has touched it.
+      // Capturing them would turn simply opening the editor into an override.
+      listeners.position_changed();
+      listeners.pov_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('');
+      expect(mockUpdateValue).not.toHaveBeenCalled();
+    });
+
+    it('records only the view a drag settles on', async () => {
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Every frame of a drag fires pov_changed; only the last one should reach the form.
+      fireEvent.mouseDown(screen.getByTestId('streetview-panorama'));
+      panoramaMock.getPov = jest.fn(() => ({ heading: 10, pitch: 0 }));
+      listeners.pov_changed();
+      panoramaMock.getPov = jest.fn(() => ({ heading: 90, pitch: 0 }));
+      listeners.pov_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Heading/).value).toBe('90');
+    });
+
+    it('treats picking a capture year as handling the panorama', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+      // Nothing is written from the click itself: the fields take the picked image once
+      // it has settled and can be read as one view.
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+
+      panoramaMock.getPano = jest.fn(() => 'pano-2019');
+      listeners.pano_changed();
+      listeners.position_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
     });
   });
 
@@ -396,50 +1071,58 @@ describe('LocationStreetviewEdit validation', () => {
     const showPano = (panoId) => {
       panoramaMock.getPano = jest.fn(() => panoId);
       listeners.pano_changed();
+      // The position lands with it; until it does, the panorama is mid-transition and
+      // nothing may be read from it.
+      listeners.position_changed();
     };
 
     const panoIdField = () => screen.getByLabelText(/Pano ID/);
 
-    it('leaves Pano ID empty when the latest image is showing', () => {
+    it('leaves Pano ID empty when the latest image is showing', async () => {
       panoramaResult = twoYears;
       renderComponent();
       showPano('pano-2023');
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('fills Pano ID after the user picks an older year', () => {
+    it('fills Pano ID after the user picks an older year', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
-      fireEvent.click(screen.getByText('Capture current view'));
+      showPano('pano-2019');
+      listeners.position_changed();
+      await settle();
 
       expect(panoIdField().value).toBe('pano-2019');
     });
 
-    it('leaves Pano ID empty when the user picks the latest year', () => {
+    it('leaves Pano ID empty when the user picks the latest year', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('keeps an existing pin while its older image is still showing', () => {
+    it('keeps an existing pin while its older image is still showing', async () => {
       panoramaResult = twoYears;
       renderComponent({ pano_id: 'pano-2019', lat: 40.7128, lng: -74.0060 });
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('pano-2019');
     });
 
-    it('clears a stale pin once the user walks to the latest image elsewhere', () => {
+    it('clears a stale pin once the user walks to the latest image elsewhere', async () => {
       panoramaResult = twoYears;
       renderComponent({ pano_id: 'pano-2019', lat: 40.7128, lng: -74.0060 });
 
@@ -454,12 +1137,13 @@ describe('LocationStreetviewEdit validation', () => {
       showPano('other-2024');
       listeners.position_changed();
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('');
     });
 
-    it('pins the new pano when an older image is showing after walking', () => {
+    it('pins the new pano when an older image is showing after walking', async () => {
       panoramaResult = twoYears;
       renderComponent();
 
@@ -473,17 +1157,19 @@ describe('LocationStreetviewEdit validation', () => {
       showPano('other-2020');
       listeners.position_changed();
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(panoIdField().value).toBe('other-2020');
     });
 
-    it('leaves Pano ID empty when the spot has only one capture date', () => {
+    it('leaves Pano ID empty when the spot has only one capture date', async () => {
       panoramaResult = { time: [{ pano: 'only-pano', date: new Date('2023-06-01') }] };
       renderComponent();
       showPano('only-pano');
 
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
       expect(panoIdField().value).toBe('');
@@ -600,20 +1286,22 @@ describe('LocationStreetviewEdit validation', () => {
       expect(zoom).toBeCloseTo(Math.log2(180 / 75), 5);
     });
 
-    it('captures the widest view from a fully zoomed-out panorama', () => {
+    it('captures the widest view from a fully zoomed-out panorama', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getZoom = jest.fn(() => 0);
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/FOV/).value).toBe('120');
     });
 
-    it('captures the real field of view rather than a fixed 90', () => {
+    it('captures the real field of view rather than a fixed 90', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getZoom = jest.fn(() => 2);
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       // getPov() has no zoom, so reading it from there always produced 90.
       expect(screen.getByLabelText(/FOV/).value).toBe('45');
@@ -644,14 +1332,15 @@ describe('LocationStreetviewEdit validation', () => {
       expect(panoramaMock.setPano).toHaveBeenCalledWith('myCPoMyIAezPN3iaT7KA_w');
     });
 
-    it('still captures the refined view after a paste', () => {
+    it('still captures the refined view after a paste', async () => {
       renderComponent();
       pasteUrl(COORDS_ONLY_URL);
 
       // The specialist walks down the street from where the URL landed.
       panoramaMock.getPosition = jest.fn(() => ({ lat: () => 41, lng: () => -75 }));
       panoramaMock.getPov = jest.fn(() => ({ heading: 200, pitch: 5, zoom: 1 }));
-      fireEvent.click(screen.getByText('Capture current view'));
+      moveView();
+      await settle();
 
       expect(screen.getByLabelText(/Latitude/).value).toBe('41');
       expect(screen.getByLabelText(/Longitude/).value).toBe('-75');

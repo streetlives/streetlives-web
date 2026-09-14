@@ -84,6 +84,24 @@ function getDateFromTimeEntry(t) {
   return Object.values(t).map(toDate).find(Boolean) || null;
 }
 
+// The panorama fires pov and position events continuously while the view is being
+// dragged. The fields only need the view it settles on.
+const CAPTURE_DEBOUNCE_MS = 250;
+
+// What counts as the specialist handling the panorama. Bound natively in the capture
+// phase on the container, because the Maps API stops some of these on the way up and
+// React's delegated listeners would never see them.
+const INTERACTION_EVENTS = ['mousedown', 'touchstart', 'wheel', 'keydown'];
+
+// Releasing a drag means the view is where the specialist wants it. Capturing there and
+// then, rather than a debounce later, is what lets someone let go and press OK straight
+// away without losing the adjustment they just made.
+const SETTLE_EVENTS = ['mouseup', 'touchend'];
+
+// How long to wait for a new image to report where it is before giving up on it. A
+// panorama that has gone quiet must not leave the form unable to save for good.
+const PANO_SWITCH_TIMEOUT_MS = 4000;
+
 function formatCaptureDate(date) {
   return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
 }
@@ -91,6 +109,10 @@ function formatCaptureDate(date) {
 class PanoramaPicker extends Component {
   constructor(props) {
     super(props);
+    // The image whose position we have actually seen. The panorama answers to a new id
+    // before it reports where that image is, so this is what says its two halves agree —
+    // and it is the one thing a capture may not do without.
+    this.settledPano = props.initialPanoId || null;
     this.state = {
       historicalPanos: [],
       currentPano: props.initialPanoId || null,
@@ -116,6 +138,19 @@ class PanoramaPicker extends Component {
     // We intentionally do NOT listen to pano_changed for this to avoid triggering a refetch
     // every time setPano() is called from the year picker.
     this.panorama.addListener('position_changed', this.onPositionChanged);
+    // The fields follow the view rather than waiting for a button, so every way the
+    // panorama can move has to feed a capture. Turning and zooming change nothing the two
+    // listeners above would notice.
+    this.panorama.addListener('pov_changed', this.scheduleCapture);
+    this.panorama.addListener('zoom_changed', this.scheduleCapture);
+
+    INTERACTION_EVENTS.forEach(name =>
+      this.container.addEventListener(name, this.startCapturing, true));
+    SETTLE_EVENTS.forEach(name =>
+      this.container.addEventListener(name, this.flushCapture, true));
+    this.props.captureHandle.flush = this.flushCapture;
+    this.props.captureHandle.stop = this.stopCapturing;
+    this.props.captureHandle.switching = this.isSwitching;
 
     // Seed the year list immediately if we already have a position.
     if (initialPosition) {
@@ -132,23 +167,82 @@ class PanoramaPicker extends Component {
   }
 
   componentWillUnmount() {
+    clearTimeout(this.captureTimer);
+    this.captureTimer = null;
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = null;
+    this.capturing = false;
+    if (this.props.captureHandle.flush === this.flushCapture) {
+      this.props.captureHandle.flush = null;
+      this.props.captureHandle.stop = null;
+      this.props.captureHandle.switching = null;
+    }
+    if (this.container) {
+      INTERACTION_EVENTS.forEach(name =>
+        this.container.removeEventListener(name, this.startCapturing, true));
+      SETTLE_EVENTS.forEach(name =>
+        this.container.removeEventListener(name, this.flushCapture, true));
+    }
     this.panorama = null;
   }
 
   onPanoChanged = () => {
-    if (this.panorama) {
-      this.setState({ currentPano: this.panorama.getPano() });
+    if (!this.panorama) return;
+    const pano = this.panorama.getPano();
+    // Walking off the image the specialist picked retires their choice with it.
+    if (this.pinnedByUser !== pano) this.pinnedByUser = null;
+    // The id changes before the position does, so this is only half the news — for a
+    // picked year and for an ordinary walk alike. Until the position lands, the panorama
+    // describes one image by id and another by coordinates, and the year list still
+    // belongs to where we were. Nothing may be read from it in between. The two can also
+    // arrive the other way round, and a position already seen needs no waiting for.
+    if (this.panoSwitchPending === pano) {
+      this.pendingPanoArrived = true;
+      // Only this image can say it has arrived, so anything owed by the one it replaced
+      // has either come and gone or never will.
+      this.mayHaveStalePosition = false;
+    } else if (this.settledPano !== pano) {
+      this.beginPanoSwitch(pano, true);
     }
+    this.setState({ currentPano: pano });
+    this.scheduleCapture();
   };
 
   onPositionChanged = () => {
     if (!this.panorama) return;
+    const pano = this.panorama.getPano();
+    // The panorama answers to a requested id straight away, so a position still owed by
+    // an abandoned image reads exactly like the current one's: while one may be in
+    // flight, no position settles anything.
+    if (this.mayHaveStalePosition) return;
+    // Otherwise it has to be about the image being waited for, and may settle it whether
+    // or not that image has announced itself — the two halves arrive in either order.
+    if (this.panoSwitchPending && this.panoSwitchPending !== pano) return;
+    // The position is the last thing to arrive, so this is where a transition is really
+    // over and the panorama can be read as one consistent view again.
+    this.settledPano = pano;
+    this.endPanoSwitch();
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
+    this.scheduleCapture();
   };
 
   onSelectYear = (panoId) => {
     if (!this.panorama || !panoId) return;
+    const { historicalPanos } = this.state;
+    // Picking a year is the specialist choosing an image, so it counts as handling the
+    // panorama even though the pointer never entered it.
+    this.startCapturing();
+    // Picking the newest year is a decision to pin nothing, so that is what gets
+    // remembered. Holding the pano here instead would let a capture made against a list
+    // that has not arrived yet put the pin back and freeze the override on today's image.
+    const [latest] = historicalPanos;
+    this.pinnedByUser = (latest && panoId === latest.panoId) ? null : panoId;
+    // setPano only starts the switch, and the fields are never written from a guess about
+    // how it will end: they carry a capture of a settled panorama or nothing at all. The
+    // form refuses to save while the switch is in flight, so the choice cannot be lost by
+    // saving early either. This only moves the dropdown onto the year that was picked.
+    this.beginPanoSwitch(panoId);
     this.panorama.setPano(panoId);
     this.setState({ currentPano: panoId });
   };
@@ -158,9 +252,21 @@ class PanoramaPicker extends Component {
   // following whatever Google publishes next. Unknown pano list is treated as "latest".
   getPanoIdToPin = () => {
     const { historicalPanos, currentPano } = this.state;
-    if (!currentPano || historicalPanos.length === 0) return null;
-    const [latest] = historicalPanos; // sorted newest first
-    return currentPano === latest.panoId ? null : currentPano;
+    if (!currentPano) return null;
+
+    // The list has to be the one for where the panorama is now. Walking asks for a new
+    // one, and until it lands the list we hold describes a spot we have left.
+    const listIsCurrent = this.panoListId === this.panoRequestId;
+    if (listIsCurrent && historicalPanos.length > 0) {
+      const [latest] = historicalPanos; // sorted newest first
+      return currentPano === latest.panoId ? null : currentPano;
+    }
+
+    // Without a list to decide against, a year the specialist picked is still their
+    // decision and holds. Anything else saves no pin: judging against the wrong list can
+    // pin what is actually the newest image here, which is the one thing a pin must never
+    // do. The list arriving schedules another capture that settles it properly.
+    return this.pinnedByUser === currentPano ? currentPano : null;
   };
 
   // Re-points the panorama at a pasted URL. The parent bumps targetKey on every successful
@@ -172,6 +278,10 @@ class PanoramaPicker extends Component {
     const { target, targetKey } = this.props;
     this.appliedTargetKey = targetKey;
     if (!this.panorama || !target) return;
+    // The link replaces whatever was picked before it, including a year switch still on
+    // its way — and a link carrying only coordinates never fires pano_changed to say so.
+    this.endPanoSwitch();
+    this.pinnedByUser = null;
 
     // Exclusive, mirroring componentDidMount's pano-over-position precedence. Setting a
     // position after a pano would snap off the pinned image onto the nearest current one.
@@ -192,6 +302,11 @@ class PanoramaPicker extends Component {
 
   fetchHistoricalPanos = (position) => {
     if (!position || !window.google) return;
+    // Walking fires one of these per step and the responses can land out of order. An
+    // earlier spot's year list would both replace the right one and, because the pin
+    // decision reads it, pin the wrong image for where the panorama actually is.
+    this.panoRequestId = (this.panoRequestId || 0) + 1;
+    const requestId = this.panoRequestId;
     // Accept both google.maps.LatLng and plain {lat, lng}
     const latLng = (typeof position.lat === 'function')
       ? position
@@ -199,10 +314,14 @@ class PanoramaPicker extends Component {
 
     const sv = new window.google.maps.StreetViewService();
     sv.getPanorama({ location: latLng, radius: 50 }, (data, status) => {
+      if (requestId !== this.panoRequestId || !this.panorama) return;
       // A single capture date means there is nothing to choose between, so no picker.
       if (status !== window.google.maps.StreetViewStatus.OK || !data || !data.time ||
           data.time.length <= 1) {
-        this.setState({ historicalPanos: [] });
+        // The pin decision reads this list, so a capture waiting on a walk to a new spot
+        // has to be redone against the list that belongs to it.
+        this.panoListId = requestId;
+        this.setState({ historicalPanos: [] }, this.scheduleCapture);
         return;
       }
 
@@ -220,15 +339,101 @@ class PanoramaPicker extends Component {
         .filter(Boolean)
         .sort((a, b) => b.date - a.date); // newest first
 
-      this.setState({ historicalPanos: panos });
+      this.panoListId = requestId;
+      this.setState({ historicalPanos: panos }, this.scheduleCapture);
     });
   };
 
+  // Nothing is captured until the specialist actually handles the panorama. Google moves
+  // it on its own — on load, and while it settles after a reset — and capturing those
+  // would write an override nobody asked for over fields that are meant to stay empty.
+  startCapturing = () => {
+    this.capturing = true;
+  };
+
+  // Typing in a field, or pasting a URL, is the specialist taking the fields over by
+  // hand. A capture still to come — a late year list schedules one — would otherwise
+  // overwrite what they just typed. Handling the panorama again arms it back up.
+  stopCapturing = () => {
+    this.capturing = false;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = null;
+  };
+
+  scheduleCapture = () => {
+    if (!this.capturing) return;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
+  };
+
+  // `arrived` says whether the image has already announced itself, leaving only its
+  // position outstanding — true when the transition is noticed from pano_changed, false
+  // when a picked year starts one before the panorama has said anything at all.
+  beginPanoSwitch = (panoId, arrived = false) => {
+    // An image that announced itself and was then replaced may still have a position on
+    // its way, and it will read as though it belonged to whatever is current by then.
+    // While that is possible, no position can be told apart from it — until the image now
+    // pending announces itself, which is news only it can bring.
+    if (this.panoSwitchPending && this.pendingPanoArrived && this.panoSwitchPending !== panoId) {
+      this.mayHaveStalePosition = true;
+    }
+    this.panoSwitchPending = panoId;
+    this.pendingPanoArrived = arrived;
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = setTimeout(this.onPanoSwitchTimedOut, PANO_SWITCH_TIMEOUT_MS);
+  };
+
+  // The position never came, so there is no view here to read: the id belongs to one
+  // image and the coordinates may belong to another, and nothing on offer says which.
+  // A matching id is not proof — the position can simply be late. So the transition is
+  // written off: nothing is captured, the dropdown goes back to whatever the panorama
+  // actually reports, and the fields keep describing the last image that did settle.
+  // Saving is allowed again, because a panorama gone quiet must not lock the form.
+  onPanoSwitchTimedOut = () => {
+    // Only the waiting stops here. The panorama stays unreadable — settledPano still
+    // names the last image that reported a position — so no capture can take the halves
+    // of two images for one view. Which leaves the screen showing one image while the
+    // fields describe another, so the form says so rather than let it pass unremarked.
+    this.endPanoSwitch();
+    this.pinnedByUser = null;
+    if (this.panorama) this.setState({ currentPano: this.panorama.getPano() });
+    this.props.onSwitchAbandoned();
+  };
+
+  endPanoSwitch = () => {
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = null;
+    this.panoSwitchPending = null;
+    this.pendingPanoArrived = false;
+    this.mayHaveStalePosition = false;
+  };
+
+  isSwitching = () => !!this.panoSwitchPending;
+
+  // Takes a waiting capture now and hands back what it read. The form submits on the
+  // fields, and setState inside an event handler does not land before the handler
+  // finishes, so pressing OK on a view adjusted a moment ago has to read the view here
+  // rather than wait for the debounce that is still pending. A capture is only waiting
+  // when something actually moved, so a click that changed nothing captures nothing.
+  flushCapture = () => {
+    if (!this.captureTimer) return null;
+    return this.capture();
+  };
+
   capture = () => {
-    if (!this.panorama) return;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = null;
+    if (!this.panorama) return null;
+    // The id and the coordinates have to belong to the same image. Between a pano
+    // arriving and its position arriving they do not, and a transition written off for
+    // taking too long is no more readable for having stopped being waited on — it stays
+    // unreadable until the position it never sent finally lands. A transition in flight
+    // rules it out too, even back to the image that was settled before it: the id would
+    // match a settlement that the image on its way has already made stale.
+    if (this.panoSwitchPending || this.state.currentPano !== this.settledPano) return null;
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
-    this.props.onCapture({
+    const view = {
       pano_id: this.getPanoIdToPin(),
       lat: position ? position.lat() : null,
       lng: position ? position.lng() : null,
@@ -236,10 +441,17 @@ class PanoramaPicker extends Component {
       pitch: pov.pitch !== undefined ? pov.pitch : null,
       // getPov() carries no zoom — reading it there silently pinned every capture at 90.
       fov: fovFromZoom(this.panorama.getZoom()),
-    });
+    };
+    this.props.onCapture(view);
+    return view;
   };
 
   reset = () => {
+    // The panorama keeps firing move events while it settles onto the default position;
+    // each one would otherwise refill the fields this reset is clearing.
+    this.stopCapturing();
+    this.pinnedByUser = null;
+    this.endPanoSwitch();
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.
@@ -250,7 +462,14 @@ class PanoramaPicker extends Component {
       this.panorama.setPov({ heading: 0, pitch: 0 });
       this.panorama.setZoom(1);
     }
-    this.setState({ historicalPanos: [], currentPano: null });
+    // The year list goes, but not the panorama's identity: the view may already be at the
+    // default position, in which case setPosition moves nothing and no event arrives to
+    // put back what null erased. The two names for the image on screen have to keep
+    // agreeing, or nothing the specialist does to the view can be read again.
+    this.setState({
+      historicalPanos: [],
+      currentPano: this.panorama ? this.panorama.getPano() : null,
+    });
     this.props.onReset();
   };
 
@@ -286,10 +505,14 @@ class PanoramaPicker extends Component {
             </select>
           </div>
         )}
-        <div ref={(r) => { this.container = r; }} style={{ height: 400, width: '100%' }} />
-        <Button primary className="mt-3" onClick={this.capture}>
-          Capture current view
-        </Button>&nbsp;
+        <div
+          ref={(r) => { this.container = r; }}
+          data-testid="streetview-panorama"
+          style={{ height: 400, width: '100%' }}
+        />
+        <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: '0.5em' }}>
+          Move the view above and the fields below follow it.
+        </div>
         <Button basic primary className="mt-3" onClick={this.reset}>
           Reset to default
         </Button>
@@ -309,6 +532,12 @@ const NO_STREETVIEW_ERROR = 'Couldn\u2019t find a Street View in that link. Open
 const SHORT_LINK_ERROR = 'Short share links can\u2019t be read. Open the link in your browser, ' +
   'then copy the full URL from the address bar.';
 
+const SWITCHING_ERROR = 'The Street View image you picked is still loading. Try again in a moment.';
+
+const SWITCH_ABANDONED_NOTICE = 'That Street View image never finished loading, so the fields ' +
+  'below still describe the view before it \u2014 that is what saving would store. Pick the ' +
+  'year again, or move the panorama, to use a different image.';
+
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
   initialPosition: positionShape,
@@ -323,7 +552,14 @@ PanoramaPicker.propTypes = {
   }),
   targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
+  onSwitchAbandoned: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
+  // Mutable handle the form submits through — see flushCapture.
+  captureHandle: PropTypes.shape({
+    flush: PropTypes.func,
+    stop: PropTypes.func,
+    switching: PropTypes.func,
+  }).isRequired,
 };
 
 const PanoramaPickerWithScript = compose(
@@ -338,6 +574,19 @@ function fieldVal(v) {
   return (v !== null && v !== undefined) ? String(v) : '';
 }
 
+function fieldsFromView({
+  pano_id: panoId, lat, lng, heading, pitch, fov,
+}) {
+  return {
+    panoId: panoId || '',
+    lat: fieldVal(lat),
+    lng: fieldVal(lng),
+    heading: fieldVal(heading),
+    pitch: fieldVal(pitch),
+    fov: fieldVal(fov),
+  };
+}
+
 function FieldError({ message }) {
   if (!message) return null;
   return <div style={{ color: 'red', fontSize: '0.85em', marginTop: 2 }}>{message}</div>;
@@ -347,6 +596,9 @@ class LocationStreetviewEdit extends Component {
   constructor(props) {
     super(props);
     const { value } = props;
+    // Filled in by the picker once it mounts; the form submits through it so a capture
+    // still waiting on the debounce is taken before the fields are read.
+    this.captureHandle = {};
     this.state = {
       panoId: (value && value.pano_id) ? value.pano_id : '',
       lat: value ? fieldVal(value.lat) : '',
@@ -369,6 +621,7 @@ class LocationStreetviewEdit extends Component {
   }
 
   onChange = (field, val) => {
+    if (this.captureHandle.stop) this.captureHandle.stop();
     this.setState({ [field]: val, errors: { ...this.state.errors, [field]: undefined } });
   };
 
@@ -376,6 +629,9 @@ class LocationStreetviewEdit extends Component {
   // ID from an earlier URL ride along with new coordinates is the exact class of mismatch
   // this field exists to prevent.
   onUrlChange = (url) => {
+    // The pasted URL is the six fields now; a capture left over from an earlier drag
+    // would land on top of it.
+    if (this.captureHandle.stop) this.captureHandle.stop();
     const parsed = parseStreetviewUrl(url);
     if (!parsed) {
       // Deliberately no error yet — someone typing or correcting a URL by hand would see
@@ -414,18 +670,18 @@ class LocationStreetviewEdit extends Component {
     });
   };
 
-  onCapture = ({
-    pano_id: capturedPanoId, lat, lng, heading, pitch, fov,
-  }) => {
-    this.setState({
-      panoId: capturedPanoId || '',
-      lat: lat !== null ? String(lat) : '',
-      lng: lng !== null ? String(lng) : '',
-      heading: heading !== null ? String(heading) : '',
-      pitch: pitch !== null ? String(pitch) : '',
-      fov: fov !== null ? String(fov) : '',
-      errors: {},
-    });
+  onCapture = (view) => {
+    this.setState({ ...fieldsFromView(view), errors: {} });
+  };
+
+  // The panorama gave up on an image it never managed to load. The fields still hold the
+  // view before it, which is no longer what is on screen — say so, rather than let OK
+  // store one image while the specialist is looking at another. A capture clears this,
+  // which is exactly when the two agree again.
+  onSwitchAbandoned = () => {
+    this.setState(prevState => ({
+      errors: { ...prevState.errors, _form: SWITCH_ABANDONED_NOTICE },
+    }));
   };
 
   onReset = () => {
@@ -444,9 +700,21 @@ class LocationStreetviewEdit extends Component {
 
   onSubmit = (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    // Mid-switch the panorama still reports the image on its way out, so there is no
+    // honest view to save: the coordinates would be the outgoing image's while the pin
+    // belongs to the incoming one. It clears itself — the switch lands within moments and
+    // the capture it triggers wipes this error along with the stale fields.
+    if (this.captureHandle.switching && this.captureHandle.switching()) {
+      this.setState({ errors: { _form: SWITCHING_ERROR } });
+      return;
+    }
+    // A view adjusted and OK'd inside the same quarter-second would otherwise be saved as
+    // the fields stood before it: the capture is still pending, and the setState it will
+    // make could not have landed in this handler anyway.
+    const pending = this.captureHandle.flush && this.captureHandle.flush();
     const {
       panoId, lat, lng, heading, pitch, fov,
-    } = this.state;
+    } = pending ? fieldsFromView(pending) : this.state;
     const errors = validate({
       panoId, lat, lng, heading, pitch, fov,
     });
@@ -519,7 +787,7 @@ class LocationStreetviewEdit extends Component {
           />
           <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 }}>
             Paste a link and the fields below fill in for you. You can then fine-tune the
-            view and press &quot;Capture current view&quot;.
+            view in the panorama.
           </div>
           <FieldError message={urlError} />
         </div>
@@ -530,7 +798,9 @@ class LocationStreetviewEdit extends Component {
           defaultPosition={this.getDefaultPosition()}
           target={target}
           targetKey={targetKey}
+          captureHandle={this.captureHandle}
           onCapture={this.onCapture}
+          onSwitchAbandoned={this.onSwitchAbandoned}
           onReset={this.onReset}
         />
 
