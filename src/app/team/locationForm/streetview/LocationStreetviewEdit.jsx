@@ -366,10 +366,12 @@ class PanoramaPicker extends Component {
   onPanoSwitchTimedOut = () => {
     // Only the waiting stops here. The panorama stays unreadable — settledPano still
     // names the last image that reported a position — so no capture can take the halves
-    // of two images for one view.
+    // of two images for one view. Which leaves the screen showing one image while the
+    // fields describe another, so the form says so rather than let it pass unremarked.
     this.endPanoSwitch();
     this.pinnedByUser = null;
     if (this.panorama) this.setState({ currentPano: this.panorama.getPano() });
+    this.props.onSwitchAbandoned();
   };
 
   endPanoSwitch = () => {
@@ -495,6 +497,10 @@ const SHORT_LINK_ERROR = 'Short share links can\u2019t be read. Open the link in
 
 const SWITCHING_ERROR = 'The Street View image you picked is still loading. Try again in a moment.';
 
+const SWITCH_ABANDONED_NOTICE = 'That Street View image never finished loading, so the fields ' +
+  'below still describe the view before it \u2014 that is what saving would store. Pick the ' +
+  'year again, or move the panorama, to use a different image.';
+
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
   initialPosition: positionShape,
@@ -509,6 +515,7 @@ PanoramaPicker.propTypes = {
   }),
   targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
+  onSwitchAbandoned: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
   // Mutable handle the form submits through — see flushCapture.
   captureHandle: PropTypes.shape({
@@ -630,6 +637,16 @@ class LocationStreetviewEdit extends Component {
     this.setState({ ...fieldsFromView(view), errors: {} });
   };
 
+  // The panorama gave up on an image it never managed to load. The fields still hold the
+  // view before it, which is no longer what is on screen — say so, rather than let OK
+  // store one image while the specialist is looking at another. A capture clears this,
+  // which is exactly when the two agree again.
+  onSwitchAbandoned = () => {
+    this.setState(prevState => ({
+      errors: { ...prevState.errors, _form: SWITCH_ABANDONED_NOTICE },
+    }));
+  };
+
   onReset = () => {
     this.setState({
       panoId: '',
@@ -746,6 +763,7 @@ class LocationStreetviewEdit extends Component {
           targetKey={targetKey}
           captureHandle={this.captureHandle}
           onCapture={this.onCapture}
+          onSwitchAbandoned={this.onSwitchAbandoned}
           onReset={this.onReset}
         />
 

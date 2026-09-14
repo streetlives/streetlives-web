@@ -729,6 +729,10 @@ describe('LocationStreetviewEdit validation', () => {
 
         waitOutTheSwitch('pano-2023');
 
+        // The screen now shows one image while the fields describe another, and the form
+        // says which one saving would store rather than leave that to be discovered.
+        expect(screen.getByText(/never finished loading/)).toBeInTheDocument();
+
         // Giving up on the wait only unblocks saving. The panorama is no more readable
         // than it was, so a later turn of the view still captures nothing from it.
         listeners.pov_changed();
@@ -756,6 +760,8 @@ describe('LocationStreetviewEdit validation', () => {
 
         waitOutTheSwitch('pano-2023');
 
+        expect(screen.getByText(/never finished loading/)).toBeInTheDocument();
+
         // The position finally arrives, long after anyone stopped waiting for it.
         panoramaMock.getPosition = jest.fn(() => atSpot);
         listeners.position_changed();
@@ -763,6 +769,8 @@ describe('LocationStreetviewEdit validation', () => {
 
         expect(screen.getByLabelText(/Latitude/).value).toBe('41');
         expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        // Screen and fields agree again, so there is nothing left to warn about.
+        expect(screen.queryByText(/never finished loading/)).not.toBeInTheDocument();
       });
 
       it('puts the year back when the picked image never arrives', async () => {
