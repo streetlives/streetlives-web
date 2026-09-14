@@ -208,15 +208,17 @@ class PanoramaPicker extends Component {
   onPositionChanged = () => {
     if (!this.panorama) return;
     const pano = this.panorama.getPano();
-    // A position settles the image it belongs to and no other. Pick one year and then
-    // another, and the first one's position can still be on its way: it arrives for an
-    // image nobody is waiting for any more, and ending the wait on it would let the form
-    // save as though the image now coming had landed. An image that has not announced
-    // itself yet cannot be the one this position describes either.
-    if (this.panoSwitchPending &&
-        !(this.pendingPanoArrived && this.panoSwitchPending === pano)) {
+    // A position settles the image it belongs to and no other, and the panorama answers
+    // to a requested id straight away, so a position owed by an abandoned image would
+    // read as the current one's. Spend those first: the count is what tells them apart.
+    if (this.stalePositionsOwed > 0) {
+      this.stalePositionsOwed -= 1;
       return;
     }
+    // Whatever else arrives has to be about the image being waited for. Nothing is owed
+    // at this point, so a position for the pending image settles it whether or not it has
+    // announced itself — the two halves can arrive in either order.
+    if (this.panoSwitchPending && this.panoSwitchPending !== pano) return;
     // The position is the last thing to arrive, so this is where a transition is really
     // over and the panorama can be read as one consistent view again.
     this.settledPano = pano;
@@ -369,6 +371,12 @@ class PanoramaPicker extends Component {
   // position outstanding — true when the transition is noticed from pano_changed, false
   // when a picked year starts one before the panorama has said anything at all.
   beginPanoSwitch = (panoId, arrived = false) => {
+    // An image that announced itself and was then replaced still owes a position, and it
+    // will arrive reading as though it belonged to whatever is current by then. That one
+    // is spoken for; it is counted here so it can be spent rather than believed.
+    if (this.panoSwitchPending && this.pendingPanoArrived && this.panoSwitchPending !== panoId) {
+      this.stalePositionsOwed = (this.stalePositionsOwed || 0) + 1;
+    }
     this.panoSwitchPending = panoId;
     this.pendingPanoArrived = arrived;
     clearTimeout(this.panoSwitchTimer);

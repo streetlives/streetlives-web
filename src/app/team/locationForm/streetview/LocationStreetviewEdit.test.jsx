@@ -867,6 +867,31 @@ describe('LocationStreetviewEdit validation', () => {
         expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
       });
 
+      it('settles a picked year whose position arrives before its id', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // Nothing was abandoned on the way here, so this position can only be the picked
+        // image's — even though it has yet to announce itself.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        listeners.pano_changed();
+        await settle();
+
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
       it('is not settled by the position of a year already given up on', async () => {
         panoramaResult = years;
         renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
@@ -876,9 +901,13 @@ describe('LocationStreetviewEdit validation', () => {
         panoramaMock.getPano = jest.fn(() => 'pano-2023');
         listeners.pano_changed();
         fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // setPano takes effect on the id at once, so from here the panorama answers with
+        // the year just picked — which is what makes the next event so hard to place.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
 
-        // The abandoned year's position turns up. It belongs to an image nobody is
-        // waiting for, and says nothing about the one that is still coming.
+        // The abandoned year's position turns up. It reads as the new year's, but it
+        // belongs to an image nobody is waiting for and says nothing about the one still
+        // coming.
         panoramaMock.getPosition = jest.fn(() => atSpot);
         listeners.position_changed();
         fireEvent.click(screen.getByText('OK'));
@@ -887,7 +916,6 @@ describe('LocationStreetviewEdit validation', () => {
         expect(screen.getByText(/still loading/)).toBeInTheDocument();
 
         // The year actually picked lands, both halves of it.
-        panoramaMock.getPano = jest.fn(() => 'pano-2019');
         listeners.pano_changed();
         listeners.position_changed();
         await settle();
