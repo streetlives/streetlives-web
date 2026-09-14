@@ -867,6 +867,41 @@ describe('LocationStreetviewEdit validation', () => {
         expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
       });
 
+      it('is not settled by the position of a year already given up on', async () => {
+        panoramaResult = years;
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+
+        // Pick one year, see it arrive, then change your mind before its position lands.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+
+        // The abandoned year's position turns up. It belongs to an image nobody is
+        // waiting for, and says nothing about the one that is still coming.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        // The year actually picked lands, both halves of it.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        listeners.pano_changed();
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
       it('leaves the newest year unpinned even before its list arrives', async () => {
         panoramaResult = years;
         renderComponent();

@@ -196,16 +196,30 @@ class PanoramaPicker extends Component {
     // describes one image by id and another by coordinates, and the year list still
     // belongs to where we were. Nothing may be read from it in between. The two can also
     // arrive the other way round, and a position already seen needs no waiting for.
-    if (this.settledPano !== pano) this.beginPanoSwitch(pano);
+    if (this.panoSwitchPending === pano) {
+      this.pendingPanoArrived = true;
+    } else if (this.settledPano !== pano) {
+      this.beginPanoSwitch(pano, true);
+    }
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
 
   onPositionChanged = () => {
     if (!this.panorama) return;
+    const pano = this.panorama.getPano();
+    // A position settles the image it belongs to and no other. Pick one year and then
+    // another, and the first one's position can still be on its way: it arrives for an
+    // image nobody is waiting for any more, and ending the wait on it would let the form
+    // save as though the image now coming had landed. An image that has not announced
+    // itself yet cannot be the one this position describes either.
+    if (this.panoSwitchPending &&
+        !(this.pendingPanoArrived && this.panoSwitchPending === pano)) {
+      return;
+    }
     // The position is the last thing to arrive, so this is where a transition is really
     // over and the panorama can be read as one consistent view again.
-    this.settledPano = this.panorama.getPano();
+    this.settledPano = pano;
     this.endPanoSwitch();
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
@@ -351,8 +365,12 @@ class PanoramaPicker extends Component {
     this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
   };
 
-  beginPanoSwitch = (panoId) => {
+  // `arrived` says whether the image has already announced itself, leaving only its
+  // position outstanding — true when the transition is noticed from pano_changed, false
+  // when a picked year starts one before the panorama has said anything at all.
+  beginPanoSwitch = (panoId, arrived = false) => {
     this.panoSwitchPending = panoId;
+    this.pendingPanoArrived = arrived;
     clearTimeout(this.panoSwitchTimer);
     this.panoSwitchTimer = setTimeout(this.onPanoSwitchTimedOut, PANO_SWITCH_TIMEOUT_MS);
   };
@@ -378,6 +396,7 @@ class PanoramaPicker extends Component {
     clearTimeout(this.panoSwitchTimer);
     this.panoSwitchTimer = null;
     this.panoSwitchPending = null;
+    this.pendingPanoArrived = false;
   };
 
   isSwitching = () => !!this.panoSwitchPending;
