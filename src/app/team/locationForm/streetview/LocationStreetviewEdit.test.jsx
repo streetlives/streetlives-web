@@ -510,6 +510,75 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByLabelText(/Pano ID/).value).toBe('here-2020');
     });
 
+    it('does not let a late year list overwrite a manual edit', async () => {
+      deferPanoResponses = true;
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      moveView();
+      await settle();
+      // The specialist corrects a coordinate by hand after moving the view.
+      fireEvent.change(screen.getByLabelText(/Latitude/), { target: { value: '40.5' } });
+
+      // The year list for that move comes back afterwards and schedules its own capture.
+      panoRequests[panoRequests.length - 1].cb({
+        time: [
+          { pano: 'here-2020', date: new Date('2020-06-01') },
+          { pano: 'here-2024', date: new Date('2024-06-01') },
+        ],
+      }, 'OK');
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.5');
+    });
+
+    it('pins nothing while the year list for a new spot is still coming', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'there-2019', date: new Date('2019-06-01') },
+          { pano: 'there-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+
+      // Walk somewhere else and save before its year list arrives. The list we hold
+      // describes the spot we left, and against it this pano looks historical — pinning
+      // it would freeze the override on what may be the newest image here.
+      deferPanoResponses = true;
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+      panoramaMock.getPano = jest.fn(() => 'here-2024');
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+      expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+    });
+
+    it('keeps a picked year even before its list comes back', async () => {
+      panoramaResult = {
+        time: [
+          { pano: 'pano-2019', date: new Date('2019-06-01') },
+          { pano: 'pano-2023', date: new Date('2023-06-01') },
+        ],
+      };
+      renderComponent();
+      panoramaMock.getPosition = jest.fn(() => atSpot);
+
+      // Historical images sit at slightly different coordinates, so picking a year can
+      // itself start a new request. The choice was explicit and must survive it.
+      deferPanoResponses = true;
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+      panoramaMock.getPano = jest.fn(() => 'pano-2019');
+      listeners.pano_changed();
+      listeners.position_changed();
+      await settle();
+
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+    });
+
     it('keeps the fields empty while the panorama loads on its own', async () => {
       renderComponent();
       panoramaMock.getPosition = jest.fn(() => atSpot);

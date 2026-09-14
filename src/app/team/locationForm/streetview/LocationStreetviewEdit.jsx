@@ -141,6 +141,7 @@ class PanoramaPicker extends Component {
     SETTLE_EVENTS.forEach(name =>
       this.container.addEventListener(name, this.flushCapture, true));
     this.props.captureHandle.flush = this.flushCapture;
+    this.props.captureHandle.stop = this.stopCapturing;
 
     // Seed the year list immediately if we already have a position.
     if (initialPosition) {
@@ -162,6 +163,7 @@ class PanoramaPicker extends Component {
     this.capturing = false;
     if (this.props.captureHandle.flush === this.flushCapture) {
       this.props.captureHandle.flush = null;
+      this.props.captureHandle.stop = null;
     }
     if (this.container) {
       INTERACTION_EVENTS.forEach(name =>
@@ -173,10 +175,12 @@ class PanoramaPicker extends Component {
   }
 
   onPanoChanged = () => {
-    if (this.panorama) {
-      this.setState({ currentPano: this.panorama.getPano() });
-      this.scheduleCapture();
-    }
+    if (!this.panorama) return;
+    const pano = this.panorama.getPano();
+    // Walking off the image the specialist picked retires their choice with it.
+    if (this.pinnedByUser !== pano) this.pinnedByUser = null;
+    this.setState({ currentPano: pano });
+    this.scheduleCapture();
   };
 
   onPositionChanged = () => {
@@ -191,6 +195,7 @@ class PanoramaPicker extends Component {
     // Picking a year is the specialist choosing an image, so it counts as handling the
     // panorama even though the pointer never entered it.
     this.startCapturing();
+    this.pinnedByUser = panoId;
     this.panorama.setPano(panoId);
     this.setState({ currentPano: panoId }, this.scheduleCapture);
   };
@@ -200,9 +205,21 @@ class PanoramaPicker extends Component {
   // following whatever Google publishes next. Unknown pano list is treated as "latest".
   getPanoIdToPin = () => {
     const { historicalPanos, currentPano } = this.state;
-    if (!currentPano || historicalPanos.length === 0) return null;
-    const [latest] = historicalPanos; // sorted newest first
-    return currentPano === latest.panoId ? null : currentPano;
+    if (!currentPano) return null;
+
+    // The list has to be the one for where the panorama is now. Walking asks for a new
+    // one, and until it lands the list we hold describes a spot we have left.
+    const listIsCurrent = this.panoListId === this.panoRequestId;
+    if (listIsCurrent && historicalPanos.length > 0) {
+      const [latest] = historicalPanos; // sorted newest first
+      return currentPano === latest.panoId ? null : currentPano;
+    }
+
+    // Without a list to decide against, a year the specialist picked is still their
+    // decision and holds. Anything else saves no pin: judging against the wrong list can
+    // pin what is actually the newest image here, which is the one thing a pin must never
+    // do. The list arriving schedules another capture that settles it properly.
+    return this.pinnedByUser === currentPano ? currentPano : null;
   };
 
   // Re-points the panorama at a pasted URL. The parent bumps targetKey on every successful
@@ -252,6 +269,7 @@ class PanoramaPicker extends Component {
           data.time.length <= 1) {
         // The pin decision reads this list, so a capture waiting on a walk to a new spot
         // has to be redone against the list that belongs to it.
+        this.panoListId = requestId;
         this.setState({ historicalPanos: [] }, this.scheduleCapture);
         return;
       }
@@ -270,6 +288,7 @@ class PanoramaPicker extends Component {
         .filter(Boolean)
         .sort((a, b) => b.date - a.date); // newest first
 
+      this.panoListId = requestId;
       this.setState({ historicalPanos: panos }, this.scheduleCapture);
     });
   };
@@ -279,6 +298,15 @@ class PanoramaPicker extends Component {
   // would write an override nobody asked for over fields that are meant to stay empty.
   startCapturing = () => {
     this.capturing = true;
+  };
+
+  // Typing in a field, or pasting a URL, is the specialist taking the fields over by
+  // hand. A capture still to come — a late year list schedules one — would otherwise
+  // overwrite what they just typed. Handling the panorama again arms it back up.
+  stopCapturing = () => {
+    this.capturing = false;
+    clearTimeout(this.captureTimer);
+    this.captureTimer = null;
   };
 
   scheduleCapture = () => {
@@ -319,9 +347,8 @@ class PanoramaPicker extends Component {
   reset = () => {
     // The panorama keeps firing move events while it settles onto the default position;
     // each one would otherwise refill the fields this reset is clearing.
-    this.capturing = false;
-    clearTimeout(this.captureTimer);
-    this.captureTimer = null;
+    this.stopCapturing();
+    this.pinnedByUser = null;
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.
@@ -411,7 +438,10 @@ PanoramaPicker.propTypes = {
   onCapture: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
   // Mutable handle the form submits through — see flushCapture.
-  captureHandle: PropTypes.shape({ flush: PropTypes.func }).isRequired,
+  captureHandle: PropTypes.shape({
+    flush: PropTypes.func,
+    stop: PropTypes.func,
+  }).isRequired,
 };
 
 const PanoramaPickerWithScript = compose(
@@ -473,6 +503,7 @@ class LocationStreetviewEdit extends Component {
   }
 
   onChange = (field, val) => {
+    if (this.captureHandle.stop) this.captureHandle.stop();
     this.setState({ [field]: val, errors: { ...this.state.errors, [field]: undefined } });
   };
 
@@ -480,6 +511,9 @@ class LocationStreetviewEdit extends Component {
   // ID from an earlier URL ride along with new coordinates is the exact class of mismatch
   // this field exists to prevent.
   onUrlChange = (url) => {
+    // The pasted URL is the six fields now; a capture left over from an earlier drag
+    // would land on top of it.
+    if (this.captureHandle.stop) this.captureHandle.stop();
     const parsed = parseStreetviewUrl(url);
     if (!parsed) {
       // Deliberately no error yet — someone typing or correcting a URL by hand would see
