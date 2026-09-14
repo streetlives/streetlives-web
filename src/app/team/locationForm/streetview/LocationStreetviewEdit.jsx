@@ -98,6 +98,12 @@ const INTERACTION_EVENTS = ['mousedown', 'touchstart', 'wheel', 'keydown'];
 // away without losing the adjustment they just made.
 const SETTLE_EVENTS = ['mouseup', 'touchend'];
 
+// How long to wait for a picked image to report that it has settled before giving up on
+// it. Two images can sit at coordinates close enough that position_changed never fires,
+// and a specialist who cannot save at all is worse off than one whose coordinates are a
+// few metres out.
+const PANO_SWITCH_TIMEOUT_MS = 4000;
+
 function formatCaptureDate(date) {
   return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
 }
@@ -161,6 +167,8 @@ class PanoramaPicker extends Component {
   componentWillUnmount() {
     clearTimeout(this.captureTimer);
     this.captureTimer = null;
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = null;
     this.capturing = false;
     if (this.props.captureHandle.flush === this.flushCapture) {
       this.props.captureHandle.flush = null;
@@ -181,16 +189,19 @@ class PanoramaPicker extends Component {
     const pano = this.panorama.getPano();
     // Walking off the image the specialist picked retires their choice with it.
     if (this.pinnedByUser !== pano) this.pinnedByUser = null;
-    // Any pano arriving ends the wait: either it is the one that was picked, or something
-    // else — a walk, a pasted link — has taken its place and there is nothing left to
-    // wait for. Holding out for one exact pano is how the form got stuck refusing to save.
-    this.panoSwitchPending = null;
+    // A different pano arriving means a walk or a pasted link has taken the place of what
+    // was picked, so there is nothing left to wait for. The picked one arriving is only
+    // half the news — the id changes before the position does — so that wait runs on.
+    if (this.panoSwitchPending && this.panoSwitchPending !== pano) this.endPanoSwitch();
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
 
   onPositionChanged = () => {
     if (!this.panorama) return;
+    // The position is the last thing to arrive, so this is where a switch is really over
+    // and the panorama can be read as one consistent view again.
+    this.endPanoSwitch();
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
     this.scheduleCapture();
@@ -211,7 +222,7 @@ class PanoramaPicker extends Component {
     // and point of view still belong to the image being replaced, so a capture here
     // would pin the chosen year onto the outgoing image's coordinates. The choice itself
     // is already certain, so the pin is settled now and the rest of the fields wait.
-    this.panoSwitchPending = panoId;
+    this.beginPanoSwitch(panoId);
     this.panorama.setPano(panoId);
     this.props.onPinChange(this.pinnedByUser);
     this.setState({ currentPano: panoId });
@@ -250,7 +261,7 @@ class PanoramaPicker extends Component {
     if (!this.panorama || !target) return;
     // The link replaces whatever was picked before it, including a year switch still on
     // its way — and a link carrying only coordinates never fires pano_changed to say so.
-    this.panoSwitchPending = null;
+    this.endPanoSwitch();
     this.pinnedByUser = null;
 
     // Exclusive, mirroring componentDidMount's pano-over-position precedence. Setting a
@@ -336,6 +347,18 @@ class PanoramaPicker extends Component {
     this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
   };
 
+  beginPanoSwitch = (panoId) => {
+    this.panoSwitchPending = panoId;
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = setTimeout(this.endPanoSwitch, PANO_SWITCH_TIMEOUT_MS);
+  };
+
+  endPanoSwitch = () => {
+    clearTimeout(this.panoSwitchTimer);
+    this.panoSwitchTimer = null;
+    this.panoSwitchPending = null;
+  };
+
   isSwitching = () => !!this.panoSwitchPending;
 
   // Takes a waiting capture now and hands back what it read. The form submits on the
@@ -374,7 +397,7 @@ class PanoramaPicker extends Component {
     // each one would otherwise refill the fields this reset is clearing.
     this.stopCapturing();
     this.pinnedByUser = null;
-    this.panoSwitchPending = null;
+    this.endPanoSwitch();
     if (this.panorama) {
       // Back to the location's own coordinates and the latest imagery there — not to the
       // saved override, which is exactly what "reset to default" is meant to undo.

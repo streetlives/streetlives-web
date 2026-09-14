@@ -670,6 +670,56 @@ describe('LocationStreetviewEdit validation', () => {
         expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
       });
 
+      it('keeps refusing until the picked image reports its position', async () => {
+        panoramaResult = years;
+        // An override on the historical image, so its coordinates are what OK would save.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        // The id changes first; the position still belongs to the image on its way out.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+        listeners.pano_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        // Now the position lands, and with it a view worth saving.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('gives up waiting rather than block saving for good', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+
+        // Two images can sit close enough together that position_changed never fires.
+        jest.useFakeTimers();
+        try {
+          fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+          act(() => { jest.advanceTimersByTime(5000); });
+        } finally {
+          jest.useRealTimers();
+        }
+
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
       it('leaves the newest year unpinned even before its list arrives', async () => {
         panoramaResult = years;
         renderComponent();
