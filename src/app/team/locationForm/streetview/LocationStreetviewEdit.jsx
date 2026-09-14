@@ -109,6 +109,10 @@ function formatCaptureDate(date) {
 class PanoramaPicker extends Component {
   constructor(props) {
     super(props);
+    // The image whose position we have actually seen. The panorama answers to a new id
+    // before it reports where that image is, so this is what says its two halves agree —
+    // and it is the one thing a capture may not do without.
+    this.settledPano = props.initialPanoId || null;
     this.state = {
       historicalPanos: [],
       currentPano: props.initialPanoId || null,
@@ -190,16 +194,18 @@ class PanoramaPicker extends Component {
     // The id changes before the position does, so this is only half the news — for a
     // picked year and for an ordinary walk alike. Until the position lands, the panorama
     // describes one image by id and another by coordinates, and the year list still
-    // belongs to where we were. Nothing may be read from it in between.
-    this.beginPanoSwitch(pano);
+    // belongs to where we were. Nothing may be read from it in between. The two can also
+    // arrive the other way round, and a position already seen needs no waiting for.
+    if (this.settledPano !== pano) this.beginPanoSwitch(pano);
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
 
   onPositionChanged = () => {
     if (!this.panorama) return;
-    // The position is the last thing to arrive, so this is where a switch is really over
-    // and the panorama can be read as one consistent view again.
+    // The position is the last thing to arrive, so this is where a transition is really
+    // over and the panorama can be read as one consistent view again.
+    this.settledPano = this.panorama.getPano();
     this.endPanoSwitch();
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
@@ -358,6 +364,9 @@ class PanoramaPicker extends Component {
   // actually reports, and the fields keep describing the last image that did settle.
   // Saving is allowed again, because a panorama gone quiet must not lock the form.
   onPanoSwitchTimedOut = () => {
+    // Only the waiting stops here. The panorama stays unreadable — settledPano still
+    // names the last image that reported a position — so no capture can take the halves
+    // of two images for one view.
     this.endPanoSwitch();
     this.pinnedByUser = null;
     if (this.panorama) this.setState({ currentPano: this.panorama.getPano() });
@@ -384,9 +393,12 @@ class PanoramaPicker extends Component {
   capture = () => {
     clearTimeout(this.captureTimer);
     this.captureTimer = null;
-    // Mid-switch there is nothing worth reading: the panorama still reports the image on
-    // its way out. pano_changed clears this and schedules the capture that replaces it.
-    if (!this.panorama || this.panoSwitchPending) return null;
+    if (!this.panorama) return null;
+    // The id and the coordinates have to belong to the same image. Between a pano
+    // arriving and its position arriving they do not, and a transition written off for
+    // taking too long is no more readable for having stopped being waited on — it stays
+    // unreadable until the position it never sent finally lands.
+    if (this.state.currentPano !== this.settledPano) return null;
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     const view = {

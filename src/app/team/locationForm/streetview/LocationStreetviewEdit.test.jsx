@@ -728,17 +728,41 @@ describe('LocationStreetviewEdit validation', () => {
         panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
 
         waitOutTheSwitch('pano-2023');
+
+        // Giving up on the wait only unblocks saving. The panorama is no more readable
+        // than it was, so a later turn of the view still captures nothing from it.
+        listeners.pov_changed();
+        await settle();
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('35.6762');
+
         fireEvent.click(screen.getByText('OK'));
 
         await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
-        // Nothing was read from the half-switched panorama: what saves is the last image
-        // that did settle, coordinates and pin together.
+        // What saves is the last image that did settle, coordinates and pin together.
         expect(mockUpdateValue).toHaveBeenCalledWith(
           expect.objectContaining({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 }),
           expect.anything(),
           expect.anything(),
           expect.anything(),
         );
+      });
+
+      it('reads the panorama again once its late position turns up', async () => {
+        panoramaResult = years;
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+
+        waitOutTheSwitch('pano-2023');
+
+        // The position finally arrives, long after anyone stopped waiting for it.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
       });
 
       it('puts the year back when the picked image never arrives', async () => {
@@ -795,6 +819,27 @@ describe('LocationStreetviewEdit validation', () => {
           expect.anything(),
           expect.anything(),
         );
+      });
+
+      it('does not wait for news it already has, whichever order it comes in', async () => {
+        panoramaResult = years;
+        renderComponent();
+        moveView();
+        await settle();
+
+        // The position can land before the id it belongs to. Waiting for a position
+        // already in hand would block saving until the wait timed out.
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => 'walked-2024');
+        listeners.position_changed();
+        listeners.pano_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
       });
 
       it('leaves the newest year unpinned even before its list arrives', async () => {
