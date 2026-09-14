@@ -432,7 +432,14 @@ class PanoramaPicker extends Component {
       this.panorama.setPov({ heading: 0, pitch: 0 });
       this.panorama.setZoom(1);
     }
-    this.setState({ historicalPanos: [], currentPano: null });
+    // The year list goes, but not the panorama's identity: the view may already be at the
+    // default position, in which case setPosition moves nothing and no event arrives to
+    // put back what null erased. The two names for the image on screen have to keep
+    // agreeing, or nothing the specialist does to the view can be read again.
+    this.setState({
+      historicalPanos: [],
+      currentPano: this.panorama ? this.panorama.getPano() : null,
+    });
     this.props.onReset();
   };
 

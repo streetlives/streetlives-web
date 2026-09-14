@@ -393,6 +393,23 @@ describe('LocationStreetviewEdit validation', () => {
       listeners.position_changed();
     };
 
+    it('still follows the view after resetting an already-default panorama', async () => {
+      renderComponent(overrideElsewhere);
+      // The panorama is loaded and settled on the image at the default location.
+      panoramaMock.getPano = jest.fn(() => 'already-here');
+      panoramaMock.getPosition = jest.fn(() => ({ lat: () => 40.7128, lng: () => -74.0060 }));
+      listeners.pano_changed();
+      listeners.position_changed();
+
+      // Reset moves it nowhere, so no event arrives to say what it is showing.
+      fireEvent.click(screen.getByText('Reset to default'));
+      moveView();
+      await settle();
+
+      expect(screen.getByLabelText(/Latitude/).value).toBe('40.7128');
+      expect(screen.getByLabelText(/Longitude/).value).toBe('-74.006');
+    });
+
     it('leaves the fields empty while the panorama settles', async () => {
       renderComponent(overrideElsewhere);
 
