@@ -153,6 +153,90 @@ describe('updateLocationStreetview action', () => {
     expect(callArgs.params).not.toHaveProperty('Streetview');
   });
 
+  it('strips database columns when confirming an unedited override', () => {
+    api.updateLocation.mockResolvedValue({});
+
+    const persistedStreetview = {
+      id: 'sv-1',
+      location_id: 'loc-123',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-02T00:00:00.000Z',
+      pano_id: 'existing-pano',
+      lat: 40.7128,
+      lng: -74.006,
+      heading: 90,
+      pitch: 0,
+      fov: 90,
+    };
+    const store = mockStore({
+      locations: {
+        'loc-123': { id: 'loc-123', Streetview: persistedStreetview },
+      },
+    });
+
+    store.dispatch(updateLocationStreetview('loc-123', persistedStreetview, 'section', 'field'));
+
+    expect(api.updateLocation).toHaveBeenCalledWith({
+      id: 'loc-123',
+      params: {
+        streetview: {
+          pano_id: 'existing-pano',
+          lat: 40.7128,
+          lng: -74.006,
+          heading: 90,
+          pitch: 0,
+          fov: 90,
+        },
+      },
+    });
+  });
+
+  it('treats a row whose editable fields are all null as a clear', () => {
+    api.updateLocation.mockResolvedValue({});
+
+    const emptyRow = {
+      id: 'sv-1',
+      location_id: 'loc-123',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-02T00:00:00.000Z',
+      pano_id: null,
+      lat: null,
+      lng: null,
+      heading: null,
+      pitch: null,
+      fov: null,
+    };
+    const store = mockStore({
+      locations: {
+        'loc-123': { id: 'loc-123', Streetview: emptyRow },
+      },
+    });
+
+    store.dispatch(updateLocationStreetview('loc-123', emptyRow, 'section', 'field'));
+
+    expect(api.updateLocation).toHaveBeenCalledWith({
+      id: 'loc-123',
+      params: { streetview: null },
+    });
+  });
+
+  it('leaves fields absent from the input absent from the request', () => {
+    api.updateLocation.mockResolvedValue({});
+
+    const store = mockStore({
+      locations: {
+        'loc-123': { id: 'loc-123', Streetview: { pano_id: 'existing-pano' } },
+      },
+    });
+
+    store.dispatch(updateLocationStreetview('loc-123', { heading: 180 }, 'section', 'field'));
+
+    expect(api.updateLocation).toHaveBeenCalledWith({
+      id: 'loc-123',
+      params: { streetview: { heading: 180 } },
+    });
+  });
+
   it('uses uppercase key in optimistic update', () => {
     const store = mockStore({
       locations: {
