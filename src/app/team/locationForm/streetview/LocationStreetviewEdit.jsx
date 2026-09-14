@@ -218,13 +218,12 @@ class PanoramaPicker extends Component {
     // that has not arrived yet put the pin back and freeze the override on today's image.
     const [latest] = historicalPanos;
     this.pinnedByUser = (latest && panoId === latest.panoId) ? null : panoId;
-    // setPano only starts the switch. Until pano_changed reports it done, the position
-    // and point of view still belong to the image being replaced, so a capture here
-    // would pin the chosen year onto the outgoing image's coordinates. The choice itself
-    // is already certain, so the pin is settled now and the rest of the fields wait.
+    // setPano only starts the switch, and the fields are never written from a guess about
+    // how it will end: they carry a capture of a settled panorama or nothing at all. The
+    // form refuses to save while the switch is in flight, so the choice cannot be lost by
+    // saving early either. This only moves the dropdown onto the year that was picked.
     this.beginPanoSwitch(panoId);
     this.panorama.setPano(panoId);
-    this.props.onPinChange(this.pinnedByUser);
     this.setState({ currentPano: panoId });
   };
 
@@ -350,7 +349,22 @@ class PanoramaPicker extends Component {
   beginPanoSwitch = (panoId) => {
     this.panoSwitchPending = panoId;
     clearTimeout(this.panoSwitchTimer);
-    this.panoSwitchTimer = setTimeout(this.endPanoSwitch, PANO_SWITCH_TIMEOUT_MS);
+    this.panoSwitchTimer = setTimeout(this.onPanoSwitchTimedOut, PANO_SWITCH_TIMEOUT_MS);
+  };
+
+  // The position never came. If the picked image is the one on screen, it simply sits
+  // where the one before it did, so the panorama is consistent after all and is worth
+  // reading. If it never arrived, the pick did not happen: put the dropdown back on the
+  // image that is actually showing, and leave the fields describing it.
+  onPanoSwitchTimedOut = () => {
+    const arrived = this.panorama && this.panorama.getPano() === this.panoSwitchPending;
+    this.endPanoSwitch();
+    if (arrived) {
+      this.scheduleCapture();
+      return;
+    }
+    this.pinnedByUser = null;
+    if (this.panorama) this.setState({ currentPano: this.panorama.getPano() });
   };
 
   endPanoSwitch = () => {
@@ -487,7 +501,6 @@ PanoramaPicker.propTypes = {
   }),
   targetKey: PropTypes.number,
   onCapture: PropTypes.func.isRequired,
-  onPinChange: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
   // Mutable handle the form submits through — see flushCapture.
   captureHandle: PropTypes.shape({
@@ -609,12 +622,6 @@ class LocationStreetviewEdit extends Component {
     this.setState({ ...fieldsFromView(view), errors: {} });
   };
 
-  // Picking a capture year settles the pin on its own, ahead of the coordinates and
-  // point of view, which only become readable once the image has finished switching.
-  onPinChange = (panoId) => {
-    this.setState({ panoId: panoId || '', errors: { ...this.state.errors, panoId: undefined } });
-  };
-
   onReset = () => {
     this.setState({
       panoId: '',
@@ -731,7 +738,6 @@ class LocationStreetviewEdit extends Component {
           targetKey={targetKey}
           captureHandle={this.captureHandle}
           onCapture={this.onCapture}
-          onPinChange={this.onPinChange}
           onReset={this.onReset}
         />
 

@@ -633,7 +633,8 @@ describe('LocationStreetviewEdit validation', () => {
         fireEvent.click(screen.getByText('OK'));
 
         expect(mockUpdateValue).not.toHaveBeenCalled();
-        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        // Untouched: the fields still describe the image that is actually on screen.
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
 
         finishSwitch('pano-2023');
         await settle();
@@ -659,7 +660,8 @@ describe('LocationStreetviewEdit validation', () => {
         listeners.pov_changed();
         await settle();
 
-        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+        // Neither half of the outgoing image reaches the fields.
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
         expect(screen.getByLabelText(/Latitude/).value).toBe('');
 
         // Once the switch lands, the chosen image's own position is what gets recorded.
@@ -700,20 +702,54 @@ describe('LocationStreetviewEdit validation', () => {
         );
       });
 
-      it('gives up waiting rather than block saving for good', async () => {
-        panoramaResult = years;
-        renderComponent();
-        panoramaMock.getPosition = jest.fn(() => atSpot);
-
-        // Two images can sit close enough together that position_changed never fires.
+      // Two images can sit close enough together that position_changed never fires, so
+      // the wait gives up rather than block saving for good. What it does then depends on
+      // whether the picked image is the one on screen.
+      const waitOutTheSwitch = (panoId) => {
         jest.useFakeTimers();
         try {
-          fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
-          act(() => { jest.advanceTimersByTime(5000); });
+          fireEvent.change(screen.getByRole('combobox'), { target: { value: panoId } });
+          act(() => {
+            jest.advanceTimersByTime(5000);
+            jest.advanceTimersByTime(300);
+          });
         } finally {
           jest.useRealTimers();
         }
+      };
 
+      it('takes the picked image that landed without ever moving', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        // It did arrive — it just sits where the last one did, so the view is consistent.
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+
+        waitOutTheSwitch('pano-2019');
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('puts the year back when the picked image never arrives', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        // Still showing the newest image: the pick never took.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+
+        waitOutTheSwitch('pano-2019');
+
+        // The dropdown goes back to what is on screen, nothing is pinned from a pick that
+        // did not happen, and saving is allowed again.
+        expect(screen.getByRole('combobox').value).toBe('pano-2023');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
         fireEvent.click(screen.getByText('OK'));
 
         await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
@@ -807,15 +843,16 @@ describe('LocationStreetviewEdit validation', () => {
       panoramaMock.getPosition = jest.fn(() => atSpot);
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
-      // The pin is settled by the choice itself; the coordinates follow the image once
-      // it has finished switching.
-      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      // Nothing is written from the click itself: the fields take the picked image once
+      // it has settled and can be read as one view.
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('');
 
       panoramaMock.getPano = jest.fn(() => 'pano-2019');
       listeners.pano_changed();
       listeners.position_changed();
       await settle();
 
+      expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
       expect(screen.getByLabelText(/Latitude/).value).toBe('41');
     });
   });
@@ -854,7 +891,8 @@ describe('LocationStreetviewEdit validation', () => {
       renderComponent();
 
       fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
-      moveView();
+      showPano('pano-2019');
+      listeners.position_changed();
       await settle();
 
       expect(panoIdField().value).toBe('pano-2019');
