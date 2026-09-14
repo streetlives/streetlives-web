@@ -718,19 +718,23 @@ describe('LocationStreetviewEdit validation', () => {
         }
       };
 
-      it('takes the picked image that landed without ever moving', async () => {
+      it('writes off a switch whose position never arrives', async () => {
         panoramaResult = years;
-        renderComponent();
-        panoramaMock.getPosition = jest.fn(() => atSpot);
-        // It did arrive — it just sits where the last one did, so the view is consistent.
-        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        // An override on the historical image; those are the coordinates in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        // The id says the newest image is up, but the position is still the old one — and
+        // nothing here can tell a position that will not change from one that is late.
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
 
-        waitOutTheSwitch('pano-2019');
+        waitOutTheSwitch('pano-2023');
         fireEvent.click(screen.getByText('OK'));
 
         await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // Nothing was read from the half-switched panorama: what saves is the last image
+        // that did settle, coordinates and pin together.
         expect(mockUpdateValue).toHaveBeenCalledWith(
-          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 }),
           expect.anything(),
           expect.anything(),
           expect.anything(),
@@ -754,6 +758,43 @@ describe('LocationStreetviewEdit validation', () => {
 
         await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
         expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
+      it('refuses to save a walk before its position lands', async () => {
+        panoramaResult = years;
+        renderComponent();
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        moveView();
+        await settle();
+
+        // Clicking an arrow changes the pano first; the coordinates and the year list for
+        // where we have arrived both come later.
+        panoramaMock.getPano = jest.fn(() => 'walked-2024');
+        listeners.pano_changed();
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        panoramaResult = {
+          time: [
+            { pano: 'walked-2020', date: new Date('2020-06-01') },
+            { pano: 'walked-2024', date: new Date('2024-06-01') },
+          ],
+        };
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 42, lng: () => -76 }));
+        listeners.position_changed();
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // Where we actually are, and the newest image there, so no pin.
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 42, lng: -76 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
       });
 
       it('leaves the newest year unpinned even before its list arrives', async () => {
@@ -871,6 +912,9 @@ describe('LocationStreetviewEdit validation', () => {
     const showPano = (panoId) => {
       panoramaMock.getPano = jest.fn(() => panoId);
       listeners.pano_changed();
+      // The position lands with it; until it does, the panorama is mid-transition and
+      // nothing may be read from it.
+      listeners.position_changed();
     };
 
     const panoIdField = () => screen.getByLabelText(/Pano ID/);

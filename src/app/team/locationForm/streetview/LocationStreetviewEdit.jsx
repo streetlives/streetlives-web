@@ -98,10 +98,8 @@ const INTERACTION_EVENTS = ['mousedown', 'touchstart', 'wheel', 'keydown'];
 // away without losing the adjustment they just made.
 const SETTLE_EVENTS = ['mouseup', 'touchend'];
 
-// How long to wait for a picked image to report that it has settled before giving up on
-// it. Two images can sit at coordinates close enough that position_changed never fires,
-// and a specialist who cannot save at all is worse off than one whose coordinates are a
-// few metres out.
+// How long to wait for a new image to report where it is before giving up on it. A
+// panorama that has gone quiet must not leave the form unable to save for good.
 const PANO_SWITCH_TIMEOUT_MS = 4000;
 
 function formatCaptureDate(date) {
@@ -189,10 +187,11 @@ class PanoramaPicker extends Component {
     const pano = this.panorama.getPano();
     // Walking off the image the specialist picked retires their choice with it.
     if (this.pinnedByUser !== pano) this.pinnedByUser = null;
-    // A different pano arriving means a walk or a pasted link has taken the place of what
-    // was picked, so there is nothing left to wait for. The picked one arriving is only
-    // half the news — the id changes before the position does — so that wait runs on.
-    if (this.panoSwitchPending && this.panoSwitchPending !== pano) this.endPanoSwitch();
+    // The id changes before the position does, so this is only half the news — for a
+    // picked year and for an ordinary walk alike. Until the position lands, the panorama
+    // describes one image by id and another by coordinates, and the year list still
+    // belongs to where we were. Nothing may be read from it in between.
+    this.beginPanoSwitch(pano);
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
@@ -352,17 +351,14 @@ class PanoramaPicker extends Component {
     this.panoSwitchTimer = setTimeout(this.onPanoSwitchTimedOut, PANO_SWITCH_TIMEOUT_MS);
   };
 
-  // The position never came. If the picked image is the one on screen, it simply sits
-  // where the one before it did, so the panorama is consistent after all and is worth
-  // reading. If it never arrived, the pick did not happen: put the dropdown back on the
-  // image that is actually showing, and leave the fields describing it.
+  // The position never came, so there is no view here to read: the id belongs to one
+  // image and the coordinates may belong to another, and nothing on offer says which.
+  // A matching id is not proof — the position can simply be late. So the transition is
+  // written off: nothing is captured, the dropdown goes back to whatever the panorama
+  // actually reports, and the fields keep describing the last image that did settle.
+  // Saving is allowed again, because a panorama gone quiet must not lock the form.
   onPanoSwitchTimedOut = () => {
-    const arrived = this.panorama && this.panorama.getPano() === this.panoSwitchPending;
     this.endPanoSwitch();
-    if (arrived) {
-      this.scheduleCapture();
-      return;
-    }
     this.pinnedByUser = null;
     if (this.panorama) this.setState({ currentPano: this.panorama.getPano() });
   };
