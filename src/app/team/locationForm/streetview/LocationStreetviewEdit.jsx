@@ -198,6 +198,9 @@ class PanoramaPicker extends Component {
     // arrive the other way round, and a position already seen needs no waiting for.
     if (this.panoSwitchPending === pano) {
       this.pendingPanoArrived = true;
+      // Only this image can say it has arrived, so anything owed by the one it replaced
+      // has either come and gone or never will.
+      this.mayHaveStalePosition = false;
     } else if (this.settledPano !== pano) {
       this.beginPanoSwitch(pano, true);
     }
@@ -208,16 +211,12 @@ class PanoramaPicker extends Component {
   onPositionChanged = () => {
     if (!this.panorama) return;
     const pano = this.panorama.getPano();
-    // A position settles the image it belongs to and no other, and the panorama answers
-    // to a requested id straight away, so a position owed by an abandoned image would
-    // read as the current one's. Spend those first: the count is what tells them apart.
-    if (this.stalePositionsOwed > 0) {
-      this.stalePositionsOwed -= 1;
-      return;
-    }
-    // Whatever else arrives has to be about the image being waited for. Nothing is owed
-    // at this point, so a position for the pending image settles it whether or not it has
-    // announced itself — the two halves can arrive in either order.
+    // The panorama answers to a requested id straight away, so a position still owed by
+    // an abandoned image reads exactly like the current one's: while one may be in
+    // flight, no position settles anything.
+    if (this.mayHaveStalePosition) return;
+    // Otherwise it has to be about the image being waited for, and may settle it whether
+    // or not that image has announced itself — the two halves arrive in either order.
     if (this.panoSwitchPending && this.panoSwitchPending !== pano) return;
     // The position is the last thing to arrive, so this is where a transition is really
     // over and the panorama can be read as one consistent view again.
@@ -371,11 +370,12 @@ class PanoramaPicker extends Component {
   // position outstanding — true when the transition is noticed from pano_changed, false
   // when a picked year starts one before the panorama has said anything at all.
   beginPanoSwitch = (panoId, arrived = false) => {
-    // An image that announced itself and was then replaced still owes a position, and it
-    // will arrive reading as though it belonged to whatever is current by then. That one
-    // is spoken for; it is counted here so it can be spent rather than believed.
+    // An image that announced itself and was then replaced may still have a position on
+    // its way, and it will read as though it belonged to whatever is current by then.
+    // While that is possible, no position can be told apart from it — until the image now
+    // pending announces itself, which is news only it can bring.
     if (this.panoSwitchPending && this.pendingPanoArrived && this.panoSwitchPending !== panoId) {
-      this.stalePositionsOwed = (this.stalePositionsOwed || 0) + 1;
+      this.mayHaveStalePosition = true;
     }
     this.panoSwitchPending = panoId;
     this.pendingPanoArrived = arrived;
@@ -405,6 +405,7 @@ class PanoramaPicker extends Component {
     this.panoSwitchTimer = null;
     this.panoSwitchPending = null;
     this.pendingPanoArrived = false;
+    this.mayHaveStalePosition = false;
   };
 
   isSwitching = () => !!this.panoSwitchPending;
@@ -426,8 +427,10 @@ class PanoramaPicker extends Component {
     // The id and the coordinates have to belong to the same image. Between a pano
     // arriving and its position arriving they do not, and a transition written off for
     // taking too long is no more readable for having stopped being waited on — it stays
-    // unreadable until the position it never sent finally lands.
-    if (this.state.currentPano !== this.settledPano) return null;
+    // unreadable until the position it never sent finally lands. A transition in flight
+    // rules it out too, even back to the image that was settled before it: the id would
+    // match a settlement that the image on its way has already made stale.
+    if (this.panoSwitchPending || this.state.currentPano !== this.settledPano) return null;
     const pov = this.panorama.getPov();
     const position = this.panorama.getPosition();
     const view = {

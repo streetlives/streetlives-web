@@ -892,6 +892,32 @@ describe('LocationStreetviewEdit validation', () => {
         );
       });
 
+      it('reads nothing while a move back to the settled image is in flight', async () => {
+        panoramaResult = years;
+        // Settled on the historical image, whose coordinates are in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 35.6762, lng: () => 139.6503 }));
+        listeners.position_changed();
+
+        // Off to another year, which announces itself, then straight back again. The id
+        // now matches what was settled before any of this — but the image on its way has
+        // made that settlement stale, and its position is still coming.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        listeners.position_changed();
+        moveView();
+        await settle();
+
+        // Nothing of the other image reached the fields.
+        expect(screen.getByLabelText(/Latitude/).value).toBe('35.6762');
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
+      });
+
       it('is not settled by the position of a year already given up on', async () => {
         panoramaResult = years;
         renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
