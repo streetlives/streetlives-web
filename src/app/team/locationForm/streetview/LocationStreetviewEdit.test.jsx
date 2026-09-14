@@ -596,16 +596,53 @@ describe('LocationStreetviewEdit validation', () => {
         listeners.position_changed();
       };
 
-      it('saves the picked year when OK is pressed before the switch lands', async () => {
+    it('refuses to save while the picked image is still switching', async () => {
         panoramaResult = years;
         renderComponent();
 
         fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
         fireEvent.click(screen.getByText('OK'));
 
+        // Saving here would store the outgoing image's coordinates under the incoming
+        // image's pin, so it says so instead.
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByText(/still loading/)).toBeInTheDocument();
+
+        finishSwitch('pano-2019');
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
         await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
         expect(mockUpdateValue).toHaveBeenCalledWith(
-          expect.objectContaining({ pano_id: 'pano-2019' }),
+          expect.objectContaining({ pano_id: 'pano-2019', lat: 41, lng: -75 }),
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it('refuses to save the old coordinates when the latest year is picked', async () => {
+        panoramaResult = years;
+        // An override pinned to the historical image, whose coordinates are in the fields.
+        renderComponent({ pano_id: 'pano-2019', lat: 35.6762, lng: 139.6503 });
+        panoramaMock.getPano = jest.fn(() => 'pano-2019');
+
+        // Picking the latest year clears the pin, which would leave the historical
+        // image's coordinates standing alone and point the override somewhere else.
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+        fireEvent.click(screen.getByText('OK'));
+
+        expect(mockUpdateValue).not.toHaveBeenCalled();
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+
+        finishSwitch('pano-2023');
+        await settle();
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        // The latest image's own coordinates, and no pin, so it tracks future captures.
+        expect(mockUpdateValue).toHaveBeenCalledWith(
+          expect.objectContaining({ pano_id: null, lat: 41, lng: -75 }),
           expect.anything(),
           expect.anything(),
           expect.anything(),

@@ -142,6 +142,7 @@ class PanoramaPicker extends Component {
       this.container.addEventListener(name, this.flushCapture, true));
     this.props.captureHandle.flush = this.flushCapture;
     this.props.captureHandle.stop = this.stopCapturing;
+    this.props.captureHandle.switching = this.isSwitching;
 
     // Seed the year list immediately if we already have a position.
     if (initialPosition) {
@@ -164,6 +165,7 @@ class PanoramaPicker extends Component {
     if (this.props.captureHandle.flush === this.flushCapture) {
       this.props.captureHandle.flush = null;
       this.props.captureHandle.stop = null;
+      this.props.captureHandle.switching = null;
     }
     if (this.container) {
       INTERACTION_EVENTS.forEach(name =>
@@ -324,6 +326,8 @@ class PanoramaPicker extends Component {
     this.captureTimer = setTimeout(this.capture, CAPTURE_DEBOUNCE_MS);
   };
 
+  isSwitching = () => !!this.panoSwitchPending;
+
   // Takes a waiting capture now and hands back what it read. The form submits on the
   // fields, and setState inside an event handler does not land before the handler
   // finishes, so pressing OK on a view adjusted a moment ago has to read the view here
@@ -434,6 +438,8 @@ const NO_STREETVIEW_ERROR = 'Couldn\u2019t find a Street View in that link. Open
 const SHORT_LINK_ERROR = 'Short share links can\u2019t be read. Open the link in your browser, ' +
   'then copy the full URL from the address bar.';
 
+const SWITCHING_ERROR = 'The Street View image you picked is still loading. Try again in a moment.';
+
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
   initialPosition: positionShape,
@@ -454,6 +460,7 @@ PanoramaPicker.propTypes = {
   captureHandle: PropTypes.shape({
     flush: PropTypes.func,
     stop: PropTypes.func,
+    switching: PropTypes.func,
   }).isRequired,
 };
 
@@ -591,6 +598,14 @@ class LocationStreetviewEdit extends Component {
 
   onSubmit = (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    // Mid-switch the panorama still reports the image on its way out, so there is no
+    // honest view to save: the coordinates would be the outgoing image's while the pin
+    // belongs to the incoming one. It clears itself — the switch lands within moments and
+    // the capture it triggers wipes this error along with the stale fields.
+    if (this.captureHandle.switching && this.captureHandle.switching()) {
+      this.setState({ errors: { _form: SWITCHING_ERROR } });
+      return;
+    }
     // A view adjusted and OK'd inside the same quarter-second would otherwise be saved as
     // the fields stood before it: the capture is still pending, and the setState it will
     // make could not have landed in this handler anyway.
