@@ -181,7 +181,10 @@ class PanoramaPicker extends Component {
     const pano = this.panorama.getPano();
     // Walking off the image the specialist picked retires their choice with it.
     if (this.pinnedByUser !== pano) this.pinnedByUser = null;
-    if (this.panoSwitchPending === pano) this.panoSwitchPending = null;
+    // Any pano arriving ends the wait: either it is the one that was picked, or something
+    // else — a walk, a pasted link — has taken its place and there is nothing left to
+    // wait for. Holding out for one exact pano is how the form got stuck refusing to save.
+    this.panoSwitchPending = null;
     this.setState({ currentPano: pano });
     this.scheduleCapture();
   };
@@ -199,15 +202,18 @@ class PanoramaPicker extends Component {
     // Picking a year is the specialist choosing an image, so it counts as handling the
     // panorama even though the pointer never entered it.
     this.startCapturing();
-    this.pinnedByUser = panoId;
+    // Picking the newest year is a decision to pin nothing, so that is what gets
+    // remembered. Holding the pano here instead would let a capture made against a list
+    // that has not arrived yet put the pin back and freeze the override on today's image.
+    const [latest] = historicalPanos;
+    this.pinnedByUser = (latest && panoId === latest.panoId) ? null : panoId;
     // setPano only starts the switch. Until pano_changed reports it done, the position
     // and point of view still belong to the image being replaced, so a capture here
     // would pin the chosen year onto the outgoing image's coordinates. The choice itself
     // is already certain, so the pin is settled now and the rest of the fields wait.
     this.panoSwitchPending = panoId;
     this.panorama.setPano(panoId);
-    const [latest] = historicalPanos;
-    this.props.onPinChange(latest && panoId === latest.panoId ? null : panoId);
+    this.props.onPinChange(this.pinnedByUser);
     this.setState({ currentPano: panoId });
   };
 
@@ -242,6 +248,10 @@ class PanoramaPicker extends Component {
     const { target, targetKey } = this.props;
     this.appliedTargetKey = targetKey;
     if (!this.panorama || !target) return;
+    // The link replaces whatever was picked before it, including a year switch still on
+    // its way — and a link carrying only coordinates never fires pano_changed to say so.
+    this.panoSwitchPending = null;
+    this.pinnedByUser = null;
 
     // Exclusive, mirroring componentDidMount's pano-over-position precedence. Setting a
     // position after a pano would snap off the pinned image onto the nearest current one.

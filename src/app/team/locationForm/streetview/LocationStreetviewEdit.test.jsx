@@ -670,6 +670,42 @@ describe('LocationStreetviewEdit validation', () => {
         expect(screen.getByLabelText(/Pano ID/).value).toBe('pano-2019');
       });
 
+      it('leaves the newest year unpinned even before its list arrives', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2023' } });
+
+        // The switch lands and asks for the year list of where it settled; the answer is
+        // still out. Nothing here may put back the pin the choice just cleared.
+        deferPanoResponses = true;
+        panoramaMock.getPosition = jest.fn(() => atSpot);
+        panoramaMock.getPano = jest.fn(() => 'pano-2023');
+        listeners.pano_changed();
+        listeners.position_changed();
+        await settle();
+
+        expect(screen.getByLabelText(/Pano ID/).value).toBe('');
+        expect(screen.getByLabelText(/Latitude/).value).toBe('41');
+      });
+
+      it('lets a pasted link retire a year switch that never landed', async () => {
+        panoramaResult = years;
+        renderComponent();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: 'pano-2019' } });
+        // The specialist gives up on it and pastes a link instead. A link with only
+        // coordinates never fires pano_changed, so nothing else would end that wait and
+        // OK would go on refusing to save.
+        fireEvent.change(screen.getByLabelText(/Street View URL/), {
+          target: { value: 'https://www.google.com/maps/@40.694652,-73.9425529,3a,75y,348.82h,87t/' },
+        });
+        fireEvent.click(screen.getByText('OK'));
+
+        await waitFor(() => expect(mockUpdateValue).toHaveBeenCalled());
+        expect(screen.queryByText(/still loading/)).not.toBeInTheDocument();
+      });
+
       it('pins nothing when the year picked is the latest', async () => {
         panoramaResult = years;
         renderComponent();
