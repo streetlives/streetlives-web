@@ -7,7 +7,8 @@ function buildImageUrl({
   pano_id, lat, lng, heading, pitch, fov,
 }) {
   const base = 'https://maps.googleapis.com/maps/api/streetview';
-  const common = `size=600x400&key=${config.googleMapApiKey}&fov=${fov || 90}&heading=${heading || 0}&pitch=${pitch || 0}`;
+  // 5:3, matching the edit panorama and YourPeer's location-detail preview.
+  const common = `size=600x360&key=${config.googleMapApiKey}&fov=${fov || 90}&heading=${heading || 0}&pitch=${pitch || 0}`;
 
   if (pano_id) {
     return `${base}?${common}&pano=${encodeURIComponent(pano_id)}`;
