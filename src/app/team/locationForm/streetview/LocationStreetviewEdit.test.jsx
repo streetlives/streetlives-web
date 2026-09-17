@@ -41,7 +41,6 @@ describe('LocationStreetviewEdit validation', () => {
   const renderComponent = (value = null) => {
     const result = renderCollapsed(value);
     const toggle = screen.queryByText('Show advanced fields');
-    // A value with a pano_id mounts already expanded, so the button reads "Hide ...".
     if (toggle) fireEvent.click(toggle);
     return result;
   };
@@ -1204,6 +1203,32 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByDisplayValue('existing-pano')).toBeInTheDocument();
     });
 
+    it('opens the panorama on the saved point of view', () => {
+      renderComponent({
+        pano_id: null, lat: 35.6762, lng: 139.6503, heading: 212.5, pitch: -7, fov: 45,
+      });
+      const opts = window.google.maps.StreetViewPanorama.mock.calls[0][1];
+      expect(opts.pov).toEqual({ heading: 212.5, pitch: -7 });
+      expect(opts.zoom).toBeCloseTo(2);
+      expect(opts.position).toEqual({ lat: 35.6762, lng: 139.6503 });
+    });
+
+    it('opens on the saved point of view when the API sends decimals as strings', () => {
+      renderComponent({
+        pano_id: 'jKTNSASp-1ea_VlR9LaYyA', lat: '40.7653782', lng: '-73.9542919', heading: '107.38', pitch: '-5.93', fov: 90,
+      });
+      const opts = window.google.maps.StreetViewPanorama.mock.calls[0][1];
+      expect(opts.pov).toEqual({ heading: 107.38, pitch: -5.93 });
+      expect(opts.zoom).toBe(1);
+    });
+
+    it('opens the panorama facing north at default zoom with no override', () => {
+      renderComponent();
+      const opts = window.google.maps.StreetViewPanorama.mock.calls[0][1];
+      expect(opts.pov).toEqual({ heading: 0, pitch: 0 });
+      expect(opts.zoom).toBe(1);
+    });
+
     it('starts with empty fields when no value', () => {
       renderComponent();
       expect(screen.getByLabelText(/Latitude/).value).toBe('');
@@ -1488,11 +1513,13 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.getByText('Hide advanced fields')).toBeInTheDocument();
     });
 
-    it('start expanded when a pinned historical image is already saved', () => {
+    it('stay collapsed even when a pinned historical image is already saved', () => {
       renderCollapsed({
         pano_id: 'pinned-pano', lat: 40.7, lng: -73.9, heading: 10, pitch: 0, fov: 90,
       });
 
+      expect(screen.queryByLabelText(/Pano ID/)).not.toBeInTheDocument();
+      fireEvent.click(screen.getByText('Show advanced fields'));
       expect(screen.getByLabelText(/Pano ID/).value).toBe('pinned-pano');
     });
 
@@ -1504,17 +1531,19 @@ describe('LocationStreetviewEdit validation', () => {
       expect(screen.queryByLabelText(/Pano ID/)).not.toBeInTheDocument();
     });
 
-    it('expand on submit so a hidden field’s error is not invisible', async () => {
+    it('stay collapsed on submit, saying a hidden field has an error', async () => {
       renderComponent();
       await userEvent.type(screen.getByLabelText(/FOV/), '500');
       fireEvent.click(screen.getByText('Hide advanced fields'));
-      expect(screen.queryByLabelText(/FOV/)).not.toBeInTheDocument();
 
       fireEvent.click(screen.getByText('OK'));
 
-      await waitFor(() => expect(screen.getByLabelText(/FOV/)).toBeInTheDocument());
-      expect(screen.getByText('Must be a whole number between 10 and 120')).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText(/One of the advanced fields has a problem/)).toBeInTheDocument());
+      expect(screen.queryByLabelText(/FOV/)).not.toBeInTheDocument();
       expect(mockUpdateValue).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByText('Show advanced fields'));
+      expect(screen.getByText('Must be a whole number between 10 and 120')).toBeInTheDocument();
     });
   });
 });

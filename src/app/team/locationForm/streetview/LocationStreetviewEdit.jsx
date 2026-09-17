@@ -102,6 +102,11 @@ const SETTLE_EVENTS = ['mouseup', 'touchend'];
 // panorama that has gone quiet must not leave the form unable to save for good.
 const PANO_SWITCH_TIMEOUT_MS = 4000;
 
+// Same frame as the view page's static image and YourPeer's location-detail preview (a
+// 288px-tall strip across a desktop side panel, roughly 5:3), so the specialist frames the
+// shot they will actually get. aspectRatio has to be a string: React 16 appends px to it.
+const PANORAMA_STYLE = { width: 600, maxWidth: '100%', aspectRatio: '5 / 3' };
+
 function formatCaptureDate(date) {
   return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
 }
@@ -120,10 +125,19 @@ class PanoramaPicker extends Component {
   }
 
   componentDidMount() {
-    const { initialPanoId, initialPosition } = this.props;
-    // zoom is a panorama option in its own right; StreetViewPov carries only heading/pitch.
+    const { initialPanoId, initialPosition, initialPov } = this.props;
+    // Open on the saved override's point of view, or the view page's static image and this
+    // panorama disagree about which way the camera faces. zoom is a panorama option in its
+    // own right; StreetViewPov carries only heading/pitch.
+    const pov = initialPov || {};
     const opts = {
-      visible: true, pov: { heading: 0, pitch: 0 }, zoom: 1, imageDateControl: true,
+      visible: true,
+      pov: {
+        heading: pov.heading !== null && pov.heading !== undefined ? pov.heading : 0,
+        pitch: pov.pitch !== null && pov.pitch !== undefined ? pov.pitch : 0,
+      },
+      zoom: zoomFromFov(pov.fov),
+      imageDateControl: true,
     };
     if (initialPanoId) {
       opts.pano = initialPanoId;
@@ -508,7 +522,7 @@ class PanoramaPicker extends Component {
         <div
           ref={(r) => { this.container = r; }}
           data-testid="streetview-panorama"
-          style={{ height: 400, width: '100%' }}
+          style={PANORAMA_STYLE}
         />
         <div style={{ fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: '0.5em' }}>
           Move the view above and the fields below follow it.
@@ -532,6 +546,9 @@ const NO_STREETVIEW_ERROR = 'Couldn\u2019t find a Street View in that link. Open
 const SHORT_LINK_ERROR = 'Short share links can\u2019t be read. Open the link in your browser, ' +
   'then copy the full URL from the address bar.';
 
+const HIDDEN_ERROR_NOTICE = 'One of the advanced fields has a problem. Open them with ' +
+  '\u201cShow advanced fields\u201d to fix it.';
+
 const SWITCHING_ERROR = 'The Street View image you picked is still loading. Try again in a moment.';
 
 const SWITCH_ABANDONED_NOTICE = 'That Street View image never finished loading, so the fields ' +
@@ -541,6 +558,11 @@ const SWITCH_ABANDONED_NOTICE = 'That Street View image never finished loading, 
 PanoramaPicker.propTypes = {
   initialPanoId: PropTypes.string,
   initialPosition: positionShape,
+  initialPov: PropTypes.shape({
+    heading: PropTypes.number,
+    pitch: PropTypes.number,
+    fov: PropTypes.number,
+  }),
   defaultPosition: positionShape,
   // Where a pasted URL wants the panorama pointed, applied whenever targetKey changes.
   target: PropTypes.shape({
@@ -565,7 +587,7 @@ PanoramaPicker.propTypes = {
 const PanoramaPickerWithScript = compose(
   withProps({
     googleMapURL: config.googleMaps,
-    loadingElement: <div style={{ height: 400 }} />,
+    loadingElement: <div style={PANORAMA_STYLE} />,
   }),
   withScriptjs,
 )(PanoramaPicker);
@@ -612,10 +634,8 @@ class LocationStreetviewEdit extends Component {
       // watches so re-pasting the same URL re-applies it.
       target: null,
       targetKey: 0,
-      // Start expanded when an existing override pins a historical image, so nobody edits
-      // a location without seeing the pano ID doing the pinning. Heading/pitch/fov are set
-      // on practically every saved record, so keying off those would expand it always.
-      showAdvanced: !!(value && value.pano_id),
+      // Only ever opened by the specialist pressing the toggle.
+      showAdvanced: false,
       errors: {},
     };
   }
@@ -719,13 +739,7 @@ class LocationStreetviewEdit extends Component {
       panoId, lat, lng, heading, pitch, fov,
     });
     if (Object.keys(errors).length > 0) {
-      // An error on a collapsed field would otherwise refuse the save with nothing on
-      // screen to explain why. One-way, so submitting never collapses what the user opened.
-      const hasHiddenError = ADVANCED_FIELDS.some(key => errors[key]);
-      this.setState(prevState => ({
-        errors,
-        showAdvanced: prevState.showAdvanced || hasHiddenError,
-      }));
+      this.setState({ errors });
       return;
     }
     const streetviewData = {
@@ -758,6 +772,18 @@ class LocationStreetviewEdit extends Component {
       return { lat: parseFloat(value.lat), lng: parseFloat(value.lng) };
     }
     return this.getDefaultPosition();
+  }
+
+  // The API serializes heading and pitch (DECIMAL columns) as strings, and the panorama
+  // rejects a string POV outright and falls back to facing north.
+  getInitialPov() {
+    const { value } = this.props;
+    if (!value) return null;
+    const toNumber = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : null;
+    };
+    return { heading: toNumber(value.heading), pitch: toNumber(value.pitch), fov: toNumber(value.fov) };
   }
 
   toggleAdvanced = () => {
@@ -795,6 +821,7 @@ class LocationStreetviewEdit extends Component {
         <PanoramaPickerWithScript
           initialPanoId={this.getInitialPanoId()}
           initialPosition={this.getInitialPosition()}
+          initialPov={this.getInitialPov()}
           defaultPosition={this.getDefaultPosition()}
           target={target}
           targetKey={targetKey}
@@ -902,6 +929,11 @@ class LocationStreetviewEdit extends Component {
         </div>
 
         <FieldError message={errors._form} />
+        {/* The advanced fields stay closed until the specialist opens them, so an error on
+            one of them would otherwise refuse the save with nothing on screen to say why. */}
+        {!showAdvanced && ADVANCED_FIELDS.some(key => errors[key]) && (
+          <FieldError message={HIDDEN_ERROR_NOTICE} />
+        )}
 
         <Button primary className="mt-3" onClick={this.onSubmit}>
           OK
