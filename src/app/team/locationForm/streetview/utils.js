@@ -261,3 +261,90 @@ export function isShortStreetviewLink(url) {
     return false;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Rendering a view. Kept a deliberate mirror of YourPeer's
+// `buildStreetViewUrls` (yourpeer.nyc-nextjs/src/lib/streetView.ts): the same
+// stored override and the same location coordinates have to produce the same
+// URL in both apps, or the specialist confirms one picture here and the public
+// site publishes another.
+// ---------------------------------------------------------------------------
+
+// The API serializes the DECIMAL columns as strings, so everything here is coerced. A
+// value that will not coerce is dropped rather than written into the URL as NaN, which
+// Google answers with a grey "no imagery" tile.
+function numberOrNull(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Static Street View image URL for a location and its (possibly absent) override.
+ *
+ * `location` is `{ lat, lng, streetview }` — the location's own coordinates plus the
+ * stored override, exactly the shape YourPeer passes.
+ *
+ * Returns null when there is nothing to anchor an image on: no pano ID and no
+ * coordinates from either source.
+ */
+export function buildStreetviewImageUrl(location, { size = '600x400', key } = {}) {
+  if (!location) return null;
+  const sv = location.streetview || null;
+
+  const panoId = (sv && sv.pano_id) ? sv.pano_id : null;
+  // Only use the override's coordinates when both are there; a half-filled pair would mix
+  // one custom coordinate with one location coordinate and point at neither place.
+  const useCustomCoords = !!sv && numberOrNull(sv.lat) !== null && numberOrNull(sv.lng) !== null;
+  const lat = useCustomCoords ? numberOrNull(sv.lat) : numberOrNull(location.lat);
+  const lng = useCustomCoords ? numberOrNull(sv.lng) : numberOrNull(location.lng);
+  const heading = sv ? numberOrNull(sv.heading) : null;
+  const pitch = (sv && numberOrNull(sv.pitch) !== null) ? numberOrNull(sv.pitch) : 0;
+  const fov = (sv && numberOrNull(sv.fov) !== null) ? numberOrNull(sv.fov) : 90;
+
+  const hasCoords = lat !== null && lng !== null;
+  if (!panoId && !hasCoords) return null;
+
+  const params = new URLSearchParams({
+    size,
+    pitch: String(pitch),
+    fov: String(fov),
+    key: key === null || key === undefined ? '' : String(key),
+  });
+  if (panoId) params.set('pano', panoId);
+  else params.set('location', `${lat},${lng}`);
+  // Left out when there is no override heading, which is the whole point: given a
+  // `location` and no `heading`, the Static API aims the camera from the panorama it
+  // picked back at those coordinates — at the building. Sending `heading=0` instead pins
+  // it due north, which is how a location with no override came out facing the far side
+  // of the street here while YourPeer showed the front door.
+  if (heading !== null) params.set('heading', String(heading));
+
+  return `https://maps.googleapis.com/maps/api/streetview?${params}`;
+}
+
+// The interactive panorama has no such default — it faces north unless told otherwise — so
+// the editor works out the same bearing itself. Initial great-circle heading from one
+// point to another, in degrees clockwise from north, matching
+// google.maps.geometry.spherical.computeHeading.
+export function headingBetween(from, to) {
+  if (!from || !to) return null;
+  const fromLat = Number(from.lat);
+  const fromLng = Number(from.lng);
+  const toLat = Number(to.lat);
+  const toLng = Number(to.lng);
+  if (![fromLat, fromLng, toLat, toLng].every(Number.isFinite)) return null;
+  // Two points at the same spot have no bearing between them; north is as good as any.
+  if (fromLat === toLat && fromLng === toLng) return 0;
+
+  const toRad = deg => (deg * Math.PI) / 180;
+  const lat1 = toRad(fromLat);
+  const lat2 = toRad(toLat);
+  const dLng = toRad(toLng - fromLng);
+
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = (Math.cos(lat1) * Math.sin(lat2))
+    - (Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng));
+  const bearing = (Math.atan2(y, x) * 180) / Math.PI;
+  return ((bearing % 360) + 360) % 360;
+}

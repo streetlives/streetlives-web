@@ -2,31 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import config from '../../../../config';
+import { buildStreetviewImageUrl } from './utils';
 
-function buildImageUrl({
-  pano_id, lat, lng, heading, pitch, fov,
-}) {
-  const base = 'https://maps.googleapis.com/maps/api/streetview';
-  // 5:3, matching the edit panorama and YourPeer's location-detail preview.
-  const common = `size=600x360&key=${config.googleMapApiKey}&fov=${fov || 90}&heading=${heading || 0}&pitch=${pitch || 0}`;
-
-  if (pano_id) {
-    return `${base}?${common}&pano=${encodeURIComponent(pano_id)}`;
-  }
-  if (lat !== null && lat !== undefined && lng !== null && lng !== undefined) {
-    return `${base}?${common}&location=${lat},${lng}`;
-  }
-  return null;
-}
-
-function buildStaticImageUrl(streetview) {
-  return streetview ? buildImageUrl(streetview) : null;
-}
-
-// What Google shows with no override: the location's own coordinates, default POV.
-function buildDefaultImageUrl(resourceData) {
+// Both previews are built by the one function YourPeer's is built by, so the picture the
+// specialist confirms here is the picture yourpeer.nyc publishes — including when there is
+// no override at all and Google chooses the direction for us.
+function buildImageUrl(resourceData, streetview) {
   const coords = resourceData && resourceData.position && resourceData.position.coordinates;
-  return coords ? buildImageUrl({ lat: coords[1], lng: coords[0] }) : null;
+  return buildStreetviewImageUrl(
+    {
+      // GeoJSON order: [lng, lat].
+      lat: coords ? coords[1] : null,
+      lng: coords ? coords[0] : null,
+      streetview,
+    },
+    // 5:3, matching the edit panorama and YourPeer's location-detail preview.
+    { size: '600x360', key: config.googleMapApiKey },
+  );
 }
 
 const DEFAULT_SHOWN_MESSAGE =
@@ -53,12 +45,11 @@ function LocationStreetviewView({
   value, resourceData, onConfirm, onEdit,
 }) {
   const overrideActive = hasOverride(value);
-  const overrideImageUrl = buildStaticImageUrl(value);
-  // Fall back to the default view whenever the override cannot produce an image of its
-  // own — no override at all, or a partial one with neither a pano ID nor coordinates.
-  const defaultImageUrl = buildDefaultImageUrl(resourceData);
-  const imageUrl = overrideImageUrl || defaultImageUrl;
-  const showingDefault = !overrideImageUrl && !!defaultImageUrl;
+  // A partial override — a heading with no coordinates of its own, say — still applies, on
+  // top of the location's coordinates. That is what YourPeer renders, so falling back to a
+  // plain default image here would show a different view from the live site.
+  const imageUrl = buildImageUrl(resourceData, value);
+  const showingDefault = !overrideActive && !!imageUrl;
 
   return (
     <div className="w-100">

@@ -8,7 +8,7 @@ import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
 import {
-  parseStreetviewUrl, isShortStreetviewLink, fovFromZoom, zoomFromFov,
+  parseStreetviewUrl, isShortStreetviewLink, fovFromZoom, zoomFromFov, headingBetween,
 } from './utils';
 
 function validate({
@@ -143,6 +143,11 @@ class PanoramaPicker extends Component {
       opts.pano = initialPanoId;
     } else if (initialPosition) {
       opts.position = initialPosition;
+      // No saved heading means this is Google's default view, and Google's default is not
+      // north — see aimAtDefault.
+      if (pov.heading === null || pov.heading === undefined) {
+        this.aimAtDefault(initialPosition);
+      }
     }
     // eslint-disable-next-line no-undef
     this.panorama = new window.google.maps.StreetViewPanorama(this.container, opts);
@@ -238,6 +243,8 @@ class PanoramaPicker extends Component {
     this.endPanoSwitch();
     const position = this.panorama.getPosition();
     if (position) this.fetchHistoricalPanos(position);
+    // The bearing needs to know where the camera ended up, which is only now.
+    this.applyDefaultAim();
     this.scheduleCapture();
   };
 
@@ -312,6 +319,11 @@ class PanoramaPicker extends Component {
       pitch: target.pitch !== null ? target.pitch : 0,
     });
     this.panorama.setZoom(zoomFromFov(target.fov));
+
+    // A link that carries coordinates but no heading describes the default view at those
+    // coordinates, which is the one case Google points somewhere other than north.
+    this.aimAtDefault(!target.panoId && target.heading === null ? target.position : null);
+    this.applyDefaultAim();
   };
 
   fetchHistoricalPanos = (position) => {
@@ -358,11 +370,44 @@ class PanoramaPicker extends Component {
     });
   };
 
+  // Google's Street View Static API, handed a `location` and no `heading`, aims the camera
+  // from the panorama it picked back at those coordinates — at the building. That is what
+  // YourPeer gets for a location with no override, because it simply leaves `heading` out.
+  // The interactive panorama has no such default: it faces north, which is how the two
+  // previews came to show opposite sides of the same street. So the editor works the
+  // bearing out for itself and points the camera the same way.
+  //
+  // Armed rather than applied, because the bearing is measured from where the camera
+  // actually is, and a panorama only says that once its image has loaded.
+  aimAtDefault = (point) => {
+    this.defaultAimPoint = point || null;
+  };
+
+  // Stays armed until the specialist touches the panorama (startCapturing disarms it):
+  // a position that arrives late, or a reset that moves the camera, has to be re-aimed
+  // from where the camera actually landed, not from where it was when we asked.
+  applyDefaultAim = () => {
+    const point = this.defaultAimPoint;
+    if (!point || !this.panorama) return;
+    const position = this.panorama.getPosition();
+    if (!position) return;
+    const heading = headingBetween(
+      { lat: position.lat(), lng: position.lng() },
+      point,
+    );
+    if (heading === null) return;
+    const pov = this.panorama.getPov() || {};
+    this.panorama.setPov({ heading, pitch: pov.pitch || 0 });
+  };
+
   // Nothing is captured until the specialist actually handles the panorama. Google moves
   // it on its own — on load, and while it settles after a reset — and capturing those
   // would write an override nobody asked for over fields that are meant to stay empty.
   startCapturing = () => {
     this.capturing = true;
+    // Whatever the specialist does from here is the view they want; re-aiming on top of it
+    // would swing the camera out from under them.
+    this.defaultAimPoint = null;
   };
 
   // Typing in a field, or pasting a URL, is the specialist taking the fields over by
@@ -475,6 +520,11 @@ class PanoramaPicker extends Component {
       }
       this.panorama.setPov({ heading: 0, pitch: 0 });
       this.panorama.setZoom(1);
+      // "Default" means the view YourPeer shows, and that one faces the location rather
+      // than north. Applied now in case the camera was already at the default position —
+      // no position event would arrive to do it — and again when one does.
+      this.aimAtDefault(defaultPosition);
+      this.applyDefaultAim();
     }
     // The year list goes, but not the panorama's identity: the view may already be at the
     // default position, in which case setPosition moves nothing and no event arrives to
