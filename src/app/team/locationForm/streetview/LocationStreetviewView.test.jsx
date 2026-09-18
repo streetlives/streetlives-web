@@ -26,15 +26,23 @@ describe('LocationStreetviewView', () => {
     it("previews the location's own coordinates when there is no override", () => {
       renderDefault();
       const img = screen.getByAltText('Default Street View preview');
-      expect(img.src).toContain('location=40.7128,-74.006');
+      expect(decodeURIComponent(img.src)).toContain('location=40.7128,-74.006');
     });
 
     it('uses a default point of view for the default preview', () => {
       renderDefault();
       const img = screen.getByAltText('Default Street View preview');
       expect(img.src).toContain('fov=90');
-      expect(img.src).toContain('heading=0');
       expect(img.src).toContain('pitch=0');
+    });
+
+    // heading=0 is due north, not Google's default. Left out, the Static API turns the
+    // camera towards the coordinates we asked about — which is what YourPeer renders, so
+    // sending it would show the specialist a different picture from the live site.
+    it('sends no heading for the default preview', () => {
+      renderDefault();
+      const img = screen.getByAltText('Default Street View preview');
+      expect(img.src).not.toContain('heading');
     });
 
     it('still reports that no override is set', () => {
@@ -47,15 +55,19 @@ describe('LocationStreetviewView', () => {
       renderDefault({ pano_id: null, lat: 35.6762, lng: 139.6503 });
       expect(screen.queryByAltText('Default Street View preview')).not.toBeInTheDocument();
       const img = screen.getByAltText('Street View preview');
-      expect(img.src).toContain('location=35.6762,139.6503');
+      expect(decodeURIComponent(img.src)).toContain('location=35.6762,139.6503');
     });
 
-    it('falls back to the default when the override has no anchor of its own', () => {
+    // An override with a heading and nothing else still applies, over the location's own
+    // coordinates — dropping it back to a plain default image would disagree with YourPeer,
+    // which layers the two the same way.
+    it("applies a partial override over the location's coordinates", () => {
       renderDefault({
         pano_id: null, lat: null, lng: null, heading: 45,
       });
-      const img = screen.getByAltText('Default Street View preview');
-      expect(img.src).toContain('location=40.7128,-74.006');
+      const img = screen.getByAltText('Street View preview');
+      expect(decodeURIComponent(img.src)).toContain('location=40.7128,-74.006');
+      expect(img.src).toContain('heading=45');
     });
 
     it('renders no image when the location has no coordinates', () => {
@@ -100,7 +112,7 @@ describe('LocationStreetviewView', () => {
         />,
       );
       const img = screen.getByAltText('Street View preview');
-      expect(img.src).toContain('location=40.7128,-74.006');
+      expect(decodeURIComponent(img.src)).toContain('location=40.7128,-74.006');
     });
 
     it('includes heading, pitch, and fov in URL', () => {
@@ -125,7 +137,7 @@ describe('LocationStreetviewView', () => {
       expect(img.src).toContain('fov=75');
     });
 
-    it('uses defaults for missing heading, pitch, fov', () => {
+    it('uses defaults for missing pitch and fov, and no heading at all', () => {
       const value = { pano_id: 'pano-abc', lat: null, lng: null };
       render(
         <LocationStreetviewView
@@ -135,7 +147,7 @@ describe('LocationStreetviewView', () => {
         />,
       );
       const img = screen.getByAltText('Street View preview');
-      expect(img.src).toContain('heading=0');
+      expect(img.src).not.toContain('heading');
       expect(img.src).toContain('pitch=0');
       expect(img.src).toContain('fov=90');
     });

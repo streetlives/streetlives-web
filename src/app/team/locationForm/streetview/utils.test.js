@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {
   parseStreetviewUrl, zoomFromFov, fovFromZoom, isShortStreetviewLink,
+  buildStreetviewImageUrl, headingBetween,
 } from './utils';
 
 // A real legacy URL: @-path plus an encoded thumbnail carrying panoid/yaw/pitch.
@@ -329,5 +330,99 @@ describe('isShortStreetviewLink', () => {
 
   it.each([['a non-URL', 'nonsense'], ['null', null]])('returns false for %s', (_l, input) => {
     expect(isShortStreetviewLink(input)).toBe(false);
+  });
+});
+
+describe('buildStreetviewImageUrl', () => {
+  // GoGetta and YourPeer have to render the same picture from the same data, so this is
+  // written against YourPeer's buildStreetViewUrls (src/lib/streetView.ts) rather than
+  // against what the preview happened to do before.
+  const location = { lat: 40.7128, lng: -74.006 };
+  const params = url => new URL(url).searchParams;
+
+  it('anchors on the location when there is no override', () => {
+    const p = params(buildStreetviewImageUrl({ ...location, streetview: null }, { key: 'k' }));
+    expect(p.get('location')).toBe('40.7128,-74.006');
+    expect(p.get('pano')).toBeNull();
+  });
+
+  // The whole bug: heading=0 is due north, whereas no heading at all makes the Static API
+  // turn the camera towards the coordinates — at the building, and the same way round as
+  // YourPeer.
+  it('sends no heading when the override has none', () => {
+    const p = params(buildStreetviewImageUrl({ ...location, streetview: null }, { key: 'k' }));
+    expect(p.has('heading')).toBe(false);
+    expect(p.get('pitch')).toBe('0');
+    expect(p.get('fov')).toBe('90');
+  });
+
+  it('sends the override heading when there is one', () => {
+    const streetview = { heading: 212.5, pitch: -7, fov: 45 };
+    const p = params(buildStreetviewImageUrl({ ...location, streetview }, { key: 'k' }));
+    expect(p.get('heading')).toBe('212.5');
+    expect(p.get('pitch')).toBe('-7');
+    expect(p.get('fov')).toBe('45');
+  });
+
+  it('prefers a pinned pano over any coordinates', () => {
+    const streetview = { pano_id: 'pano-1', lat: 35.6762, lng: 139.6503 };
+    const p = params(buildStreetviewImageUrl({ ...location, streetview }, { key: 'k' }));
+    expect(p.get('pano')).toBe('pano-1');
+    expect(p.has('location')).toBe(false);
+  });
+
+  it("uses the override's own coordinates when it has both", () => {
+    const streetview = { lat: 35.6762, lng: 139.6503 };
+    const p = params(buildStreetviewImageUrl({ ...location, streetview }, { key: 'k' }));
+    expect(p.get('location')).toBe('35.6762,139.6503');
+  });
+
+  // One custom coordinate paired with one of the location's own points at neither place.
+  it("falls back to the location's coordinates when only one of the pair is set", () => {
+    const streetview = { lat: 35.6762, lng: null, heading: 45 };
+    const p = params(buildStreetviewImageUrl({ ...location, streetview }, { key: 'k' }));
+    expect(p.get('location')).toBe('40.7128,-74.006');
+    expect(p.get('heading')).toBe('45');
+  });
+
+  // The API serializes the DECIMAL columns as strings.
+  it('accepts numeric strings from the API', () => {
+    const streetview = { lat: '35.6762', lng: '139.6503', heading: '212.5' };
+    const p = params(buildStreetviewImageUrl({ ...location, streetview }, { key: 'k' }));
+    expect(p.get('location')).toBe('35.6762,139.6503');
+    expect(p.get('heading')).toBe('212.5');
+  });
+
+  it('returns null with nothing to anchor on', () => {
+    expect(buildStreetviewImageUrl({ lat: null, lng: null, streetview: null })).toBeNull();
+    expect(buildStreetviewImageUrl(null)).toBeNull();
+  });
+});
+
+describe('headingBetween', () => {
+  it.each([
+    ['north', { lat: 1, lng: 0 }, 0],
+    ['east', { lat: 0, lng: 1 }, 90],
+    ['south', { lat: -1, lng: 0 }, 180],
+    ['west', { lat: 0, lng: -1 }, 270],
+  ])('points %s', (_label, to, expected) => {
+    expect(headingBetween({ lat: 0, lng: 0 }, to)).toBeCloseTo(expected, 5);
+  });
+
+  it('stays within 0-360', () => {
+    const heading = headingBetween({ lat: 40.7128, lng: -74.006 }, { lat: 40.71, lng: -74.01 });
+    expect(heading).toBeGreaterThanOrEqual(0);
+    expect(heading).toBeLessThan(360);
+  });
+
+  it('returns 0 rather than a meaningless bearing for one and the same point', () => {
+    expect(headingBetween({ lat: 40.7128, lng: -74.006 }, { lat: 40.7128, lng: -74.006 })).toBe(0);
+  });
+
+  it.each([
+    ['a missing point', null, { lat: 1, lng: 1 }],
+    ['a non-numeric coordinate', { lat: 'abc', lng: 0 }, { lat: 1, lng: 1 }],
+  ])('returns null for %s', (_label, from, to) => {
+    expect(headingBetween(from, to)).toBeNull();
   });
 });

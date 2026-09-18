@@ -1222,11 +1222,64 @@ describe('LocationStreetviewEdit validation', () => {
       expect(opts.zoom).toBe(1);
     });
 
-    it('opens the panorama facing north at default zoom with no override', () => {
+    it('opens the panorama at default zoom with no override', () => {
       renderComponent();
       const opts = window.google.maps.StreetViewPanorama.mock.calls[0][1];
+      // A bearing cannot be worked out before the image says where the camera is, so the
+      // panorama opens facing north and is turned as soon as it can be — see below.
       expect(opts.pov).toEqual({ heading: 0, pitch: 0 });
       expect(opts.zoom).toBe(1);
+    });
+
+    // The same default YourPeer gets: it leaves `heading` out of the static image URL and
+    // Google turns the camera towards the coordinates asked about. Facing north instead is
+    // what had the editor previewing the far side of the street.
+    describe("Google's default direction, with no override", () => {
+      // The camera sits due west of the location, so the location is due east of it.
+      const cameraWestOfLocation = () => {
+        panoramaMock.getPosition = jest.fn(() => ({ lat: () => 40.7128, lng: () => -74.0070 }));
+      };
+
+      it('turns the camera towards the location once the image reports its position', () => {
+        renderComponent();
+        cameraWestOfLocation();
+        listeners.position_changed();
+
+        const [pov] = panoramaMock.setPov.mock.calls[0];
+        expect(pov.heading).toBeCloseTo(90, 1);
+        expect(pov.pitch).toBe(0);
+      });
+
+      it('leaves a saved heading alone', () => {
+        renderComponent({
+          pano_id: null, lat: 40.7128, lng: -74.0060, heading: 212.5, pitch: null, fov: null,
+        });
+        cameraWestOfLocation();
+        listeners.position_changed();
+
+        expect(panoramaMock.setPov).not.toHaveBeenCalled();
+      });
+
+      it('does not swing the view out from under a specialist who is using it', () => {
+        renderComponent();
+        fireEvent.mouseDown(screen.getByTestId('streetview-panorama'));
+        cameraWestOfLocation();
+        listeners.position_changed();
+
+        expect(panoramaMock.setPov).not.toHaveBeenCalled();
+      });
+
+      it('turns the camera back to that direction on reset', () => {
+        renderComponent({
+          pano_id: null, lat: 35.6762, lng: 139.6503, heading: 212.5, pitch: null, fov: null,
+        });
+        cameraWestOfLocation();
+
+        fireEvent.click(screen.getByText('Reset to default'));
+
+        const [pov] = panoramaMock.setPov.mock.calls[panoramaMock.setPov.mock.calls.length - 1];
+        expect(pov.heading).toBeCloseTo(90, 1);
+      });
     });
 
     it('starts with empty fields when no value', () => {
