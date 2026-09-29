@@ -40,16 +40,6 @@ function hasOverride(streetview) {
   return Object.values(streetview).some(v => v !== null && v !== undefined);
 }
 
-function Row({ label, value, unit }) {
-  if (value === null || value === undefined) return null;
-  return (
-    <tr>
-      <th scope="row" style={{ width: '6em', fontWeight: 600, fontSize: '12px', paddingRight: '1em' }}>{label}</th>
-      <td style={{ fontSize: '13px' }}>{value}{unit}</td>
-    </tr>
-  );
-}
-
 function LocationStreetviewView({
   value, resourceData, onConfirm, onEdit,
 }) {
@@ -104,24 +94,6 @@ function LocationStreetviewView({
             </p>
           )}
         </div>
-      )}
-
-      {overrideActive && value && (
-        <table className="table table-sm table-borderless mb-3" style={{ width: 'auto' }}>
-          <tbody>
-            <Row label="Lat" value={value.lat} />
-            <Row label="Lng" value={value.lng} />
-            <Row label="Heading" value={value.heading} unit="°" />
-            <Row label="Pitch" value={value.pitch} unit="°" />
-            <Row label="FOV" value={value.fov} unit="°" />
-            {value.pano_id && (
-              <tr>
-                <th scope="row" style={{ width: '6em', fontWeight: 600, fontSize: '12px', paddingRight: '1em', verticalAlign: 'top' }}>Pano ID</th>
-                <td style={{ verticalAlign: 'top', lineHeight: '1' }}><code style={{ fontSize: '12px', wordBreak: 'break-all' }}>{value.pano_id}</code></td>
-              </tr>
-            )}
-          </tbody>
-        </table>
       )}
 
       {!overrideActive && (
