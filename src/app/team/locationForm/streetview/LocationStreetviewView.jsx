@@ -106,6 +106,24 @@ function LocationStreetviewView({
         </div>
       )}
 
+      {overrideActive && value && (
+        <table className="table table-sm table-borderless mb-3" style={{ width: 'auto' }}>
+          <tbody>
+            <Row label="Lat" value={value.lat} />
+            <Row label="Lng" value={value.lng} />
+            <Row label="Heading" value={value.heading} unit="°" />
+            <Row label="Pitch" value={value.pitch} unit="°" />
+            <Row label="FOV" value={value.fov} unit="°" />
+            {value.pano_id && (
+              <tr>
+                <th scope="row" style={{ width: '6em', fontWeight: 600, fontSize: '12px', paddingRight: '1em', verticalAlign: 'top' }}>Pano ID</th>
+                <td style={{ verticalAlign: 'top', lineHeight: '1' }}><code style={{ fontSize: '12px', wordBreak: 'break-all' }}>{value.pano_id}</code></td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
+
       {!overrideActive && (
         <p className="text-muted" style={{ fontSize: '13px', marginTop: 4 }}>
           {showingDefault ? DEFAULT_SHOWN_MESSAGE : NO_DEFAULT_MESSAGE}
