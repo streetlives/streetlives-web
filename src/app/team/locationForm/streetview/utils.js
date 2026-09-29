@@ -348,3 +348,32 @@ export function headingBetween(from, to) {
   const bearing = (Math.atan2(y, x) * 180) / Math.PI;
   return ((bearing % 360) + 360) % 360;
 }
+
+// One preview geometry for all three images on this question: the panorama
+// picker, the Street View still, and the organization-provided photo. They sit
+// next to each other and the specialist is comparing them, so they have to be
+// the same box — and 5:3 is the frame YourPeer's location detail uses.
+//
+// The photo is whatever shape the organization's camera produced, so it is
+// cropped to fit rather than allowed to set its own height.
+export const PREVIEW_WIDTH = 600;
+export const PREVIEW_HEIGHT = 360;
+export const PREVIEW_SIZE_PARAM = `${PREVIEW_WIDTH}x${PREVIEW_HEIGHT}`;
+// aspectRatio has to be a string: React 16 appends px to a bare number.
+export const PREVIEW_ASPECT_RATIO = '5 / 3';
+
+export const PREVIEW_BOX_STYLE = {
+  width: PREVIEW_WIDTH,
+  maxWidth: '100%',
+  aspectRatio: PREVIEW_ASPECT_RATIO,
+  backgroundColor: 'var(--borderGray)',
+  overflow: 'hidden',
+};
+
+export const PREVIEW_IMAGE_STYLE = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  objectPosition: 'center',
+  display: 'block',
+};

@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ConfirmationOptions from '../../../../components/form/ConfirmationOptions';
 import config from '../../../../config';
-import { buildStreetviewImageUrl } from './utils';
+import {
+  buildStreetviewImageUrl,
+  PREVIEW_SIZE_PARAM,
+  PREVIEW_BOX_STYLE,
+  PREVIEW_IMAGE_STYLE,
+} from './utils';
 
 // Both previews are built by the one function YourPeer's is built by, so the picture the
 // specialist confirms here is the picture yourpeer.nyc publishes — including when there is
@@ -17,10 +22,14 @@ function buildImageUrl(resourceData, streetview) {
       streetview,
     },
     // 5:3, matching the edit panorama and YourPeer's location-detail preview.
-    { size: '600x360', key: config.googleMapApiKey },
+    { size: PREVIEW_SIZE_PARAM, key: config.googleMapApiKey },
   );
 }
 
+const PHOTO_SHOWN_MESSAGE =
+  'YourPeer shows this photo instead of the Street View image below.';
+const STREETVIEW_STILL_LINKED_MESSAGE =
+  'Street View is still what opens when someone taps the photo:';
 const DEFAULT_SHOWN_MESSAGE =
   'No Street View override is set — the image above is Google\u2019s default for this location.';
 const NO_DEFAULT_MESSAGE =
@@ -44,6 +53,7 @@ function Row({ label, value, unit }) {
 function LocationStreetviewView({
   value, resourceData, onConfirm, onEdit,
 }) {
+  const photo = resourceData && resourceData.LocationPhoto;
   const overrideActive = hasOverride(value);
   // A partial override — a heading with no coordinates of its own, say — still applies, on
   // top of the location's coordinates. That is what YourPeer renders, so falling back to a
@@ -54,38 +64,46 @@ function LocationStreetviewView({
   return (
     <div className="w-100">
       <div className="mb-3">
+        {photo && photo.url && (
+          <span className="badge badge-info mr-1">Photo shown on YourPeer</span>
+        )}
         <span className={`badge ${overrideActive ? 'badge-success' : 'badge-secondary'}`}>
           {overrideActive ? 'Override active' : 'Using Google default'}
         </span>
       </div>
 
-      {imageUrl && (
-        <div className="mb-3">
-          <img
-            src={imageUrl}
-            loading="lazy"
-            alt={showingDefault ? 'Default Street View preview' : 'Street View preview'}
-            style={{ maxWidth: '100%', display: 'block' }}
-          />
+      {photo && photo.url && (
+        <div style={{ marginBottom: 30 }}>
+          <div style={PREVIEW_BOX_STYLE}>
+            <img
+              src={photo.url}
+              loading="lazy"
+              alt="Entrance, provided by the organization"
+              style={PREVIEW_IMAGE_STYLE}
+            />
+          </div>
+          <p style={{ fontSize: '13px', marginTop: 4 }}>
+            {PHOTO_SHOWN_MESSAGE}
+          </p>
         </div>
       )}
 
-      {overrideActive && value && (
-        <table className="table table-sm table-borderless mb-3" style={{ width: 'auto' }}>
-          <tbody>
-            <Row label="Lat" value={value.lat} />
-            <Row label="Lng" value={value.lng} />
-            <Row label="Heading" value={value.heading} unit="°" />
-            <Row label="Pitch" value={value.pitch} unit="°" />
-            <Row label="FOV" value={value.fov} unit="°" />
-            {value.pano_id && (
-              <tr>
-                <th scope="row" style={{ width: '6em', fontWeight: 600, fontSize: '12px', paddingRight: '1em', verticalAlign: 'top' }}>Pano ID</th>
-                <td style={{ verticalAlign: 'top', lineHeight: '1' }}><code style={{ fontSize: '12px', wordBreak: 'break-all' }}>{value.pano_id}</code></td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {imageUrl && (
+        <div className="mb-3">
+          <div style={PREVIEW_BOX_STYLE}>
+            <img
+              src={imageUrl}
+              loading="lazy"
+              alt={showingDefault ? 'Default Street View preview' : 'Street View preview'}
+              style={PREVIEW_IMAGE_STYLE}
+            />
+          </div>
+          {photo && photo.url && (
+            <p className="text-muted" style={{ fontSize: '13px', marginTop: 4 }}>
+              {STREETVIEW_STILL_LINKED_MESSAGE}
+            </p>
+          )}
+        </div>
       )}
 
       {!overrideActive && (

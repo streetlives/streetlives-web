@@ -1,4 +1,3 @@
-// import LocationImage from './image/LocationImage';
 import LocationAddress, { selectValue as selectValueLocationAddress }
   from './address/LocationAddress';
 import LocationName, { selectValue as selectValueLocationName }

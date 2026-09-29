@@ -2,14 +2,29 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose, withProps } from 'recompose';
 import { selectLocationData, selectLocationError } from '../../../../selectors/location';
-import { updateLocationStreetview, getLocation } from '../../../../actions';
+import {
+  updateLocationStreetview,
+  getLocation,
+  uploadLocationPhoto,
+  removeLocationPhoto,
+} from '../../../../actions';
 import { Form } from '../../../../components/form';
 import LocationStreetviewView from './LocationStreetviewView';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
 
+// Form hands its children a fixed prop list, so the photo actions are connected
+// onto the two components directly rather than widening a component every other
+// question also renders through. The location id comes from resourceData, which
+// Form already passes to both.
+const withPhotoActions = connect(null, (dispatch, ownProps) => ({
+  onUploadPhoto: prepared =>
+    dispatch(uploadLocationPhoto(ownProps.resourceData.id, prepared)),
+  onRemovePhoto: () => dispatch(removeLocationPhoto(ownProps.resourceData.id)),
+}));
+
 const LocationStreetview = compose(withProps({
   ViewComponent: LocationStreetviewView,
-  EditComponent: LocationStreetviewEdit,
+  EditComponent: withPhotoActions(LocationStreetviewEdit),
   isEditing: value => false,
 }))(props => <Form {...props} />);
 

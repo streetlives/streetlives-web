@@ -7,8 +7,10 @@ import config from '../../../../config';
 import Header from '../../../../components/header';
 import Input from '../../../../components/input';
 import Button from '../../../../components/button';
+import LocationPhotoField from './LocationPhotoField';
 import {
   parseStreetviewUrl, isShortStreetviewLink, fovFromZoom, zoomFromFov, headingBetween,
+  PREVIEW_WIDTH, PREVIEW_ASPECT_RATIO,
 } from './utils';
 
 function validate({
@@ -105,7 +107,9 @@ const PANO_SWITCH_TIMEOUT_MS = 4000;
 // Same frame as the view page's static image and YourPeer's location-detail preview (a
 // 288px-tall strip across a desktop side panel, roughly 5:3), so the specialist frames the
 // shot they will actually get. aspectRatio has to be a string: React 16 appends px to it.
-const PANORAMA_STYLE = { width: 600, maxWidth: '100%', aspectRatio: '5 / 3' };
+const PANORAMA_STYLE = {
+  width: PREVIEW_WIDTH, maxWidth: '100%', aspectRatio: PREVIEW_ASPECT_RATIO,
+};
 
 function formatCaptureDate(date) {
   return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
@@ -841,7 +845,9 @@ class LocationStreetviewEdit extends Component {
   };
 
   render() {
-    const { onCancel } = this.props;
+    const {
+      onCancel, resourceData, onUploadPhoto, onRemovePhoto,
+    } = this.props;
     const {
       panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
       target, targetKey,
@@ -850,6 +856,14 @@ class LocationStreetviewEdit extends Component {
     return (
       <div>
         <Header>What is the Street View for this location?</Header>
+
+        {onUploadPhoto && onRemovePhoto ? (
+          <LocationPhotoField
+            photo={resourceData && resourceData.LocationPhoto}
+            onUpload={onUploadPhoto}
+            onRemove={onRemovePhoto}
+          />
+        ) : null}
 
         <div style={{ marginBottom: '1.5em' }}>
           <label htmlFor="sv-url">Street View URL</label>
@@ -997,6 +1011,8 @@ class LocationStreetviewEdit extends Component {
 }
 
 LocationStreetviewEdit.propTypes = {
+  onUploadPhoto: PropTypes.func,
+  onRemovePhoto: PropTypes.func,
   value: PropTypes.shape({
     pano_id: PropTypes.string,
     lat: PropTypes.number,

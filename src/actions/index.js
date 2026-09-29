@@ -11,6 +11,7 @@ export const OPTIMISTIC_UPDATE_SERVICE = 'OPTIMISTIC_UPDATE_SERVICE';
 export const OPTIMISTIC_DELETE_SERVICE = 'OPTIMISTIC_DELETE_SERVICE';
 export const OPTIMISTIC_POST_COMMENT = 'OPTIMISTIC_POST_COMMENT';
 export const UPDATE_LOCATION_ERROR = 'UPDATE_LOCATION_ERROR';
+export const SET_LOCATION_PHOTO = 'SET_LOCATION_PHOTO';
 export const UPDATE_SERVICE_ERROR = 'UPDATE_SERVICE_ERROR';
 export const POST_COMMENT_ERROR = 'POST_COMMENT_ERROR';
 export const POST_COMMENT_SUCCESS = 'POST_COMMENT_SUCCESS';
@@ -184,6 +185,34 @@ export const updateLocationStreetview = (
         payload: { id: locationId, error: e },
       });
     });
+};
+
+// The organization-provided photo is a separate resource with its own endpoint,
+// so it does not ride on the streetview PATCH. It is also deliberately NOT
+// optimistic, unlike every other action here: the house pattern is
+// fire-and-forget with failures surfacing later in the global ErrorBar, which
+// is wrong for a multi-megabyte file the specialist would have to re-pick and
+// re-upload. These resolve or reject so the component can show real state.
+//
+// `prepared` comes from readAndDownscale in the streetview photoUpload module;
+// the component does that step itself so it can show its own progress for it.
+export const uploadLocationPhoto = (locationId, prepared) => async (dispatch) => {
+  const photo = await api.putLocationPhoto({
+    id: locationId,
+    params: {
+      contentType: prepared.contentType,
+      data: prepared.data,
+      filename: prepared.filename,
+    },
+  });
+
+  dispatch({ type: SET_LOCATION_PHOTO, payload: { id: locationId, photo } });
+  return photo;
+};
+
+export const removeLocationPhoto = locationId => async (dispatch) => {
+  await api.deleteLocationPhoto({ id: locationId });
+  dispatch({ type: SET_LOCATION_PHOTO, payload: { id: locationId, photo: null } });
 };
 
 export const deletePhone = (locationId, id) => (dispatch) => {
