@@ -2,28 +2,19 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
-import { readAndDownscale, ACCEPT_ATTRIBUTE } from './photoUpload';
 import { PREVIEW_BOX_STYLE, PREVIEW_IMAGE_STYLE } from './utils';
+import { readAndDownscale, ACCEPT_ATTRIBUTE } from './photoUpload';
 
 // The organization-provided photo. It replaces the Street View still on
 // yourpeer.nyc, while the image there still links out to Google's panorama.
 //
-// This saves on its own, the moment a file is picked, rather than on the
-// enclosing form's OK. The photo is a separate API resource, and unlike every
-// other field here a failure cannot be left to the global ErrorBar: the
-// specialist would have to find and re-pick the file. So it carries its own
-// pending and error state, and says so on screen, because CANCEL below it does
-// not undo an upload.
+// Nothing here touches the API. Choosing or removing a photo only stages the
+// change; the enclosing form commits it on OK and discards it on CANCEL, like
+// every other field on this question. The resize still happens at pick time,
+// because that is what lets the specialist see what they are about to save and
+// catch an oversized file before submitting.
 
-const STATUS = {
-  IDLE: 'idle',
-  PREPARING: 'preparing',
-  UPLOADING: 'uploading',
-  DONE: 'done',
-  ERROR: 'error',
-};
-
-const UPLOAD_FAILED = 'Upload failed. Please try again.';
+const hintStyle = { fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 };
 
 const formatBytes = (bytes) => {
   if (bytes == null) return null;
@@ -32,14 +23,8 @@ const formatBytes = (bytes) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const hintStyle = { fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 };
-
 class LocationPhotoField extends Component {
-  state = {
-    status: STATUS.IDLE,
-    error: null,
-    confirmingRemove: false,
-  };
+  state = { preparing: false };
 
   onPick = async (event) => {
     const input = event.target;
@@ -48,100 +33,67 @@ class LocationPhotoField extends Component {
     input.value = ''; // eslint-disable-line no-param-reassign
     if (!file) return;
 
-    this.setState({ status: STATUS.PREPARING, error: null, confirmingRemove: false });
-
-    let prepared;
+    this.setState({ preparing: true });
     try {
-      prepared = await readAndDownscale(file);
+      const prepared = await readAndDownscale(file);
+      this.props.onStage(prepared);
     } catch (err) {
-      this.setState({ status: STATUS.ERROR, error: err.message });
-      return;
-    }
-
-    this.setState({ status: STATUS.UPLOADING });
-
-    try {
-      await this.props.onUpload(prepared);
-      this.setState({ status: STATUS.DONE, error: null });
-    } catch (err) {
-      this.setState({ status: STATUS.ERROR, error: UPLOAD_FAILED });
+      this.props.onError(err.message);
+    } finally {
+      this.setState({ preparing: false });
     }
   };
 
-  onRemoveClick = () => this.setState({ confirmingRemove: true, error: null });
+  renderPreview() {
+    const { photo, pending, pendingRemoval } = this.props;
 
-  onCancelRemove = () => this.setState({ confirmingRemove: false });
-
-  onConfirmRemove = async () => {
-    this.setState({ status: STATUS.UPLOADING, confirmingRemove: false, error: null });
-    try {
-      await this.props.onRemove();
-      this.setState({ status: STATUS.IDLE, error: null });
-    } catch (err) {
-      this.setState({
-        status: STATUS.ERROR,
-        error: 'Could not remove the photo. Please try again.',
-      });
+    if (pendingRemoval) {
+      return (
+        <div style={hintStyle}>
+          The photo will be removed when you press OK.
+          {' '}
+          <Button onClick={this.props.onUndo} primary basic compact>UNDO</Button>
+        </div>
+      );
     }
-  };
 
-  renderStatus() {
-    const { status, error } = this.state;
+    // A staged photo is shown in place of the saved one, so what is on screen is
+    // always what OK will leave behind.
+    const url = (pending && pending.dataUrl) || (photo && photo.url);
+    if (!url) return null;
 
-    if (status === STATUS.PREPARING) return <div style={hintStyle}>Preparing photo…</div>;
-    if (status === STATUS.UPLOADING) return <div style={hintStyle}>Uploading…</div>;
-    if (status === STATUS.ERROR) {
-      return <div style={{ color: 'red', fontSize: '0.85em', marginTop: 4 }}>{error}</div>;
-    }
-    if (status === STATUS.DONE) {
-      return <div style={{ ...hintStyle, color: 'green' }}>Saved.</div>;
-    }
-    return null;
-  }
-
-  renderPhoto() {
-    const { photo } = this.props;
-    const { confirmingRemove } = this.state;
-    if (!photo || !photo.url) return null;
-
-    const meta = [
-      photo.original_filename,
-      photo.width && photo.height ? `${photo.width}×${photo.height}` : null,
-      formatBytes(photo.byte_size),
-    ].filter(Boolean).join(' · ');
+    const meta = pending
+      ? [pending.filename, formatBytes(pending.byteSize), 'not saved yet']
+      : [
+        photo.original_filename,
+        photo.width && photo.height ? `${photo.width}×${photo.height}` : null,
+        formatBytes(photo.byte_size),
+      ];
 
     return (
       <div className="mb-2">
         <div style={PREVIEW_BOX_STYLE}>
           <img
-            src={photo.url}
+            src={url}
             alt="Entrance, provided by the organization"
             loading="lazy"
             style={PREVIEW_IMAGE_STYLE}
           />
         </div>
-        <div style={hintStyle}>{meta}</div>
-
-        {confirmingRemove ? (
-          <div className="mt-2">
-            <span style={{ fontSize: '0.9em' }}>Remove this photo?&nbsp;</span>
-            <Button onClick={this.onConfirmRemove} primary compact>YES, REMOVE</Button>
-            &nbsp;
-            <Button onClick={this.onCancelRemove} primary basic compact>KEEP IT</Button>
-          </div>
-        ) : (
-          <Button onClick={this.onRemoveClick} primary basic compact className="mt-2">
-            Remove photo
-          </Button>
-        )}
+        <div style={hintStyle}>{meta.filter(Boolean).join(' · ')}</div>
+        <Button onClick={this.props.onRemove} primary basic compact className="mt-2">
+          Remove photo
+        </Button>
       </div>
     );
   }
 
   render() {
-    const { photo } = this.props;
-    const { status } = this.state;
-    const busy = status === STATUS.PREPARING || status === STATUS.UPLOADING;
+    const {
+      photo, pending, pendingRemoval, error,
+    } = this.props;
+    const { preparing } = this.state;
+    const hasPhoto = Boolean(pending) || (Boolean(photo && photo.url) && !pendingRemoval);
 
     return (
       <div
@@ -154,11 +106,11 @@ class LocationPhotoField extends Component {
         <div style={{ fontWeight: 600 }}>Organization-provided photo</div>
         <div style={hintStyle}>
           If the organization sent a photo of the entrance, upload it here. It replaces the
-          Street View image on YourPeer, which still links to Google Street View. Saved as soon
-          as you choose it — CANCEL below will not undo it.
+          Street View image on YourPeer, which still links to Google Street View. Nothing is
+          saved until you press OK.
         </div>
 
-        <div className="mt-2">{this.renderPhoto()}</div>
+        <div className="mt-2">{this.renderPreview()}</div>
 
         <input
           type="file"
@@ -173,21 +125,25 @@ class LocationPhotoField extends Component {
           onClick={() => this.fileInput && this.fileInput.click()}
           primary
           basic
-          disabled={busy}
+          disabled={preparing}
           className="mt-1"
         >
           <Icon name="camera" />
-          &nbsp;{photo && photo.url ? 'Replace photo' : 'Choose photo'}
+          &nbsp;{hasPhoto ? 'Replace photo' : 'Choose photo'}
         </Button>
         <div style={hintStyle}>JPEG, PNG or WebP. Large photos are resized automatically.</div>
 
-        {this.renderStatus()}
+        {preparing && <div style={hintStyle}>Preparing photo…</div>}
+        {error && (
+          <div style={{ color: 'red', fontSize: '0.85em', marginTop: 4 }}>{error}</div>
+        )}
       </div>
     );
   }
 }
 
 LocationPhotoField.propTypes = {
+  // The photo already saved against this location, if any.
   photo: PropTypes.shape({
     url: PropTypes.string,
     width: PropTypes.number,
@@ -195,12 +151,25 @@ LocationPhotoField.propTypes = {
     byte_size: PropTypes.number,
     original_filename: PropTypes.string,
   }),
-  onUpload: PropTypes.func.isRequired,
+  // A resized photo waiting to be saved on OK.
+  pending: PropTypes.shape({
+    dataUrl: PropTypes.string,
+    filename: PropTypes.string,
+    byteSize: PropTypes.number,
+  }),
+  pendingRemoval: PropTypes.bool,
+  error: PropTypes.string,
+  onStage: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
+  onUndo: PropTypes.func.isRequired,
+  onError: PropTypes.func.isRequired,
 };
 
 LocationPhotoField.defaultProps = {
   photo: null,
+  pending: null,
+  pendingRemoval: false,
+  error: null,
 };
 
 export default LocationPhotoField;

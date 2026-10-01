@@ -48,8 +48,10 @@ export const scaledSize = (width, height) => {
 };
 
 /**
- * Resolves to { data, contentType, filename, byteSize }, where `data` is
- * base64 with no data-URL prefix — the shape the API's PUT body expects.
+ * Resolves to { data, dataUrl, contentType, filename, byteSize }. `data` is
+ * base64 with no prefix, which is the shape the API's PUT body expects;
+ * `dataUrl` is the same bytes ready for an <img src>, so the staged photo can
+ * be previewed before it is saved without encoding it twice.
  */
 export const readAndDownscale = async (file) => {
   if (!file || !ACCEPTED_TYPES.includes(file.type)) {
@@ -81,6 +83,7 @@ export const readAndDownscale = async (file) => {
 
   return {
     data,
+    dataUrl: encoded,
     contentType: 'image/jpeg',
     filename: file.name,
     byteSize,

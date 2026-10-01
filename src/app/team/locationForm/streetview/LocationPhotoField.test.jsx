@@ -3,8 +3,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 // Registers faCamera; the app does this at startup, tests have to ask for it.
 import '../../../IconLibrary';
 import LocationPhotoField from './LocationPhotoField';
-import { PREVIEW_WIDTH } from './utils';
 import { readAndDownscale } from './photoUpload';
+import { PREVIEW_WIDTH } from './utils';
 
 // jsdom has no canvas, so the resize step is stubbed wholesale. Its sizing rule
 // is covered separately in photoUpload.test.js.
@@ -15,12 +15,13 @@ jest.mock('./photoUpload', () => ({
 
 const PREPARED = {
   data: 'YmFzZTY0',
+  dataUrl: 'data:image/jpeg;base64,YmFzZTY0',
   contentType: 'image/jpeg',
   filename: 'storefront.jpg',
-  byteSize: 1234,
+  byteSize: 561641,
 };
 
-const PHOTO = {
+const SAVED = {
   url: 'https://cdn.example/location-photos/abc/def.jpg',
   width: 1600,
   height: 1200,
@@ -36,11 +37,18 @@ const pickFile = () => {
   return file;
 };
 
-const renderField = (props = {}) => render(<LocationPhotoField
-  onUpload={jest.fn().mockResolvedValue(PHOTO)}
-  onRemove={jest.fn().mockResolvedValue()}
-  {...props}
-/>);
+const handlers = () => ({
+  onStage: jest.fn(),
+  onRemove: jest.fn(),
+  onUndo: jest.fn(),
+  onError: jest.fn(),
+});
+
+const renderField = (props = {}) => {
+  const h = handlers();
+  const utils = render(<LocationPhotoField {...h} {...props} />);
+  return { ...utils, ...h };
+};
 
 describe('LocationPhotoField', () => {
   beforeEach(() => {
@@ -48,85 +56,57 @@ describe('LocationPhotoField', () => {
     readAndDownscale.mockResolvedValue(PREPARED);
   });
 
-  describe('with no photo yet', () => {
-    it('offers to choose one', () => {
-      renderField();
-      expect(screen.getByText(/Choose photo/)).toBeInTheDocument();
-    });
-
+  describe('choosing a photo', () => {
     it('accepts only the formats the API allows', () => {
       renderField();
       expect(screen.getByTestId('photo-file-input'))
         .toHaveAttribute('accept', 'image/jpeg,image/png,image/webp');
     });
 
-    // The enclosing form's CANCEL does not undo an upload, so the screen has to
-    // say so rather than leave the specialist to find out.
-    it('warns that the upload saves immediately', () => {
-      renderField();
-      expect(screen.getByText(/Saved as soon as you choose it/)).toBeInTheDocument();
-    });
-  });
-
-  describe('uploading', () => {
-    it('resizes then uploads the prepared payload', async () => {
-      const onUpload = jest.fn().mockResolvedValue(PHOTO);
-      renderField({ onUpload });
+    // The whole point of this field: picking a file changes nothing on the
+    // server. The enclosing form commits it on OK.
+    it('stages the resized photo rather than saving it', async () => {
+      const { onStage } = renderField();
 
       const file = pickFile();
 
-      await waitFor(() => expect(onUpload).toHaveBeenCalledWith(PREPARED));
+      await waitFor(() => expect(onStage).toHaveBeenCalledWith(PREPARED));
       expect(readAndDownscale).toHaveBeenCalledWith(file);
     });
 
-    it('confirms when it is saved', async () => {
-      renderField();
-      pickFile();
-
-      await waitFor(() => expect(screen.getByText('Saved.')).toBeInTheDocument());
-    });
-
-    it('surfaces a resize failure without calling the API', async () => {
-      const onUpload = jest.fn();
+    it('reports a resize failure without staging anything', async () => {
       readAndDownscale.mockRejectedValue(new Error('That image is still too large.'));
-      renderField({ onUpload });
+      const { onStage, onError } = renderField();
 
       pickFile();
 
       await waitFor(() =>
-        expect(screen.getByText('That image is still too large.')).toBeInTheDocument());
-      expect(onUpload).not.toHaveBeenCalled();
-    });
-
-    // The rest of this app leaves failures to the global ErrorBar. That is wrong
-    // here: the specialist has to re-pick the file, so the error belongs on the
-    // control that failed.
-    it('surfaces an upload failure in place', async () => {
-      const onUpload = jest.fn().mockRejectedValue(new Error('500'));
-      renderField({ onUpload });
-
-      pickFile();
-
-      await waitFor(() =>
-        expect(screen.getByText(/Upload failed/)).toBeInTheDocument());
+        expect(onError).toHaveBeenCalledWith('That image is still too large.'));
+      expect(onStage).not.toHaveBeenCalled();
     });
   });
 
-  describe('with a photo', () => {
-    it('shows it with its details', () => {
-      renderField({ photo: PHOTO });
+  describe('showing what OK will save', () => {
+    it('shows the saved photo when nothing is staged', () => {
+      renderField({ photo: SAVED });
 
       expect(screen.getByAltText(/provided by the organization/i))
-        .toHaveAttribute('src', PHOTO.url);
-      expect(screen.getByText(/storefront\.jpg/)).toBeInTheDocument();
+        .toHaveAttribute('src', SAVED.url);
       expect(screen.getByText(/1600×1200/)).toBeInTheDocument();
     });
 
-    // An organization's photo is whatever shape their camera produced. Left to
-    // size itself it dwarfed the Street View still beside it, which is the
-    // thing the specialist is comparing it against.
+    // What is on screen is always what OK leaves behind, so a staged photo
+    // replaces the saved one in the preview.
+    it('shows a staged photo in place of the saved one, marked unsaved', () => {
+      renderField({ photo: SAVED, pending: PREPARED });
+
+      expect(screen.getByAltText(/provided by the organization/i))
+        .toHaveAttribute('src', PREPARED.dataUrl);
+      expect(screen.getByText(/not saved yet/)).toBeInTheDocument();
+    });
+
     it('crops the photo into the same box as the Street View still', () => {
-      renderField({ photo: PHOTO });
+      renderField({ photo: SAVED });
 
       const img = screen.getByAltText(/provided by the organization/i);
       expect(img).toHaveStyle({ objectFit: 'cover', width: '100%', height: '100%' });
@@ -138,51 +118,50 @@ describe('LocationPhotoField', () => {
       });
     });
 
-    it('offers to replace rather than choose', () => {
-      renderField({ photo: PHOTO });
+    it('offers to replace rather than choose once there is a photo', () => {
+      renderField({ photo: SAVED });
       expect(screen.getByText(/Replace photo/)).toBeInTheDocument();
     });
 
-    it('asks before removing', () => {
-      const onRemove = jest.fn();
-      renderField({ photo: PHOTO, onRemove });
+    it('offers to replace a staged photo too', () => {
+      renderField({ pending: PREPARED });
+      expect(screen.getByText(/Replace photo/)).toBeInTheDocument();
+    });
+
+    it('offers to choose when there is nothing', () => {
+      renderField();
+      expect(screen.getByText(/Choose photo/)).toBeInTheDocument();
+    });
+  });
+
+  describe('removing', () => {
+    it('asks the form to stage a removal', () => {
+      const { onRemove } = renderField({ photo: SAVED });
 
       fireEvent.click(screen.getByText('Remove photo'));
 
-      expect(screen.getByText(/Remove this photo\?/)).toBeInTheDocument();
-      expect(onRemove).not.toHaveBeenCalled();
+      expect(onRemove).toHaveBeenCalled();
     });
 
-    it('removes once confirmed', async () => {
-      const onRemove = jest.fn().mockResolvedValue();
-      renderField({ photo: PHOTO, onRemove });
+    it('says the removal is pending and offers to undo it', () => {
+      const { onUndo } = renderField({ photo: SAVED, pendingRemoval: true });
 
-      fireEvent.click(screen.getByText('Remove photo'));
-      fireEvent.click(screen.getByText('YES, REMOVE'));
+      expect(screen.getByText(/removed when you press OK/)).toBeInTheDocument();
+      expect(screen.queryByAltText(/provided by the organization/i)).not.toBeInTheDocument();
 
-      await waitFor(() => expect(onRemove).toHaveBeenCalled());
+      fireEvent.click(screen.getByText('UNDO'));
+      expect(onUndo).toHaveBeenCalled();
     });
 
-    it('backs out of removal', () => {
-      const onRemove = jest.fn();
-      renderField({ photo: PHOTO, onRemove });
-
-      fireEvent.click(screen.getByText('Remove photo'));
-      fireEvent.click(screen.getByText('KEEP IT'));
-
-      expect(onRemove).not.toHaveBeenCalled();
-      expect(screen.getByText('Remove photo')).toBeInTheDocument();
+    it('invites a new photo while a removal is staged', () => {
+      renderField({ photo: SAVED, pendingRemoval: true });
+      expect(screen.getByText(/Choose photo/)).toBeInTheDocument();
     });
+  });
 
-    it('reports a failed removal', async () => {
-      const onRemove = jest.fn().mockRejectedValue(new Error('500'));
-      renderField({ photo: PHOTO, onRemove });
+  it('shows an error handed down by the form', () => {
+    renderField({ photo: SAVED, error: 'Could not save the photo. Please try again.' });
 
-      fireEvent.click(screen.getByText('Remove photo'));
-      fireEvent.click(screen.getByText('YES, REMOVE'));
-
-      await waitFor(() =>
-        expect(screen.getByText(/Could not remove the photo/)).toBeInTheDocument());
-    });
+    expect(screen.getByText(/Could not save the photo/)).toBeInTheDocument();
   });
 });

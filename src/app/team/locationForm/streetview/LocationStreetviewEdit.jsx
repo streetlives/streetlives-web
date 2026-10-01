@@ -691,7 +691,72 @@ class LocationStreetviewEdit extends Component {
       // Only ever opened by the specialist pressing the toggle.
       showAdvanced: false,
       errors: {},
+      // The photo is staged, not saved on pick: OK commits it, CANCEL drops it.
+      // Exactly one of these is ever set.
+      pendingPhoto: null,
+      pendingPhotoRemoval: false,
+      photoError: null,
+      savingPhoto: false,
     };
+  }
+
+  onStagePhoto = (prepared) => {
+    this.setState({
+      pendingPhoto: prepared,
+      pendingPhotoRemoval: false,
+      photoError: null,
+    });
+  };
+
+  // Staging a removal, not performing one. A photo picked and then removed in
+  // the same sitting just drops the staged file - there is nothing to delete.
+  onRemovePhoto = () => {
+    this.setState(prev => ({
+      pendingPhoto: null,
+      pendingPhotoRemoval: !prev.pendingPhoto,
+      photoError: null,
+    }));
+  };
+
+  onUndoPhotoRemoval = () => {
+    this.setState({ pendingPhotoRemoval: false, photoError: null });
+  };
+
+  onPhotoError = (message) => {
+    this.setState({ photoError: message, pendingPhoto: null });
+  };
+
+  // Returns true when the photo is saved or there was nothing to do, false when
+  // it failed - in which case the form stays open so the specialist can retry
+  // rather than losing the file they picked.
+  async savePhoto() {
+    const { pendingPhoto, pendingPhotoRemoval } = this.state;
+    const { onUploadPhoto, onRemovePhoto } = this.props;
+
+    if (!pendingPhoto && !pendingPhotoRemoval) return true;
+
+    this.setState({ savingPhoto: true, photoError: null });
+    try {
+      if (pendingPhoto) await onUploadPhoto(pendingPhoto);
+      else await onRemovePhoto();
+    } catch (err) {
+      // Still mounted: the form has not been told to close, because we return
+      // false and the caller stops before onSubmit.
+      this.setState({
+        savingPhoto: false,
+        photoError: pendingPhoto
+          ? 'Could not save the photo. Please try again.'
+          : 'Could not remove the photo. Please try again.',
+      });
+      return false;
+    }
+
+    // Deliberately no setState on success. Saving dispatches into the store,
+    // which gives Form new props, and Form re-derives isEditing on every prop
+    // change - with this question's `isEditing: () => false` that unmounts this
+    // component before we get here. Clearing the staged photo would be a state
+    // update on an unmounted component, and there is nothing left to clear.
+    return true;
   }
 
   onChange = (field, val) => {
@@ -804,8 +869,23 @@ class LocationStreetviewEdit extends Component {
       pitch: pitch !== '' ? parseFloat(pitch) : null,
       fov: fov !== '' ? parseInt(fov, 10) : null,
     };
-    this.props.updateValue(streetviewData, this.props.id, this.props.metaDataSection, this.props.fieldName);
-    this.props.onSubmit(streetviewData);
+    const commit = () => {
+      this.props.updateValue(streetviewData, this.props.id, this.props.metaDataSection, this.props.fieldName);
+      this.props.onSubmit(streetviewData);
+    };
+
+    // Saves with no photo change stay synchronous, which is almost all of them.
+    // Only a staged photo makes OK wait on the network.
+    if (!this.state.pendingPhoto && !this.state.pendingPhotoRemoval) {
+      commit();
+      return;
+    }
+
+    // The photo goes first and gates the rest: if it fails the form stays open
+    // with the staged file intact, rather than closing and silently dropping it.
+    this.savePhoto().then((saved) => {
+      if (saved) commit();
+    });
   };
 
   getInitialPanoId() {
@@ -850,7 +930,7 @@ class LocationStreetviewEdit extends Component {
     } = this.props;
     const {
       panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
-      target, targetKey,
+      target, targetKey, pendingPhoto, pendingPhotoRemoval, photoError, savingPhoto,
     } = this.state;
 
     return (
@@ -860,8 +940,13 @@ class LocationStreetviewEdit extends Component {
         {onUploadPhoto && onRemovePhoto ? (
           <LocationPhotoField
             photo={resourceData && resourceData.LocationPhoto}
-            onUpload={onUploadPhoto}
-            onRemove={onRemovePhoto}
+            pending={pendingPhoto}
+            pendingRemoval={pendingPhotoRemoval}
+            error={photoError}
+            onStage={this.onStagePhoto}
+            onRemove={this.onRemovePhoto}
+            onUndo={this.onUndoPhotoRemoval}
+            onError={this.onPhotoError}
           />
         ) : null}
 
@@ -999,8 +1084,8 @@ class LocationStreetviewEdit extends Component {
           <FieldError message={HIDDEN_ERROR_NOTICE} />
         )}
 
-        <Button primary className="mt-3" onClick={this.onSubmit}>
-          OK
+        <Button primary className="mt-3" onClick={this.onSubmit} disabled={savingPhoto}>
+          {savingPhoto ? 'SAVING…' : 'OK'}
         </Button>&nbsp;
         <Button basic primary className="mt-3" onClick={onCancel}>
           CANCEL
