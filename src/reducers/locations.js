@@ -10,6 +10,7 @@ import {
   OPTIMISTIC_UPDATE_SERVICE,
   OPTIMISTIC_DELETE_SERVICE,
   OPTIMISTIC_DELETE_PHONE,
+  SET_LOCATION_PHOTO,
 } from '../actions';
 import { DAYS } from '../Constants';
 
@@ -254,6 +255,19 @@ const locationsReducer = (state = {}, action) => {
         };
       }
       break;
+    // Merges only the photo. Deliberately not folded into
+    // OPTIMISTIC_UPDATE_LOCATION, whose EventRelatedInfos line rewrites that
+    // key on every dispatch and would clobber it here for no reason.
+    case SET_LOCATION_PHOTO: {
+      const { id, photo } = action.payload;
+      const location = state[id];
+      if (!location) return state;
+
+      return {
+        ...state,
+        [id]: { ...location, LocationPhoto: photo },
+      };
+    }
     case UPDATE_LOCATION_ERROR:
       if (action.payload) {
         return {

@@ -2,6 +2,8 @@
 import {
   parseStreetviewUrl, zoomFromFov, fovFromZoom, isShortStreetviewLink,
   buildStreetviewImageUrl, headingBetween,
+  PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_SIZE_PARAM, PREVIEW_ASPECT_RATIO,
+  PREVIEW_BOX_STYLE, PREVIEW_IMAGE_STYLE,
 } from './utils';
 
 // A real legacy URL: @-path plus an encoded thumbnail carrying panoid/yaw/pitch.
@@ -424,5 +426,27 @@ describe('headingBetween', () => {
     ['a non-numeric coordinate', { lat: 'abc', lng: 0 }, { lat: 1, lng: 1 }],
   ])('returns null for %s', (_label, from, to) => {
     expect(headingBetween(from, to)).toBeNull();
+  });
+});
+
+describe('preview geometry', () => {
+  // The Street View still is fetched at PREVIEW_SIZE_PARAM and the photo is
+  // cropped to PREVIEW_ASPECT_RATIO. If those two disagree the images stop
+  // being the same shape, which is the whole point of sharing them.
+  it('fetches the Street View still at the aspect ratio the box crops to', () => {
+    const [w, h] = PREVIEW_SIZE_PARAM.split('x').map(Number);
+    const [ratioW, ratioH] = PREVIEW_ASPECT_RATIO.split('/').map(s => Number(s.trim()));
+
+    expect(w / h).toBeCloseTo(ratioW / ratioH, 5);
+    expect(w).toBe(PREVIEW_WIDTH);
+    expect(h).toBe(PREVIEW_HEIGHT);
+  });
+
+  it('crops rather than stretches, so photos keep their proportions', () => {
+    expect(PREVIEW_IMAGE_STYLE.objectFit).toBe('cover');
+  });
+
+  it('stays within a narrow screen', () => {
+    expect(PREVIEW_BOX_STYLE.maxWidth).toBe('100%');
   });
 });

@@ -188,6 +188,28 @@ export const updateLocation = updateResource.bind(this, {
   pathPrefix: 'locations',
   method: 'patch',
 });
+
+// Deliberately not built on updateResource: that helper attaches retry-axios
+// with PUT in httpMethodsToRetry, and replaying a multi-megabyte image body six
+// times on a flaky connection is the opposite of what we want. A failed upload
+// should surface to the specialist so they can retry once, knowingly.
+export const putLocationPhoto = ({ id, params }) =>
+  getAuthToken()
+    .then(idJwtToken => axios.request({
+      url: `${config.baseApi}/locations/${id}/photo`,
+      method: 'put',
+      data: params,
+      headers: { Authorization: idJwtToken },
+    }))
+    .then(result => result.data);
+
+export const deleteLocationPhoto = ({ id }) =>
+  getAuthToken()
+    .then(idJwtToken => axios.request({
+      url: `${config.baseApi}/locations/${id}/photo`,
+      method: 'delete',
+      headers: { Authorization: idJwtToken },
+    }));
 export const updatePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'patch' });
 export const deletePhone = updateResource.bind(this, { pathPrefix: 'phones', method: 'delete' });
 export const createPhone = updateResource.bind(this, {
