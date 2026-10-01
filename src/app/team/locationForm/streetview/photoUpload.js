@@ -34,6 +34,16 @@ const loadImage = dataUrl => new Promise((resolve, reject) => {
   image.src = dataUrl;
 });
 
+// The three browser APIs this needs, gathered in one place so tests can supply
+// their own. jsdom has no canvas implementation at all, so without this seam
+// the resizing and size-enforcement logic below could only ever be exercised by
+// hand in a real browser.
+export const browserDeps = {
+  readAsDataUrl,
+  loadImage,
+  createCanvas: () => document.createElement('canvas'),
+};
+
 // Longest edge to MAX_DIMENSION, preserving aspect ratio. Never upscales: a
 // small photo stays exactly as it is rather than being blown up and re-encoded.
 export const scaledSize = (width, height) => {
@@ -53,17 +63,17 @@ export const scaledSize = (width, height) => {
  * `dataUrl` is the same bytes ready for an <img src>, so the staged photo can
  * be previewed before it is saved without encoding it twice.
  */
-export const readAndDownscale = async (file) => {
+export const readAndDownscale = async (file, deps = browserDeps) => {
   if (!file || !ACCEPTED_TYPES.includes(file.type)) {
     throw new Error(TYPE_ERROR);
   }
 
-  const dataUrl = await readAsDataUrl(file);
-  const image = await loadImage(dataUrl);
+  const dataUrl = await deps.readAsDataUrl(file);
+  const image = await deps.loadImage(dataUrl);
 
   const { width, height } = scaledSize(image.naturalWidth, image.naturalHeight);
 
-  const canvas = document.createElement('canvas');
+  const canvas = deps.createCanvas();
   canvas.width = width;
   canvas.height = height;
   canvas.getContext('2d').drawImage(image, 0, 0, width, height);
