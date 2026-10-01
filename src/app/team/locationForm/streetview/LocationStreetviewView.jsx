@@ -52,7 +52,7 @@ function LocationStreetviewView({
   const showingDefault = !overrideActive && !!imageUrl;
 
   return (
-    <div className="w-100">
+    <div className="w-100 mt-3">
       {photo && photo.url && (
         <div style={{ marginBottom: 30 }}>
           <div style={PREVIEW_BOX_STYLE}>
