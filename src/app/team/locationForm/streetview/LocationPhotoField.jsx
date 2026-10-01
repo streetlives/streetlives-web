@@ -52,7 +52,9 @@ class LocationPhotoField extends Component {
         <div style={hintStyle}>
           The photo will be removed when you press OK.
           {' '}
-          <Button onClick={this.props.onUndo} primary basic compact>UNDO</Button>
+          <Button onClick={this.props.onUndo} primary basic compact disabled={this.props.disabled}>
+            UNDO
+          </Button>
         </div>
       );
     }
@@ -81,7 +83,14 @@ class LocationPhotoField extends Component {
           />
         </div>
         <div style={hintStyle}>{meta.filter(Boolean).join(' · ')}</div>
-        <Button onClick={this.props.onRemove} primary basic compact className="mt-2">
+        <Button
+          onClick={this.props.onRemove}
+          primary
+          basic
+          compact
+          className="mt-2"
+          disabled={this.props.disabled}
+        >
           Remove photo
         </Button>
       </div>
@@ -90,10 +99,11 @@ class LocationPhotoField extends Component {
 
   render() {
     const {
-      photo, pending, pendingRemoval, error,
+      photo, pending, pendingRemoval, error, disabled,
     } = this.props;
     const { preparing } = this.state;
     const hasPhoto = Boolean(pending) || (Boolean(photo && photo.url) && !pendingRemoval);
+    const busy = preparing || disabled;
 
     return (
       <div
@@ -125,7 +135,7 @@ class LocationPhotoField extends Component {
           onClick={() => this.fileInput && this.fileInput.click()}
           primary
           basic
-          disabled={preparing}
+          disabled={busy}
           className="mt-1"
         >
           <Icon name="camera" />
@@ -159,6 +169,9 @@ LocationPhotoField.propTypes = {
   }),
   pendingRemoval: PropTypes.bool,
   error: PropTypes.string,
+  // True while the enclosing form is committing, so nothing can be staged or
+  // unstaged behind an in-flight save.
+  disabled: PropTypes.bool,
   onStage: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   onUndo: PropTypes.func.isRequired,
@@ -170,6 +183,7 @@ LocationPhotoField.defaultProps = {
   pending: null,
   pendingRemoval: false,
   error: null,
+  disabled: false,
 };
 
 export default LocationPhotoField;

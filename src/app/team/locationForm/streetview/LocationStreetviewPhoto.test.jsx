@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 // Registers faCamera; the app does this at startup, tests have to ask for it.
 import '../../../IconLibrary';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
@@ -60,6 +60,15 @@ const setupGoogleMaps = () => {
   };
 };
 
+// A promise the test resolves by hand, so the window while a save is in flight
+// can be inspected.
+const deferred = () => {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
+};
+
 const renderEditor = (overrides = {}) => {
   const props = {
     value: null,
@@ -75,8 +84,9 @@ const renderEditor = (overrides = {}) => {
     onRemovePhoto: jest.fn().mockResolvedValue(),
     ...overrides,
   };
-  render(<LocationStreetviewEdit {...props} />);
-  return props;
+  let instance;
+  render(<LocationStreetviewEdit ref={(el) => { instance = el; }} {...props} />);
+  return { ...props, getInstance: () => instance };
 };
 
 const pickFile = () => {
@@ -236,6 +246,86 @@ describe('Street View editor — staged photo', () => {
       await waitFor(() =>
         expect(screen.getByText(/Could not remove the photo/)).toBeInTheDocument());
       expect(onSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  // Pressing OK and then CANCEL before the upload resolved used to close the
+  // editor and still commit afterwards, which contradicts what CANCEL promises.
+  describe('while a photo save is in flight', () => {
+    const stageAndSubmit = async (overrides) => {
+      const rendered = renderEditor(overrides);
+      pickFile();
+      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      clickOk();
+      return rendered;
+    };
+
+    it('disables CANCEL, so the race cannot be started', async () => {
+      const upload = deferred();
+      await stageAndSubmit({ onUploadPhoto: jest.fn(() => upload.promise) });
+
+      await waitFor(() => expect(screen.getByText('CANCEL')).toBeDisabled());
+      expect(screen.getByText('SAVING…')).toBeDisabled();
+
+      upload.resolve();
+    });
+
+    it('does not commit when cancel is requested before the save resolves', async () => {
+      const upload = deferred();
+      const {
+        updateValue,
+        onSubmit,
+        onCancel,
+        getInstance,
+      } = await stageAndSubmit({ onUploadPhoto: jest.fn(() => upload.promise) });
+
+      // Bypassing the disabled button on purpose: this proves the guard holds on
+      // its own, rather than relying only on the control being unavailable.
+      getInstance().onCancel();
+      expect(onCancel).toHaveBeenCalled();
+
+      upload.resolve();
+      // Let the continuation run. The paired test below commits within the same
+      // flush, which is what makes these negatives mean something.
+      await act(async () => {});
+
+      expect(updateValue).not.toHaveBeenCalled();
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('commits as usual when nobody cancels', async () => {
+      const upload = deferred();
+      const { updateValue, onSubmit } = await stageAndSubmit({
+        onUploadPhoto: jest.fn(() => upload.promise),
+      });
+
+      upload.resolve();
+      await act(async () => {});
+
+      expect(updateValue).toHaveBeenCalled();
+      expect(onSubmit).toHaveBeenCalled();
+    });
+
+    it('keeps the photo controls inert so nothing can be staged behind the save', async () => {
+      const upload = deferred();
+      await stageAndSubmit({ onUploadPhoto: jest.fn(() => upload.promise) });
+
+      await waitFor(() => expect(screen.getByText(/Replace photo/).closest('button'))
+        .toBeDisabled());
+      expect(screen.getByText('Remove photo').closest('button')).toBeDisabled();
+
+      upload.resolve();
+    });
+
+    it('re-enables CANCEL once a failed save has been reported', async () => {
+      const upload = deferred();
+      await stageAndSubmit({ onUploadPhoto: jest.fn(() => upload.promise) });
+
+      upload.reject(new Error('500'));
+
+      await waitFor(() =>
+        expect(screen.getByText(/Could not save the photo/)).toBeInTheDocument());
+      expect(screen.getByText('CANCEL')).not.toBeDisabled();
     });
   });
 

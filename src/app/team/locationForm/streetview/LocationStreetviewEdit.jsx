@@ -675,6 +675,9 @@ class LocationStreetviewEdit extends Component {
     // Filled in by the picker once it mounts; the form submits through it so a capture
     // still waiting on the debounce is taken before the fields are read.
     this.captureHandle = {};
+    // Set when the specialist backs out, so an in-flight photo save cannot
+    // commit behind them. Not state: nothing renders from it.
+    this.cancelRequested = false;
     this.state = {
       panoId: (value && value.pano_id) ? value.pano_id : '',
       lat: value ? fieldVal(value.lat) : '',
@@ -699,6 +702,16 @@ class LocationStreetviewEdit extends Component {
       savingPhoto: false,
     };
   }
+
+  // CANCEL is disabled while a photo is uploading, so this is belt and braces:
+  // it stops a commit landing after the specialist has backed out, however they
+  // managed to get there. It cannot use componentWillUnmount for the same
+  // purpose - the success path unmounts this component through the isEditing
+  // route described in savePhoto, before the commit it is waiting to make.
+  onCancel = (e) => {
+    this.cancelRequested = true;
+    this.props.onCancel(e);
+  };
 
   onStagePhoto = (prepared) => {
     this.setState({
@@ -884,7 +897,7 @@ class LocationStreetviewEdit extends Component {
     // The photo goes first and gates the rest: if it fails the form stays open
     // with the staged file intact, rather than closing and silently dropping it.
     this.savePhoto().then((saved) => {
-      if (saved) commit();
+      if (saved && !this.cancelRequested) commit();
     });
   };
 
@@ -926,7 +939,7 @@ class LocationStreetviewEdit extends Component {
 
   render() {
     const {
-      onCancel, resourceData, onUploadPhoto, onRemovePhoto,
+      resourceData, onUploadPhoto, onRemovePhoto,
     } = this.props;
     const {
       panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
@@ -947,6 +960,7 @@ class LocationStreetviewEdit extends Component {
             onRemove={this.onRemovePhoto}
             onUndo={this.onUndoPhotoRemoval}
             onError={this.onPhotoError}
+            disabled={savingPhoto}
           />
         ) : null}
 
@@ -1087,7 +1101,7 @@ class LocationStreetviewEdit extends Component {
         <Button primary className="mt-3" onClick={this.onSubmit} disabled={savingPhoto}>
           {savingPhoto ? 'SAVING…' : 'OK'}
         </Button>&nbsp;
-        <Button basic primary className="mt-3" onClick={onCancel}>
+        <Button basic primary className="mt-3" onClick={this.onCancel} disabled={savingPhoto}>
           CANCEL
         </Button>
       </div>
