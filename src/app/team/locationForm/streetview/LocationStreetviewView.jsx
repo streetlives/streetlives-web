@@ -53,15 +53,6 @@ function LocationStreetviewView({
 
   return (
     <div className="w-100">
-      <div className="mb-3">
-        {photo && photo.url && (
-          <span className="badge badge-info mr-1">Photo shown on YourPeer</span>
-        )}
-        <span className={`badge ${overrideActive ? 'badge-success' : 'badge-secondary'}`}>
-          {overrideActive ? 'Override active' : 'Using Google default'}
-        </span>
-      </div>
-
       {photo && photo.url && (
         <div style={{ marginBottom: 30 }}>
           <div style={PREVIEW_BOX_STYLE}>

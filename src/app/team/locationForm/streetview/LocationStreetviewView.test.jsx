@@ -47,7 +47,6 @@ describe('LocationStreetviewView', () => {
 
     it('still reports that no override is set', () => {
       renderDefault();
-      expect(screen.getByText('Using Google default')).toBeInTheDocument();
       expect(screen.getByText(/the image above is Google/)).toBeInTheDocument();
     });
 
@@ -166,7 +165,10 @@ describe('LocationStreetviewView', () => {
   });
 
   describe('override status', () => {
-    it('shows "Using Google default" when no override', () => {
+    // There are no status badges. "No override" is reported in prose under the
+    // preview; an override in effect is reported by the picture itself, which is
+    // the question this screen asks.
+    it('says so in prose when there is no override', () => {
       render(
         <LocationStreetviewView
           value={null}
@@ -174,11 +176,10 @@ describe('LocationStreetviewView', () => {
           onEdit={mockOnEdit}
         />,
       );
-      expect(screen.getByText('Using Google default')).toBeInTheDocument();
       expect(screen.getByText(/No Street View override is set/)).toBeInTheDocument();
     });
 
-    it('shows "Override active" when any field is non-null', () => {
+    it('says nothing about a default once an override is set', () => {
       const value = { lat: 40.7128, lng: -74.0060, pano_id: null };
       render(
         <LocationStreetviewView
@@ -187,14 +188,13 @@ describe('LocationStreetviewView', () => {
           onEdit={mockOnEdit}
         />,
       );
-      expect(screen.getByText('Override active')).toBeInTheDocument();
+      expect(screen.queryByText(/No Street View override is set/)).not.toBeInTheDocument();
     });
 
     // The raw override values (Lat/Lng/Heading/Pitch/FOV/Pano ID) used to be
     // listed here. They were specialist-facing detail on a screen whose job is
     // "does this picture look right?", and the picture already reflects them.
-    // The badge above is what reports that an override is in effect.
-    it('reports an override without listing its raw values', () => {
+    it('does not list the raw values of an override', () => {
       const value = {
         pano_id: 'pano-test-123',
         lat: 40.7869951,
@@ -211,7 +211,6 @@ describe('LocationStreetviewView', () => {
         />,
       );
 
-      expect(screen.getByText('Override active')).toBeInTheDocument();
       ['Lat', 'Lng', 'Heading', 'Pitch', 'FOV', 'Pano ID'].forEach((label) => {
         expect(screen.queryByText(label)).not.toBeInTheDocument();
       });
