@@ -73,6 +73,23 @@ Should only be done after first running `REACT_APP_API_URL="<API URL>" npm run b
 
 Also, the [AWS CLI](https://aws.amazon.com/cli/) must be set up for this script to run successfully.
 
+## Security checks
+
+Run on PRs, on pushes to `master` (CodeQL), and every Monday.
+
+| Check | Workflow | Blocks PRs? |
+|---|---|---|
+| Dependency review: a PR that *adds* a high/critical runtime vulnerability | `security-audit.yml` | Yes |
+| `npm audit --omit=dev` report of all known production vulnerabilities | `security-audit.yml` | No (job summary + warning) |
+| CodeQL for JS and GitHub Actions | `codeql.yml` | No until made required in branch protection; alerts land in the Security tab |
+| Dependabot weekly GitHub Actions update PRs | `.github/dependabot.yml` | n/a |
+
+Existing vulnerabilities on `master` don't fail PRs, so the npm audit report is the backlog to work
+down. Most of it comes from the pinned CRA 3 / `react-scripts` toolchain, which `npm audit` counts
+as a production dependency; clearing it means upgrading CRA, not patching individual packages.
+Dependabot npm *version* updates are intentionally disabled here (see `.github/dependabot.yml`);
+Dependabot security updates remain on.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
