@@ -700,6 +700,8 @@ class LocationStreetviewEdit extends Component {
       pendingPhotoRemoval: false,
       photoError: null,
       savingPhoto: false,
+      // A photo open in the cropper is not staged yet, so OK would save without it.
+      croppingPhoto: false,
     };
   }
 
@@ -733,6 +735,10 @@ class LocationStreetviewEdit extends Component {
 
   onUndoPhotoRemoval = () => {
     this.setState({ pendingPhotoRemoval: false, photoError: null });
+  };
+
+  onCroppingPhotoChange = (croppingPhoto) => {
+    this.setState({ croppingPhoto });
   };
 
   onPhotoError = (message) => {
@@ -944,6 +950,7 @@ class LocationStreetviewEdit extends Component {
     const {
       panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
       target, targetKey, pendingPhoto, pendingPhotoRemoval, photoError, savingPhoto,
+      croppingPhoto,
     } = this.state;
 
     return (
@@ -960,6 +967,7 @@ class LocationStreetviewEdit extends Component {
             onRemove={this.onRemovePhoto}
             onUndo={this.onUndoPhotoRemoval}
             onError={this.onPhotoError}
+            onCroppingChange={this.onCroppingPhotoChange}
             disabled={savingPhoto}
           />
         ) : null}
@@ -1098,7 +1106,12 @@ class LocationStreetviewEdit extends Component {
           <FieldError message={HIDDEN_ERROR_NOTICE} />
         )}
 
-        <Button primary className="mt-3" onClick={this.onSubmit} disabled={savingPhoto}>
+        <Button
+          primary
+          className="mt-3"
+          onClick={this.onSubmit}
+          disabled={savingPhoto || croppingPhoto}
+        >
           {savingPhoto ? 'SAVING…' : 'OK'}
         </Button>&nbsp;
         <Button basic primary className="mt-3" onClick={this.onCancel} disabled={savingPhoto}>

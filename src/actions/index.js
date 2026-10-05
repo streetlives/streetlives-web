@@ -194,7 +194,7 @@ export const updateLocationStreetview = (
 // is wrong for a multi-megabyte file the specialist would have to re-pick and
 // re-upload. These resolve or reject so the component can show real state.
 //
-// `prepared` comes from readAndDownscale in the streetview photoUpload module;
+// `prepared` comes from renderCrop in the streetview photoUpload module;
 // the component does that step itself so it can show its own progress for it.
 export const uploadLocationPhoto = (locationId, prepared) => async (dispatch) => {
   const photo = await api.putLocationPhoto({
