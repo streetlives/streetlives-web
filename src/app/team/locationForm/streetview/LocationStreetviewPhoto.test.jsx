@@ -155,7 +155,7 @@ describe('Street View editor — staged photo', () => {
       const { onUploadPhoto, onSubmit } = renderEditor();
 
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
 
       expect(onUploadPhoto).not.toHaveBeenCalled();
       expect(onSubmit).not.toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe('Street View editor — staged photo', () => {
       expect(screen.getByText('OK').closest('button')).toBeDisabled();
 
       fireEvent.click(screen.getByText('Use this photo'));
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       expect(screen.getByText('OK').closest('button')).not.toBeDisabled();
     });
 
@@ -178,7 +178,7 @@ describe('Street View editor — staged photo', () => {
       const { onUploadPhoto, updateValue, onSubmit } = renderEditor();
 
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       clickOk();
 
       await waitFor(() => expect(onUploadPhoto).toHaveBeenCalledWith(PREPARED));
@@ -191,7 +191,7 @@ describe('Street View editor — staged photo', () => {
       const { onUploadPhoto, onCancel } = renderEditor();
 
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       fireEvent.click(screen.getByText('CANCEL'));
 
       expect(onCancel).toHaveBeenCalled();
@@ -253,7 +253,7 @@ describe('Street View editor — staged photo', () => {
       const { onRemovePhoto, onUploadPhoto } = withPhoto();
 
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       fireEvent.click(screen.getByText('Remove photo'));
 
       expect(screen.queryByText(/removed when you press OK/)).not.toBeInTheDocument();
@@ -271,7 +271,7 @@ describe('Street View editor — staged photo', () => {
       });
 
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       clickOk();
 
       await waitFor(() =>
@@ -281,7 +281,7 @@ describe('Street View editor — staged photo', () => {
       // Neither of these may happen, or the file the specialist picked is lost.
       expect(updateValue).not.toHaveBeenCalled();
       expect(onSubmit).not.toHaveBeenCalled();
-      expect(screen.getByText(/not saved yet/)).toBeInTheDocument();
+      expect(screen.getByText(/not saved yet/i)).toBeInTheDocument();
     });
 
     it('reports a failed removal and stays open', async () => {
@@ -309,7 +309,7 @@ describe('Street View editor — staged photo', () => {
     const stageAndSubmit = async (overrides) => {
       const rendered = renderEditor(overrides);
       await pickFile();
-      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText(/not saved yet/i)).toBeInTheDocument());
       clickOk();
       return rendered;
     };

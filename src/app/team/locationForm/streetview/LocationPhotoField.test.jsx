@@ -238,7 +238,7 @@ describe('LocationPhotoField', () => {
     const stageOne = async () => {
       pickFile();
       fireEvent.click(await screen.findByText('Use this photo'));
-      await screen.findByText(/not saved yet/);
+      await screen.findByText(/not saved yet/i);
     };
 
     it('reopens the original rather than the cropped result', async () => {
@@ -260,7 +260,7 @@ describe('LocationPhotoField', () => {
       fireEvent.click(screen.getByText('Adjust crop'));
       fireEvent.click(await screen.findByText('Cancel'));
 
-      expect(screen.getByText(/not saved yet/)).toBeInTheDocument();
+      expect(screen.getByText(/not saved yet/i)).toBeInTheDocument();
       expect(releaseSource).not.toHaveBeenCalled();
     });
 
@@ -286,7 +286,7 @@ describe('LocationPhotoField', () => {
 
       expect(screen.getByAltText(/provided by the organization/i))
         .toHaveAttribute('src', SAVED.url);
-      expect(screen.getByText(/1600×1200/)).toBeInTheDocument();
+      expect(screen.queryByText(/not saved yet/i)).not.toBeInTheDocument();
     });
 
     // What is on screen is always what OK leaves behind, so a staged photo
@@ -296,7 +296,17 @@ describe('LocationPhotoField', () => {
 
       expect(screen.getByAltText(/provided by the organization/i))
         .toHaveAttribute('src', PREPARED.dataUrl);
-      expect(screen.getByText(/not saved yet/)).toBeInTheDocument();
+      expect(screen.getByText(/not saved yet/i)).toBeInTheDocument();
+    });
+
+    it('shows no file name, dimensions or size', () => {
+      const { unmount } = renderField({ photo: SAVED });
+      expect(screen.queryByText(/storefront\.jpg/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/1600×1200|KB/)).not.toBeInTheDocument();
+      unmount();
+
+      renderField({ pending: PREPARED });
+      expect(screen.queryByText(/storefront\.jpg|KB/)).not.toBeInTheDocument();
     });
 
     it('crops the photo into the same box as the Street View still', () => {

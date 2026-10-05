@@ -32,13 +32,6 @@ const releaseUnlessInUse = (source, keep) => {
   if (source && (!keep || keep.source !== source)) releaseSource(source);
 };
 
-const formatBytes = (bytes) => {
-  if (bytes == null) return null;
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
 class LocationPhotoField extends Component {
   // `draft` is the photo open in the cropper. `staged` is the source and framing
   // behind the photo handed to the form, kept so "Adjust crop" can reopen it
@@ -163,14 +156,6 @@ class LocationPhotoField extends Component {
     const url = (pending && pending.dataUrl) || (photo && photo.url);
     if (!url) return null;
 
-    const meta = pending
-      ? [pending.filename, formatBytes(pending.byteSize), 'not saved yet']
-      : [
-        photo.original_filename,
-        photo.width && photo.height ? `${photo.width}×${photo.height}` : null,
-        formatBytes(photo.byte_size),
-      ];
-
     return (
       <div className="mb-2">
         <div style={PREVIEW_BOX_STYLE}>
@@ -181,7 +166,9 @@ class LocationPhotoField extends Component {
             style={PREVIEW_IMAGE_STYLE}
           />
         </div>
-        <div style={hintStyle}>{meta.filter(Boolean).join(' · ')}</div>
+        {/* No file name or size: the photo itself is what matters. Only an
+            unsaved one is labelled, since OK still has to be pressed. */}
+        {pending ? <div style={hintStyle}>Not saved yet</div> : null}
         {pending && this.state.staged ? (
           <Button
             onClick={this.onAdjust}
