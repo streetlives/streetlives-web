@@ -48,6 +48,8 @@ class LocationPhotoField extends Component {
   }
 
   componentWillUnmount() {
+    // Decoding and encoding are async, and the editor can close mid-way.
+    this.unmounted = true;
     const { draft, staged } = this.state;
     if (draft) releaseSource(draft.source);
     if (staged && (!draft || staged.source !== draft.source)) releaseSource(staged.source);
@@ -63,11 +65,16 @@ class LocationPhotoField extends Component {
     this.setState({ preparing: true });
     try {
       const source = await loadSource(file);
+      // Nothing will ever release a source that lands after the field is gone.
+      if (this.unmounted) {
+        releaseSource(source);
+        return;
+      }
       this.setDraft(freshDraft(source));
     } catch (err) {
-      this.props.onError(err.message);
+      if (!this.unmounted) this.props.onError(err.message);
     } finally {
-      this.setState({ preparing: false });
+      if (!this.unmounted) this.setState({ preparing: false });
     }
   };
 
@@ -101,15 +108,19 @@ class LocationPhotoField extends Component {
     this.setState({ preparing: true });
     try {
       const prepared = await renderCrop(draft.source, draft.area);
+      // componentWillUnmount already released the draft, and the form that
+      // would have taken the photo is gone with it.
+      if (this.unmounted) return;
       if (staged) releaseUnlessInUse(staged.source, draft);
       this.setState({ staged: draft });
       this.setDraft(null);
       this.props.onStage(prepared);
     } catch (err) {
+      if (this.unmounted) return;
       this.onCancelCrop();
       this.props.onError(err.message);
     } finally {
-      this.setState({ preparing: false });
+      if (!this.unmounted) this.setState({ preparing: false });
     }
   };
 

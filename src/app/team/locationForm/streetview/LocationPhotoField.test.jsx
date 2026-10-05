@@ -223,6 +223,36 @@ describe('LocationPhotoField', () => {
     });
   });
 
+  describe('closing the editor mid-way', () => {
+    it('releases a photo that finishes loading after the field is gone', async () => {
+      let finishLoading;
+      loadSource.mockReturnValue(new Promise((resolve) => { finishLoading = resolve; }));
+      const { unmount, onError } = renderField();
+
+      pickFile();
+      unmount();
+      finishLoading(SOURCE);
+
+      await waitFor(() => expect(releaseSource).toHaveBeenCalledWith(SOURCE));
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('stages nothing when the crop finishes after the field is gone', async () => {
+      let finishCrop;
+      renderCrop.mockReturnValue(new Promise((resolve) => { finishCrop = resolve; }));
+      const { unmount, onStage } = renderField();
+
+      pickFile();
+      fireEvent.click(await screen.findByText('Use this photo'));
+      unmount();
+      expect(releaseSource).toHaveBeenCalledWith(SOURCE);
+      finishCrop(PREPARED);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(onStage).not.toHaveBeenCalled();
+    });
+  });
+
   describe('adjusting a staged crop', () => {
     // The form owns `pending`, so the test plays its part: whatever is staged
     // comes back down as the pending prop.
