@@ -3,7 +3,7 @@ import { act, render, screen, fireEvent, waitFor } from '@testing-library/react'
 // Registers faCamera; the app does this at startup, tests have to ask for it.
 import '../../../IconLibrary';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
-import { readAndDownscale } from './photoUpload';
+import { loadSource, renderCrop } from './photoUpload';
 
 // The photo half of the Street View editor: choosing, replacing and removing a
 // photo all stage a change that OK commits and CANCEL discards, like every
@@ -15,9 +15,42 @@ jest.mock('react-google-maps', () => ({
 }));
 
 jest.mock('./photoUpload', () => ({
-  readAndDownscale: jest.fn(),
+  loadSource: jest.fn(),
+  renderCrop: jest.fn(),
+  releaseSource: jest.fn(),
+  ASPECT: 5 / 3,
   ACCEPT_ATTRIBUTE: 'image/jpeg,image/png,image/webp',
 }));
+
+// react-easy-crop measures its container, which jsdom always reports as 0x0.
+// This stand-in reports a framing as soon as it mounts, like the real one does.
+jest.mock('react-easy-crop', () => {
+  const ReactActual = jest.requireActual('react');
+  return class MockCropper extends ReactActual.Component {
+    componentDidMount() {
+      this.props.onCropComplete({}, {
+        x: 0, y: 0, width: 1000, height: 600,
+      });
+    }
+
+    render() {
+      return ReactActual.createElement('div', {
+        'data-testid': 'mock-cropper',
+        'data-zoom': this.props.zoom,
+        'data-grid': String(this.props.showGrid),
+        onMouseDown: () => this.props.onInteractionStart(),
+        onMouseUp: () => this.props.onInteractionEnd(),
+        onWheel: () => this.props.onZoomChange(2.5),
+      });
+    }
+  };
+});
+
+const SOURCE = {
+  url: 'blob:original',
+  image: { naturalWidth: 4000, naturalHeight: 3000 },
+  filename: 'storefront.jpg',
+};
 
 const PREPARED = {
   data: 'YmFzZTY0',
@@ -89,11 +122,18 @@ const renderEditor = (overrides = {}) => {
   return { ...props, getInstance: () => instance };
 };
 
-const pickFile = () => {
+const openCropper = async () => {
   const file = new File(['bytes'], 'storefront.jpg', { type: 'image/jpeg' });
   const input = screen.getByTestId('photo-file-input');
   Object.defineProperty(input, 'files', { value: [file], configurable: true });
   fireEvent.change(input);
+  await screen.findByTestId('mock-cropper');
+};
+
+// Picking a photo opens it in the cropper; it is staged once framed.
+const pickFile = async () => {
+  await openCropper();
+  fireEvent.click(screen.getByText('Use this photo'));
 };
 
 const clickOk = () => fireEvent.click(screen.getByText('OK'));
@@ -101,7 +141,8 @@ const clickOk = () => fireEvent.click(screen.getByText('OK'));
 describe('Street View editor — staged photo', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    readAndDownscale.mockResolvedValue(PREPARED);
+    loadSource.mockResolvedValue(SOURCE);
+    renderCrop.mockResolvedValue(PREPARED);
     setupGoogleMaps();
   });
 
@@ -113,17 +154,30 @@ describe('Street View editor — staged photo', () => {
     it('saves nothing until OK is pressed', async () => {
       const { onUploadPhoto, onSubmit } = renderEditor();
 
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
 
       expect(onUploadPhoto).not.toHaveBeenCalled();
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
+    // A photo still in the cropper is not staged, so OK would quietly save
+    // without it.
+    it('holds OK while the photo is being cropped', async () => {
+      renderEditor();
+
+      await openCropper();
+      expect(screen.getByText('OK').closest('button')).toBeDisabled();
+
+      fireEvent.click(screen.getByText('Use this photo'));
+      await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
+      expect(screen.getByText('OK').closest('button')).not.toBeDisabled();
+    });
+
     it('uploads it on OK', async () => {
       const { onUploadPhoto, updateValue, onSubmit } = renderEditor();
 
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
       clickOk();
 
@@ -136,7 +190,7 @@ describe('Street View editor — staged photo', () => {
     it('discards it on CANCEL', async () => {
       const { onUploadPhoto, onCancel } = renderEditor();
 
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
       fireEvent.click(screen.getByText('CANCEL'));
 
@@ -198,7 +252,7 @@ describe('Street View editor — staged photo', () => {
     it('removing a freshly staged photo drops the file rather than deleting', async () => {
       const { onRemovePhoto, onUploadPhoto } = withPhoto();
 
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
       fireEvent.click(screen.getByText('Remove photo'));
 
@@ -216,7 +270,7 @@ describe('Street View editor — staged photo', () => {
         onUploadPhoto: jest.fn().mockRejectedValue(new Error('500')),
       });
 
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
       clickOk();
 
@@ -254,7 +308,7 @@ describe('Street View editor — staged photo', () => {
   describe('while a photo save is in flight', () => {
     const stageAndSubmit = async (overrides) => {
       const rendered = renderEditor(overrides);
-      pickFile();
+      await pickFile();
       await waitFor(() => expect(screen.getByText(/not saved yet/)).toBeInTheDocument());
       clickOk();
       return rendered;

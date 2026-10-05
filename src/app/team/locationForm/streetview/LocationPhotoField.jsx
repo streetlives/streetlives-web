@@ -3,18 +3,34 @@ import PropTypes from 'prop-types';
 import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import { PREVIEW_BOX_STYLE, PREVIEW_IMAGE_STYLE } from './utils';
-import { readAndDownscale, ACCEPT_ATTRIBUTE } from './photoUpload';
+import {
+  loadSource, releaseSource, renderCrop, ACCEPT_ATTRIBUTE,
+} from './photoUpload';
+import PhotoCropModal from './PhotoCropModal';
 
 // The organization-provided photo. It replaces the Street View still on
 // yourpeer.nyc, while the image there still links out to Google's panorama.
 //
 // Nothing here touches the API. Choosing or removing a photo only stages the
 // change; the enclosing form commits it on OK and discards it on CANCEL, like
-// every other field on this question. The resize still happens at pick time,
-// because that is what lets the specialist see what they are about to save and
-// catch an oversized file before submitting.
+// every other field on this question. The crop and resize still happen before
+// staging, because that is what lets the specialist see what they are about to
+// save and catch an oversized file before submitting.
+//
+// Picking a file opens it in PhotoCropModal, a cropper the exact size and shape
+// of the preview box, where the specialist frames it before it is staged.
 
 const hintStyle = { fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 };
+
+const freshDraft = source => ({
+  source, crop: { x: 0, y: 0 }, zoom: 1, area: null,
+});
+
+// Draft and staged can share one source (adjusting a crop), so only release a
+// source the other one does not still need.
+const releaseUnlessInUse = (source, keep) => {
+  if (source && (!keep || keep.source !== source)) releaseSource(source);
+};
 
 const formatBytes = (bytes) => {
   if (bytes == null) return null;
@@ -24,7 +40,25 @@ const formatBytes = (bytes) => {
 };
 
 class LocationPhotoField extends Component {
-  state = { preparing: false };
+  // `draft` is the photo open in the cropper. `staged` is the source and framing
+  // behind the photo handed to the form, kept so "Adjust crop" can reopen it
+  // where the specialist left it rather than from the already-cropped result.
+  state = { preparing: false, draft: null, staged: null };
+
+  componentDidUpdate(prevProps) {
+    // The form dropped the staged photo: removed, failed, or replaced by a save.
+    // Nothing can reopen it now, so let go of the original.
+    if (prevProps.pending && !this.props.pending && this.state.staged) {
+      releaseUnlessInUse(this.state.staged.source, null);
+      this.setState({ staged: null }); // eslint-disable-line react/no-did-update-set-state
+    }
+  }
+
+  componentWillUnmount() {
+    const { draft, staged } = this.state;
+    if (draft) releaseSource(draft.source);
+    if (staged && (!draft || staged.source !== draft.source)) releaseSource(staged.source);
+  }
 
   onPick = async (event) => {
     const input = event.target;
@@ -35,14 +69,79 @@ class LocationPhotoField extends Component {
 
     this.setState({ preparing: true });
     try {
-      const prepared = await readAndDownscale(file);
-      this.props.onStage(prepared);
+      const source = await loadSource(file);
+      this.setDraft(freshDraft(source));
     } catch (err) {
       this.props.onError(err.message);
     } finally {
       this.setState({ preparing: false });
     }
   };
+
+  onAdjust = () => {
+    const { staged } = this.state;
+    if (staged) this.setDraft({ ...staged, area: null });
+  };
+
+  onCropChange = (crop) => {
+    this.setState(prev => (prev.draft ? { draft: { ...prev.draft, crop } } : null));
+  };
+
+  onZoomChange = (zoom) => {
+    this.setState(prev => (prev.draft ? { draft: { ...prev.draft, zoom } } : null));
+  };
+
+  onAreaChange = (area) => {
+    this.setState(prev => (prev.draft ? { draft: { ...prev.draft, area } } : null));
+  };
+
+  onCancelCrop = () => {
+    const { draft, staged } = this.state;
+    if (draft) releaseUnlessInUse(draft.source, staged);
+    this.setDraft(null);
+  };
+
+  onApplyCrop = async () => {
+    const { draft, staged } = this.state;
+    if (!draft || !draft.area) return;
+
+    this.setState({ preparing: true });
+    try {
+      const prepared = await renderCrop(draft.source, draft.area);
+      if (staged) releaseUnlessInUse(staged.source, draft);
+      this.setState({ staged: draft });
+      this.setDraft(null);
+      this.props.onStage(prepared);
+    } catch (err) {
+      this.onCancelCrop();
+      this.props.onError(err.message);
+    } finally {
+      this.setState({ preparing: false });
+    }
+  };
+
+  setDraft(draft) {
+    this.setState({ draft });
+    if (this.props.onCroppingChange) this.props.onCroppingChange(Boolean(draft));
+  }
+
+  renderCropper() {
+    const { draft, preparing } = this.state;
+    return (
+      <PhotoCropModal
+        imageUrl={draft.source.url}
+        crop={draft.crop}
+        zoom={draft.zoom}
+        canApply={Boolean(draft.area)}
+        busy={preparing}
+        onCropChange={this.onCropChange}
+        onZoomChange={this.onZoomChange}
+        onAreaChange={this.onAreaChange}
+        onApply={this.onApplyCrop}
+        onCancel={this.onCancelCrop}
+      />
+    );
+  }
 
   renderPreview() {
     const { photo, pending, pendingRemoval } = this.props;
@@ -83,6 +182,18 @@ class LocationPhotoField extends Component {
           />
         </div>
         <div style={hintStyle}>{meta.filter(Boolean).join(' · ')}</div>
+        {pending && this.state.staged ? (
+          <Button
+            onClick={this.onAdjust}
+            primary
+            basic
+            compact
+            className="mt-2"
+            disabled={this.props.disabled}
+          >
+            Adjust crop
+          </Button>
+        ) : null}
         <Button
           onClick={this.props.onRemove}
           primary
@@ -101,7 +212,7 @@ class LocationPhotoField extends Component {
     const {
       photo, pending, pendingRemoval, error, disabled,
     } = this.props;
-    const { preparing } = this.state;
+    const { preparing, draft } = this.state;
     const hasPhoto = Boolean(pending) || (Boolean(photo && photo.url) && !pendingRemoval);
     const busy = preparing || disabled;
 
@@ -121,6 +232,7 @@ class LocationPhotoField extends Component {
         </div>
 
         <div className="mt-2">{this.renderPreview()}</div>
+        {draft ? this.renderCropper() : null}
 
         <input
           type="file"
@@ -141,7 +253,9 @@ class LocationPhotoField extends Component {
           <Icon name="camera" />
           &nbsp;{hasPhoto ? 'Replace photo' : 'Choose photo'}
         </Button>
-        <div style={hintStyle}>JPEG, PNG or WebP. Large photos are resized automatically.</div>
+        <div style={hintStyle}>
+          JPEG, PNG or WebP. You can position it next; it is resized and compressed automatically.
+        </div>
 
         {preparing && <div style={hintStyle}>Preparing photo…</div>}
         {error && (
@@ -161,7 +275,7 @@ LocationPhotoField.propTypes = {
     byte_size: PropTypes.number,
     original_filename: PropTypes.string,
   }),
-  // A resized photo waiting to be saved on OK.
+  // A cropped, resized photo waiting to be saved on OK.
   pending: PropTypes.shape({
     dataUrl: PropTypes.string,
     filename: PropTypes.string,
@@ -176,6 +290,9 @@ LocationPhotoField.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUndo: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
+  // Told when the cropper opens and closes, so the form can hold OK until the
+  // specialist has finished framing the photo rather than save without it.
+  onCroppingChange: PropTypes.func,
 };
 
 LocationPhotoField.defaultProps = {
@@ -184,6 +301,7 @@ LocationPhotoField.defaultProps = {
   pendingRemoval: false,
   error: null,
   disabled: false,
+  onCroppingChange: null,
 };
 
 export default LocationPhotoField;
