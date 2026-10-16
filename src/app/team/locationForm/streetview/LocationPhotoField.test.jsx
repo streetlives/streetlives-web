@@ -8,12 +8,13 @@ import { PREVIEW_WIDTH } from './utils';
 
 // jsdom has no canvas, so the crop and resize steps are stubbed wholesale.
 // Their rules are covered separately in photoUpload.test.js.
+// Only the steps that need a canvas are stubbed; the framing arithmetic
+// (minZoomFor, areaInPixels) is pure and runs for real.
 jest.mock('./photoUpload', () => ({
+  ...jest.requireActual('./photoUpload'),
   loadSource: jest.fn(),
   renderCrop: jest.fn(),
   releaseSource: jest.fn(),
-  ASPECT: 5 / 3,
-  ACCEPT_ATTRIBUTE: 'image/jpeg,image/png,image/webp',
 }));
 
 // react-easy-crop measures its container, which jsdom always reports as 0x0.
@@ -21,9 +22,12 @@ jest.mock('./photoUpload', () => ({
 jest.mock('react-easy-crop', () => {
   const ReactActual = jest.requireActual('react');
   return class MockCropper extends ReactActual.Component {
+    // The real cropper lays out its 600x360 frame, then reports the framing.
+    // Its own pixel area is clamped to the photo, so the dialog ignores it.
     componentDidMount() {
+      this.props.onCropSizeChange({ width: 600, height: 360 });
       this.props.onCropComplete({}, {
-        x: 0, y: 0, width: 1000, height: 600,
+        x: -1, y: -1, width: -1, height: -1,
       });
     }
 
@@ -31,10 +35,21 @@ jest.mock('react-easy-crop', () => {
       return ReactActual.createElement('div', {
         'data-testid': 'mock-cropper',
         'data-zoom': this.props.zoom,
+        'data-min-zoom': this.props.minZoom,
         'data-grid': String(this.props.showGrid),
         onMouseDown: () => this.props.onInteractionStart(),
         onMouseUp: () => this.props.onInteractionEnd(),
         onWheel: () => this.props.onZoomChange(2.5),
+        // Zooms all the way out and reports the framing in the same tick, as
+        // the real cropper does on layout and arrow keys - before the new
+        // zoom can come back down as a prop.
+        onDoubleClick: () => {
+          this.props.onCropChange({ x: 0, y: 0 });
+          this.props.onZoomChange(this.props.minZoom);
+          this.props.onCropComplete({}, {
+            x: -1, y: -1, width: -1, height: -1,
+          });
+        },
       });
     }
   };
@@ -129,7 +144,7 @@ describe('LocationPhotoField', () => {
 
       await waitFor(() => expect(onStage).toHaveBeenCalledWith(PREPARED));
       expect(renderCrop).toHaveBeenCalledWith(SOURCE, {
-        x: 0, y: 0, width: 1000, height: 600,
+        x: 0, y: 300, width: 4000, height: 2400,
       });
       expect(onCroppingChange).toHaveBeenLastCalledWith(false);
       expect(screen.queryByTestId('mock-cropper')).not.toBeInTheDocument();
@@ -153,6 +168,57 @@ describe('LocationPhotoField', () => {
 
       expect(screen.getByTestId('mock-cropper')).toHaveAttribute('data-zoom', '2.5');
       expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    });
+
+    // Organization photos are often portrait phone shots. Zooming out far
+    // enough to fit one whole, with black either side, beats cutting off the
+    // sign over the door.
+    it('lets a photo of another shape zoom out until it fits whole', async () => {
+      loadSource.mockResolvedValue({
+        ...SOURCE, image: { naturalWidth: 3000, naturalHeight: 4000 },
+      });
+      renderField();
+
+      pickFile();
+
+      const cropper = await screen.findByTestId('mock-cropper');
+      expect(Number(cropper.getAttribute('data-min-zoom'))).toBeCloseTo(9 / 20);
+      expect(screen.getByText(/Zoom out to fit the whole photo/)).toBeInTheDocument();
+    });
+
+    it('does not zoom out a photo that is already 5:3', async () => {
+      loadSource.mockResolvedValue({
+        ...SOURCE, image: { naturalWidth: 1000, naturalHeight: 600 },
+      });
+      renderField();
+
+      pickFile();
+
+      const cropper = await screen.findByTestId('mock-cropper');
+      expect(cropper).toHaveAttribute('data-min-zoom', '1');
+      expect(screen.queryByText(/Zoom out to fit the whole photo/)).not.toBeInTheDocument();
+    });
+
+    // A zoomed-out framing reaches past the photo; that is what becomes the
+    // black bars, so it has to reach renderCrop unclamped.
+    it('stages a zoomed-out framing with the bars included', async () => {
+      loadSource.mockResolvedValue({
+        ...SOURCE, image: { naturalWidth: 3000, naturalHeight: 4000 },
+      });
+      renderField();
+
+      pickFile();
+      fireEvent.doubleClick(await screen.findByTestId('mock-cropper'));
+      fireEvent.click(screen.getByText('Use this photo'));
+
+      await waitFor(() => expect(renderCrop).toHaveBeenCalled());
+      const [, area] = renderCrop.mock.calls[0];
+      // Zoomed out, the 3:4 photo's full height fills the frame and the
+      // frame's width reaches past both its sides.
+      expect(area.y).toBeCloseTo(0);
+      expect(area.height).toBeCloseTo(4000);
+      expect(area.width).toBeCloseTo(4000 * (5 / 3));
+      expect(area.x).toBeCloseTo((3000 - (4000 * (5 / 3))) / 2);
     });
 
     it('shows that the photo can be dragged until it is first touched', async () => {

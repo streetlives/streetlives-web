@@ -5,13 +5,17 @@ import Cropper from 'react-easy-crop';
 import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import { PREVIEW_BOX_STYLE } from './utils';
-import { ASPECT } from './photoUpload';
+import { ASPECT, areaInPixels, minZoomFor } from './photoUpload';
 
 // Frames an organization photo before it is staged. The frame is fixed at 5:3
 // and fills the whole box, so the box itself is the preview: what is visible is
 // exactly what is uploaded and what YourPeer shows, with nothing dimmed around
 // it. The specialist drags the photo behind the frame and zooms with the
 // wheel, a trackpad or a pinch.
+//
+// A photo that is not 5:3 can be zoomed out until all of it fits, and the rest
+// of the frame is black - on screen here and in the uploaded image alike. The
+// photo can still slide within the frame, but never off it.
 //
 // react-modal rather than components/modal: this one has to trap focus, close
 // on Escape and hide the page from screen readers while it is open.
@@ -73,6 +77,16 @@ const appElement = () => document.getElementById('root') || undefined;
 class PhotoCropModal extends Component {
   state = { touched: false, dragging: false };
 
+  onCropChange = (crop) => {
+    this.latest.crop = crop;
+    this.props.onCropChange(crop);
+  };
+
+  onZoomChange = (zoom) => {
+    this.latest.zoom = zoom;
+    this.props.onZoomChange(zoom);
+  };
+
   onInteractionStart = () => {
     this.setState({ touched: true, dragging: true });
   };
@@ -81,16 +95,39 @@ class PhotoCropModal extends Component {
     this.setState({ dragging: false });
   };
 
-  onCropComplete = (_areaPercent, area) => {
-    this.props.onAreaChange(area);
+  onCropSizeChange = (cropSize) => {
+    this.cropSize = cropSize;
   };
+
+  // The cropper's own pixel area is clamped to the photo, which loses the bars
+  // of a zoomed-out photo, so the area is worked out from the same inputs.
+  onCropComplete = () => {
+    if (!this.cropSize) return;
+    const { imageWidth, imageHeight } = this.props;
+    const crop = this.latest.crop || this.props.crop;
+    const zoom = this.latest.zoom || this.props.zoom;
+    this.props.onAreaChange(areaInPixels({
+      crop, zoom, cropSize: this.cropSize, imageWidth, imageHeight,
+    }));
+  };
+
+  // The frame's size on screen, which the cropper reports once it has laid
+  // itself out and again whenever the box resizes.
+  cropSize = null;
+
+  // The newest position and zoom the cropper has asked for. It reports the
+  // finished framing straight after a move in the same tick (on layout and on
+  // arrow keys), before the parent can hand the move back down as props, so
+  // props alone would describe the framing before it.
+  latest = {};
 
   render() {
     const {
-      imageUrl, crop, zoom, canApply, busy, onCropChange, onZoomChange, onApply, onCancel,
+      imageUrl, imageWidth, imageHeight, crop, zoom, canApply, busy, onApply, onCancel,
     } = this.props;
     const { touched, dragging } = this.state;
     const element = appElement();
+    const minZoom = minZoomFor(imageWidth, imageHeight);
 
     return (
       <ReactModal
@@ -115,25 +152,37 @@ class PhotoCropModal extends Component {
             image={imageUrl}
             crop={crop}
             zoom={zoom}
-            minZoom={1}
+            minZoom={minZoom}
             maxZoom={MAX_ZOOM}
             aspect={ASPECT}
             objectFit="cover"
             // Lines only while moving, as feedback that the photo is following.
             showGrid={dragging}
-            onCropChange={onCropChange}
-            onZoomChange={onZoomChange}
+            onCropChange={this.onCropChange}
+            onZoomChange={this.onZoomChange}
+            onCropSizeChange={this.onCropSizeChange}
             onCropComplete={this.onCropComplete}
             onInteractionStart={this.onInteractionStart}
             onInteractionEnd={this.onInteractionEnd}
-            style={{ containerStyle: { cursor: dragging ? 'grabbing' : 'grab' } }}
+            style={{
+              containerStyle: {
+                cursor: dragging ? 'grabbing' : 'grab',
+                // The bars beside a zoomed-out photo, as they will be uploaded.
+                backgroundColor: '#000',
+              },
+            }}
           />
           <div style={badgeStyle(!touched)} data-testid="photo-drag-hint" aria-hidden>
             <Icon name="arrows-alt" />
             Drag to reposition · Scroll or pinch to zoom
           </div>
         </div>
-        <div style={hintStyle}>This frame is exactly what YourPeer will show.</div>
+        <div style={hintStyle}>
+          This frame is exactly what YourPeer will show.
+          {minZoom < 1
+            ? ' Zoom out to fit the whole photo; any space around it is shown in black.'
+            : null}
+        </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
           <Button onClick={onCancel} primary basic compact disabled={busy}>
@@ -151,6 +200,10 @@ class PhotoCropModal extends Component {
 
 PhotoCropModal.propTypes = {
   imageUrl: PropTypes.string.isRequired,
+  // The photo's own size, which sets how far it can zoom out and maps the
+  // frame onto its pixels.
+  imageWidth: PropTypes.number.isRequired,
+  imageHeight: PropTypes.number.isRequired,
   crop: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }).isRequired,
   zoom: PropTypes.number.isRequired,
   // False until the cropper has reported a framing to apply.

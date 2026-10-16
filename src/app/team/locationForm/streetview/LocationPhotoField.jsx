@@ -134,6 +134,8 @@ class LocationPhotoField extends Component {
     return (
       <PhotoCropModal
         imageUrl={draft.source.url}
+        imageWidth={draft.source.image.naturalWidth}
+        imageHeight={draft.source.image.naturalHeight}
         crop={draft.crop}
         zoom={draft.zoom}
         canApply={Boolean(draft.area)}
