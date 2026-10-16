@@ -2,7 +2,9 @@ import {
   loadSource,
   releaseSource,
   renderCrop,
-  clampArea,
+  areaInPixels,
+  placeImage,
+  minZoomFor,
   outputSize,
   ASPECT,
   OUTPUT_WIDTH,
@@ -44,7 +46,9 @@ const fakeDeps = ({
     height: 0,
     getContext: () => {
       calls.context = {
-        fillRect: () => {},
+        fillRect: (...args) => {
+          calls.fill = { style: calls.context.fillStyle, rect: args };
+        },
         drawImage: (...args) => { calls.drawImage = args; },
       };
       return calls.context;
@@ -100,32 +104,113 @@ describe('outputSize', () => {
   });
 });
 
-describe('clampArea', () => {
-  it('leaves an area inside the image alone', () => {
-    expect(clampArea({
-      x: 10, y: 20, width: 500, height: 300,
-    }, 1000, 1000))
-      .toEqual({
-        x: 10, y: 20, width: 500, height: 300,
-      });
+describe('minZoomFor', () => {
+  it('cannot zoom out a photo that is already 5:3', () => {
+    expect(minZoomFor(1000, 600)).toBe(1);
   });
 
-  it('pulls an area that rounds past the right and bottom edges back inside', () => {
-    expect(clampArea({
-      x: 501, y: 701, width: 500, height: 300,
-    }, 1000, 1000))
-      .toEqual({
-        x: 500, y: 700, width: 500, height: 300,
-      });
+  // A 3:4 portrait covering a 5:3 frame is 20/9 times taller than the frame.
+  it('zooms a portrait photo out until its full height fits', () => {
+    expect(minZoomFor(3000, 4000)).toBeCloseTo(9 / 20);
   });
 
-  it('pulls a negative offset back to the edge', () => {
-    expect(clampArea({
-      x: -1, y: -0.6, width: 500, height: 300,
-    }, 1000, 1000))
-      .toEqual({
-        x: 0, y: 0, width: 500, height: 300,
-      });
+  it('zooms a panorama out until its full width fits', () => {
+    expect(minZoomFor(4000, 1000)).toBeCloseTo(5 / 12);
+  });
+});
+
+describe('areaInPixels', () => {
+  // A 600x360 frame, the size the dialog draws it at.
+  const cropSize = { width: 600, height: 360 };
+
+  it('frames the middle of a photo that covers the frame', () => {
+    // 4000x3000 covering 600x360 shows at 600x450, so the frame sees all its
+    // width and the middle 2400 rows.
+    expect(areaInPixels({
+      crop: { x: 0, y: 0 }, zoom: 1, cropSize, imageWidth: 4000, imageHeight: 3000,
+    })).toEqual({
+      x: 0, y: 300, width: 4000, height: 2400,
+    });
+  });
+
+  it('follows the photo as it is dragged', () => {
+    // Dragging the photo down 45 screen px shows rows 300 source px higher.
+    const area = areaInPixels({
+      crop: { x: 0, y: 45 }, zoom: 1, cropSize, imageWidth: 4000, imageHeight: 3000,
+    });
+    expect(area.y).toBeCloseTo(0);
+  });
+
+  it('frames half as much of the photo at zoom 2', () => {
+    expect(areaInPixels({
+      crop: { x: 0, y: 0 }, zoom: 2, cropSize, imageWidth: 4000, imageHeight: 3000,
+    })).toEqual({
+      x: 1000, y: 900, width: 2000, height: 1200,
+    });
+  });
+
+  // The point of zooming out: the frame takes in more than the photo, and the
+  // area says so instead of being clamped to the photo's edges.
+  it('reaches past the sides of a portrait photo zoomed out to fit', () => {
+    const area = areaInPixels({
+      crop: { x: 0, y: 0 },
+      zoom: minZoomFor(3000, 4000),
+      cropSize,
+      imageWidth: 3000,
+      imageHeight: 4000,
+    });
+    expect(area.y).toBeCloseTo(0);
+    expect(area.height).toBeCloseTo(4000);
+    expect(area.width).toBeCloseTo(4000 * ASPECT);
+    expect(area.x).toBeCloseTo((3000 - (4000 * ASPECT)) / 2);
+  });
+});
+
+describe('placeImage', () => {
+  it('draws a region inside the photo across the whole output', () => {
+    expect(placeImage({
+      x: 500, y: 400, width: 2500, height: 1500,
+    }, 4000, 3000, 1200 / 2500)).toEqual({
+      source: {
+        x: 500, y: 400, width: 2500, height: 1500,
+      },
+      target: {
+        x: 0, y: 0, width: 1200, height: 720,
+      },
+    });
+  });
+
+  it('leaves bars where the region runs past the photo', () => {
+    // A 3000-wide photo in a 5000-wide region: 1000 of bar each side.
+    expect(placeImage({
+      x: -1000, y: 0, width: 5000, height: 3000,
+    }, 3000, 3000, 0.2)).toEqual({
+      source: {
+        x: 0, y: 0, width: 3000, height: 3000,
+      },
+      target: {
+        x: 200, y: 0, width: 600, height: 600,
+      },
+    });
+  });
+
+  // Floating-point noise from a photo that exactly covers the frame must not
+  // turn into a black hairline down its edge.
+  it.each([
+    ['left', { x: -0.4, y: 0 }],
+    ['right', { x: 0.4, y: 0 }],
+    ['top', { x: 0, y: -0.7 }],
+  ])('pulls a sub-pixel overshoot on the %s back flush', (_edge, offset) => {
+    const placed = placeImage({ ...offset, width: 1000, height: 600 }, 1000, 600, 1);
+    expect(placed.target).toEqual({
+      x: 0, y: 0, width: 1000, height: 600,
+    });
+  });
+
+  it('draws nothing for a region entirely off the photo', () => {
+    expect(placeImage({
+      x: 2000, y: 0, width: 500, height: 300,
+    }, 1000, 1000, 1)).toBeNull();
   });
 });
 
@@ -184,6 +269,24 @@ describe('renderCrop', () => {
       // drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
       expect(calls.drawImage.slice(1)).toEqual([500, 400, 2500, 1500, 0, 0, 1200, 720]);
       expect(calls.canvasSize).toEqual({ width: 1200, height: 720 });
+    });
+
+    it('paints the bars of a zoomed-out photo black and the photo between them', async () => {
+      const { deps, calls, image } = fakeDeps({ naturalWidth: 3000, naturalHeight: 4000 });
+      const width = 4000 * ASPECT;
+
+      await renderCrop(sourceFor(image), {
+        x: (3000 - width) / 2, y: 0, width, height: 4000,
+      }, deps);
+
+      expect(calls.fill).toEqual({ style: '#000', rect: [0, 0, 1200, 720] });
+      const [, sx, sy, sw, sh, dx, dy, dw, dh] = calls.drawImage;
+      expect([sx, sy, sw, sh]).toEqual([0, 0, 3000, 4000]);
+      // The photo is 720 tall and 540 wide, centred: 330 of black each side.
+      expect(dx).toBeCloseTo(330);
+      expect(dy).toBeCloseTo(0);
+      expect(dw).toBeCloseTo(540);
+      expect(dh).toBeCloseTo(720);
     });
 
     it('keeps a small crop at its own resolution', async () => {

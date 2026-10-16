@@ -79,22 +79,85 @@ export const releaseSource = (source, deps = browserDeps) => {
   if (source && source.url) deps.revokeObjectUrl(source.url);
 };
 
-// The cropper reports its area in the source image's pixels, rounded, so it
-// can sit a pixel past an edge. Pull it back inside rather than letting
-// drawImage sample transparent pixels outside the image into a hairline border.
-export const clampArea = (area, imageWidth, imageHeight) => {
-  const width = Math.max(1, Math.min(Math.round(area.width), imageWidth));
-  const height = Math.max(1, Math.min(Math.round(area.height), imageHeight));
+// How far out the cropper may zoom: to where the whole photo fits inside the
+// 5:3 frame. Zoom 1 is the photo covering the frame, so a photo already 5:3
+// cannot zoom out at all, and the further its shape is from 5:3 the further it
+// can. Organization photos are often portrait phone shots, and fitting all of
+// one with bars beside it beats cutting off the name over the door.
+export const minZoomFor = (imageWidth, imageHeight) => {
+  const shape = imageWidth / imageHeight;
+  return Math.min(1, shape / ASPECT, ASPECT / shape);
+};
+
+/**
+ * The frame's region in the source image's own pixels, for a cropper whose
+ * frame fills its box (`cropSize`, in screen pixels) with the photo covering it
+ * at zoom 1. Zoomed out, the region reaches past the photo's edges: x or y go
+ * negative and width or height exceed the photo, and renderCrop paints that
+ * part black.
+ *
+ * react-easy-crop reports this itself, but clamped to the photo whenever it
+ * also keeps the photo inside the frame, and that clamping is what makes it
+ * useless once the photo is smaller than the frame.
+ */
+export const areaInPixels = ({
+  crop, zoom, cropSize, imageWidth, imageHeight,
+}) => {
+  // On screen at zoom 1 the photo covers the box, so its width there is
+  // whichever of these is larger.
+  const coverWidth = Math.max(cropSize.width, cropSize.height * (imageWidth / imageHeight));
+  // Source pixels per screen pixel.
+  const scale = imageWidth / (coverWidth * zoom);
+  const width = cropSize.width * scale;
+  // `crop` is how far the photo's centre sits from the frame's, on screen.
   return {
-    x: Math.min(Math.max(0, Math.round(area.x)), imageWidth - width),
-    y: Math.min(Math.max(0, Math.round(area.y)), imageHeight - height),
+    x: (imageWidth / 2) - (((cropSize.width / 2) + crop.x) * scale),
+    y: (imageHeight / 2) - (((cropSize.height / 2) + crop.y) * scale),
     width,
-    height,
+    height: width / ASPECT,
+  };
+};
+
+// Where the photo lands on the output canvas: the part of `area` that overlaps
+// the photo, scaled by `scale`. Clipped here rather than left to drawImage,
+// because browsers have disagreed about a source rectangle that runs off the
+// image - some draw nothing at all.
+//
+// An edge that overshoots by under a source pixel is floating-point noise from
+// a photo that exactly covers the frame. Taken literally it would draw a
+// hairline of black down that edge, so it is pulled back flush.
+export const placeImage = (area, imageWidth, imageHeight, scale) => {
+  const flush = (start, size, limit) => {
+    if (size > limit + 1) return start;
+    if (start < 0 && start > -1) return 0;
+    if (start + size > limit && start + size < limit + 1) return Math.max(0, limit - size);
+    return start;
+  };
+  const x = flush(area.x, area.width, imageWidth);
+  const y = flush(area.y, area.height, imageHeight);
+
+  const left = Math.max(0, x);
+  const top = Math.max(0, y);
+  const right = Math.min(imageWidth, x + area.width);
+  const bottom = Math.min(imageHeight, y + area.height);
+  if (right <= left || bottom <= top) return null;
+
+  return {
+    source: {
+      x: left, y: top, width: right - left, height: bottom - top,
+    },
+    target: {
+      x: (left - x) * scale,
+      y: (top - y) * scale,
+      width: (right - left) * scale,
+      height: (bottom - top) * scale,
+    },
   };
 };
 
 // Width capped at OUTPUT_WIDTH, never upscaled: a crop smaller than that is
-// kept at its own resolution rather than blown up and re-encoded. The height
+// kept at its own resolution rather than blown up and re-encoded. A zoomed-out
+// crop is wider than the photo, bars included, so that is the width measured. The height
 // comes from ASPECT rather than the crop, so the output is exactly 5:3 even
 // when the cropper's rounding is not.
 export const outputSize = (cropWidth) => {
@@ -123,7 +186,8 @@ const encode = (canvas) => {
 
 /**
  * Cuts `area` (in the source image's own pixels) out of `source`, scales it to
- * at most OUTPUT_WIDTH and encodes it.
+ * at most OUTPUT_WIDTH and encodes it. Wherever `area` runs past the photo the
+ * output is black, so a photo of the wrong shape can still be shown whole.
  *
  * Resolves to { data, dataUrl, contentType, filename, byteSize, width, height }.
  * `data` is base64 with no prefix, which is the shape the API's PUT body
@@ -132,8 +196,8 @@ const encode = (canvas) => {
  */
 export const renderCrop = async (source, area, deps = browserDeps) => {
   const { image, filename } = source;
-  const crop = clampArea(area, image.naturalWidth, image.naturalHeight);
-  const { width, height } = outputSize(crop.width);
+  const { width, height } = outputSize(area.width);
+  const placed = placeImage(area, image.naturalWidth, image.naturalHeight, width / area.width);
 
   const canvas = deps.createCanvas();
   canvas.width = width;
@@ -142,10 +206,18 @@ export const renderCrop = async (source, area, deps = browserDeps) => {
   // A single large downscale; without this Chrome uses its cheapest filter and
   // fine detail like signage comes out jagged.
   context.imageSmoothingQuality = 'high';
-  // A transparent PNG would otherwise go black wherever it falls back to JPEG.
-  context.fillStyle = '#fff';
+  // The bars beside a zoomed-out photo. Also what shows through a transparent
+  // PNG, which is consistent with them and needed anyway: JPEG has no alpha.
+  context.fillStyle = '#000';
   context.fillRect(0, 0, width, height);
-  context.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height);
+  if (placed) {
+    const { source: from, target: to } = placed;
+    context.drawImage(
+      image,
+      from.x, from.y, from.width, from.height,
+      to.x, to.y, to.width, to.height,
+    );
+  }
 
   const { encoded, contentType } = encode(canvas);
   const data = encoded.slice(encoded.indexOf(',') + 1);
@@ -170,5 +242,5 @@ export const renderCrop = async (source, area, deps = browserDeps) => {
 };
 
 export default {
-  loadSource, releaseSource, renderCrop, clampArea, outputSize,
+  loadSource, releaseSource, renderCrop, areaInPixels, placeImage, minZoomFor, outputSize,
 };

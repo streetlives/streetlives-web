@@ -14,12 +14,13 @@ jest.mock('react-google-maps', () => ({
   withScriptjs: Component => props => <Component {...props} />,
 }));
 
+// Only the steps that need a canvas are stubbed; the framing arithmetic
+// (minZoomFor, areaInPixels) is pure and runs for real.
 jest.mock('./photoUpload', () => ({
+  ...jest.requireActual('./photoUpload'),
   loadSource: jest.fn(),
   renderCrop: jest.fn(),
   releaseSource: jest.fn(),
-  ASPECT: 5 / 3,
-  ACCEPT_ATTRIBUTE: 'image/jpeg,image/png,image/webp',
 }));
 
 // react-easy-crop measures its container, which jsdom always reports as 0x0.
@@ -27,9 +28,12 @@ jest.mock('./photoUpload', () => ({
 jest.mock('react-easy-crop', () => {
   const ReactActual = jest.requireActual('react');
   return class MockCropper extends ReactActual.Component {
+    // The real cropper lays out its 600x360 frame, then reports the framing.
+    // Its own pixel area is clamped to the photo, so the dialog ignores it.
     componentDidMount() {
+      this.props.onCropSizeChange({ width: 600, height: 360 });
       this.props.onCropComplete({}, {
-        x: 0, y: 0, width: 1000, height: 600,
+        x: -1, y: -1, width: -1, height: -1,
       });
     }
 
@@ -37,6 +41,7 @@ jest.mock('react-easy-crop', () => {
       return ReactActual.createElement('div', {
         'data-testid': 'mock-cropper',
         'data-zoom': this.props.zoom,
+        'data-min-zoom': this.props.minZoom,
         'data-grid': String(this.props.showGrid),
         onMouseDown: () => this.props.onInteractionStart(),
         onMouseUp: () => this.props.onInteractionEnd(),
