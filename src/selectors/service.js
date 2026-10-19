@@ -77,9 +77,13 @@ export const getIrregularOpeningHours = (state, props) => (
     opens_at: opensAt,
     closes_at: closesAt,
     weekday,
+    valid_from: validFrom,
+    valid_to: validTo,
     ...otherProps
   }) => ({
     ...otherProps,
+    validFrom,
+    validTo,
     opensAt: parseTimeString(opensAt),
     closesAt: parseTimeString(closesAt),
     weekday: DAYS[weekday - 1],

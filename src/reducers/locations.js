@@ -159,12 +159,16 @@ const locationsReducer = (state = {}, action) => {
             opensAt,
             closesAt,
             weekday,
+            validFrom,
+            validTo,
             ...otherProps
           }) => ({
             ...otherProps,
             opens_at: `${opensAt}:00`,
             closes_at: `${closesAt}:00`,
             weekday: DAYS.indexOf(weekday) + 1,
+            valid_from: validFrom,
+            valid_to: validTo,
           }));
         }
         return {

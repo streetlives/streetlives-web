@@ -4,8 +4,13 @@ import moment from 'moment';
 import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
+import Input from '../../../../components/input';
+import Checkbox from '../../../../components/checkbox';
 import { DAYS } from '../../../../Constants';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
+import {
+  ORDINALS, MONTHS, readRecurrence, applyRecurrence, describeRecurrence, hasRecurrence,
+} from './recurrence';
 
 const NOTHING_ACTIVE = -1;
 const IS_247_ACTIVE = 0;
@@ -17,6 +22,12 @@ const ELEVEN_FIFTY_NINE = '23:59';
 function getActive(hours) {
   if (hours.length > 0 && hours.filter(({ closed }) => !closed).length === 0) {
     return IS_CLOSED;
+  }
+
+  // Round-the-clock hours that only apply on some days of the month or between
+  // certain dates aren't 24/7, and the recurrence settings live in that mode.
+  if (hasRecurrence(readRecurrence(hours))) {
+    return IS_NOT_247_ACTIVE;
   }
 
   const is247 = DAYS.every(weekday => (
@@ -39,6 +50,10 @@ function getActive(hours) {
 
 function checkAllHoursValid(hours) {
   return hours.every(hour => hour.closed || (hour.opensAt != null && hour.closesAt != null));
+}
+
+function areRecurrenceDatesValid({ validFrom, validTo }) {
+  return !validFrom || !validTo || validFrom <= validTo;
 }
 
 function formatTime(time) {
@@ -66,11 +81,13 @@ function splitOvernightHours(hours) {
     }
 
     const beforeMidnight = {
+      ...hour,
       weekday: hour.weekday,
       opensAt: hour.opensAt,
       closesAt: ELEVEN_FIFTY_NINE,
     };
     const afterMidnight = {
+      ...hour,
       weekday: getNextWeekday(hour.weekday),
       opensAt: MIDNIGHT,
       closesAt: hour.closesAt,
@@ -91,6 +108,7 @@ class ServiceOpeningHours extends Component {
       weekdaysOpen: {},
       hours: props.value.filter(({ closed }) => !closed),
       latestHoursEntered: null,
+      recurrence: readRecurrence(props.value),
     };
   }
 
@@ -99,6 +117,7 @@ class ServiceOpeningHours extends Component {
       this.setState({
         hours: props.value.filter(({ closed }) => !closed),
         active: getActive(props.value),
+        recurrence: readRecurrence(props.value),
       });
     }
   }
@@ -153,8 +172,30 @@ class ServiceOpeningHours extends Component {
     });
   }
 
+  onRecurrenceChange = (field, value) => this.setState(({ recurrence }) => ({
+    recurrence: { ...recurrence, [field]: value },
+  }));
+
+  onClosedMonthChange = (month, closed) => {
+    const { closedMonths } = this.state.recurrence;
+    this.onRecurrenceChange(
+      'closedMonths',
+      closed
+        ? [...closedMonths, month].sort((a, b) => a - b)
+        : closedMonths.filter(m => m !== month),
+    );
+  };
+
+  getHoursToSave = () => {
+    const hours = splitOvernightHours(this.state.hours);
+    if (this.props.supportsRecurrence && this.state.active === IS_NOT_247_ACTIVE) {
+      return applyRecurrence(hours, this.state.recurrence);
+    }
+    return hours;
+  };
+
   updateValue = e => this.props.updateValue(
-    splitOvernightHours(this.state.hours),
+    this.getHoursToSave(),
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,
@@ -190,9 +231,80 @@ class ServiceOpeningHours extends Component {
     });
   }
 
+  renderRecurrence() {
+    const { recurrence } = this.state;
+
+    if (this.props.viewMode) {
+      const summary = describeRecurrence(recurrence);
+      return summary ? <p className="mb-3">{summary}</p> : null;
+    }
+
+    const datesValid = areRecurrenceDatesValid(recurrence);
+
+    return (
+      <div className="mb-3">
+        <p>On the selected days, is this service open...</p>
+        <select
+          className="form-control mb-3"
+          value={recurrence.ordinal}
+          onChange={e => this.onRecurrenceChange('ordinal', e.target.value)}
+        >
+          {ORDINALS.map(({ value, label }) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <p>Does it only run between certain dates? (optional)</p>
+        <table className="mb-3">
+          <tbody>
+            <tr>
+              <td style={{ paddingRight: '1em' }}>From:</td>
+              <td>
+                <Input
+                  type="date"
+                  value={recurrence.validFrom}
+                  onChange={e => this.onRecurrenceChange('validFrom', e.target.value)}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Until:</td>
+              <td>
+                <Input
+                  type="date"
+                  value={recurrence.validTo}
+                  onChange={e => this.onRecurrenceChange('validTo', e.target.value)}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {!datesValid && (
+          <div style={{ color: '#A02733', fontSize: '0.8em' }}>
+            The end date is before the start date
+          </div>
+        )}
+        <p>Is it closed for whole months? (optional)</p>
+        <div className="d-flex flex-wrap">
+          {MONTHS.map((month, i) => (
+            <Checkbox
+              key={month}
+              name={`closed-month-${i}`}
+              label={month}
+              className="mr-3"
+              checked={recurrence.closedMonths.includes(i)}
+              onChange={checked => this.onClosedMonthChange(i, checked)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { active, weekdaysOpen, hours } = this.state;
-    const allHoursValid = checkAllHoursValid(hours);
+    const { active, weekdaysOpen, hours, recurrence } = this.state;
+    const datesValid = areRecurrenceDatesValid(recurrence);
+    const allHoursValid = checkAllHoursValid(hours) &&
+      (!this.props.supportsRecurrence || datesValid);
 
     return (
       <div className="w-100">
@@ -273,6 +385,7 @@ class ServiceOpeningHours extends Component {
             </Selector>
           </div>
         )}
+        {active === IS_NOT_247_ACTIVE && this.props.supportsRecurrence && this.renderRecurrence()}
         {
           !this.props.viewMode && (
             <div>
