@@ -1,63 +1,134 @@
 import moment from 'moment';
 import {
-  applyRecurrence, readRecurrence, describeRecurrence, EMPTY_RECURRENCE,
+  applySchedule, readSchedule, describeWeeks, describeSpecialHours, upcomingHolidays,
+  EMPTY_SCHEDULE,
 } from './recurrence';
 
-const today = moment('2026-10-19');
 const fridayHours = [{ weekday: 'Friday', opensAt: '09:00', closesAt: '17:00' }];
+const christmas = {
+  validFrom: '2026-12-25',
+  validTo: '',
+  closed: true,
+  opensAt: null,
+  closesAt: null,
+  description: 'Christmas Day',
+};
 
-describe('applyRecurrence', () => {
+describe('applySchedule', () => {
   it('marks plain weekly hours with HSDS WEEKLY and a bare BYDAY', () => {
-    expect(applyRecurrence(fridayHours, EMPTY_RECURRENCE, today)).toEqual([{
+    expect(applySchedule(fridayHours, EMPTY_SCHEDULE)).toEqual([{
       ...fridayHours[0], freq: 'WEEKLY', byday: 'FR', validFrom: null, validTo: null,
     }]);
   });
 
-  it('stores "every 2nd Friday" as MONTHLY with BYDAY=2FR', () => {
-    const [row] = applyRecurrence(fridayHours, { ...EMPTY_RECURRENCE, ordinal: '2' }, today);
-    expect(row).toMatchObject({ freq: 'MONTHLY', byday: '2FR' });
+  it('stores "the first two Fridays of the month" as MONTHLY with BYDAY=1FR,2FR', () => {
+    const schedule = { ...EMPTY_SCHEDULE, weekPatterns: { Friday: ['1', '2'] } };
+    const [row] = applySchedule(fridayHours, schedule);
+    expect(row).toMatchObject({ freq: 'MONTHLY', byday: '1FR,2FR' });
   });
 
   it('stores "the last Monday" as BYDAY=-1MO', () => {
-    const [row] = applyRecurrence(
+    const [row] = applySchedule(
       [{ weekday: 'Monday', opensAt: '09:00', closesAt: '17:00' }],
-      { ...EMPTY_RECURRENCE, ordinal: '-1' },
-      today,
+      { ...EMPTY_SCHEDULE, weekPatterns: { Monday: ['-1'] } },
     );
     expect(row.byday).toBe('-1MO');
   });
 
-  it('adds a closed row for the next occurrence of each excluded month', () => {
-    const recurrence = { ...EMPTY_RECURRENCE, closedMonths: [1, 11] };
-    const rows = applyRecurrence(fridayHours, recurrence, today);
-    expect(rows.slice(1)).toEqual([
-      { closed: true, validFrom: '2027-02-01', validTo: '2027-02-28' },
-      { closed: true, validFrom: '2026-12-01', validTo: '2026-12-31' },
+  it('adds the season to the regular rows', () => {
+    const schedule = { ...EMPTY_SCHEDULE, validFrom: '2026-03-27', validTo: '2026-07-27' };
+    expect(applySchedule(fridayHours, schedule)[0])
+      .toMatchObject({ validFrom: '2026-03-27', validTo: '2026-07-27' });
+  });
+
+  it('ignores weeks and season when withRecurrence is off (24/7)', () => {
+    const schedule = {
+      ...EMPTY_SCHEDULE, weekPatterns: { Friday: ['1'] }, validFrom: '2026-03-27',
+    };
+    expect(applySchedule(fridayHours, schedule, { withRecurrence: false })[0])
+      .toMatchObject({ freq: 'WEEKLY', byday: 'FR', validFrom: null });
+  });
+
+  it('stores special hours as dated rows without a weekday', () => {
+    const schedule = {
+      ...EMPTY_SCHEDULE,
+      specialHours: [
+        christmas,
+        {
+          validFrom: '2026-12-31',
+          validTo: '',
+          closed: false,
+          opensAt: '10:00',
+          closesAt: '14:00',
+          description: '',
+        },
+      ],
+    };
+    expect(applySchedule([], schedule)).toEqual([
+      {
+        closed: true, validFrom: '2026-12-25', validTo: '2026-12-25', description: 'Christmas Day',
+      },
+      {
+        closed: false,
+        opensAt: '10:00',
+        closesAt: '14:00',
+        validFrom: '2026-12-31',
+        validTo: '2026-12-31',
+        description: null,
+      },
     ]);
   });
 });
 
-describe('readRecurrence', () => {
-  it('round-trips what applyRecurrence wrote', () => {
-    const recurrence = {
-      ordinal: '2', validFrom: '2026-03-27', validTo: '2026-07-27', closedMonths: [11],
+describe('readSchedule', () => {
+  it('round-trips what applySchedule wrote', () => {
+    const schedule = {
+      weekPatterns: { Friday: ['1', '2'] },
+      validFrom: '2026-03-27',
+      validTo: '2026-07-27',
+      specialHours: [christmas],
     };
-    expect(readRecurrence(applyRecurrence(fridayHours, recurrence, today))).toEqual(recurrence);
+    expect(readSchedule(applySchedule(fridayHours, schedule))).toEqual(schedule);
   });
 
-  it('does not treat a whole-service closure as a month exception', () => {
-    expect(readRecurrence([{ closed: true }]).closedMonths).toEqual([]);
+  it('reads an earlier closed-month row as special hours', () => {
+    const [entry] = readSchedule([{ closed: true, validFrom: '2026-12-01', validTo: '2026-12-31' }])
+      .specialHours;
+    expect(entry).toMatchObject({ validFrom: '2026-12-01', validTo: '2026-12-31', closed: true });
+  });
+
+  it('does not treat a whole-service closure as special hours', () => {
+    expect(readSchedule([{ closed: true }]).specialHours).toEqual([]);
   });
 });
 
-describe('describeRecurrence', () => {
-  it('summarizes the settings', () => {
-    expect(describeRecurrence({
-      ordinal: '2', validFrom: '', validTo: '2026-07-27', closedMonths: [11],
-    })).toBe('Only the 2nd of those days each month, until Jul 27, 2026, closed in December');
+describe('describeWeeks', () => {
+  it('names the weeks', () => {
+    expect(describeWeeks('Friday', ['2', '1'])).toBe('1st and 2nd Fridays of the month');
+    expect(describeWeeks('Monday', ['-1'])).toBe('Last Monday of the month');
+    expect(describeWeeks('Monday', [])).toBe('Every Monday');
   });
+});
 
-  it('is empty for plain weekly hours', () => {
-    expect(describeRecurrence(EMPTY_RECURRENCE)).toBe('');
+describe('describeSpecialHours', () => {
+  it('describes a closed holiday and a range with hours', () => {
+    expect(describeSpecialHours(christmas)).toBe('Dec 25, 2026 (Christmas Day): Closed');
+    expect(describeSpecialHours({
+      validFrom: '2026-12-24',
+      validTo: '2026-12-26',
+      closed: false,
+      opensAt: '10:00',
+      closesAt: '14:30',
+    })).toBe('Dec 24 – Dec 26, 2026: 10AM to 2:30PM');
+  });
+});
+
+describe('upcomingHolidays', () => {
+  it('lists US holidays in the next 120 days, across the new year', () => {
+    const holidays = upcomingHolidays(moment('2026-10-20'));
+    expect(holidays.map(({ date }) => date)).toEqual([
+      '2026-11-11', '2026-11-26', '2026-12-24', '2026-12-25', '2026-12-31',
+      '2027-01-01', '2027-01-18', '2027-02-15',
+    ]);
   });
 });
