@@ -37,9 +37,7 @@ export default class OpeningHoursEditForm extends Component {
                     onChange={e => onFromChange('opensAt', hour, e.target.value)}
                   />
                 </td>
-              </tr>
-              <tr>
-                <td>To:</td>
+                <td style={{ padding: '0 1em' }}>To:</td>
                 <td style={(hour && hour.closesAt) ? {} : { border: '1px solid red' }}>
                   <Input
                     value={(hour && hour.closesAt) || '23:00'}
@@ -55,7 +53,7 @@ export default class OpeningHoursEditForm extends Component {
               {supportsNotes && (
                 <tr>
                   <td style={{ paddingRight: '1em' }}>Note:</td>
-                  <td colSpan={2} style={{ minWidth: '20em' }}>
+                  <td colSpan={4} style={{ minWidth: '20em' }}>
                     <Input
                       fluid
                       value={(hour && hour.description) || ''}
