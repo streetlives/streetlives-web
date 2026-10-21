@@ -1,6 +1,5 @@
-import moment from 'moment';
 import {
-  applySchedule, readSchedule, describeWeeks, describeSpecialHours, upcomingHolidays,
+  applySchedule, readSchedule, describeWeeks, describeSpecialHours,
   EMPTY_SCHEDULE,
 } from './recurrence';
 
@@ -120,15 +119,5 @@ describe('describeSpecialHours', () => {
       opensAt: '10:00',
       closesAt: '14:30',
     })).toBe('Dec 24 – Dec 26, 2026: 10AM to 2:30PM');
-  });
-});
-
-describe('upcomingHolidays', () => {
-  it('lists US holidays in the next 120 days, across the new year', () => {
-    const holidays = upcomingHolidays(moment('2026-10-20'));
-    expect(holidays.map(({ date }) => date)).toEqual([
-      '2026-11-11', '2026-11-26', '2026-12-24', '2026-12-25', '2026-12-31',
-      '2027-01-01', '2027-01-18', '2027-02-15',
-    ]);
   });
 });

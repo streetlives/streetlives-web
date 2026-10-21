@@ -1,29 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import Button from '../../../../components/button';
 import Input from '../../../../components/input';
 import Icon from '../../../../components/icon';
 import {
-  describeSpecialHours, isSpecialHoursValid, upcomingHolidays,
+  describeSpecialHours, isSpecialHoursValid,
 } from './recurrence';
 
 const ERROR_STYLE = { color: '#A02733', fontSize: '0.8em' };
 
-const newEntry = (validFrom = '', description = '') => ({
-  validFrom,
+const newEntry = () => ({
+  validFrom: '',
   validTo: '',
   closed: true,
   opensAt: null,
   closesAt: null,
-  description,
+  description: '',
 });
 
 // Google-style "special hours": dates when the service is closed or keeps different hours,
 // such as holidays. They override the regular hours on those dates.
 function SpecialHoursEdit({
-  entries, onChange, viewMode, today,
+  entries, onChange, viewMode,
 }) {
   if (viewMode) {
     if (!entries.length) return null;
@@ -39,10 +38,7 @@ function SpecialHoursEdit({
     i === index ? { ...entry, ...changes } : entry
   )));
   const remove = index => onChange(entries.filter((_, i) => i !== index));
-  const add = (validFrom, description) => onChange([...entries, newEntry(validFrom, description)]);
-
-  const holidays = upcomingHolidays(today)
-    .filter(({ date }) => !entries.some(entry => entry.validFrom === date));
+  const add = () => onChange([...entries, newEntry()]);
 
   return (
     <div className="mb-3">
@@ -145,21 +141,6 @@ function SpecialHoursEdit({
         </div>
       ))}
 
-      {!!holidays.length && (
-        <div className="mb-2">
-          <div style={{ fontSize: '.9em' }}>Upcoming holidays:</div>
-          {holidays.map(({ date, name }) => (
-            <button
-              key={date}
-              type="button"
-              className="btn btn-sm btn-outline-secondary mr-2 mb-2"
-              onClick={() => add(date, name)}
-            >
-              + {name} ({moment(date).format('MMM D')})
-            </button>
-          ))}
-        </div>
-      )}
       <Button onClick={() => add()} basic primary>+ ADD A DATE</Button>
     </div>
   );
@@ -169,13 +150,11 @@ SpecialHoursEdit.propTypes = {
   entries: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func,
   viewMode: PropTypes.bool,
-  today: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 SpecialHoursEdit.defaultProps = {
   onChange: () => {},
   viewMode: false,
-  today: undefined,
 };
 
 export default SpecialHoursEdit;
