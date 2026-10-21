@@ -206,10 +206,11 @@ class ServiceOpeningHours extends Component {
   );
 
   addHour = (day) => {
-    const defaultHours = this.state.latestHoursEntered || {
-      opensAt: null,
-      closesAt: null,
-    };
+    const latest = this.state.latestHoursEntered;
+    // Reuse the last times entered, but not their note, which is about that day.
+    const defaultHours = latest
+      ? { opensAt: latest.opensAt, closesAt: latest.closesAt }
+      : { opensAt: null, closesAt: null };
 
     this.setState({
       hours: [
@@ -384,6 +385,11 @@ class ServiceOpeningHours extends Component {
                             .join(' | ')
                         }
                       </div>
+                      {dayHours.filter(hour => hour.description).map(hour => (
+                        <div key={`note-${hour.opensAt}`} style={{ fontSize: '.8em', fontStyle: 'italic' }}>
+                          {hour.description}
+                        </div>
+                      ))}
                       {supportsRecurrence && !!dayHours.length &&
                         !!(schedule.weekPatterns[day] || []).length && (
                         <div style={{ fontSize: '.8em' }}>
@@ -401,6 +407,8 @@ class ServiceOpeningHours extends Component {
                       onToChange={this.onChange}
                       removeHour={this.removeHour}
                       addHour={() => this.addHour(day)}
+                      supportsNotes={supportsRecurrence}
+                      onNoteChange={this.onChange}
                       viewMode={this.props.viewMode}
                     /> : []).concat(
                     supportsRecurrence && !viewMode && weekdaysOpen[i] && dayHours.length ?

@@ -68,4 +68,24 @@ describe('ServiceOpeningHoursEdit', () => {
       },
     ]);
   });
+
+  it('saves a note on a time range and shows it on the preview', () => {
+    const updateValue = jest.fn();
+    const friday = {
+      weekday: 'Friday',
+      opensAt: '09:00',
+      closesAt: '17:00',
+      description: 'Please come no later than 5 PM. Consider lining up early.',
+    };
+    const props = {
+      supportsRecurrence: true, updateValue, onCancel: () => {},
+    };
+
+    shallow(<ServiceOpeningHoursEdit value={[friday]} viewMode={false} {...props} />)
+      .instance().updateValue();
+    expect(updateValue.mock.calls[0][0][0]).toMatchObject({ description: friday.description });
+
+    expect(shallow(<ServiceOpeningHoursEdit value={[friday]} viewMode {...props} />).html())
+      .toContain(friday.description);
+  });
 });

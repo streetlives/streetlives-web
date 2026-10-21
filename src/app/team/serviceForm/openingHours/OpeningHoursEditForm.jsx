@@ -6,7 +6,8 @@ import './OpeningHoursEditForm.css';
 export default class OpeningHoursEditForm extends Component {
   render() {
     const {
-      active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour,
+      active, startTabIndex, hours, onFromChange, onToChange, addHour, removeHour, supportsNotes,
+      onNoteChange,
     } = this.props;
     return hours.map((hour, i) => (
       <div
@@ -51,6 +52,20 @@ export default class OpeningHoursEditForm extends Component {
                   <td style={{ color: 'red', paddingLeft: '1em' }}>+1 day</td>
                 )}
               </tr>
+              {supportsNotes && (
+                <tr>
+                  <td style={{ paddingRight: '1em' }}>Note:</td>
+                  <td colSpan={2}>
+                    <Input
+                      fluid
+                      value={(hour && hour.description) || ''}
+                      placeholder="Optional, e.g. Please arrive by 5 PM. Food runs out early."
+                      tabIndex={(startTabIndex * 100) + (i * 10) + 3}
+                      onChange={e => onNoteChange('description', hour, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
