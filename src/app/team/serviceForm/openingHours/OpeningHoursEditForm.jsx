@@ -52,20 +52,22 @@ export default class OpeningHoursEditForm extends Component {
                   <td style={{ color: 'red', paddingLeft: '1em' }}>+1 day</td>
                 )}
               </tr>
+              {supportsNotes && (
+                <tr>
+                  <td style={{ paddingRight: '1em' }}>Note:</td>
+                  <td colSpan={2} style={{ minWidth: '20em' }}>
+                    <Input
+                      fluid
+                      value={(hour && hour.description) || ''}
+                      placeholder="Optional, e.g. Please arrive by 5 PM. Food runs out early."
+                      tabIndex={(startTabIndex * 100) + (i * 10) + 3}
+                      onChange={e => onNoteChange('description', hour, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-          {supportsNotes && (
-            <div className="mt-2">
-              <div>Note:</div>
-              <Input
-                fluid
-                value={(hour && hour.description) || ''}
-                placeholder="Optional, e.g. Please arrive by 5 PM. Food runs out early."
-                tabIndex={(startTabIndex * 100) + (i * 10) + 3}
-                onChange={e => onNoteChange('description', hour, e.target.value)}
-              />
-            </div>
-          )}
         </div>
         {
           i === (hours.length - 1) &&
