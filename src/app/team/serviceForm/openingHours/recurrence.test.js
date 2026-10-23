@@ -8,8 +8,7 @@ const christmas = {
   validFrom: '2026-12-25',
   validTo: '',
   closed: true,
-  opensAt: null,
-  closesAt: null,
+  hours: [],
   description: 'Christmas Day',
 };
 
@@ -57,8 +56,7 @@ describe('applySchedule', () => {
           validFrom: '2026-12-31',
           validTo: '',
           closed: false,
-          opensAt: '10:00',
-          closesAt: '14:00',
+          hours: [{ opensAt: '10:00', closesAt: '12:00' }, { opensAt: '13:00', closesAt: '15:00' }],
           description: '',
         },
       ],
@@ -70,7 +68,15 @@ describe('applySchedule', () => {
       {
         closed: false,
         opensAt: '10:00',
-        closesAt: '14:00',
+        closesAt: '12:00',
+        validFrom: '2026-12-31',
+        validTo: '2026-12-31',
+        description: null,
+      },
+      {
+        closed: false,
+        opensAt: '13:00',
+        closesAt: '15:00',
         validFrom: '2026-12-31',
         validTo: '2026-12-31',
         description: null,
@@ -88,6 +94,20 @@ describe('readSchedule', () => {
       specialHours: [christmas],
     };
     expect(readSchedule(applySchedule(fridayHours, schedule))).toEqual(schedule);
+  });
+
+  it('groups the time ranges of one special date into one entry', () => {
+    const newYearsEve = {
+      validFrom: '2026-12-31',
+      validTo: '',
+      closed: false,
+      hours: [{ opensAt: '10:00', closesAt: '12:00' }, { opensAt: '13:00', closesAt: '15:00' }],
+      description: '',
+    };
+    const schedule = { ...EMPTY_SCHEDULE, specialHours: [christmas, newYearsEve] };
+    expect(readSchedule(applySchedule([], schedule)).specialHours)
+      .toEqual([christmas, newYearsEve]);
+    expect(describeSpecialHours(newYearsEve)).toBe('Dec 31, 2026: 10AM to 12PM, 1PM to 3PM');
   });
 
   it('reads an earlier closed-month row as special hours', () => {
@@ -116,8 +136,7 @@ describe('describeSpecialHours', () => {
       validFrom: '2026-12-24',
       validTo: '2026-12-26',
       closed: false,
-      opensAt: '10:00',
-      closesAt: '14:30',
+      hours: [{ opensAt: '10:00', closesAt: '14:30' }],
     })).toBe('Dec 24 – Dec 26, 2026: 10AM to 2:30PM');
   });
 });

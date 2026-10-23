@@ -10,12 +10,13 @@ import {
 
 const ERROR_STYLE = { color: '#A02733', fontSize: '0.8em' };
 
+const DEFAULT_HOURS = { opensAt: '09:00', closesAt: '17:00' };
+
 const newEntry = () => ({
   validFrom: '',
   validTo: '',
   closed: true,
-  opensAt: null,
-  closesAt: null,
+  hours: [],
   description: '',
 });
 
@@ -39,6 +40,13 @@ function SpecialHoursEdit({
   )));
   const remove = index => onChange(entries.filter((_, i) => i !== index));
   const add = () => onChange([...entries, newEntry()]);
+  const updateHours = (index, hourIndex, changes) => update(index, {
+    hours: entries[index].hours.map((range, j) => (j === hourIndex ? { ...range, ...changes } : range)),
+  });
+  const addHours = index => update(index, { hours: [...entries[index].hours, { ...DEFAULT_HOURS }] });
+  const removeHours = (index, hourIndex) => update(index, {
+    hours: entries[index].hours.filter((_, j) => j !== hourIndex),
+  });
 
   return (
     <div className="mb-3">
@@ -94,7 +102,7 @@ function SpecialHoursEdit({
                 id={`special-closed-${i}`}
                 type="radio"
                 checked={entry.closed}
-                onChange={() => update(i, { closed: true, opensAt: null, closesAt: null })}
+                onChange={() => update(i, { closed: true, hours: [] })}
               />{' '}Closed
             </label>
             <label htmlFor={`special-open-${i}`}>
@@ -102,40 +110,60 @@ function SpecialHoursEdit({
                 id={`special-open-${i}`}
                 type="radio"
                 checked={!entry.closed}
-                onChange={() => update(i, { closed: false, opensAt: '09:00', closesAt: '17:00' })}
+                onChange={() => update(i, { closed: false, hours: [{ ...DEFAULT_HOURS }] })}
               />{' '}Open with different hours
             </label>
           </div>
           {!entry.closed && (
-            <table>
-              <tbody>
-                <tr>
-                  <td style={{ paddingRight: '1em' }}>From:</td>
-                  <td>
-                    <Input
-                      type="time"
-                      value={entry.opensAt || ''}
-                      onChange={e => update(i, { opensAt: e.target.value })}
-                    />
-                  </td>
-                  <td style={{ padding: '0 1em' }}>To:</td>
-                  <td>
-                    <Input
-                      type="time"
-                      value={entry.closesAt || ''}
-                      onChange={e => update(i, { closesAt: e.target.value })}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="mb-2">
+              <table>
+                <tbody>
+                  {entry.hours.map((range, j) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <tr key={j}>
+                      <td style={{ paddingRight: '1em' }}>From:</td>
+                      <td>
+                        <Input
+                          type="time"
+                          value={range.opensAt || ''}
+                          onChange={e => updateHours(i, j, { opensAt: e.target.value })}
+                        />
+                      </td>
+                      <td style={{ padding: '0 1em' }}>To:</td>
+                      <td>
+                        <Input
+                          type="time"
+                          value={range.closesAt || ''}
+                          onChange={e => updateHours(i, j, { closesAt: e.target.value })}
+                        />
+                      </td>
+                      <td>
+                        {entry.hours.length > 1 && (
+                          <button
+                            type="button"
+                            className="default"
+                            aria-label="Remove hours"
+                            onClick={() => removeHours(i, j)}
+                          >
+                            <Icon name="trash" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Button onClick={() => addHours(i)} basic primary>+ ADD HOURS</Button>
+            </div>
           )}
           {!isSpecialHoursValid(entry) && (
             <div style={ERROR_STYLE}>
               {!entry.validFrom && 'Please pick a date. '}
               {entry.validTo && entry.validFrom && entry.validTo < entry.validFrom &&
                 'The end date is before the start date. '}
-              {!entry.closed && (!entry.opensAt || !entry.closesAt) && 'Please enter From & To hours.'}
+              {!entry.closed &&
+                entry.hours.some(({ opensAt, closesAt }) => !opensAt || !closesAt) &&
+                'Please enter From & To hours.'}
             </div>
           )}
         </div>

@@ -42,6 +42,29 @@ function readWeeks(byday) {
 export const sortWeeks = weeks =>
   [...weeks].sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
 
+// Groups special-hours rows into entries: one row per time range, so a date open
+// 9AM to 12PM and 1PM to 5PM is two rows with the same dates and label.
+function readSpecialHours(rows) {
+  const entries = [];
+  rows.forEach((row) => {
+    const validTo = row.validTo && row.validTo !== row.validFrom ? row.validTo : '';
+    const description = row.description || '';
+    const closed = !!row.closed;
+    const existing = entries.find(entry => entry.validFrom === row.validFrom &&
+      entry.validTo === validTo && entry.description === description && entry.closed === closed);
+    const hours = closed ? [] : [{ opensAt: row.opensAt, closesAt: row.closesAt }];
+    if (existing) {
+      existing.hours.push(...hours);
+    } else {
+      entries.push({
+        validFrom: row.validFrom, validTo, closed, hours, description,
+      });
+    }
+  });
+  entries.forEach(entry => entry.hours.sort((a, b) => (a.opensAt < b.opensAt ? -1 : 1)));
+  return entries;
+}
+
 // Reads the schedule settings back out of the rows the API returned.
 export function readSchedule(rows) {
   const regularRows = rows.filter(row => !row.closed && !isSpecialHours(row));
@@ -57,14 +80,7 @@ export function readSchedule(rows) {
     weekPatterns,
     validFrom: (seasonRow && seasonRow.validFrom) || '',
     validTo: (seasonRow && seasonRow.validTo) || '',
-    specialHours: rows.filter(isSpecialHours).map(row => ({
-      validFrom: row.validFrom,
-      validTo: row.validTo && row.validTo !== row.validFrom ? row.validTo : '',
-      closed: !!row.closed,
-      opensAt: row.closed ? null : row.opensAt,
-      closesAt: row.closed ? null : row.closesAt,
-      description: row.description || '',
-    })),
+    specialHours: readSpecialHours(rows.filter(isSpecialHours)),
   };
 }
 
@@ -91,13 +107,23 @@ export function applySchedule(hours, schedule, { withRecurrence = true } = {}) {
     };
   });
 
-  const specialRows = schedule.specialHours.map(entry => ({
-    closed: entry.closed,
-    ...(entry.closed ? {} : { opensAt: entry.opensAt, closesAt: entry.closesAt }),
-    validFrom: entry.validFrom,
-    validTo: entry.validTo || entry.validFrom,
-    description: entry.description || null,
-  }));
+  const specialRows = [];
+  schedule.specialHours.forEach((entry) => {
+    const dates = {
+      validFrom: entry.validFrom,
+      validTo: entry.validTo || entry.validFrom,
+      description: entry.description || null,
+    };
+    if (entry.closed) {
+      specialRows.push({ closed: true, ...dates });
+    } else {
+      entry.hours.forEach(({ opensAt, closesAt }) => {
+        specialRows.push({
+          closed: false, opensAt, closesAt, ...dates,
+        });
+      });
+    }
+  });
 
   return [...regularRows, ...specialRows];
 }
@@ -124,7 +150,7 @@ function formatTime(time) {
   return m.minutes() ? m.format('h:mmA') : m.format('hA');
 }
 
-// "Dec 25, 2026 (Christmas Day): Closed", "Dec 24 – Dec 26, 2026: 10AM to 2PM".
+// "Dec 25, 2026 (Christmas Day): Closed", "Dec 24 – Dec 26, 2026: 10AM to 2PM, 4PM to 6PM".
 export function describeSpecialHours(entry) {
   const dates = entry.validTo && entry.validTo !== entry.validFrom
     ? `${formatDate(entry.validFrom, false)} – ${formatDate(entry.validTo)}`
@@ -132,7 +158,9 @@ export function describeSpecialHours(entry) {
   const label = entry.description ? ` (${entry.description})` : '';
   const hours = entry.closed
     ? 'Closed'
-    : `${formatTime(entry.opensAt)} to ${formatTime(entry.closesAt)}`;
+    : entry.hours
+      .map(({ opensAt, closesAt }) => `${formatTime(opensAt)} to ${formatTime(closesAt)}`)
+      .join(', ');
   return `${dates}${label}: ${hours}`;
 }
 
@@ -148,5 +176,7 @@ export function describeSeason({ validFrom, validTo }) {
 export function isSpecialHoursValid(entry) {
   if (!entry.validFrom) return false;
   if (entry.validTo && entry.validTo < entry.validFrom) return false;
-  return entry.closed || (!!entry.opensAt && !!entry.closesAt);
+  return entry.closed ||
+    (entry.hours.length > 0 &&
+      entry.hours.every(({ opensAt, closesAt }) => !!opensAt && !!closesAt));
 }
