@@ -12,10 +12,12 @@ import ServiceOpeningHoursView from '../serviceForm/openingHours/ServiceOpeningH
 
 const ViewComponent = compose(withProps({
   topText: 'OPENING HOURS',
+  supportsRecurrence: true,
 }))(props => <ServiceOpeningHoursView {...props} />);
 
 const EditComponent = compose(withProps({
   viewMode: false,
+  supportsRecurrence: true,
 }))(props => <ServiceOpeningHoursEdit {...props} />);
 
 const FormComponent = compose(withProps({
