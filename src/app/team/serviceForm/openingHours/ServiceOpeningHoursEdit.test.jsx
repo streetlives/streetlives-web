@@ -46,6 +46,33 @@ describe('ServiceOpeningHoursEdit', () => {
     expect(wrapper.state('schedule').specialHours).toHaveLength(1);
   });
 
+  it('keeps overnight hours on the last Friday as one row', () => {
+    const updateValue = jest.fn();
+    const wrapper = shallow(<ServiceOpeningHoursEdit
+      value={[
+        { weekday: 'Friday', opensAt: '22:00', closesAt: '02:00' },
+        { weekday: 'Monday', opensAt: '22:00', closesAt: '02:00' },
+      ]}
+      viewMode={false}
+      supportsRecurrence
+      updateValue={updateValue}
+      onCancel={() => {}}
+    />);
+    wrapper.instance().onWeeksChange('Friday', ['-1']);
+    wrapper.instance().updateValue();
+
+    const saved = updateValue.mock.calls[0][0]
+      .map(({
+        weekday, opensAt, closesAt, byday,
+      }) => [weekday, opensAt, closesAt, byday]);
+    expect(saved).toEqual(expect.arrayContaining([
+      ['Friday', '22:00', '02:00', '-1FR'],
+      ['Monday', '22:00', '23:59', 'MO'],
+      ['Tuesday', '00:00', '02:00', 'TU'],
+    ]));
+    expect(saved).toHaveLength(3);
+  });
+
   it('saves the first two Fridays and a holiday closure', () => {
     const updateValue = jest.fn();
     const wrapper = shallow(<ServiceOpeningHoursEdit

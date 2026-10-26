@@ -78,12 +78,15 @@ function formatHours(hours) {
   return s1 && s2 ? `${s1} to ${s2}` : '';
 }
 
-function splitOvernightHours(hours) {
+// Overnight hours on days that only open on some weeks of the month stay as one row
+// (e.g. Friday 22:00-02:00 on the last Friday): the morning after the last Friday isn't
+// "the last Saturday", and the next day's own weeks don't apply to it.
+function splitOvernightHours(hours, keepWhole = () => false) {
   const getNextWeekday = weekday => DAYS[(DAYS.indexOf(weekday) + 1) % DAYS.length];
 
   return hours.reduce((splitHours, hour) => {
     const isOvernight = hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt;
-    if (!isOvernight) {
+    if (!isOvernight || keepWhole(hour)) {
       return [...splitHours, hour];
     }
 
@@ -191,10 +194,12 @@ class ServiceOpeningHours extends Component {
 
   getHoursToSave = () => {
     const { active, schedule } = this.state;
-    const hours = splitOvernightHours(this.state.hours);
     if (!this.props.supportsRecurrence || (active !== IS_NOT_247_ACTIVE && active !== IS_247_ACTIVE)) {
-      return hours;
+      return splitOvernightHours(this.state.hours);
     }
+    const isMonthly = hour => active === IS_NOT_247_ACTIVE &&
+      (schedule.weekPatterns[hour.weekday] || []).length > 0;
+    const hours = splitOvernightHours(this.state.hours, isMonthly);
     return applySchedule(hours, schedule, { withRecurrence: active === IS_NOT_247_ACTIVE });
   };
 

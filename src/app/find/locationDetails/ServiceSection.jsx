@@ -7,6 +7,9 @@ import ServiceRestrictions from './ServiceRestrictions';
 import Icon from '../../../components/icon';
 import { DAYS, OCCASIONS } from '../../../Constants';
 import InfoItem from './InfoItem';
+import {
+  readSchedule, isSpecialHours, describeWeeks, describeSeason, describeSpecialHours,
+} from '../../team/serviceForm/openingHours/recurrence';
 
 const renderSchedule = (schedule) => {
   if (schedule.length === 7 &&
@@ -64,6 +67,43 @@ const renderSchedule = (schedule) => {
   return `Open ${groupStrings.join(', ')}`;
 };
 
+// The API rows in the shape the street-team editor's recurrence helpers read.
+const toEditorRow = row => ({
+  weekday: row.weekday ? DAYS[row.weekday - 1] : null,
+  opensAt: row.opens_at,
+  closesAt: row.closes_at,
+  closed: row.closed,
+  validFrom: row.valid_from,
+  validTo: row.valid_to,
+  byday: row.byday,
+  description: row.description,
+});
+
+// Weekly hours as before, then hours that only apply on some weeks of the month
+// ("1st and 2nd Fridays of the month: 9 AM to 5 PM"), the season they run in, and
+// special hours such as holidays.
+const renderFullSchedule = (openDays, specialRows) => {
+  const {
+    weekPatterns, validFrom, validTo, specialHours,
+  } = readSchedule([...openDays, ...specialRows].map(toEditorRow));
+  const weeksFor = row => weekPatterns[DAYS[row.weekday - 1]] || [];
+  const weekly = openDays.filter(row => !weeksFor(row).length);
+  const monthly = orderBy(openDays.filter(row => weeksFor(row).length), ['weekday', 'opens_at']);
+
+  const formatHour = time => moment(time, 'HH:mm:ss').format('LT').replace(':00 ', ' ');
+  const lines = [
+    ...(weekly.length ? [renderSchedule(weekly)] : []),
+    ...monthly.map(row => `${describeWeeks(DAYS[row.weekday - 1], weeksFor(row))}: ` +
+      `${formatHour(row.opens_at)} to ${formatHour(row.closes_at)}`),
+    ...(openDays.length && describeSeason({ validFrom, validTo })
+      ? [describeSeason({ validFrom, validTo })] : []),
+    ...specialHours.map(describeSpecialHours),
+  ];
+  return lines.map(line => <div key={line}>{line}</div>);
+};
+
+const isSpecialRow = row => isSpecialHours(toEditorRow(row));
+
 function ServiceSection({ service, showOnMount }) {
   const [isExpanded, setIsExpanded] = useState(showOnMount);
 
@@ -71,9 +111,12 @@ function ServiceSection({ service, showOnMount }) {
     service.EventRelatedInfos &&
     service.EventRelatedInfos.filter(({ event }) => event === OCCASIONS.CLOSURE || event === OCCASIONS.COVID19);
 
-  const schedule =
+  const holidaySchedules =
     service.HolidaySchedules &&
     service.HolidaySchedules.filter(({ occasion }) => occasion === OCCASIONS.CLOSURE || occasion === OCCASIONS.COVID19);
+  // Special hours (holidays and other dates) don't say whether the service runs at all.
+  const schedule = holidaySchedules && holidaySchedules.filter(row => !isSpecialRow(row));
+  const specialRows = (holidaySchedules || []).filter(isSpecialRow);
   const isScheduleKnown = schedule && schedule.length;
 
   let isClosed = false;
@@ -131,10 +174,10 @@ function ServiceSection({ service, showOnMount }) {
       ));
     }
 
-    if (openDays) {
+    if ((openDays && openDays.length) || specialRows.length) {
       serviceDetails.push((
         <InfoItem key="schedule" coronavirus icon="clock">
-          {renderSchedule(openDays)}
+          {renderFullSchedule(openDays || [], specialRows)}
         </InfoItem>
       ));
     }
