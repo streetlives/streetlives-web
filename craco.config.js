@@ -25,6 +25,12 @@ module.exports = {
           mainFields: ['browser', 'module', 'main'],
         },
       });
+      // The find and team routes are lazy chunks that import shared components' CSS in
+      // different orders, so the common chunk can't satisfy both and mini-css-extract
+      // warns (an error under CI=true). Those component styles don't override each other.
+      webpackConfig.plugins.forEach((plugin) => {
+        if (plugin.constructor.name === 'MiniCssExtractPlugin') plugin.options.ignoreOrder = true;
+      });
       return webpackConfig;
     },
   },
