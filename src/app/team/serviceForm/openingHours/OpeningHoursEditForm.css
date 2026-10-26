@@ -39,3 +39,12 @@
   cursor: pointer;
   padding:.25em;
 }
+
+.OpeningHoursEditForm .Input {
+  font-size: 1.1em;
+  padding: 8px 6px;
+}
+
+.OpeningHoursEditForm .Input[type="time"] {
+  min-width: 8em;
+}

@@ -4,8 +4,14 @@ import moment from 'moment';
 import Header from '../../../../components/header';
 import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
+import Input from '../../../../components/input';
 import { DAYS } from '../../../../Constants';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
+import SpecialHoursEdit from './SpecialHoursEdit';
+import {
+  WEEK_OPTIONS, readSchedule, applySchedule, hasRecurrence, isSpecialHours, isSpecialHoursValid,
+  describeWeeks, describeSeason, sortWeeks,
+} from './recurrence';
 
 const NOTHING_ACTIVE = -1;
 const IS_247_ACTIVE = 0;
@@ -14,9 +20,19 @@ const IS_CLOSED = 2;
 const MIDNIGHT = '00:00';
 const ELEVEN_FIFTY_NINE = '23:59';
 
-function getActive(hours) {
+// Special hours (dated overrides) don't decide the mode; only the regular hours do.
+const getRegularHours = rows => rows.filter(row => !isSpecialHours(row));
+
+function getActive(rows) {
+  const hours = getRegularHours(rows);
   if (hours.length > 0 && hours.filter(({ closed }) => !closed).length === 0) {
     return IS_CLOSED;
+  }
+
+  // Round-the-clock hours that only apply on some weeks of the month or between
+  // certain dates aren't 24/7, and the recurrence settings live in that mode.
+  if (hasRecurrence(readSchedule(hours))) {
+    return IS_NOT_247_ACTIVE;
   }
 
   const is247 = DAYS.every(weekday => (
@@ -41,6 +57,12 @@ function checkAllHoursValid(hours) {
   return hours.every(hour => hour.closed || (hour.opensAt != null && hour.closesAt != null));
 }
 
+function areSeasonDatesValid({ validFrom, validTo }) {
+  return !validFrom || !validTo || validFrom <= validTo;
+}
+
+const getOpenRegularHours = rows => getRegularHours(rows).filter(({ closed }) => !closed);
+
 function formatTime(time) {
   const m = moment(time, 'hh:mm');
   if (!m.isValid()) {
@@ -56,21 +78,26 @@ function formatHours(hours) {
   return s1 && s2 ? `${s1} to ${s2}` : '';
 }
 
-function splitOvernightHours(hours) {
+// Overnight hours on days that only open on some weeks of the month stay as one row
+// (e.g. Friday 22:00-02:00 on the last Friday): the morning after the last Friday isn't
+// "the last Saturday", and the next day's own weeks don't apply to it.
+function splitOvernightHours(hours, keepWhole = () => false) {
   const getNextWeekday = weekday => DAYS[(DAYS.indexOf(weekday) + 1) % DAYS.length];
 
   return hours.reduce((splitHours, hour) => {
     const isOvernight = hour && hour.closesAt && hour.opensAt && hour.opensAt > hour.closesAt;
-    if (!isOvernight) {
+    if (!isOvernight || keepWhole(hour)) {
       return [...splitHours, hour];
     }
 
     const beforeMidnight = {
+      ...hour,
       weekday: hour.weekday,
       opensAt: hour.opensAt,
       closesAt: ELEVEN_FIFTY_NINE,
     };
     const afterMidnight = {
+      ...hour,
       weekday: getNextWeekday(hour.weekday),
       opensAt: MIDNIGHT,
       closesAt: hour.closesAt,
@@ -89,16 +116,18 @@ class ServiceOpeningHours extends Component {
     this.state = {
       active: getActive(props.value),
       weekdaysOpen: {},
-      hours: props.value.filter(({ closed }) => !closed),
+      hours: getOpenRegularHours(props.value),
       latestHoursEntered: null,
+      schedule: readSchedule(props.value),
     };
   }
 
   componentWillReceiveProps(props) {
     if (props.value && props.value !== this.props.value) {
       this.setState({
-        hours: props.value.filter(({ closed }) => !closed),
+        hours: getOpenRegularHours(props.value),
         active: getActive(props.value),
+        schedule: readSchedule(props.value),
       });
     }
   }
@@ -153,18 +182,40 @@ class ServiceOpeningHours extends Component {
     });
   }
 
+  onScheduleChange = (field, value) => this.setState(({ schedule }) => ({
+    schedule: { ...schedule, [field]: value },
+  }));
+
+  // `weeks` is [] for every week, or e.g. ['1', '2'] for the 1st and 2nd of the month.
+  onWeeksChange = (weekday, weeks) => this.onScheduleChange('weekPatterns', {
+    ...this.state.schedule.weekPatterns,
+    [weekday]: sortWeeks(weeks),
+  });
+
+  getHoursToSave = () => {
+    const { active, schedule } = this.state;
+    if (!this.props.supportsRecurrence || (active !== IS_NOT_247_ACTIVE && active !== IS_247_ACTIVE)) {
+      return splitOvernightHours(this.state.hours);
+    }
+    const isMonthly = hour => active === IS_NOT_247_ACTIVE &&
+      (schedule.weekPatterns[hour.weekday] || []).length > 0;
+    const hours = splitOvernightHours(this.state.hours, isMonthly);
+    return applySchedule(hours, schedule, { withRecurrence: active === IS_NOT_247_ACTIVE });
+  };
+
   updateValue = e => this.props.updateValue(
-    splitOvernightHours(this.state.hours),
+    this.getHoursToSave(),
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,
   );
 
   addHour = (day) => {
-    const defaultHours = this.state.latestHoursEntered || {
-      opensAt: null,
-      closesAt: null,
-    };
+    const latest = this.state.latestHoursEntered;
+    // Reuse the last times entered, but not their note, which is about that day.
+    const defaultHours = latest
+      ? { opensAt: latest.opensAt, closesAt: latest.closesAt }
+      : { opensAt: null, closesAt: null };
 
     this.setState({
       hours: [
@@ -190,9 +241,93 @@ class ServiceOpeningHours extends Component {
     });
   }
 
+  renderWeeksPicker(day) {
+    const weeks = this.state.schedule.weekPatterns[day] || [];
+    const toggle = (week, checked) => this.onWeeksChange(
+      day,
+      checked ? [...weeks, week] : weeks.filter(w => w !== week),
+    );
+
+    return (
+      <div key={`weeks-${day}`} className="px-3 pb-3" style={{ fontSize: '.9em' }}>
+        <div>Which {day}s?</div>
+        <label className="mr-3" htmlFor={`weeks-every-${day}`}>
+          <input
+            id={`weeks-every-${day}`}
+            type="checkbox"
+            checked={!weeks.length}
+            onChange={() => this.onWeeksChange(day, [])}
+          />{' '}Every {day}
+        </label>
+        {WEEK_OPTIONS.map(({ value, label }) => (
+          <label key={value} className="mr-3" htmlFor={`weeks-${value}-${day}`}>
+            <input
+              id={`weeks-${value}-${day}`}
+              type="checkbox"
+              checked={weeks.includes(value)}
+              onChange={e => toggle(value, e.target.checked)}
+            />{' '}{label}
+          </label>
+        ))}
+        {!!weeks.length && <div>{describeWeeks(day, weeks)}</div>}
+      </div>
+    );
+  }
+
+  renderSeason() {
+    const { schedule } = this.state;
+
+    if (this.props.viewMode) {
+      const summary = describeSeason(schedule);
+      return summary ? <p className="mb-3">{summary}</p> : null;
+    }
+
+    return (
+      <div className="mb-3">
+        <p className="mb-1">Do these hours only run between certain dates? (optional)</p>
+        <table>
+          <tbody>
+            <tr>
+              <td style={{ paddingRight: '1em' }}>From:</td>
+              <td>
+                <Input
+                  type="date"
+                  value={schedule.validFrom}
+                  onChange={e => this.onScheduleChange('validFrom', e.target.value)}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Until:</td>
+              <td>
+                <Input
+                  type="date"
+                  value={schedule.validTo}
+                  onChange={e => this.onScheduleChange('validTo', e.target.value)}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {!areSeasonDatesValid(schedule) && (
+          <div style={{ color: '#A02733', fontSize: '0.8em' }}>
+            The end date is before the start date
+          </div>
+        )}
+      </div>
+    );
+  }
+
   render() {
-    const { active, weekdaysOpen, hours } = this.state;
-    const allHoursValid = checkAllHoursValid(hours);
+    const {
+      active, weekdaysOpen, hours, schedule,
+    } = this.state;
+    const { supportsRecurrence, viewMode } = this.props;
+    const showsSpecialHours = supportsRecurrence &&
+      (active === IS_NOT_247_ACTIVE || active === IS_247_ACTIVE);
+    const allHoursValid = checkAllHoursValid(hours) && (!supportsRecurrence || (
+      areSeasonDatesValid(schedule) && schedule.specialHours.every(isSpecialHoursValid)
+    ));
 
     return (
       <div className="w-100">
@@ -255,6 +390,17 @@ class ServiceOpeningHours extends Component {
                             .join(' | ')
                         }
                       </div>
+                      {dayHours.filter(hour => hour.description).map(hour => (
+                        <div key={`note-${hour.opensAt}`} style={{ fontSize: '.8em', fontStyle: 'italic' }}>
+                          {hour.description}
+                        </div>
+                      ))}
+                      {supportsRecurrence && !!dayHours.length &&
+                        !!(schedule.weekPatterns[day] || []).length && (
+                        <div style={{ fontSize: '.8em' }}>
+                          {describeWeeks(day, schedule.weekPatterns[day])} only
+                        </div>
+                      )}
                     </Selector.Option>,
                   ].concat(dayHours && dayHours.length ?
                     <OpeningHoursEditForm
@@ -266,19 +412,34 @@ class ServiceOpeningHours extends Component {
                       onToChange={this.onChange}
                       removeHour={this.removeHour}
                       addHour={() => this.addHour(day)}
+                      supportsNotes={supportsRecurrence}
+                      onNoteChange={this.onChange}
                       viewMode={this.props.viewMode}
-                    /> : []);
+                    /> : []).concat(
+                    supportsRecurrence && !viewMode && weekdaysOpen[i] && dayHours.length ?
+                      this.renderWeeksPicker(day) : [],
+                  );
                 })
               }
             </Selector>
           </div>
+        )}
+        {active === IS_NOT_247_ACTIVE && supportsRecurrence && this.renderSeason()}
+        {showsSpecialHours && (
+          <SpecialHoursEdit
+            entries={schedule.specialHours}
+            viewMode={viewMode}
+            onChange={entries => this.onScheduleChange('specialHours', entries)}
+          />
         )}
         {
           !this.props.viewMode && (
             <div>
               {!allHoursValid && (
                 <div style={{ color: '#A02733', fontSize: '0.8em' }}>
-                  Missing hours for some selected days
+                  {checkAllHoursValid(hours)
+                    ? 'Please fix the dates or special hours above'
+                    : 'Missing hours for some selected days'}
                 </div>
               )}
               <Button
