@@ -2,16 +2,25 @@ import locationsReducer from './locations';
 import { OPTIMISTIC_UPDATE_SERVICE } from '../actions';
 import { getIrregularOpeningHours } from '../selectors/service';
 import {
-  applySchedule, readSchedule, EMPTY_SCHEDULE,
+  applySchedule, readSchedule, newAtom, newClosure,
 } from '../app/team/serviceForm/openingHours/recurrence';
 
-// What GoGetta saves for "1st and 2nd Fridays 9-5, Christmas closed, New Year's Eve
-// 10-12 and 1-3", applied as an optimistic update and read back by the editor.
+// What GoGetta saves for "1st and 2nd Fridays 9-5, closed every Thanksgiving, Christmas closed,
+// New Year's Eve 10-12 and 1-3", applied as an optimistic update and read back by the editor.
 describe('optimistic update of HSDS schedule fields', () => {
   const props = { match: { params: { locationId: 'loc', serviceId: 'svc' } } };
   const schedule = {
-    ...EMPTY_SCHEDULE,
-    weekPatterns: { Friday: ['1', '2'] },
+    atoms: [newAtom({
+      day: 'Friday',
+      opensAt: '09:00',
+      closesAt: '17:00',
+      description: 'Line up early.',
+      freq: 'MONTHLY',
+      weeks: ['1', '2'],
+    })],
+    closures: [newClosure({
+      month: '11', on: 'weekday', weeks: ['4'], day: 'Thursday', description: 'Thanksgiving',
+    })],
     specialHours: [
       {
         validFrom: '2026-12-25', validTo: '', closed: true, hours: [], description: 'Christmas Day',
@@ -25,16 +34,7 @@ describe('optimistic update of HSDS schedule fields', () => {
       },
     ],
   };
-  const irregularHours = applySchedule(
-    [{
-      weekday: 'Friday',
-      opensAt: '09:00',
-      closesAt: '17:00',
-      closed: false,
-      description: 'Line up early.',
-    }],
-    schedule,
-  );
+  const irregularHours = applySchedule(schedule);
 
   const state = {
     locations: locationsReducer(
@@ -63,11 +63,14 @@ describe('optimistic update of HSDS schedule fields', () => {
     expect(rows[0]).toMatchObject({
       weekday: 5, opens_at: '09:00:00', closes_at: '17:00:00', freq: 'MONTHLY', byday: '1FR,2FR',
     });
+    expect(rows[1]).toMatchObject({
+      closed: true, freq: 'YEARLY', bymonth: '11', byday: '4TH', weekday: null,
+    });
     // Special hours have no weekday (not 0, which would read as Sunday).
-    expect(rows.slice(1).map(({ weekday, valid_from: from }) => [weekday, from])).toEqual([
+    expect(rows.slice(2).map(({ weekday, valid_from: from }) => [weekday, from])).toEqual([
       [null, '2026-12-25'], [null, '2026-12-31'], [null, '2026-12-31'],
     ]);
-    expect(rows[1]).toMatchObject({ closed: true, opens_at: null, closes_at: null });
+    expect(rows[2]).toMatchObject({ closed: true, opens_at: null, closes_at: null });
   });
 
   it('reads back into the same editor state', () => {
@@ -75,6 +78,6 @@ describe('optimistic update of HSDS schedule fields', () => {
     expect(rows[0]).toMatchObject({
       weekday: 'Friday', opensAt: '09:00', closesAt: '17:00', description: 'Line up early.',
     });
-    expect(readSchedule(rows)).toEqual(schedule);
+    expect(readSchedule(rows, '2026-11-01')).toEqual(schedule);
   });
 });

@@ -8,7 +8,7 @@ import Icon from '../../../components/icon';
 import { DAYS, OCCASIONS } from '../../../Constants';
 import InfoItem from './InfoItem';
 import {
-  readSchedule, isSpecialHours, describeWeeks, describeSeason, describeSpecialHours,
+  readSchedule, isSpecialHours, groupAtoms, describeCard, describeClosure, describeSpecialHours,
 } from '../../team/serviceForm/openingHours/recurrence';
 
 const renderSchedule = (schedule) => {
@@ -69,40 +69,40 @@ const renderSchedule = (schedule) => {
 
 // The API rows in the shape the street-team editor's recurrence helpers read.
 const toEditorRow = row => ({
-  weekday: row.weekday ? DAYS[row.weekday - 1] : null,
-  opensAt: row.opens_at,
-  closesAt: row.closes_at,
-  closed: row.closed,
+  ...row,
+  weekday: row.weekday ? DAYS[(row.weekday + 6) % 7] : null,
+  opensAt: row.opens_at && row.opens_at.slice(0, 5),
+  closesAt: row.closes_at && row.closes_at.slice(0, 5),
   validFrom: row.valid_from,
   validTo: row.valid_to,
-  byday: row.byday,
-  description: row.description,
 });
 
-// Weekly hours as before, then hours that only apply on some weeks of the month
-// ("1st and 2nd Fridays of the month: 9 AM to 5 PM"), the season they run in, and
-// special hours such as holidays.
+// Plain weekly hours as before ("Open Monday to Friday 9 AM to 5 PM"), then every other card
+// of hours in words ("1st and 3rd Sat of every month: 9AM to 5PM. Skips Nov 14"), then closures
+// that repeat and special hours such as holidays.
 const renderFullSchedule = (openDays, specialRows) => {
-  const {
-    weekPatterns, validFrom, validTo, specialHours,
-  } = readSchedule([...openDays, ...specialRows].map(toEditorRow));
-  const weeksFor = row => weekPatterns[DAYS[row.weekday - 1]] || [];
-  const weekly = openDays.filter(row => !weeksFor(row).length);
-  const monthly = orderBy(openDays.filter(row => weeksFor(row).length), ['weekday', 'opens_at']);
+  const { atoms, closures, specialHours } =
+    readSchedule([...openDays, ...specialRows].map(toEditorRow));
+  const cards = groupAtoms(atoms);
+  const isPlainWeekly = card => card.freq === 'WEEKLY' && card.interval <= 1 &&
+    !card.months.length && !card.validFrom && !card.validTo && !card.exdates.length &&
+    card.ranges.every(range => !range.description);
+  const plainDays = new Set(cards.filter(isPlainWeekly).flatMap(card => card.days
+    .flatMap(day => card.ranges.map(range => `${day}|${range.opensAt}|${range.closesAt}`))));
+  const weekly = openDays.filter(row => plainDays.has(`${DAYS[(row.weekday + 6) % 7]}|` +
+    `${row.opens_at && row.opens_at.slice(0, 5)}|${row.closes_at && row.closes_at.slice(0, 5)}`));
 
-  const formatHour = time => moment(time, 'HH:mm:ss').format('LT').replace(':00 ', ' ');
   const lines = [
     ...(weekly.length ? [renderSchedule(weekly)] : []),
-    ...monthly.map(row => `${describeWeeks(DAYS[row.weekday - 1], weeksFor(row))}: ` +
-      `${formatHour(row.opens_at)} to ${formatHour(row.closes_at)}`),
-    ...(openDays.length && describeSeason({ validFrom, validTo })
-      ? [describeSeason({ validFrom, validTo })] : []),
+    ...cards.filter(card => !isPlainWeekly(card)).map(describeCard),
+    ...closures.map(closure => `Closed: ${describeClosure(closure)}`),
     ...specialHours.map(describeSpecialHours),
   ];
   return lines.map(line => <div key={line}>{line}</div>);
 };
 
-const isSpecialRow = row => isSpecialHours(toEditorRow(row));
+// Special hours and closures that repeat: neither says whether the service runs at all.
+const isSpecialRow = row => isSpecialHours(toEditorRow(row)) || (row.closed && !!row.freq);
 
 function ServiceSection({ service, showOnMount }) {
   const [isExpanded, setIsExpanded] = useState(showOnMount);
