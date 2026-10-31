@@ -30,7 +30,7 @@ describe('ServiceSection schedule', () => {
       }),
     ])).toEqual([
       'Open Monday 9 AM to 5 PM',
-      '1st and 2nd Fridays of the month: 9 AM to 5 PM',
+      '1st and 2nd Fri of every month: 9AM to 5PM',
       'Dec 25, 2026 (Christmas Day): Closed',
     ]);
   });
