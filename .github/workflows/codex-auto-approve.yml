@@ -41,7 +41,9 @@ jobs:
           set -euo pipefail
           mkdir -p .codex-protected
 
-          git fetch --no-tags origin master:refs/remotes/origin/master --depth=1
+          # No --depth: a shallow fetch into the full clone grafts master's tip,
+          # hiding the merge base that the BASE...HEAD diffs below rely on.
+          git fetch --no-tags origin master:refs/remotes/origin/master
 
           git show origin/master:.github/codex/prompts/pr-approval.md \
             > .codex-protected/pr-approval.md
