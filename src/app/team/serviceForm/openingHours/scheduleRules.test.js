@@ -84,6 +84,21 @@ describe('findConflicts', () => {
     ], '2026-11-01', 7))).toEqual([['overlapping', '2026-11-07']]);
   });
 
+  it('finds ranges that touch at midnight, which should be one overnight range', () => {
+    expect(summary(findConflicts([
+      { ...saturdays, opens_at: '22:00', closes_at: '00:00' },
+      {
+        freq: 'WEEKLY', byday: 'SU', weekday: 7, opens_at: '00:00', closes_at: '06:00',
+      },
+    ], '2026-11-01', 7))).toEqual([['touching', '2026-11-01']]);
+  });
+
+  it('accepts whole days one after another', () => {
+    expect(findConflicts([{
+      freq: 'WEEKLY', byday: 'MO,TU', opens_at: '00:00', closes_at: '00:00',
+    }], '2026-11-01', 14)).toEqual([]);
+  });
+
   it('accepts overnight hours split at midnight the old way', () => {
     expect(findConflicts([
       {

@@ -534,6 +534,10 @@ export function describeSpecialHours(entry) {
   return `${dates}${label}: ${hours}`;
 }
 
+// Days of the month such as "1,15": 1 to 31, or -1 (the last day) to -31 from the end.
+const isValidMonthDays = monthDays => /^-?\d{1,2}(,-?\d{1,2})*$/.test(monthDays) &&
+  monthDays.split(',').map(Number).every(day => day !== 0 && Math.abs(day) <= 31);
+
 // Why a card can't be saved yet: { message, canMerge } or null. canMerge says its ranges
 // overlap or touch and mergeCardRanges would fix it.
 export function getCardError(card) {
@@ -541,7 +545,7 @@ export function getCardError(card) {
   if (card.freq === 'MONTHLY' && !card.monthDays && !card.weeks.length) {
     return { message: 'Pick which weeks of the month' };
   }
-  if (isMonthDays && !/^-?\d{1,2}(,-?\d{1,2})*$/.test(card.monthDays)) {
+  if (isMonthDays && !isValidMonthDays(card.monthDays)) {
     return { message: 'Days of the month look like 1,15 or -1 for the last day' };
   }
   if (!isMonthDays && !card.days.length) return { message: 'Pick at least one day' };
@@ -574,7 +578,7 @@ export function getCardError(card) {
 
 export function getClosureError(closure) {
   if (closure.on === 'weekday' && !closure.weeks.length) return 'Pick which week of the month';
-  if (closure.on === 'days' && !/^-?\d{1,2}(,-?\d{1,2})*$/.test(closure.monthDays)) {
+  if (closure.on === 'days' && !isValidMonthDays(closure.monthDays)) {
     return 'Days of the month look like 25 or 24,25 or -1 for the last day';
   }
   if (closure.validFrom && closure.validTo && closure.validTo < closure.validFrom) {

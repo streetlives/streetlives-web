@@ -69,6 +69,15 @@ describe('groupAtoms', () => {
       .toEqual(['Mon, Sat, and Sun: 9AM to 5PM']);
   });
 
+  it('only accepts days of the month that exist', () => {
+    const card = monthDays => groupAtoms([newAtom({ freq: 'MONTHLY', monthDays })])[0];
+    ['0', '32', '-99'].forEach((monthDays) => {
+      expect(getCardError(card(monthDays)))
+        .toEqual({ message: 'Days of the month look like 1,15 or -1 for the last day' });
+    });
+    expect(getCardError(card('1,15,-1'))).toBeNull();
+  });
+
   it('merges ranges that touch', () => {
     const touching = atoms(['Saturday'], [['09:00', '13:00'], ['13:00', '17:00']]);
     const [card] = groupAtoms(touching);
@@ -237,9 +246,11 @@ describe('describeClosure', () => {
   });
 
   it('checks the days', () => {
-    expect(getClosureError(newClosure({ monthDays: 'Dec 25' })))
-      .toBe('Days of the month look like 25 or 24,25 or -1 for the last day');
-    expect(getClosureError(newClosure())).toBeNull();
+    ['Dec 25', '0', '32', '-99', '25,40'].forEach((monthDays) => {
+      expect(getClosureError(newClosure({ monthDays })))
+        .toBe('Days of the month look like 25 or 24,25 or -1 for the last day');
+    });
+    expect(getClosureError(newClosure({ monthDays: '24,25,-1' }))).toBeNull();
   });
 });
 
