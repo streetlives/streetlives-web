@@ -10,7 +10,9 @@ jobs:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    # Pinned: drop-sudo fails on ubuntu-26.04 (openai/codex-action#188).
+    # Return to ubuntu-latest once that is fixed.
+    runs-on: ubuntu-24.04
     environment: CI_CD_PIPELINE
 
     permissions:
