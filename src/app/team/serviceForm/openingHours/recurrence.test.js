@@ -209,6 +209,26 @@ describe('applySchedule and readSchedule', () => {
     expect(schedule.closures).toEqual([]);
   });
 
+  it('keeps an older closure limited to one weekday to that weekday', () => {
+    const saturdaysInDecember = {
+      closed: true, weekday: 'Saturday', validFrom: '2026-12-01', validTo: '2026-12-31',
+    };
+    const schedule = read([saturdaysInDecember]);
+    expect(schedule.specialHours.map(describeSpecialHours))
+      .toEqual(['Dec 1 – Dec 31, 2026: Closed on Saturdays']);
+    expect(applySchedule(schedule)).toEqual([{ ...saturdaysInDecember, description: null }]);
+    expect(describeConflicts({
+      ...schedule,
+      specialHours: [...schedule.specialHours, {
+        validFrom: '2026-12-02',
+        validTo: '',
+        closed: false,
+        hours: [{ opensAt: '10:00', closesAt: '14:00' }],
+        description: '',
+      }],
+    }, TODAY)).toEqual([]);
+  });
+
   it('leaves out past special hours that have no end date', () => {
     const schedule = read([
       { closed: true, validFrom: '2026-10-12' },

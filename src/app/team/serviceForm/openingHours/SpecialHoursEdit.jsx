@@ -103,14 +103,16 @@ function SpecialHoursEdit({
                 type="radio"
                 checked={entry.closed}
                 onChange={() => update(i, { closed: true, hours: [] })}
-              />{' '}Closed
+              />{' '}Closed{entry.weekday && ` on ${entry.weekday}s only`}
             </label>
             <label htmlFor={`special-open-${i}`}>
               <input
                 id={`special-open-${i}`}
                 type="radio"
                 checked={!entry.closed}
-                onChange={() => update(i, { closed: false, hours: [{ ...DEFAULT_HOURS }] })}
+                onChange={() => update(i, {
+                  closed: false, weekday: '', hours: [{ ...DEFAULT_HOURS }],
+                })}
               />{' '}Open with different hours
             </label>
           </div>

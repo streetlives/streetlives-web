@@ -185,21 +185,24 @@ function readClosure(row, today) {
 }
 
 // Groups special-hours rows into entries: one row per time range, so a date open
-// 9AM to 12PM and 1PM to 5PM is two rows with the same dates and label.
+// 9AM to 12PM and 1PM to 5PM is two rows with the same dates and label. Older closures can be
+// limited to one weekday ("closed on Saturdays in December"); entries keep it as `weekday`.
 function readSpecialHours(rows) {
   const entries = [];
   rows.forEach((row) => {
     const validTo = row.validTo && row.validTo !== row.validFrom ? row.validTo : '';
     const description = row.description || '';
     const closed = !!row.closed;
+    const weekday = closed && row.weekday ? row.weekday : '';
     const existing = entries.find(entry => entry.validFrom === row.validFrom &&
-      entry.validTo === validTo && entry.description === description && entry.closed === closed);
+      entry.validTo === validTo && entry.description === description &&
+      entry.closed === closed && (entry.weekday || '') === weekday);
     const hours = closed ? [] : [{ opensAt: row.opensAt, closesAt: row.closesAt }];
     if (existing) {
       existing.hours.push(...hours);
     } else {
       entries.push({
-        validFrom: row.validFrom, validTo, closed, hours, description,
+        validFrom: row.validFrom, validTo, closed, hours, description, ...(weekday && { weekday }),
       });
     }
   });
@@ -393,7 +396,9 @@ function specialRows(entry) {
     validTo: entry.validTo || entry.validFrom,
     description: entry.description || null,
   };
-  if (entry.closed) return [{ closed: true, ...dates }];
+  if (entry.closed) {
+    return [{ closed: true, ...dates, ...(entry.weekday && { weekday: entry.weekday }) }];
+  }
   return entry.hours.map(({ opensAt, closesAt }) => ({
     closed: false, opensAt, closesAt, ...dates,
   }));
@@ -524,14 +529,15 @@ export function describeClosure(closure) {
     .filter(Boolean).join('. ');
 }
 
-// "Dec 25, 2026 (Christmas Day): Closed", "Dec 24 – Dec 26, 2026: 10AM to 2PM, 4PM to 6PM".
+// "Dec 25, 2026 (Christmas Day): Closed", "Dec 24 – Dec 26, 2026: 10AM to 2PM, 4PM to 6PM",
+// "Dec 1 – Dec 31, 2026: Closed on Saturdays".
 export function describeSpecialHours(entry) {
   const dates = entry.validTo && entry.validTo !== entry.validFrom
     ? `${formatDate(entry.validFrom, false)} – ${formatDate(entry.validTo)}`
     : formatDate(entry.validFrom);
   const label = entry.description ? ` (${entry.description})` : '';
   const hours = entry.closed
-    ? 'Closed'
+    ? `Closed${entry.weekday ? ` on ${entry.weekday}s` : ''}`
     : entry.hours
       .map(({ opensAt, closesAt }) => `${formatTime(opensAt)} to ${formatTime(closesAt)}`)
       .join(', ');
