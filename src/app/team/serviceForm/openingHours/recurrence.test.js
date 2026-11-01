@@ -209,6 +209,15 @@ describe('applySchedule and readSchedule', () => {
     expect(schedule.closures).toEqual([]);
   });
 
+  it('leaves out past special hours that have no end date', () => {
+    const schedule = read([
+      { closed: true, validFrom: '2026-10-12' },
+      { validFrom: '2026-10-31', opensAt: '10:00', closesAt: '14:00' },
+      { validFrom: TODAY, opensAt: '10:00', closesAt: '14:00' },
+    ]);
+    expect(schedule.specialHours.map(entry => entry.validFrom)).toEqual([TODAY]);
+  });
+
   it('does not treat a whole-service closure as hours, closures or special hours', () => {
     expect(read([{ closed: true }])).toEqual(EMPTY_SCHEDULE);
   });

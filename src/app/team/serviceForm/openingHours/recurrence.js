@@ -207,10 +207,14 @@ function readSpecialHours(rows) {
   return entries;
 }
 
+// The last date a row covers, or '' while it keeps repeating. Special hours without an end
+// date are for their start date only, as in coversDate.
+const lastDate = row => row.validTo || (isSpecialHours(row) ? row.validFrom : '');
+
 // Reads the schedule out of the rows the API returned, leaving out what ended before `today`
 // (YYYY-MM-DD): repeating hours and closures that stopped, special hours, and skipped dates.
 export function readSchedule(rows, today = nyToday()) {
-  const current = rows.filter(row => !row.validTo || row.validTo >= today);
+  const current = rows.filter(row => !lastDate(row) || lastDate(row) >= today);
   return {
     atoms: dedupe(joinSplitOvernight(current
       .filter(row => isSeries(toApiRow(row)))
