@@ -15,6 +15,25 @@ const scheduleText = (holidaySchedules) => {
 };
 
 describe('ServiceSection schedule', () => {
+  // The schedule leaves out hours that have already passed, so the fixtures'
+  // dates only mean something on a fixed day. Jest 24 has no setSystemTime.
+  const RealDate = Date;
+  beforeAll(() => {
+    const today = new RealDate('2026-11-01T12:00:00Z');
+    global.Date = class extends RealDate {
+      constructor(...args) {
+        super(...(args.length ? args : [today]));
+      }
+
+      static now() {
+        return today.getTime();
+      }
+    };
+  });
+  afterAll(() => {
+    global.Date = RealDate;
+  });
+
   it('shows weekly, monthly and special hours', () => {
     expect(scheduleText([
       row({ weekday: 1 }),
