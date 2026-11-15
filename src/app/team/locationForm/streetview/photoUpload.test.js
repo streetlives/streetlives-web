@@ -1,15 +1,20 @@
 import {
   loadSource,
+  loadRemoteSource,
   releaseSource,
   renderCrop,
   areaInPixels,
   placeImage,
   minZoomFor,
   outputSize,
+  sourceSize,
   ASPECT,
   OUTPUT_WIDTH,
   OUTPUT_QUALITY,
   MAX_UPLOAD_BYTES,
+  SOURCE_MAX_EDGE,
+  SOURCE_QUALITY,
+  FETCH_ERROR,
   TYPE_ERROR,
   READ_ERROR,
   TOO_LARGE_ERROR,
@@ -36,9 +41,11 @@ const fakeDeps = ({
   encodedBytes = 200 * 1024,
   webp = true,
   loadFails = false,
+  fetched = { type: 'image/jpeg' },
+  fetchFails = false,
 } = {}) => {
   const calls = {
-    drawImage: null, toDataURL: [], canvasSize: null, revoked: [], context: null,
+    drawImage: null, toDataURL: [], canvasSize: null, revoked: [], context: null, loaded: [],
   };
 
   const canvas = {
@@ -68,10 +75,20 @@ const fakeDeps = ({
     deps: {
       createObjectUrl: () => 'blob:original',
       revokeObjectUrl: (url) => { calls.revoked.push(url); },
-      loadImage: () => (loadFails
-        ? Promise.reject(new Error(READ_ERROR))
-        : Promise.resolve({ naturalWidth, naturalHeight })),
+      loadImage: (url) => {
+        calls.loaded.push(url);
+        return loadFails
+          ? Promise.reject(new Error(READ_ERROR))
+          : Promise.resolve({ naturalWidth, naturalHeight });
+      },
       createCanvas: () => canvas,
+      fetchBlob: (url) => {
+        calls.fetched = url;
+        return fetchFails
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(fetched);
+      },
+      readAsDataUrl: blob => Promise.resolve(`data:${blob.type};base64,${base64OfBytes(300)}`),
     },
   };
 };
@@ -214,17 +231,42 @@ describe('placeImage', () => {
   });
 });
 
+describe('sourceSize', () => {
+  it('caps the long edge of a landscape photo', () => {
+    expect(sourceSize(4000, 3000)).toEqual({ width: SOURCE_MAX_EDGE, height: 1800 });
+  });
+
+  it('caps the long edge of a portrait photo', () => {
+    expect(sourceSize(3000, 4000)).toEqual({ width: 1800, height: SOURCE_MAX_EDGE });
+  });
+
+  it('never upscales a small photo', () => {
+    expect(sourceSize(800, 600)).toEqual({ width: 800, height: 600 });
+  });
+});
+
 describe('loadSource', () => {
-  it('returns the decoded image under an object URL, with its filename', async () => {
-    const { deps } = fakeDeps();
+  it('shrinks the picked file to the original that will be kept', async () => {
+    const { deps, calls } = fakeDeps();
 
     const source = await loadSource(jpegFile('front-door.jpg'), deps);
 
-    expect(source).toEqual({
-      url: 'blob:original',
-      image: { naturalWidth: 4000, naturalHeight: 3000 },
-      filename: 'front-door.jpg',
-    });
+    expect(calls.canvasSize).toEqual({ width: SOURCE_MAX_EDGE, height: 1800 });
+    expect(calls.drawImage.slice(1)).toEqual([0, 0, SOURCE_MAX_EDGE, 1800]);
+    expect(calls.toDataURL[0]).toEqual(['image/webp', SOURCE_QUALITY]);
+    expect(source.filename).toBe('front-door.jpg');
+    expect(source.contentType).toBe('image/webp');
+    expect(source.url).toBe(`data:image/webp;base64,${source.data}`);
+    // The cropper is given the shrunk copy, so what is framed is what is kept.
+    expect(calls.loaded).toEqual(['blob:original', source.url]);
+  });
+
+  it('lets go of the picked file once it has been shrunk', async () => {
+    const { deps, calls } = fakeDeps();
+
+    await loadSource(jpegFile(), deps);
+
+    expect(calls.revoked).toEqual(['blob:original']);
   });
 
   it.each([
@@ -251,8 +293,50 @@ describe('loadSource', () => {
     const { deps, calls } = fakeDeps();
 
     releaseSource({ url: 'blob:original' }, deps);
+    releaseSource({ url: 'data:image/webp;base64,QUFB' }, deps);
     releaseSource(null, deps);
 
+    expect(calls.revoked).toEqual(['blob:original']);
+  });
+});
+
+describe('loadRemoteSource', () => {
+  const URL = 'https://photos.test/location-photos/loc/abc.jpg';
+
+  it('decodes the fetched bytes from an object URL and keeps them as they are', async () => {
+    const { deps, calls } = fakeDeps();
+
+    const source = await loadRemoteSource(URL, 'front-door.jpg', deps);
+
+    expect(calls.fetched).toBe(URL);
+    expect(calls.loaded).toEqual(['blob:original']);
+    // Nothing is re-encoded: the bytes kept are the bytes fetched.
+    expect(calls.toDataURL).toEqual([]);
+    expect(source).toEqual({
+      url: 'blob:original',
+      image: { naturalWidth: 4000, naturalHeight: 3000 },
+      filename: 'front-door.jpg',
+      data: base64OfBytes(300),
+      contentType: 'image/jpeg',
+    });
+  });
+
+  it('reports a fetch that fails, such as one the CDN refuses CORS for', async () => {
+    const { deps } = fakeDeps({ fetchFails: true });
+
+    await expect(loadRemoteSource(URL, null, deps)).rejects.toThrow(FETCH_ERROR);
+  });
+
+  it('rejects bytes that are not an accepted image type', async () => {
+    const { deps } = fakeDeps({ fetched: { type: 'text/html' } });
+
+    await expect(loadRemoteSource(URL, null, deps)).rejects.toThrow(READ_ERROR);
+  });
+
+  it('releases its object URL when the bytes will not decode', async () => {
+    const { deps, calls } = fakeDeps({ loadFails: true });
+
+    await expect(loadRemoteSource(URL, null, deps)).rejects.toThrow(READ_ERROR);
     expect(calls.revoked).toEqual(['blob:original']);
   });
 });
@@ -364,6 +448,48 @@ describe('renderCrop', () => {
       }, deps);
 
       expect(result.filename).toBe(expected);
+    });
+  });
+
+  describe('the original', () => {
+    const crop = {
+      x: 0, y: 0, width: 4000, height: 2400,
+    };
+    const withOriginal = (image, bytes) => ({
+      ...sourceFor(image), contentType: 'image/jpeg', data: base64OfBytes(bytes),
+    });
+
+    it('hands back the original to keep beside the crop', async () => {
+      const { deps, image } = fakeDeps();
+
+      const result = await renderCrop(withOriginal(image, 1000), crop, deps);
+
+      expect(result.source).toEqual({ contentType: 'image/jpeg', data: base64OfBytes(1000) });
+    });
+
+    it('has none to hand back for a source without one', async () => {
+      const { deps, image } = fakeDeps();
+
+      expect((await renderCrop(sourceFor(image), crop, deps)).source).toBeNull();
+    });
+
+    it('keeps an original that exactly fills what the crop leaves of the limit', async () => {
+      const { deps, image } = fakeDeps({ encodedBytes: 1024 });
+
+      const result = await renderCrop(withOriginal(image, MAX_UPLOAD_BYTES - 1024), crop, deps);
+
+      expect(result.source).not.toBeNull();
+    });
+
+    // The API holds both to one limit. Dropping the original still saves the
+    // crop; only adjusting it later is lost.
+    it('drops an original that would push the upload over the limit', async () => {
+      const { deps, image } = fakeDeps({ encodedBytes: 1024 });
+
+      const result = await renderCrop(withOriginal(image, MAX_UPLOAD_BYTES - 1023), crop, deps);
+
+      expect(result.source).toBeNull();
+      expect(result.byteSize).toBe(1024);
     });
   });
 

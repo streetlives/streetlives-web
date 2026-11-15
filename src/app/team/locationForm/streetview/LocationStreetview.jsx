@@ -7,6 +7,7 @@ import {
   getLocation,
   uploadLocationPhoto,
   removeLocationPhoto,
+  loadLocationPhotoSource,
 } from '../../../../actions';
 import { Form } from '../../../../components/form';
 import LocationStreetviewView from './LocationStreetviewView';
@@ -20,6 +21,7 @@ const withPhotoActions = connect(null, (dispatch, ownProps) => ({
   onUploadPhoto: prepared =>
     dispatch(uploadLocationPhoto(ownProps.resourceData.id, prepared)),
   onRemovePhoto: () => dispatch(removeLocationPhoto(ownProps.resourceData.id)),
+  onLoadPhotoSource: () => dispatch(loadLocationPhotoSource(ownProps.resourceData.id)),
 }));
 
 const LocationStreetview = compose(withProps({

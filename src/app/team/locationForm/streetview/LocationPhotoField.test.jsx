@@ -3,7 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 // Registers faCamera; the app does this at startup, tests have to ask for it.
 import '../../../IconLibrary';
 import LocationPhotoField from './LocationPhotoField';
-import { loadSource, renderCrop, releaseSource } from './photoUpload';
+import {
+  loadSource, loadRemoteSource, renderCrop, releaseSource, FETCH_ERROR,
+} from './photoUpload';
 import { PREVIEW_WIDTH } from './utils';
 
 // jsdom has no canvas, so the crop and resize steps are stubbed wholesale.
@@ -13,6 +15,7 @@ import { PREVIEW_WIDTH } from './utils';
 jest.mock('./photoUpload', () => ({
   ...jest.requireActual('./photoUpload'),
   loadSource: jest.fn(),
+  loadRemoteSource: jest.fn(),
   renderCrop: jest.fn(),
   releaseSource: jest.fn(),
 }));
@@ -35,6 +38,7 @@ jest.mock('react-easy-crop', () => {
       return ReactActual.createElement('div', {
         'data-testid': 'mock-cropper',
         'data-zoom': this.props.zoom,
+        'data-crop': JSON.stringify(this.props.crop),
         'data-min-zoom': this.props.minZoom,
         'data-grid': String(this.props.showGrid),
         onMouseDown: () => this.props.onInteractionStart(),
@@ -370,8 +374,120 @@ describe('LocationPhotoField', () => {
       expect(screen.queryByText('Adjust crop')).not.toBeInTheDocument();
     });
 
-    it('offers no adjustment for a photo that was already saved', () => {
+    it('offers no adjustment for a saved photo without a way to load its original', () => {
       renderField({ photo: SAVED });
+      expect(screen.queryByText('Adjust crop')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('adjusting a saved photo', () => {
+    const FRAMING = { x: 0.25, y: -0.5, zoom: 1.5 };
+    const REMOTE = {
+      url: 'blob:remote',
+      image: { naturalWidth: 2400, naturalHeight: 1800 },
+      filename: 'storefront.jpg',
+      data: 'b3JpZ2luYWw=',
+      contentType: 'image/webp',
+    };
+    const KEPT = { contentType: 'image/webp', data: REMOTE.data };
+
+    beforeEach(() => {
+      loadRemoteSource.mockResolvedValue(REMOTE);
+      renderCrop.mockResolvedValue({ ...PREPARED, source: KEPT });
+    });
+
+    it('reopens the kept original at the framing it was saved with', async () => {
+      const onLoadSource = jest.fn().mockResolvedValue({
+        source_url: 'https://cdn.example/original.webp', crop: FRAMING,
+      });
+      renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      const cropper = await screen.findByTestId('mock-cropper');
+
+      expect(loadRemoteSource)
+        .toHaveBeenCalledWith('https://cdn.example/original.webp', 'storefront.jpg');
+      // The offset is stored as a fraction of the frame, and placed back in
+      // the 600x360 frame the cropper reports.
+      expect(cropper).toHaveAttribute('data-zoom', '1.5');
+      expect(JSON.parse(cropper.getAttribute('data-crop'))).toEqual({ x: 150, y: -180 });
+    });
+
+    it('stages the new crop with the original and its framing', async () => {
+      const onLoadSource = jest.fn().mockResolvedValue({
+        source_url: 'https://cdn.example/original.webp', crop: FRAMING,
+      });
+      const { onStage } = renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      fireEvent.click(await screen.findByText('Use this photo'));
+
+      await waitFor(() => expect(onStage).toHaveBeenCalled());
+      expect(renderCrop.mock.calls[0][0]).toBe(REMOTE);
+      expect(onStage).toHaveBeenCalledWith({ ...PREPARED, source: KEPT, crop: FRAMING });
+    });
+
+    it('reframes the saved photo itself when no original was kept', async () => {
+      const onLoadSource = jest.fn().mockResolvedValue({ source_url: null, crop: null });
+      renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      const cropper = await screen.findByTestId('mock-cropper');
+
+      expect(loadRemoteSource).toHaveBeenCalledWith(SAVED.url, 'storefront.jpg');
+      // The saved photo already is the frame, so it opens exactly as it is.
+      expect(cropper).toHaveAttribute('data-zoom', '1');
+      expect(JSON.parse(cropper.getAttribute('data-crop'))).toEqual({ x: 0, y: 0 });
+    });
+
+    it('reports a photo it cannot load without opening the cropper', async () => {
+      loadRemoteSource.mockRejectedValue(new Error(FETCH_ERROR));
+      const onLoadSource = jest.fn().mockResolvedValue({ source_url: null, crop: null });
+      const { onError } = renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+
+      await waitFor(() => expect(onError).toHaveBeenCalledWith(FETCH_ERROR));
+      expect(screen.queryByTestId('mock-cropper')).not.toBeInTheDocument();
+    });
+
+    it('reports a failed lookup of the original in words, not an API error', async () => {
+      const onLoadSource = jest.fn().mockRejectedValue(new Error('Request failed with status code 404'));
+      const { onError } = renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+
+      await waitFor(() => expect(onError).toHaveBeenCalledWith(FETCH_ERROR));
+      expect(loadRemoteSource).not.toHaveBeenCalled();
+    });
+
+    it('lets go of the original when the adjustment is cancelled', async () => {
+      const onLoadSource = jest.fn().mockResolvedValue({ source_url: null, crop: null });
+      renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      fireEvent.click(await screen.findByText('Cancel'));
+
+      expect(releaseSource).toHaveBeenCalledWith(REMOTE);
+      expect(screen.queryByTestId('mock-cropper')).not.toBeInTheDocument();
+    });
+
+    it('releases an original that finishes loading after the field is gone', async () => {
+      let finish;
+      loadRemoteSource.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+      const onLoadSource = jest.fn().mockResolvedValue({ source_url: null, crop: null });
+      const { unmount } = renderField({ photo: SAVED, onLoadSource });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      await waitFor(() => expect(loadRemoteSource).toHaveBeenCalled());
+      unmount();
+      finish(REMOTE);
+
+      await waitFor(() => expect(releaseSource).toHaveBeenCalledWith(REMOTE));
+    });
+
+    it('offers no adjustment while a removal is staged', () => {
+      renderField({ photo: SAVED, pendingRemoval: true, onLoadSource: jest.fn() });
       expect(screen.queryByText('Adjust crop')).not.toBeInTheDocument();
     });
   });

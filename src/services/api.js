@@ -203,6 +203,17 @@ export const putLocationPhoto = ({ id, params }) =>
     }))
     .then(result => result.data);
 
+// The original the saved photo was cropped from and its framing, so the crop
+// can be adjusted. Data-entry only: the original is never on the public payload.
+export const getLocationPhotoSource = ({ id }) =>
+  getAuthToken()
+    .then(idJwtToken => axios.request({
+      url: `${config.baseApi}/locations/${id}/photo/source`,
+      method: 'get',
+      headers: { Authorization: idJwtToken },
+    }))
+    .then(result => result.data);
+
 export const deleteLocationPhoto = ({ id }) =>
   getAuthToken()
     .then(idJwtToken => axios.request({

@@ -3,7 +3,7 @@ import { act, render, screen, fireEvent, waitFor } from '@testing-library/react'
 // Registers faCamera; the app does this at startup, tests have to ask for it.
 import '../../../IconLibrary';
 import LocationStreetviewEdit from './LocationStreetviewEdit';
-import { loadSource, renderCrop } from './photoUpload';
+import { loadSource, loadRemoteSource, renderCrop } from './photoUpload';
 
 // The photo half of the Street View editor: choosing, replacing and removing a
 // photo all stage a change that OK commits and CANCEL discards, like every
@@ -19,6 +19,7 @@ jest.mock('react-google-maps', () => ({
 jest.mock('./photoUpload', () => ({
   ...jest.requireActual('./photoUpload'),
   loadSource: jest.fn(),
+  loadRemoteSource: jest.fn(),
   renderCrop: jest.fn(),
   releaseSource: jest.fn(),
 }));
@@ -402,5 +403,36 @@ describe('Street View editor — staged photo', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(onUploadPhoto).not.toHaveBeenCalled();
     expect(onRemovePhoto).not.toHaveBeenCalled();
+  });
+
+  describe('adjusting a saved photo', () => {
+    it('saves the new crop with the original and its framing on OK', async () => {
+      const framing = { x: 0.25, y: -0.5, zoom: 1.5 };
+      const kept = { contentType: 'image/webp', data: 'b3JpZ2luYWw=' };
+      loadRemoteSource.mockResolvedValue({ ...SOURCE, url: 'blob:remote', ...kept });
+      renderCrop.mockResolvedValue({ ...PREPARED, source: kept });
+      const onLoadPhotoSource = jest.fn().mockResolvedValue({
+        source_url: 'https://cdn.example/original.webp', crop: framing,
+      });
+      const { onUploadPhoto, onSubmit } = renderEditor({
+        resourceData: {
+          id: 'loc-1',
+          position: { coordinates: [-74.0060, 40.7128] },
+          LocationPhoto: SAVED,
+        },
+        onLoadPhotoSource,
+      });
+
+      fireEvent.click(screen.getByText('Adjust crop'));
+      fireEvent.click(await screen.findByText('Use this photo'));
+      await screen.findByText(/not saved yet/i);
+      expect(onUploadPhoto).not.toHaveBeenCalled();
+
+      clickOk();
+
+      await waitFor(() => expect(onUploadPhoto)
+        .toHaveBeenCalledWith({ ...PREPARED, source: kept, crop: framing }));
+      await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    });
   });
 });

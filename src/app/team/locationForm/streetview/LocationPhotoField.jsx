@@ -4,14 +4,14 @@ import Button from '../../../../components/button';
 import Icon from '../../../../components/icon';
 import { PREVIEW_BOX_STYLE, PREVIEW_IMAGE_STYLE } from './utils';
 import {
-  loadSource, releaseSource, renderCrop, ACCEPT_ATTRIBUTE,
+  loadSource, loadRemoteSource, releaseSource, renderCrop, ACCEPT_ATTRIBUTE, FETCH_ERROR,
 } from './photoUpload';
 import PhotoCropModal from './PhotoCropModal';
 
 // The organization-provided photo. It replaces the Street View still on
 // yourpeer.nyc, while the image there still links out to Google's panorama.
 //
-// Nothing here touches the API. Choosing or removing a photo only stages the
+// Nothing here writes to the API. Choosing or removing a photo only stages the
 // change; the enclosing form commits it on OK and discards it on CANCEL, like
 // every other field on this question. The crop and resize still happen before
 // staging, because that is what lets the specialist see what they are about to
@@ -19,11 +19,24 @@ import PhotoCropModal from './PhotoCropModal';
 //
 // Picking a file opens it in PhotoCropModal, a cropper the exact size and shape
 // of the preview box, where the specialist frames it before it is staged.
+//
+// A saved photo can be reframed too. The API keeps the original it was cropped
+// from and the framing it was saved with, so "Adjust crop" reopens exactly that
+// and anything the first crop cut off can be brought back. A photo saved before
+// originals were kept is reframed from the saved photo itself, which can only
+// be cropped tighter or shown smaller with bars.
 
 const hintStyle = { fontSize: '0.8em', color: 'var(--darkerGray)', marginTop: 2 };
 
-const freshDraft = source => ({
-  source, crop: { x: 0, y: 0 }, zoom: 1, area: null,
+// `framing` is what reopens this crop later; see PhotoCropModal. `initialFraming`
+// is a saved one for the cropper to start at.
+const freshDraft = (source, initialFraming = null) => ({
+  source,
+  crop: { x: 0, y: 0 },
+  zoom: initialFraming ? initialFraming.zoom : 1,
+  area: null,
+  framing: null,
+  initialFraming,
 });
 
 // Draft and staged can share one source (adjusting a crop), so only release a
@@ -80,7 +93,39 @@ class LocationPhotoField extends Component {
 
   onAdjust = () => {
     const { staged } = this.state;
-    if (staged) this.setDraft({ ...staged, area: null });
+    if (staged) {
+      // Reopened at the pixel position it was left at, in the same frame.
+      this.setDraft({ ...staged, area: null, initialFraming: null });
+      return;
+    }
+    this.onAdjustSaved();
+  };
+
+  // Fetches what the saved photo was cropped from: the original if the API kept
+  // one, otherwise the saved photo, which is already exactly the frame.
+  onAdjustSaved = async () => {
+    const { photo, onLoadSource } = this.props;
+    if (!photo || !photo.url || !onLoadSource) return;
+
+    this.setState({ preparing: true });
+    try {
+      // An API error's own message is not one for the specialist.
+      const saved = await onLoadSource().catch(() => { throw new Error(FETCH_ERROR); });
+      const hasOriginal = Boolean(saved && saved.source_url);
+      const source = await loadRemoteSource(
+        hasOriginal ? saved.source_url : photo.url,
+        photo.original_filename,
+      );
+      if (this.unmounted) {
+        releaseSource(source);
+        return;
+      }
+      this.setDraft(freshDraft(source, (hasOriginal && saved.crop) || null));
+    } catch (err) {
+      if (!this.unmounted) this.props.onError(err.message);
+    } finally {
+      if (!this.unmounted) this.setState({ preparing: false });
+    }
   };
 
   onCropChange = (crop) => {
@@ -91,8 +136,8 @@ class LocationPhotoField extends Component {
     this.setState(prev => (prev.draft ? { draft: { ...prev.draft, zoom } } : null));
   };
 
-  onAreaChange = (area) => {
-    this.setState(prev => (prev.draft ? { draft: { ...prev.draft, area } } : null));
+  onAreaChange = (area, framing) => {
+    this.setState(prev => (prev.draft ? { draft: { ...prev.draft, area, framing } } : null));
   };
 
   onCancelCrop = () => {
@@ -114,7 +159,10 @@ class LocationPhotoField extends Component {
       if (staged) releaseUnlessInUse(staged.source, draft);
       this.setState({ staged: draft });
       this.setDraft(null);
-      this.props.onStage(prepared);
+      // The framing only means something alongside the original it frames.
+      this.props.onStage(prepared.source && draft.framing
+        ? { ...prepared, crop: draft.framing }
+        : prepared);
     } catch (err) {
       if (this.unmounted) return;
       this.onCancelCrop();
@@ -138,6 +186,7 @@ class LocationPhotoField extends Component {
         imageHeight={draft.source.image.naturalHeight}
         crop={draft.crop}
         zoom={draft.zoom}
+        initialFraming={draft.initialFraming}
         canApply={Boolean(draft.area)}
         busy={preparing}
         onCropChange={this.onCropChange}
@@ -182,14 +231,14 @@ class LocationPhotoField extends Component {
         {/* No file name or size: the photo itself is what matters. Only an
             unsaved one is labelled, since OK still has to be pressed. */}
         {pending ? <div style={hintStyle}>Not saved yet</div> : null}
-        {pending && this.state.staged ? (
+        {(pending && this.state.staged) || (!pending && this.props.onLoadSource) ? (
           <Button
             onClick={this.onAdjust}
             primary
             basic
             compact
             className="mt-2"
-            disabled={this.props.disabled}
+            disabled={this.props.disabled || this.state.preparing}
           >
             Adjust crop
           </Button>
@@ -275,11 +324,14 @@ LocationPhotoField.propTypes = {
     byte_size: PropTypes.number,
     original_filename: PropTypes.string,
   }),
-  // A cropped, resized photo waiting to be saved on OK.
+  // A cropped, resized photo waiting to be saved on OK, with the original it
+  // was cropped from and the framing that reopens it, when there is one.
   pending: PropTypes.shape({
     dataUrl: PropTypes.string,
     filename: PropTypes.string,
     byteSize: PropTypes.number,
+    source: PropTypes.shape({ contentType: PropTypes.string, data: PropTypes.string }),
+    crop: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number, zoom: PropTypes.number }),
   }),
   pendingRemoval: PropTypes.bool,
   error: PropTypes.string,
@@ -293,6 +345,9 @@ LocationPhotoField.propTypes = {
   // Told when the cropper opens and closes, so the form can hold OK until the
   // specialist has finished framing the photo rather than save without it.
   onCroppingChange: PropTypes.func,
+  // Resolves to { source_url, crop } for the saved photo, so "Adjust crop" can
+  // reopen it. Without it a saved photo can only be replaced.
+  onLoadSource: PropTypes.func,
 };
 
 LocationPhotoField.defaultProps = {
@@ -302,6 +357,7 @@ LocationPhotoField.defaultProps = {
   error: null,
   disabled: false,
   onCroppingChange: null,
+  onLoadSource: null,
 };
 
 export default LocationPhotoField;

@@ -17,6 +17,11 @@ import { ASPECT, areaInPixels, minZoomFor } from './photoUpload';
 // of the frame is black - on screen here and in the uploaded image alike. The
 // photo can still slide within the frame, but never off it.
 //
+// A framing kept with a saved photo is stored with its offset as a fraction of
+// the frame rather than in screen pixels, because the frame is narrower on a
+// phone than on a desktop. Zoom needs no such care: it is relative to the photo
+// covering the frame, whatever size the frame is.
+//
 // react-modal rather than components/modal: this one has to trap focus, close
 // on Escape and hide the page from screen readers while it is open.
 
@@ -97,6 +102,18 @@ class PhotoCropModal extends Component {
 
   onCropSizeChange = (cropSize) => {
     this.cropSize = cropSize;
+
+    // A saved framing can only be placed once the frame's size is known.
+    const { initialFraming } = this.props;
+    if (initialFraming && !this.placedInitialFraming) {
+      this.placedInitialFraming = true;
+      this.onZoomChange(initialFraming.zoom);
+      this.onCropChange({
+        x: initialFraming.x * cropSize.width,
+        y: initialFraming.y * cropSize.height,
+      });
+      this.onCropComplete();
+    }
   };
 
   // The cropper's own pixel area is clamped to the photo, which loses the bars
@@ -106,9 +123,13 @@ class PhotoCropModal extends Component {
     const { imageWidth, imageHeight } = this.props;
     const crop = this.latest.crop || this.props.crop;
     const zoom = this.latest.zoom || this.props.zoom;
-    this.props.onAreaChange(areaInPixels({
-      crop, zoom, cropSize: this.cropSize, imageWidth, imageHeight,
-    }));
+    const { width, height } = this.cropSize;
+    this.props.onAreaChange(
+      areaInPixels({
+        crop, zoom, cropSize: this.cropSize, imageWidth, imageHeight,
+      }),
+      { x: crop.x / width, y: crop.y / height, zoom },
+    );
   };
 
   // The frame's size on screen, which the cropper reports once it has laid
@@ -120,6 +141,8 @@ class PhotoCropModal extends Component {
   // arrow keys), before the parent can hand the move back down as props, so
   // props alone would describe the framing before it.
   latest = {};
+
+  placedInitialFraming = false;
 
   render() {
     const {
@@ -211,13 +234,20 @@ PhotoCropModal.propTypes = {
   busy: PropTypes.bool,
   onCropChange: PropTypes.func.isRequired,
   onZoomChange: PropTypes.func.isRequired,
+  // Called with the frame's region in the photo's pixels, and the framing that
+  // reopens it: { x, y, zoom }, the offset as a fraction of the frame.
   onAreaChange: PropTypes.func.isRequired,
+  // A framing from onAreaChange to start at, kept with a saved photo.
+  initialFraming: PropTypes.shape({
+    x: PropTypes.number, y: PropTypes.number, zoom: PropTypes.number,
+  }),
   onApply: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 
 PhotoCropModal.defaultProps = {
   busy: false,
+  initialFraming: null,
 };
 
 export default PhotoCropModal;

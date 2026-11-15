@@ -1,7 +1,9 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import * as api from '../services/api';
-import { uploadLocationPhoto, removeLocationPhoto, SET_LOCATION_PHOTO } from './index';
+import {
+  uploadLocationPhoto, removeLocationPhoto, loadLocationPhotoSource, SET_LOCATION_PHOTO,
+} from './index';
 import reducer from '../reducers/locations';
 
 jest.mock('../services/api');
@@ -37,6 +39,40 @@ describe('location photo actions', () => {
       });
     });
 
+    it('sends the original and its framing when there is one', async () => {
+      api.putLocationPhoto.mockResolvedValue(PHOTO);
+      const store = mockStore({ locations: {} });
+      const source = { contentType: 'image/webp', data: 'b3JpZ2luYWw=' };
+      const crop = { x: 0.1, y: -0.2, zoom: 1.5 };
+
+      await store.dispatch(uploadLocationPhoto('loc-1', {
+        ...PREPARED, dataUrl: 'data:…', source, crop,
+      }));
+
+      expect(api.putLocationPhoto).toHaveBeenCalledWith({
+        id: 'loc-1',
+        params: {
+          contentType: 'image/jpeg',
+          data: 'YmFzZTY0',
+          filename: 'storefront.jpg',
+          source,
+          crop,
+        },
+      });
+    });
+
+    // An original too big to fit beside the crop comes back from renderCrop as
+    // null, and must not reach the API as `source: null`.
+    it('sends no original when it was dropped', async () => {
+      api.putLocationPhoto.mockResolvedValue(PHOTO);
+      const store = mockStore({ locations: {} });
+
+      await store.dispatch(uploadLocationPhoto('loc-1', { ...PREPARED, source: null }));
+
+      expect(api.putLocationPhoto.mock.calls[0][0].params).not.toHaveProperty('source');
+      expect(api.putLocationPhoto.mock.calls[0][0].params).not.toHaveProperty('crop');
+    });
+
     it('stores what the server returned', async () => {
       api.putLocationPhoto.mockResolvedValue(PHOTO);
       const store = mockStore({ locations: {} });
@@ -55,6 +91,18 @@ describe('location photo actions', () => {
       const store = mockStore({ locations: {} });
 
       await expect(store.dispatch(uploadLocationPhoto('loc-1', PREPARED))).rejects.toThrow();
+      expect(store.getActions()).toEqual([]);
+    });
+  });
+
+  describe('loadLocationPhotoSource', () => {
+    it('resolves to what the API answers and stores nothing', async () => {
+      const answer = { source_url: 'https://cdn.example/a/original.webp', crop: null };
+      api.getLocationPhotoSource.mockResolvedValue(answer);
+      const store = mockStore({ locations: {} });
+
+      await expect(store.dispatch(loadLocationPhotoSource('loc-1'))).resolves.toEqual(answer);
+      expect(api.getLocationPhotoSource).toHaveBeenCalledWith({ id: 'loc-1' });
       expect(store.getActions()).toEqual([]);
     });
   });
