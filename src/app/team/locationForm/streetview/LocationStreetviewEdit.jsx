@@ -945,7 +945,7 @@ class LocationStreetviewEdit extends Component {
 
   render() {
     const {
-      resourceData, onUploadPhoto, onRemovePhoto,
+      resourceData, onUploadPhoto, onRemovePhoto, onLoadPhotoSource,
     } = this.props;
     const {
       panoId, lat, lng, heading, pitch, fov, errors, url, urlError, showAdvanced,
@@ -968,6 +968,7 @@ class LocationStreetviewEdit extends Component {
             onUndo={this.onUndoPhotoRemoval}
             onError={this.onPhotoError}
             onCroppingChange={this.onCroppingPhotoChange}
+            onLoadSource={onLoadPhotoSource}
             disabled={savingPhoto}
           />
         ) : null}
@@ -1125,6 +1126,7 @@ class LocationStreetviewEdit extends Component {
 LocationStreetviewEdit.propTypes = {
   onUploadPhoto: PropTypes.func,
   onRemovePhoto: PropTypes.func,
+  onLoadPhotoSource: PropTypes.func,
   value: PropTypes.shape({
     pano_id: PropTypes.string,
     lat: PropTypes.number,

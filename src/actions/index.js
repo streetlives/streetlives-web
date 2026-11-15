@@ -203,12 +203,19 @@ export const uploadLocationPhoto = (locationId, prepared) => async (dispatch) =>
       contentType: prepared.contentType,
       data: prepared.data,
       filename: prepared.filename,
+      // The original and its framing, kept so the crop can be adjusted later.
+      // Leaving them out tells the API the photo has no original.
+      ...(prepared.source ? { source: prepared.source, crop: prepared.crop } : {}),
     },
   });
 
   dispatch({ type: SET_LOCATION_PHOTO, payload: { id: locationId, photo } });
   return photo;
 };
+
+// Nothing in the store needs it: only the cropper reads it, once, to reopen.
+export const loadLocationPhotoSource = locationId => () =>
+  api.getLocationPhotoSource({ id: locationId });
 
 export const removeLocationPhoto = locationId => async (dispatch) => {
   await api.deleteLocationPhoto({ id: locationId });

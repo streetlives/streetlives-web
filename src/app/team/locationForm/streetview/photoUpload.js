@@ -12,6 +12,13 @@
 // Lambda's 6MB invoke payload behind that. It also keeps S3 and every page view
 // small: the largest box either site draws this in is well under OUTPUT_WIDTH.
 //
+// The original is kept too, as `source`, so the crop can be adjusted after the
+// photo is saved: without it the stored crop is all that is left, and whatever
+// it cut off is gone. It is shrunk and re-encoded once, when picked, and those
+// exact bytes are what is stored and later fetched back, so adjusting a crop
+// never re-encodes it again. Re-encoding also strips the camera's metadata,
+// GPS position included, from a file that ends up on a public CDN.
+//
 // This lives in its own module because jsdom has no canvas implementation and
 // the test suite has no canvas mock, so component tests stub this out wholesale.
 
@@ -25,7 +32,14 @@ export const ASPECT = PREVIEW_WIDTH / PREVIEW_HEIGHT;
 // above the ~850px YourPeer's side panel reaches on a 2560px-wide monitor.
 export const OUTPUT_WIDTH = 1200;
 export const OUTPUT_QUALITY = 0.75;
+// The API holds the photo and its original to this together, since they share
+// one request and Lambda's payload limit bounds the request.
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+// The original is kept big enough to re-crop from - several times what one
+// crop of it needs - and no bigger, since it shares the upload's budget.
+export const SOURCE_MAX_EDGE = 2400;
+export const SOURCE_QUALITY = 0.85;
 
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const ACCEPT_ATTRIBUTE = ACCEPTED_TYPES.join(',');
@@ -34,6 +48,15 @@ export const TYPE_ERROR = 'That file is not a JPEG, PNG or WebP image.';
 export const READ_ERROR = 'That file could not be read as an image.';
 export const TOO_LARGE_ERROR =
   'That image is still too large after resizing. Try a smaller photo.';
+export const FETCH_ERROR = 'Could not load the saved photo to adjust it. Please try again.';
+
+// Bare base64 and its byte count, from a data URL.
+const splitDataUrl = (dataUrl) => {
+  const data = dataUrl.slice(dataUrl.indexOf(',') + 1);
+  // base64 is 4 characters per 3 bytes, minus any padding.
+  const padding = (data.endsWith('==') && 2) || (data.endsWith('=') && 1) || 0;
+  return { data, byteSize: ((data.length * 3) / 4) - padding };
+};
 
 const loadImage = url => new Promise((resolve, reject) => {
   const image = new Image();
@@ -53,30 +76,126 @@ export const browserDeps = {
   revokeObjectUrl: url => URL.revokeObjectURL(url),
   loadImage,
   createCanvas: () => document.createElement('canvas'),
+  // `no-store` because the preview has very likely already put this image in
+  // the HTTP cache from a plain <img>, which sends no Origin. A copy cached
+  // without CORS headers fails a CORS request, and the objects are immutable
+  // with a year-long max-age, so that copy would never age out.
+  fetchBlob: async (url) => {
+    const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
+    if (!response.ok) throw new Error(FETCH_ERROR);
+    return response.blob();
+  },
+  readAsDataUrl: blob => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error(FETCH_ERROR));
+    reader.readAsDataURL(blob);
+  }),
+};
+
+// WebP is usually 25-35% smaller than JPEG at the same visual quality, so it is
+// tried first. A browser that cannot encode it hands back a PNG instead of
+// failing, which is how that case is recognised; JPEG is the fallback there.
+const encode = (canvas, quality = OUTPUT_QUALITY) => {
+  const webp = canvas.toDataURL('image/webp', quality);
+  if (webp.startsWith('data:image/webp')) return { encoded: webp, contentType: 'image/webp' };
+  return {
+    encoded: canvas.toDataURL('image/jpeg', quality),
+    contentType: 'image/jpeg',
+  };
+};
+
+// The original's size once shrunk: its long edge capped at SOURCE_MAX_EDGE,
+// never upscaled.
+export const sourceSize = (imageWidth, imageHeight) => {
+  const scale = Math.min(1, SOURCE_MAX_EDGE / Math.max(imageWidth, imageHeight));
+  return {
+    width: Math.max(1, Math.round(imageWidth * scale)),
+    height: Math.max(1, Math.round(imageHeight * scale)),
+  };
 };
 
 /**
- * Validates and decodes a picked file for the cropper. Resolves to
- * { url, image, filename }; `url` is an object URL the caller must hand back to
- * releaseSource once it is done with it.
+ * Validates and decodes a picked file for the cropper, shrinking it to the
+ * original that will be kept. Resolves to { url, image, filename, data,
+ * contentType }: `image` is the shrunk original under `url`, and `data` is its
+ * bare base64 for the API. Hand it back to releaseSource once done with it.
  */
 export const loadSource = async (file, deps = browserDeps) => {
   if (!file || !ACCEPTED_TYPES.includes(file.type)) {
     throw new Error(TYPE_ERROR);
   }
 
-  const url = deps.createObjectUrl(file);
+  // An object URL rather than a data URL: the file can be several megabytes,
+  // and it only needs decoding, not holding as text.
+  const fileUrl = deps.createObjectUrl(file);
+  let picked;
   try {
-    const image = await deps.loadImage(url);
-    return { url, image, filename: file.name };
+    picked = await deps.loadImage(fileUrl);
+  } finally {
+    // The shrunk copy replaces it, so it is done with either way.
+    deps.revokeObjectUrl(fileUrl);
+  }
+
+  const { width, height } = sourceSize(picked.naturalWidth, picked.naturalHeight);
+  const canvas = deps.createCanvas();
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  context.imageSmoothingQuality = 'high';
+  // What shows through a transparent PNG, matching renderCrop.
+  context.fillStyle = '#000';
+  context.fillRect(0, 0, width, height);
+  context.drawImage(picked, 0, 0, width, height);
+
+  const { encoded, contentType } = encode(canvas, SOURCE_QUALITY);
+  const image = await deps.loadImage(encoded);
+  return {
+    url: encoded,
+    image,
+    filename: file.name,
+    data: splitDataUrl(encoded).data,
+    contentType,
+  };
+};
+
+/**
+ * Fetches an original kept by the API, or for a photo saved before originals
+ * were kept the photo itself, for the cropper. Same shape as loadSource, and
+ * `data` is the bytes exactly as stored: re-cropping must not re-encode them.
+ *
+ * Needs CORS on the photo CDN. The image is decoded from an object URL of the
+ * fetched bytes, which is same-origin, so drawing it never taints the canvas.
+ */
+export const loadRemoteSource = async (url, filename, deps = browserDeps) => {
+  let blob;
+  try {
+    blob = await deps.fetchBlob(url);
   } catch (err) {
-    deps.revokeObjectUrl(url);
+    throw new Error(FETCH_ERROR);
+  }
+  if (!ACCEPTED_TYPES.includes(blob.type)) throw new Error(READ_ERROR);
+
+  const dataUrl = await deps.readAsDataUrl(blob);
+  const objectUrl = deps.createObjectUrl(blob);
+  try {
+    const image = await deps.loadImage(objectUrl);
+    return {
+      url: objectUrl,
+      image,
+      filename,
+      data: splitDataUrl(dataUrl).data,
+      contentType: blob.type,
+    };
+  } catch (err) {
+    deps.revokeObjectUrl(objectUrl);
     throw err;
   }
 };
 
+// A picked file's original is held as a data URL, which has nothing to revoke.
 export const releaseSource = (source, deps = browserDeps) => {
-  if (source && source.url) deps.revokeObjectUrl(source.url);
+  if (source && source.url && source.url.startsWith('blob:')) deps.revokeObjectUrl(source.url);
 };
 
 // How far out the cropper may zoom: to where the whole photo fits inside the
@@ -172,27 +291,19 @@ const renameFor = (filename, contentType) => {
   return `${base}.${EXTENSIONS[contentType]}`;
 };
 
-// WebP is usually 25-35% smaller than JPEG at the same visual quality, so it is
-// tried first. A browser that cannot encode it hands back a PNG instead of
-// failing, which is how that case is recognised; JPEG is the fallback there.
-const encode = (canvas) => {
-  const webp = canvas.toDataURL('image/webp', OUTPUT_QUALITY);
-  if (webp.startsWith('data:image/webp')) return { encoded: webp, contentType: 'image/webp' };
-  return {
-    encoded: canvas.toDataURL('image/jpeg', OUTPUT_QUALITY),
-    contentType: 'image/jpeg',
-  };
-};
-
 /**
  * Cuts `area` (in the source image's own pixels) out of `source`, scales it to
  * at most OUTPUT_WIDTH and encodes it. Wherever `area` runs past the photo the
  * output is black, so a photo of the wrong shape can still be shown whole.
  *
- * Resolves to { data, dataUrl, contentType, filename, byteSize, width, height }.
- * `data` is base64 with no prefix, which is the shape the API's PUT body
- * expects; `dataUrl` is the same bytes ready for an <img src>, so the staged
- * photo can be previewed before it is saved without encoding it twice.
+ * Resolves to { data, dataUrl, contentType, filename, byteSize, width, height,
+ * source }. `data` is base64 with no prefix, which is the shape the API's PUT
+ * body expects; `dataUrl` is the same bytes ready for an <img src>, so the
+ * staged photo can be previewed before it is saved without encoding it twice.
+ *
+ * `source` is the original to keep, { contentType, data }, or null when there
+ * is none or it would not fit in the upload beside the crop. Leaving it out
+ * still saves the crop; only adjusting it later is lost.
  */
 export const renderCrop = async (source, area, deps = browserDeps) => {
   const { image, filename } = source;
@@ -220,15 +331,17 @@ export const renderCrop = async (source, area, deps = browserDeps) => {
   }
 
   const { encoded, contentType } = encode(canvas);
-  const data = encoded.slice(encoded.indexOf(',') + 1);
-
-  // base64 is 4 characters per 3 bytes, minus any padding.
-  const padding = (data.endsWith('==') && 2) || (data.endsWith('=') && 1) || 0;
-  const byteSize = ((data.length * 3) / 4) - padding;
+  const { data, byteSize } = splitDataUrl(encoded);
 
   if (byteSize > MAX_UPLOAD_BYTES) {
     throw new Error(TOO_LARGE_ERROR);
   }
+
+  const original = source.data
+    ? { contentType: source.contentType, data: source.data }
+    : null;
+  const fits = original
+    && byteSize + splitDataUrl(`,${original.data}`).byteSize <= MAX_UPLOAD_BYTES;
 
   return {
     data,
@@ -238,9 +351,18 @@ export const renderCrop = async (source, area, deps = browserDeps) => {
     byteSize,
     width,
     height,
+    source: fits ? original : null,
   };
 };
 
 export default {
-  loadSource, releaseSource, renderCrop, areaInPixels, placeImage, minZoomFor, outputSize,
+  loadSource,
+  loadRemoteSource,
+  releaseSource,
+  renderCrop,
+  areaInPixels,
+  placeImage,
+  minZoomFor,
+  outputSize,
+  sourceSize,
 };
