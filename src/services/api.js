@@ -205,10 +205,12 @@ export const putLocationPhoto = ({ id, params }) =>
 
 // The original the saved photo was cropped from and its framing, so the crop
 // can be adjusted. Data-entry only: the original is never on the public payload.
+// Not under /locations/: API Gateway serves GET /locations/{id+} without an
+// authorizer, so a login would never reach the API there.
 export const getLocationPhotoSource = ({ id }) =>
   getAuthToken()
     .then(idJwtToken => axios.request({
-      url: `${config.baseApi}/locations/${id}/photo/source`,
+      url: `${config.baseApi}/location-photos/${id}/source`,
       method: 'get',
       headers: { Authorization: idJwtToken },
     }))
