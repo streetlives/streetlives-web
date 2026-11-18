@@ -14,7 +14,7 @@ import { ERROR_STYLE, Segmented, focusFirstProblem } from './controls';
 import {
   readSchedule, applySchedule, isSpecialHoursValid, newAtom, groupAtoms, cardKey, addCard,
   skipCardDate, unskipCardDate, describeCard, getCardError, getClosureError, describeConflicts,
-  describeSchedule, fillWeek, splitCard, nyToday, atomKey,
+  describeSchedule, fillWeek, nyToday, atomKey,
 } from './recurrence';
 import './OpeningHours.css';
 
@@ -258,14 +258,19 @@ class ServiceOpeningHours extends Component {
 
   // Applies an operation to the drawer's card. The cards regroup afterwards, so the drawer
   // follows the atoms the operation leaves on that card; if it leaves none, the drawer closes.
-  // `pick` narrows which of them to follow.
-  onDrawerEdit = (operation, ...args) => this.editDrawerCard(atoms => atoms, operation, ...args);
-
-  onDrawerSplit = date => this.editDrawerCard(
-    atoms => atoms.filter(atom => atom.validFrom === date),
-    splitCard,
-    date,
-  );
+  onDrawerEdit = (operation, ...args) => {
+    const card = this.drawerCard();
+    if (!card) return;
+    const { schedule, drawer } = this.state;
+    const atoms = operation(schedule.atoms, card, ...args);
+    const edited = new Set(operation(card.atoms, card, ...args).map(atomKey));
+    const tracked = atoms.filter(atom => edited.has(atomKey(atom)));
+    if (!tracked.length) {
+      this.setState({ schedule: { ...schedule, atoms } }, this.closeDrawer);
+      return;
+    }
+    this.setState({ schedule: { ...schedule, atoms }, drawer: { ...drawer, tracked } });
+  };
 
   onSkipCardDate = (card, action, date) =>
     this.onEditCard(card)(action === 'skip' ? skipCardDate : unskipCardDate, date);
@@ -324,20 +329,6 @@ class ServiceOpeningHours extends Component {
     return drawer &&
       groupAtoms(schedule.atoms.filter(atom => drawer.tracked.includes(atom)))[0];
   };
-
-  editDrawerCard(pick, operation, ...args) {
-    const card = this.drawerCard();
-    if (!card) return;
-    const { schedule, drawer } = this.state;
-    const atoms = operation(schedule.atoms, card, ...args);
-    const edited = new Set(pick(operation(card.atoms, card, ...args)).map(atomKey));
-    const tracked = atoms.filter(atom => edited.has(atomKey(atom)));
-    if (!tracked.length) {
-      this.setState({ schedule: { ...schedule, atoms } }, this.closeDrawer);
-      return;
-    }
-    this.setState({ schedule: { ...schedule, atoms }, drawer: { ...drawer, tracked } });
-  }
 
   closeDrawer = () => {
     const { opener } = this.state.drawer;
@@ -616,7 +607,6 @@ class ServiceOpeningHours extends Component {
             card={drawerCard}
             today={nyToday()}
             onEdit={this.onDrawerEdit}
-            onSplit={this.onDrawerSplit}
             onDone={this.closeDrawer}
             onCancel={this.cancelDrawer}
           />

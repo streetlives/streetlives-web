@@ -6,11 +6,10 @@ import { DAYS } from '../../../../Constants';
 import {
   WEEK_OPTIONS, MONTHS, sortDays, sortWeeks, describeRepeat, formatRange, getCardErrors,
   updateCard, setCardDays, updateRange, addRange, removeRange, removeCard,
-  skipCardDate, unskipCardDate, mergeCardRanges, upcomingDates,
+  mergeCardRanges, upcomingDates,
 } from './recurrence';
 import {
-  Chip, Segmented, TimeInput, NextDayTag, TrashIcon, DateAction, useId, useModal,
-  focusFirstProblem,
+  Chip, Segmented, TimeInput, NextDayTag, TrashIcon, useId, useModal, focusFirstProblem,
 } from './controls';
 
 const MONTH_DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1));
@@ -49,7 +48,7 @@ FieldError.propTypes = {
 // show next to their fields, and Done waits until they're fixed; Cancel undoes every edit made
 // since the drawer opened.
 function PatternDrawer({
-  card, onEdit, onSplit, onDone, onCancel, today,
+  card, onEdit, onDone, onCancel, today,
 }) {
   const ref = useRef(null);
   const titleId = useId('drawer-title');
@@ -349,45 +348,6 @@ function PatternDrawer({
                 <FieldError error={errorOn('validTo')} />
               </div>
             </div>
-
-            <div className="oh-field">
-              <span className="oh-label">Skipped dates</span>
-              <div className="oh-chips">
-                {card.exdates.map(date => (
-                  <span key={date} className="oh-skip-pill">
-                    ⊘ {moment(date).format('ddd, MMM D')}
-                    <button
-                      type="button"
-                      aria-label={`Remove skipped date ${moment(date).format('MMM D')}`}
-                      onClick={() => onEdit(unskipCardDate, date)}
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-                <DateAction
-                  label="+ Skip a date"
-                  action="Skip"
-                  isDisabled={date => card.exdates.includes(date)}
-                  onSubmit={date => onEdit(skipCardDate, date)}
-                />
-              </div>
-            </div>
-
-            <div className="oh-change-date">
-              <span className="oh-flex">
-                <span className="oh-label">Hours change on a date?</span>
-                <span className="oh-help">
-                  These hours stop that day and a copy starts from it.
-                </span>
-              </span>
-              <DateAction
-                label="Choose a date"
-                action="Change from this date"
-                isDisabled={date => !!card.validFrom && date <= card.validFrom}
-                onSubmit={onSplit}
-              />
-            </div>
           </div>
         </div>
 
@@ -443,8 +403,6 @@ PatternDrawer.propTypes = {
   }).isRequired,
   // (operation from recurrence.js, ...its arguments)
   onEdit: PropTypes.func.isRequired,
-  // (date): these hours end the day before, and a copy starts on it.
-  onSplit: PropTypes.func.isRequired,
   onDone: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   today: PropTypes.string.isRequired,

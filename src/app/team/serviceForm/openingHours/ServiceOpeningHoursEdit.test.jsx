@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
 import { DAYS } from '../../../../Constants';
 import {
-  groupAtoms, describeCard, updateCard, splitCard, updateRange, newClosure, setCardDays,
+  groupAtoms, describeCard, updateCard, updateRange, newClosure, setCardDays,
   cardOnDay,
 } from './recurrence';
 
@@ -61,14 +61,15 @@ describe('ServiceOpeningHoursEdit', () => {
     expect(render([{ closed: true }], true).state('active')).toBe(2);
   });
 
-  it('saves a split card, a skipped date and a closure that repeats', () => {
+  it('keeps hours that change on a date, and saves a skipped date and a repeating closure', () => {
     const updateValue = jest.fn();
-    const wrapper = render([saturday], false, updateValue);
-    const [card] = cardsOf(wrapper);
+    const wrapper = render([
+      { ...saturday, validTo: '2026-11-30' },
+      {
+        ...saturday, opensAt: '10:00', closesAt: '14:00', validFrom: '2026-12-01',
+      },
+    ], false, updateValue);
 
-    wrapper.instance().onEditCard(card)(splitCard, '2026-12-01');
-    const [, later] = cardsOf(wrapper);
-    wrapper.instance().onEditCard(later)(updateRange, 0, { opensAt: '10:00', closesAt: '14:00' });
     wrapper.instance().onSkipCardDate(cardsOf(wrapper)[0], 'skip', '2026-11-14');
     wrapper.instance().onScheduleChange('closures', [newClosure({ description: 'Christmas' })]);
     wrapper.instance().updateValue();
@@ -213,14 +214,6 @@ describe('ServiceOpeningHoursEdit', () => {
       wrapper.instance().onDrawerEdit(setCardDays, ['Monday', 'Tuesday']);
       expect(wrapper.instance().drawerCard().days).toEqual(['Monday', 'Tuesday']);
     });
-  });
-
-  it('follows the later card after a split in the drawer', () => {
-    const wrapper = render([saturday], false);
-
-    wrapper.instance().openDrawer(cardsOf(wrapper)[0], null);
-    wrapper.instance().onDrawerSplit('2026-12-01');
-    expect(wrapper.instance().drawerCard().validFrom).toBe('2026-12-01');
   });
 
   it('asks for special hours on a date from the calendar, adding nothing yet', () => {

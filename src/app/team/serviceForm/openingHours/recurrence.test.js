@@ -1,6 +1,6 @@
 import {
   applySchedule, readSchedule, newAtom, newClosure, groupAtoms, setCardDays, addRange,
-  updateRange, removeRangeOnDay, updateCard, splitCard, mergeCardRanges, describeCard,
+  updateRange, removeRangeOnDay, updateCard, mergeCardRanges, describeCard,
   describeRepeat, describeClosure, describeWeeks, describeSpecialHours, getCardError,
   getClosureError, describeConflicts, EMPTY_SCHEDULE, getCardErrors, setDayRanges, plainCardOn,
   dayCardOn, fillWeek, describeClosureWhen, upcomingClosureDates,
@@ -92,17 +92,6 @@ describe('groupAtoms', () => {
       canMerge: true,
     });
     expect(summary(mergeCardRanges(touching, card))).toEqual(['Sat: 9AM to 5PM']);
-  });
-
-  it('splits a card from a date on', () => {
-    const [card] = groupAtoms(atoms(['Saturday'], [['09:00', '17:00']], {
-      exdates: ['2026-12-19'],
-    }));
-    const split = splitCard(card.atoms, card, '2026-12-01');
-    expect(summary(updateCard(split, groupAtoms(split)[1], { closesAt: '14:00' }))).toEqual([
-      'Sat: 9AM to 5PM. Until Nov 30, 2026',
-      'Sat: 9AM to 2PM. From Dec 1, 2026. Skips Dec 19',
-    ]);
   });
 });
 

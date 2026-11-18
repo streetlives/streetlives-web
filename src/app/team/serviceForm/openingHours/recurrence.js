@@ -354,14 +354,6 @@ export const fillWeek = (atoms, days, ranges) => dedupe([
   ...days.flatMap(day => ranges.map(range => newAtom({ ...rangeOf(range), day }))),
 ]);
 
-// "Change from a date" (Google Calendar's "this and following events"): the card ends the day
-// before `date`, and a copy starts on `date`, taking the skipped dates from then on with it.
-export const splitCard = (atoms, card, date) => replaceCard(atoms, card, card.atoms
-  .flatMap(atom => [
-    { ...atom, validTo: addDays(date, -1), exdates: atom.exdates.filter(d => d < date) },
-    { ...atom, validFrom: date, exdates: atom.exdates.filter(d => d >= date) },
-  ]));
-
 export const skipCardDate = (atoms, card, date) => updateCard(atoms, card, {
   exdates: [...new Set([...card.exdates, date])].sort(),
 });

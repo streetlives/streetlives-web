@@ -56,7 +56,7 @@
 
 /* Text */
 .oh-th { font-size: 12px; font-weight: 700; color: var(--oh-muted); text-transform: uppercase; letter-spacing: .06em; }
-.oh-label { font-size: 13px; font-weight: 700; color: var(--oh-ink-2); }
+.oh-label { display: block; margin-bottom: 0; font-size: 13px; line-height: 1.4; font-weight: 700; color: var(--oh-ink-2); }
 .oh-optional { font-weight: 400; color: var(--oh-muted); }
 .oh-help { font-size: 13px; color: var(--oh-muted); line-height: 1.45; margin: 0; }
 .oh-muted { font-size: 14px; color: var(--oh-muted); }
@@ -492,10 +492,8 @@
 .oh-last-day .oh-chip { flex: 1; }
 .oh-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .oh-two .oh-input { width: 100%; }
-.oh-skip-pill { display: inline-flex; align-items: center; gap: 2px; padding-left: 12px; height: 34px; border-radius: 17px; background: #ecece8; font-size: 14px; }
-.oh-skip-pill button { width: 34px; height: 34px; border: 0; background: none; font-size: 13px; cursor: pointer; }
-.oh-change-date { display: flex; align-items: center; gap: 12px; border-top: 1px solid #e4e4e0; padding-top: 16px; flex-wrap: wrap; }
-.oh-change-date .oh-flex { display: flex; flex-direction: column; gap: 2px; }
+.oh-two .oh-seg { height: 38px; box-sizing: border-box; }
+.oh-two .oh-seg > button { height: auto; }
 .oh-drawer-foot { border-top: 1px solid #dcdcd8; padding: 12px 28px; display: flex; align-items: center; gap: 10px; }
 .oh-drawer-foot.is-invalid { background: #fff8f7; }
 .oh-problems { font-size: 14px; color: #7a1810; font-weight: 600; }
