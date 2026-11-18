@@ -54,6 +54,8 @@ export const SERVICE_FIELDS = [
     metaDataSection: 'service',
     RouteComponent: CoronavirusOpeningHours,
     fieldName: 'irregularHours',
+    // The editor has the calendar beside it, so it takes more of a wide screen.
+    wide: true,
   },
   {
     label: 'Languages spoken',

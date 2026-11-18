@@ -38,8 +38,8 @@ const ServiceForm = ({
         />
         <ProgressBar step={currentIndex + 1} steps={totalRoutes} />
         <div
-          style={{ marginBottom: '5em' }}
-          className="container"
+          style={{ marginBottom: '5em', ...(currentRoute.wide && { maxWidth: '1440px' }) }}
+          className={currentRoute.wide ? 'container-fluid' : 'container'}
         >
           <div className="row px-4">
             {children}

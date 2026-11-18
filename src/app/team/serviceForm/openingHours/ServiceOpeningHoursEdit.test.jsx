@@ -3,7 +3,8 @@ import { shallow } from 'enzyme';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
 import { DAYS } from '../../../../Constants';
 import {
-  groupAtoms, describeCard, updateCard, splitCard, updateRange, newClosure,
+  groupAtoms, describeCard, updateCard, splitCard, updateRange, newClosure, setCardDays,
+  cardOnDay,
 } from './recurrence';
 
 const CODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
@@ -141,10 +142,92 @@ describe('ServiceOpeningHoursEdit', () => {
     expect(wrapper.html()).toContain('overlap on');
   });
 
-  it('starts "not 24/7" with one card to fill in', () => {
+  it('starts "Set hours" with an empty week, which can\'t be saved yet', () => {
     const wrapper = render([], false);
 
     wrapper.instance().onSelect(1);
-    expect(cardsOf(wrapper).map(describeCard)).toEqual(['No days picked: 9AM to 5PM']);
+    expect(cardsOf(wrapper)).toEqual([]);
+    expect(wrapper.instance().isValid()).toBe(false);
+  });
+
+  it('fills the week and saves it as one card per set of hours', () => {
+    const updateValue = jest.fn();
+    const wrapper = render([], false, updateValue);
+
+    wrapper.instance().onSelect(1);
+    wrapper.instance().onQuickFill(true);
+    expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+    wrapper.instance().updateValue();
+    expect(updateValue.mock.calls[0][0]).toHaveLength(5);
+  });
+
+  it('follows the drawer\'s card as it changes, and undoes the changes on Cancel', () => {
+    const wrapper = render([saturday], false);
+    const [card] = cardsOf(wrapper);
+
+    wrapper.instance().openDrawer(card, null);
+    wrapper.instance().onDrawerEdit(updateCard, { freq: 'MONTHLY', weeks: ['1'] });
+    expect(describeCard(wrapper.instance().drawerCard()))
+      .toBe('1st Sat of every month: 9AM to 5PM');
+    wrapper.instance().onDrawerEdit(updateRange, 0, { closesAt: '13:00' });
+    expect(describeCard(wrapper.instance().drawerCard()))
+      .toBe('1st Sat of every month: 9AM to 1PM');
+
+    wrapper.instance().cancelDrawer();
+    expect(wrapper.state('drawer')).toBeNull();
+    expect(cardsOf(wrapper).map(describeCard)).toEqual(['Sat: 9AM to 5PM']);
+  });
+
+  describe('repeat settings opened from one day', () => {
+    const weekdays = DAYS.slice(0, 5).map((weekday, i) => ({
+      ...saturday, weekday, byday: CODES[i],
+    }));
+    const openMonday = () => {
+      const wrapper = render(weekdays, false);
+      wrapper.instance().openDrawer(cardOnDay(cardsOf(wrapper)[0], 'Monday'), null);
+      return wrapper;
+    };
+
+    it('changes that day only', () => {
+      const wrapper = openMonday();
+
+      wrapper.instance().onDrawerEdit(updateCard, { months: ['6'] });
+      wrapper.instance().onDrawerEdit(updateRange, 0, { closesAt: '13:00' });
+      expect(cardsOf(wrapper).map(describeCard)).toEqual([
+        'Mon, in Jun: 9AM to 1PM',
+        'Tue, Wed, Thu, and Fri: 9AM to 5PM',
+      ]);
+    });
+
+    it('puts the other days back as they were on Cancel', () => {
+      const wrapper = openMonday();
+
+      wrapper.instance().onDrawerEdit(updateCard, { months: ['6'] });
+      wrapper.instance().cancelDrawer();
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+    });
+
+    it('can add a day that already has the same hours', () => {
+      const wrapper = openMonday();
+
+      wrapper.instance().onDrawerEdit(setCardDays, ['Monday', 'Tuesday']);
+      expect(wrapper.instance().drawerCard().days).toEqual(['Monday', 'Tuesday']);
+    });
+  });
+
+  it('follows the later card after a split in the drawer', () => {
+    const wrapper = render([saturday], false);
+
+    wrapper.instance().openDrawer(cardsOf(wrapper)[0], null);
+    wrapper.instance().onDrawerSplit('2026-12-01');
+    expect(wrapper.instance().drawerCard().validFrom).toBe('2026-12-01');
+  });
+
+  it('asks for special hours on a date from the calendar, adding nothing yet', () => {
+    const wrapper = render([saturday], false);
+
+    wrapper.instance().onAddSpecialHours('2026-12-24');
+    expect(wrapper.state('exceptionDate')).toBe('2026-12-24');
+    expect(wrapper.state('schedule').specialHours).toEqual([]);
   });
 });

@@ -2,7 +2,9 @@ import {
   applySchedule, readSchedule, newAtom, newClosure, groupAtoms, setCardDays, addRange,
   updateRange, removeRangeOnDay, updateCard, splitCard, mergeCardRanges, describeCard,
   describeRepeat, describeClosure, describeWeeks, describeSpecialHours, getCardError,
-  getClosureError, describeConflicts, EMPTY_SCHEDULE,
+  getClosureError, describeConflicts, EMPTY_SCHEDULE, getCardErrors, setDayRanges, plainCardOn,
+  dayCardOn, fillWeek, describeClosureWhen, upcomingClosureDates,
+  describeSchedule, upcomingDates, skipCardDate,
 } from './recurrence';
 import { DAYS } from '../../../../Constants';
 
@@ -73,7 +75,10 @@ describe('groupAtoms', () => {
     const card = monthDays => groupAtoms([newAtom({ freq: 'MONTHLY', monthDays })])[0];
     ['0', '32', '-99'].forEach((monthDays) => {
       expect(getCardError(card(monthDays)))
-        .toEqual({ message: 'Days of the month look like 1,15 or -1 for the last day' });
+        .toEqual({
+          field: 'monthDays',
+          message: 'Days of the month look like 1,15 or -1 for the last day',
+        });
     });
     expect(getCardError(card('1,15,-1'))).toBeNull();
   });
@@ -82,6 +87,7 @@ describe('groupAtoms', () => {
     const touching = atoms(['Saturday'], [['09:00', '13:00'], ['13:00', '17:00']]);
     const [card] = groupAtoms(touching);
     expect(getCardError(card)).toEqual({
+      field: 'ranges',
       message: '9AM to 1PM and 1PM to 5PM touch: make them one range, or leave a gap',
       canMerge: true,
     });
@@ -317,5 +323,164 @@ describe('describeWeeks', () => {
   it('names the weeks', () => {
     expect(describeWeeks('Friday', ['2', '1'])).toBe('1st and 2nd Fridays of the month');
     expect(describeWeeks('Monday', ['-1'])).toBe('Last Monday of the month');
+  });
+});
+
+describe('setDayRanges', () => {
+  const nineToFive = [{ opensAt: '09:00', closesAt: '17:00', description: '' }];
+  const week = atoms(WEEKDAYS, [['09:00', '17:00']]);
+
+  it('gives a day whose hours change its own card', () => {
+    const changed = setDayRanges(week, 'Wednesday', [{ opensAt: '10:00', closesAt: '14:00' }]);
+    expect(summary(changed)).toEqual(['Mon, Tue, Thu, and Fri: 9AM to 5PM', 'Wed: 10AM to 2PM']);
+  });
+
+  it('joins the card with the same hours when they match again', () => {
+    const changed = setDayRanges(week, 'Wednesday', [{ opensAt: '10:00', closesAt: '14:00' }]);
+    expect(summary(setDayRanges(changed, 'Wednesday', nineToFive)))
+      .toEqual(['Weekdays: 9AM to 5PM']);
+    expect(summary(setDayRanges(week, 'Saturday', nineToFive)))
+      .toEqual(['Mon, Tue, Wed, Thu, Fri, and Sat: 9AM to 5PM']);
+  });
+
+  it('closes a day with no ranges', () => {
+    expect(summary(setDayRanges(week, 'Friday', [])))
+      .toEqual(['Mon, Tue, Wed, and Thu: 9AM to 5PM']);
+  });
+
+  it('keeps the skipped dates of the day\'s card', () => {
+    const [card] = groupAtoms(week);
+    const skipping = skipCardDate(week, card, '2026-11-11');
+    const changed = setDayRanges(skipping, 'Wednesday', [{ opensAt: '10:00', closesAt: '14:00' }]);
+    expect(plainCardOn(groupAtoms(changed), 'Wednesday').exdates).toEqual(['2026-11-11']);
+  });
+
+  it('keeps how a day repeats when its hours change', () => {
+    const seasonal = atoms(['Monday', 'Tuesday'], [['09:00', '17:00']], { months: ['6', '7'] });
+    const changed = setDayRanges(seasonal, 'Monday', [{ opensAt: '10:00', closesAt: '14:00' }]);
+    expect(summary(changed)).toEqual([
+      'Mon, in Jun and Jul: 10AM to 2PM',
+      'Tue, in Jun and Jul: 9AM to 5PM',
+    ]);
+  });
+
+  it('edits the weekly hours of a day that also has a pattern', () => {
+    const firstSaturday = atoms(['Saturday'], [['18:00', '20:00']], {
+      freq: 'MONTHLY', weeks: ['1'],
+    });
+    const saturdays = [...atoms(['Saturday'], [['09:00', '12:00']]), ...firstSaturday];
+    const changed = setDayRanges(saturdays, 'Saturday', nineToFive);
+    expect(summary(changed)).toEqual([
+      'Sat: 9AM to 5PM',
+      '1st Sat of every month: 6PM to 8PM',
+    ]);
+  });
+});
+
+describe('dayCardOn', () => {
+  it('stays on a day whose repeat settings change', () => {
+    const week = atoms(WEEKDAYS, [['09:00', '17:00']]);
+    const [card] = groupAtoms(week);
+    [
+      { months: ['6'] },
+      { interval: 2, validFrom: '2026-11-02' },
+      { validTo: '2026-12-31' },
+      { freq: 'MONTHLY', weeks: ['1'] },
+    ].forEach((changes) => {
+      const cards = groupAtoms(updateCard(week, card, changes));
+      WEEKDAYS.forEach(day => expect(dayCardOn(cards, day).ranges).toEqual(card.ranges));
+    });
+  });
+});
+
+describe('fillWeek', () => {
+  it('replaces the hours on every weekday, patterns included', () => {
+    const week = [
+      ...atoms(['Monday'], [['10:00', '14:00']], { interval: 2, validFrom: '2026-11-02' }),
+      ...atoms(['Saturday'], [['10:00', '14:00']], { freq: 'MONTHLY', weeks: ['1'] }),
+    ];
+    expect(summary(fillWeek(week, WEEKDAYS, [{ opensAt: '09:00', closesAt: '17:00' }])))
+      .toEqual(['Weekdays: 9AM to 5PM']);
+    expect(fillWeek(week, [], [])).toEqual([]);
+  });
+});
+
+describe('getCardErrors', () => {
+  it('lists every problem with the field to fix', () => {
+    const [card] = groupAtoms([newAtom({
+      freq: 'MONTHLY', interval: 2, opensAt: '09:00', closesAt: '13:00',
+    }), newAtom({
+      freq: 'MONTHLY', interval: 2, opensAt: '12:00', closesAt: '17:00',
+    })]);
+    expect(getCardErrors(card).map(({ field }) => field))
+      .toEqual(['weeks', 'days', 'validFrom', 'ranges']);
+    expect(getCardError(card).field).toBe('weeks');
+  });
+});
+
+describe('describeSchedule', () => {
+  it('sums the schedule up in one line', () => {
+    expect(describeSchedule({
+      atoms: [
+        ...atoms(WEEKDAYS, [['09:00', '17:00']]),
+        ...atoms(['Saturday'], [['10:00', '14:00']], { freq: 'MONTHLY', weeks: ['1', '3'] }),
+      ],
+      closures: [newClosure({
+        description: 'Thanksgiving', on: 'weekday', month: '11', weeks: ['4'],
+      })],
+      specialHours: [{ ...christmas, description: '' }],
+    })).toBe('Open Weekdays 9AM–5PM and 1st and 3rd Sat of every month 10AM–2PM · ' +
+      'Closed Thanksgiving · Special hours Dec 25');
+  });
+
+  it('says when there are no regular hours', () => {
+    expect(describeSchedule(EMPTY_SCHEDULE)).toBe('No regular hours');
+  });
+});
+
+describe('upcomingDates', () => {
+  it('lists the next dates a card falls on, with the ones it skips', () => {
+    const [card] = groupAtoms(atoms(['Saturday'], [['10:00', '14:00']], {
+      freq: 'MONTHLY', weeks: ['1', '3'], exdates: ['2026-11-21'],
+    }));
+    expect(upcomingDates(card, TODAY)).toEqual([
+      { date: '2026-11-07', skipped: false },
+      { date: '2026-11-21', skipped: true },
+      { date: '2026-12-05', skipped: false },
+      { date: '2026-12-19', skipped: false },
+    ]);
+  });
+});
+
+describe('describeClosureWhen', () => {
+  it('says when a closure falls, without its name', () => {
+    expect(describeClosureWhen(newClosure({
+      description: 'Christmas', validFrom: '2026-12-01',
+    }))).toBe('Every December 25. From Dec 1, 2026');
+  });
+});
+
+describe('upcomingClosureDates', () => {
+  it('lists the next dates a closure falls on', () => {
+    const thanksgiving = newClosure({
+      on: 'weekday', month: '11', weeks: ['4'], day: 'Thursday',
+    });
+    expect(upcomingClosureDates(thanksgiving, TODAY))
+      .toEqual(['2026-11-26', '2027-11-25', '2028-11-23']);
+  });
+
+  it('leaves out the dates it is open anyway', () => {
+    expect(upcomingClosureDates(newClosure({ exdates: ['2026-12-25'] }), TODAY))
+      .toEqual(['2027-12-25', '2028-12-25', '2029-12-25']);
+  });
+
+  it('counts a closed month once', () => {
+    expect(upcomingClosureDates(newClosure({ on: 'month', month: '8' }), TODAY))
+      .toEqual(['2027-08-01', '2028-08-01', '2029-08-01']);
+  });
+
+  it('stops at the date it ends', () => {
+    expect(upcomingClosureDates(newClosure({ validTo: '2027-12-31' }), TODAY))
+      .toEqual(['2026-12-25', '2027-12-25']);
   });
 });
