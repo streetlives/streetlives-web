@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
@@ -65,6 +65,18 @@ function PatternDrawer({
   // Days of the month have no weekday, so leaving them goes back to `weekdays`.
   const leaveMonthDays = changes => onEdit((atoms, current) =>
     setCardDays(atoms, { ...current, ...changes, monthDays: '' }, weekdays));
+
+  // No months picked means all year, so all year shows every month picked. Turning every month
+  // back on goes back to all year, and the last month can't be turned off.
+  const allYear = !card.months.length;
+  const toggleMonth = (month) => {
+    const next = toggle(allYear ? MONTHS.map((_, i) => String(i + 1)) : card.months, month);
+    if (!next.length) return;
+    onEdit(updateCard, {
+      months: next.length === MONTHS.length ? [] : next.sort((x, y) => x - y),
+    });
+  };
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   useModal(ref, onCancel);
 
@@ -173,13 +185,36 @@ function PatternDrawer({
               </div>
             )}
 
-            <button
-              type="button"
-              className="oh-link oh-start oh-danger-link"
-              onClick={() => onEdit(removeCard)}
-            >
-              Remove these hours
-            </button>
+            {confirmRemove ? (
+              <div role="alert" className="oh-alert oh-confirm">
+                <strong>{`Remove ${describeRepeat(card)}: ${ranges}?`}</strong>
+                <span>These hours come off every day they repeat on.</span>
+                <div className="oh-inline">
+                  <button
+                    type="button"
+                    className="oh-btn oh-danger"
+                    onClick={() => onEdit(removeCard)}
+                  >
+                    Remove
+                  </button>
+                  <button
+                    type="button"
+                    className="oh-btn oh-small"
+                    onClick={() => setConfirmRemove(false)}
+                  >
+                    Keep them
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="oh-link oh-start oh-danger-link"
+                onClick={() => setConfirmRemove(true)}
+              >
+                Remove these hours
+              </button>
+            )}
           </div>
 
           <div className="oh-stack oh-drawer-side">
@@ -212,6 +247,11 @@ function PatternDrawer({
                   }}
                 />
               </div>
+              {!isMonthly && (
+                <span className="oh-help">
+                  To repeat on certain weeks or days of the month, choose Month.
+                </span>
+              )}
               <FieldError error={errorOn('days')} />
             </div>
 
@@ -271,24 +311,22 @@ function PatternDrawer({
             <div className="oh-field">
               <span className="oh-split">
                 <span className="oh-label">Months</span>
-                <span className="oh-help">{card.months.length ? '' : 'All year'}</span>
+                <span className="oh-help">{allYear ? 'All year' : ''}</span>
               </span>
               <div role="group" aria-label="Months" className="oh-months">
                 {MONTHS.map((month, i) => (
                   <Chip
                     key={month}
                     label={month}
-                    selected={card.months.includes(String(i + 1))}
-                    onClick={() => onEdit(updateCard, {
-                      months: toggle(card.months, String(i + 1)).sort((x, y) => x - y),
-                    })}
+                    selected={allYear || card.months.includes(String(i + 1))}
+                    onClick={() => toggleMonth(String(i + 1))}
                   >
                     {month.slice(0, 3)}
                   </Chip>
                 ))}
               </div>
               <span className="oh-help">
-                Leave all off for all year. Pick months for seasonal hours.
+                For seasonal hours, turn off the months these hours skip.
               </span>
             </div>
 

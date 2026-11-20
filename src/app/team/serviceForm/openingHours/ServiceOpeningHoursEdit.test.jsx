@@ -223,6 +223,37 @@ describe('ServiceOpeningHoursEdit', () => {
       choose('Repeat unit', 'WEEKLY');
       expect(describeCard(wrapper.instance().drawerCard())).toBe('Mon: 9AM to 5PM');
     });
+
+    it('shows all year as every month picked, and goes back to it when all are on', () => {
+      const wrapper = openMonday();
+      const months = () => wrapper.find(PatternDrawer).dive().find({ 'aria-label': 'Months' })
+        .children();
+      const click = label => months().filterWhere(chip => chip.prop('label') === label)
+        .prop('onClick')();
+
+      expect(months().map(chip => chip.prop('selected'))).toEqual(Array(12).fill(true));
+      click('December');
+      expect(wrapper.instance().drawerCard().months)
+        .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']);
+      expect(months().last().prop('selected')).toBe(false);
+      click('December');
+      expect(wrapper.instance().drawerCard().months).toEqual([]);
+    });
+
+    it('asks before removing the hours', () => {
+      const wrapper = openMonday();
+      // One render of the drawer, so it remembers it's asking.
+      const drawer = wrapper.find(PatternDrawer).dive();
+      const button = text => drawer.find('button').filterWhere(b => b.text() === text);
+
+      button('Remove these hours').simulate('click');
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+      button('Keep them').simulate('click');
+      button('Remove these hours').simulate('click');
+      button('Remove').simulate('click');
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Tue, Wed, Thu, and Fri: 9AM to 5PM']);
+      expect(wrapper.state('drawer')).toBe(null);
+    });
   });
 
   it('asks for special hours on a date from the calendar, adding nothing yet', () => {
