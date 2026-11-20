@@ -6,14 +6,17 @@ import Button from '../../../../components/button';
 import Selector from '../../../../components/selector';
 import { DAYS } from '../../../../Constants';
 import OpeningHoursEditForm from './OpeningHoursEditForm';
-import SpecialHoursEdit from './SpecialHoursEdit';
-import SeriesEdit, { ERROR_STYLE } from './SeriesEdit';
-import ClosuresEdit from './ClosuresEdit';
+import ExceptionsEdit, { ExceptionsView } from './ExceptionsEdit';
 import SchedulePreview from './SchedulePreview';
+import WeekTable from './WeekTable';
+import PatternDrawer from './PatternDrawer';
+import { ERROR_STYLE, Segmented } from './controls';
 import {
   readSchedule, applySchedule, isSpecialHoursValid, newAtom, groupAtoms, cardKey, addCard,
   skipCardDate, unskipCardDate, describeCard, getCardError, getClosureError, describeConflicts,
+  describeSchedule, fillWeek, nyToday, atomKey,
 } from './recurrence';
+import './OpeningHours.css';
 
 const NOTHING_ACTIVE = -1;
 const IS_247_ACTIVE = 0;
@@ -25,6 +28,13 @@ const ELEVEN_FIFTY_NINE = '23:59';
 const ALL_DAY_ATOMS = DAYS.map(day => newAtom({
   day, opensAt: MIDNIGHT, closesAt: ELEVEN_FIFTY_NINE,
 }));
+
+const STATUS_OPTIONS = [
+  { value: IS_CLOSED, label: 'Closed' },
+  { value: IS_247_ACTIVE, label: 'Open 24/7' },
+  { value: IS_NOT_247_ACTIVE, label: 'Set hours' },
+];
+const IS_MAC = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
 
 // 24/7 is one card open all day on every day, every week, with no dates or skips.
 const isAllDayEveryDay = cards => cards.length === 1 &&
@@ -126,7 +136,17 @@ class ServiceOpeningHours extends Component {
       hours: getOpenRegularHours(props.value),
       latestHoursEntered: null,
       schedule: readSchedule(props.value),
+      // The card open in the drawer: the atoms it was opened with or made since, the atoms
+      // to go back to on Cancel, and the element to return focus to.
+      drawer: null,
+      // A date from the calendar to add special hours on.
+      exceptionDate: null,
     };
+    this.savedHours = JSON.stringify(this.getHoursToSave());
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeyDown);
   }
 
   componentWillReceiveProps(props) {
@@ -135,9 +155,23 @@ class ServiceOpeningHours extends Component {
         hours: getOpenRegularHours(props.value),
         active: getActive(props.value, props.supportsRecurrence),
         schedule: readSchedule(props.value),
-      });
+      }, () => { this.savedHours = JSON.stringify(this.getHoursToSave()); });
     }
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKeyDown);
+  }
+
+  // Ctrl+S (Cmd+S on a Mac) saves, unless a drawer or dialog is open.
+  onKeyDown = (e) => {
+    if (this.props.viewMode || !this.props.supportsRecurrence) return;
+    if (document.querySelector('.oh-overlay')) return;
+    if (e.key === 's' && (IS_MAC ? e.metaKey : e.ctrlKey)) {
+      e.preventDefault();
+      if (this.isValid()) this.updateValue();
+    }
+  };
 
   onSelect = (active) => {
     const newState = { active };
@@ -148,7 +182,8 @@ class ServiceOpeningHours extends Component {
         weekday,
       }));
     }
-    if (active === IS_NOT_247_ACTIVE && !this.state.schedule.atoms.length) {
+    if (active === IS_NOT_247_ACTIVE && !this.props.supportsRecurrence &&
+      !this.state.schedule.atoms.length) {
       newState.schedule = { ...this.state.schedule, atoms: addCard([]) };
     }
     if (active === IS_CLOSED) {
@@ -202,6 +237,40 @@ class ServiceOpeningHours extends Component {
     operation(this.state.schedule.atoms, card, ...args),
   );
 
+  onAtoms = change => this.onScheduleChange('atoms', change(this.state.schedule.atoms));
+
+  // Fills the whole week: Mon–Fri 9–5 and the weekend closed, or every day closed.
+  onQuickFill = weekdaysOpen => this.onAtoms(atoms => fillWeek(
+    atoms,
+    weekdaysOpen ? DAYS.slice(0, 5) : [],
+    [{ opensAt: '09:00', closesAt: '17:00', description: '' }],
+  ));
+
+  // Opens the holidays and exceptions dialog on a date picked in the calendar.
+  onAddSpecialHours = date => this.setState({ exceptionDate: date });
+
+  onExceptionDateHandled = () => this.setState({ exceptionDate: null });
+
+  onExceptions = changes => this.setState(({ schedule }) => ({
+    schedule: { ...schedule, ...changes },
+  }));
+
+  // Applies an operation to the drawer's card. The cards regroup afterwards, so the drawer
+  // follows the atoms the operation leaves on that card; if it leaves none, the drawer closes.
+  onDrawerEdit = (operation, ...args) => {
+    const card = this.drawerCard();
+    if (!card) return;
+    const { schedule, drawer } = this.state;
+    const atoms = operation(schedule.atoms, card, ...args);
+    const edited = new Set(operation(card.atoms, card, ...args).map(atomKey));
+    const tracked = atoms.filter(atom => edited.has(atomKey(atom)));
+    if (!tracked.length) {
+      this.setState({ schedule: { ...schedule, atoms } }, this.closeDrawer);
+      return;
+    }
+    this.setState({ schedule: { ...schedule, atoms }, drawer: { ...drawer, tracked } });
+  };
+
   onSkipCardDate = (card, action, date) =>
     this.onEditCard(card)(action === 'skip' ? skipCardDate : unskipCardDate, date);
 
@@ -235,6 +304,30 @@ class ServiceOpeningHours extends Component {
     this.props.id,
     this.props.metaDataSection,
     this.props.fieldName,
+  );
+
+  openDrawer = (card, opener) => this.setState(({ schedule }) => ({
+    drawer: {
+      tracked: card.atoms, weekdays: card.days, snapshot: schedule.atoms, opener,
+    },
+  }));
+
+  // The drawer's card is only the atoms it tracks: opened from a day's row, that's the one day,
+  // even while other days share its hours and settings.
+  drawerCard = () => {
+    const { drawer, schedule } = this.state;
+    return drawer &&
+      groupAtoms(schedule.atoms.filter(atom => drawer.tracked.includes(atom)))[0];
+  };
+
+  closeDrawer = () => {
+    const { opener } = this.state.drawer;
+    this.setState({ drawer: null }, () => opener && opener.isConnected && opener.focus());
+  };
+
+  cancelDrawer = () => this.setState(
+    ({ schedule, drawer }) => ({ schedule: { ...schedule, atoms: drawer.snapshot } }),
+    this.closeDrawer,
   );
 
   addHour = (day) => {
@@ -281,39 +374,28 @@ class ServiceOpeningHours extends Component {
       !describeConflicts(schedule).length;
   }
 
-  // Repeating hours as cards of Google Calendar-like series.
+  // How many things stop the hours being saved, for the save bar.
+  countProblems() {
+    const { active } = this.state;
+    if (active === NOTHING_ACTIVE) return 1;
+    if (active === IS_CLOSED) return 0;
+    const schedule = this.getSchedule();
+    const cards = groupAtoms(schedule.atoms);
+    const isEmpty = active === IS_NOT_247_ACTIVE &&
+      !cards.length && !schedule.closures.length && !schedule.specialHours.length;
+    return (isEmpty ? 1 : 0) +
+      cards.filter(getCardError).length +
+      schedule.closures.filter(getClosureError).length +
+      schedule.specialHours.filter(entry => !isSpecialHoursValid(entry)).length +
+      describeConflicts(schedule).length;
+  }
+
+  // Repeating hours, described, for view mode.
   renderSeries() {
     const cards = groupAtoms(this.state.schedule.atoms);
-
-    if (this.props.viewMode) {
-      return (
-        <div className="mb-3">
-          {cards.map(card => <div key={cardKey(card)}>{describeCard(card)}</div>)}
-        </div>
-      );
-    }
-
     return (
       <div className="mb-3">
-        <p className="mb-1">
-          Add the hours this service repeats on. Each card works like a repeating calendar
-          event; days with the same hours share a card.
-        </p>
-        {cards.map((card, i) => (
-          <SeriesEdit
-            key={cardKey(card)}
-            index={i}
-            card={card}
-            onEdit={this.onEditCard(card)}
-          />
-        ))}
-        <Button
-          onClick={() => this.onScheduleChange('atoms', addCard(this.state.schedule.atoms))}
-          basic
-          primary
-        >
-          + ADD REPEATING HOURS
-        </Button>
+        {cards.map(card => <div key={cardKey(card)}>{describeCard(card)}</div>)}
       </div>
     );
   }
@@ -374,9 +456,138 @@ class ServiceOpeningHours extends Component {
     );
   }
 
+  renderSaveBar() {
+    const valid = this.isValid();
+    const problems = valid ? 0 : Math.max(1, this.countProblems());
+    const dirty = JSON.stringify(this.getHoursToSave()) !== this.savedHours;
+    let status = 'No changes yet';
+    if (!valid) status = `! ${problems} thing${problems === 1 ? '' : 's'} to fix before saving`;
+    else if (dirty) status = 'Unsaved changes';
+    if (this.state.active === NOTHING_ACTIVE) status = 'Pick Closed, Open 24/7 or Set hours';
+
+    return (
+      <div className={`oh-savebar${valid ? '' : ' is-invalid'}`}>
+        {dirty && valid && <span className="oh-dot" aria-hidden="true" />}
+        <span className="oh-savebar-status" role="status">{status}</span>
+        <span className="oh-flex" />
+        <button type="button" className="oh-btn" onClick={this.props.onCancel}>Cancel</button>
+        <button
+          type="button"
+          className="oh-btn oh-primary oh-wide"
+          disabled={!valid}
+          onClick={this.updateValue}
+        >
+          Save hours
+        </button>
+      </div>
+    );
+  }
+
+  // The editor for calendar-style schedules: a week table with the calendar beside it.
+  renderEditor() {
+    const { active, schedule, exceptionDate } = this.state;
+    const showsCalendar = active === IS_NOT_247_ACTIVE || active === IS_247_ACTIVE;
+    const cards = groupAtoms(schedule.atoms);
+    const conflicts = showsCalendar ? describeConflicts(this.getSchedule()) : [];
+    const drawerCard = this.drawerCard();
+
+    return (
+      <div className="oh-editor w-100">
+        <div className="oh-head">
+          <h1>When is this service available?</h1>
+          <Segmented
+            label="Service status"
+            value={active}
+            options={STATUS_OPTIONS}
+            onChange={value => this.onSelect(value === active ? NOTHING_ACTIVE : value)}
+          />
+        </div>
+        {showsCalendar && (
+          <div className="oh-summary" role="status">
+            <span className="oh-th">Summary</span>
+            <span>{describeSchedule(this.getSchedule())}</span>
+          </div>
+        )}
+        {active === IS_CLOSED && (
+          <p className="oh-help">This service is closed. Its hours won&apos;t show to clients.</p>
+        )}
+
+        <div className={showsCalendar ? 'oh-layout' : ''}>
+          <div className="oh-main">
+            {active === IS_NOT_247_ACTIVE && (
+              <section className="oh-section" aria-labelledby="oh-weekly">
+                <div className="oh-section-head">
+                  <h2 id="oh-weekly">Weekly hours</h2>
+                  <div className="oh-inline">
+                    <span className="oh-help">Quick fill</span>
+                    {[
+                      ['Weekdays 9–5', () => this.onQuickFill(true)],
+                      ['All closed', () => this.onQuickFill(false)],
+                      ['24/7', () => this.onSelect(IS_247_ACTIVE)],
+                    ].map(([label, onClick]) => (
+                      <button key={label} type="button" className="oh-pill" onClick={onClick}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <span className="oh-help">Pick a time or type it.</span>
+                <WeekTable cards={cards} onAtoms={this.onAtoms} onOpenCard={this.openDrawer} />
+              </section>
+            )}
+            {active === IS_247_ACTIVE && (
+              <p className="oh-help">
+                Open all day, every day. Holidays and exceptions still apply.
+              </p>
+            )}
+            {showsCalendar && (
+              <ExceptionsEdit
+                closures={schedule.closures}
+                specialHours={schedule.specialHours}
+                onChange={this.onExceptions}
+                requestedDate={exceptionDate}
+                onRequestHandled={this.onExceptionDateHandled}
+              />
+            )}
+            {conflicts.map(conflict => (
+              <div key={conflict} role="alert" className="oh-warning oh-error" tabIndex={-1}>
+                <strong>!</strong> {conflict}
+              </div>
+            ))}
+          </div>
+          {showsCalendar && (
+            <aside className="oh-side" aria-label="Calendar preview">
+              <SchedulePreview
+                schedule={this.getSchedule()}
+                onEditCard={active === IS_247_ACTIVE ? () => {} : this.onSkipCardDate}
+                onSkipClosure={this.onSkipClosure}
+                onAddSpecialHours={this.onAddSpecialHours}
+              />
+            </aside>
+          )}
+        </div>
+
+        {this.renderSaveBar()}
+
+        {drawerCard && (
+          <PatternDrawer
+            card={drawerCard}
+            weekdays={this.state.drawer.weekdays}
+            today={nyToday()}
+            onEdit={this.onDrawerEdit}
+            onDone={this.closeDrawer}
+            onCancel={this.cancelDrawer}
+          />
+        )}
+      </div>
+    );
+  }
+
   render() {
     const { active, schedule } = this.state;
     const { supportsRecurrence, viewMode } = this.props;
+    if (supportsRecurrence && !viewMode) return this.renderEditor();
+
     const showsCalendar = supportsRecurrence &&
       (active === IS_NOT_247_ACTIVE || active === IS_247_ACTIVE);
     const allHoursValid = this.isValid();
@@ -414,18 +625,7 @@ class ServiceOpeningHours extends Component {
         {active === IS_NOT_247_ACTIVE &&
           (supportsRecurrence ? this.renderSeries() : this.renderWeekdays())}
         {showsCalendar && (
-          <ClosuresEdit
-            closures={schedule.closures}
-            viewMode={viewMode}
-            onChange={closures => this.onScheduleChange('closures', closures)}
-          />
-        )}
-        {showsCalendar && (
-          <SpecialHoursEdit
-            entries={schedule.specialHours}
-            viewMode={viewMode}
-            onChange={entries => this.onScheduleChange('specialHours', entries)}
-          />
+          <ExceptionsView closures={schedule.closures} specialHours={schedule.specialHours} />
         )}
         {showsCalendar && (
           <SchedulePreview

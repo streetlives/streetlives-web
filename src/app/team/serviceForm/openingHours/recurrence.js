@@ -16,7 +16,8 @@
 import moment from 'moment';
 import { DAYS } from '../../../../Constants';
 import {
-  isSeries, isOneOff, isRecurringClosure, addDays, findConflicts, MINUTES_PER_DAY,
+  isSeries, isOneOff, isRecurringClosure, addDays, findConflicts, occursOn, closesOn,
+  MINUTES_PER_DAY,
 } from './scheduleRules';
 
 const BYDAY_CODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
@@ -52,7 +53,7 @@ const pickSettings = item =>
 const settingsKey = item => JSON.stringify(SETTINGS.map(key => item[key]));
 const rangeOf = ({ opensAt, closesAt, description }) => ({ opensAt, closesAt, description });
 const sameRange = (a, b) => JSON.stringify(rangeOf(a)) === JSON.stringify(rangeOf(b));
-const atomKey = atom => `${settingsKey(atom)}|${atom.day}|${JSON.stringify(rangeOf(atom))}`;
+export const atomKey = atom => `${settingsKey(atom)}|${atom.day}|${JSON.stringify(rangeOf(atom))}`;
 // A range still being filled in (no opening time) goes last.
 const byOpening = (a, b) => (a.opensAt || '99:99').localeCompare(b.opensAt || '99:99');
 
@@ -87,6 +88,15 @@ export const newClosure = (changes = {}) => ({
   validFrom: '',
   validTo: '',
   exdates: [],
+  ...changes,
+});
+
+export const newSpecialHours = (changes = {}) => ({
+  validFrom: '',
+  validTo: '',
+  closed: true,
+  hours: [],
+  description: '',
   ...changes,
 });
 
@@ -290,9 +300,28 @@ export const setCardDays = (atoms, card, days) =>
 export const updateRange = (atoms, card, index, changes) => replaceCard(atoms, card, card.atoms
   .map(atom => (sameRange(atom, card.ranges[index]) ? { ...atom, ...changes } : atom)));
 
+const toMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return (hours * 60) + minutes;
+};
+const toTime = minutes =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+// The range to add after `ranges`: 9 to 5 when there are none, or else two hours starting an
+// hour after the last one closes. It's left empty when that would run past midnight.
+export function nextRange(ranges) {
+  const last = ranges[ranges.length - 1];
+  if (!last) return { opensAt: '09:00', closesAt: '17:00', description: '' };
+  const opens = last.closesAt && last.closesAt > last.opensAt && toMinutes(last.closesAt) + 60;
+  if (!opens || opens + 120 >= MINUTES_PER_DAY) {
+    return { opensAt: '', closesAt: '', description: '' };
+  }
+  return { opensAt: toTime(opens), closesAt: toTime(opens + 120), description: '' };
+}
+
 export const addRange = (atoms, card) => replaceCard(atoms, card, [
   ...card.atoms,
-  ...cardAtoms(card, card.days, [{ opensAt: '', closesAt: '', description: '' }]),
+  ...cardAtoms(card, card.days, [nextRange(card.ranges)]),
 ]);
 
 export const removeRange = (atoms, card, index) => replaceCard(atoms, card, card.atoms
@@ -306,13 +335,52 @@ export const removeCard = (atoms, card) => replaceCard(atoms, card, []);
 
 export const addCard = atoms => [...atoms, newAtom()];
 
-// "Change from a date" (Google Calendar's "this and following events"): the card ends the day
-// before `date`, and a copy starts on `date`, taking the skipped dates from then on with it.
-export const splitCard = (atoms, card, date) => replaceCard(atoms, card, card.atoms
-  .flatMap(atom => [
-    { ...atom, validTo: addDays(date, -1), exdates: atom.exdates.filter(d => d < date) },
-    { ...atom, validFrom: date, exdates: atom.exdates.filter(d => d >= date) },
-  ]));
+// Repeating hours with nothing else to them: every week, all year, with no start or end date.
+export const isPlainWeekly = card => card.freq === 'WEEKLY' && Number(card.interval) <= 1 &&
+  !card.monthDays && !card.months.length && !card.validFrom && !card.validTo;
+
+export const plainCardOn = (cards, day) =>
+  cards.find(card => isPlainWeekly(card) && card.days.includes(day));
+
+// The card a day's row in the week table shows and edits: its plain weekly hours, or else the
+// first card that falls on that day, so changing how a day repeats leaves its row open.
+export const dayCardOn = (cards, day) =>
+  plainCardOn(cards, day) || cards.find(card => card.days.includes(day));
+
+// The part of a card on one day, to change that day without the others that share the card.
+export const cardOnDay = (card, day) =>
+  groupAtoms(card.atoms.filter(atom => atom.day === day))[0];
+
+// Sets the time ranges of one day's row in the week table; none closes the day. The day keeps
+// its card's settings (how it repeats, skipped dates), or joins a card with the same ranges, so
+// days with the same hours share a card and a day whose hours change gets its own. Given
+// `settings`, the day takes those instead.
+export function setDayRanges(atoms, day, ranges, settings) {
+  const cards = groupAtoms(atoms);
+  const current = dayCardOn(cards, day);
+  const sorted = [...ranges].sort(byOpening).map(rangeOf);
+  const same = cards.find(card => isPlainWeekly(card) &&
+    JSON.stringify(card.ranges) === JSON.stringify(sorted));
+  const daySettings = settings || pickSettings(current || same || newAtom());
+  const others = current
+    ? atoms.filter(atom => !(current.atoms.includes(atom) && atom.day === day))
+    : atoms;
+  return dedupe([...others, ...sorted.map(range => newAtom({ ...daySettings, ...range, day }))]);
+}
+
+// Copies one day's hours, and how they repeat, to other days. Its skipped dates stay behind,
+// because they fall on that day.
+export function copyDay(atoms, from, days) {
+  const source = dayCardOn(groupAtoms(atoms), from);
+  const settings = { ...pickSettings(source), exdates: [] };
+  return days.reduce((result, day) => setDayRanges(result, day, source.ranges, settings), atoms);
+}
+
+// Replaces the hours on every weekday with the same plain weekly `ranges` on `days`.
+export const fillWeek = (atoms, days, ranges) => dedupe([
+  ...atoms.filter(atom => !atom.day),
+  ...days.flatMap(day => ranges.map(range => newAtom({ ...rangeOf(range), day }))),
+]);
 
 export const skipCardDate = (atoms, card, date) => updateCard(atoms, card, {
   exdates: [...new Set([...card.exdates, date])].sort(),
@@ -322,10 +390,6 @@ export const unskipCardDate = (atoms, card, date) => updateCard(atoms, card, {
   exdates: card.exdates.filter(d => d !== date),
 });
 
-const toMinutes = (time) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return (hours * 60) + minutes;
-};
 const span = ({ opensAt, closesAt }) => {
   const open = toMinutes(opensAt);
   const close = toMinutes(closesAt);
@@ -489,7 +553,7 @@ export function describeRepeat(card) {
   return card.months && card.months.length ? `${text}, in ${describeMonths(card.months)}` : text;
 }
 
-const describeDates = ({ validFrom, validTo }) => {
+export const describeDates = ({ validFrom, validTo }) => {
   if (validFrom && validTo) return `${formatDate(validFrom)} to ${formatDate(validTo)}`;
   if (validFrom) return `From ${formatDate(validFrom)}`;
   if (validTo) return `Until ${formatDate(validTo)}`;
@@ -506,9 +570,9 @@ export function describeCard(card) {
     .filter(Boolean).join('. ');
 }
 
-// "Every December 25 (Christmas Day)", "Every 4th Thursday of November", "All of August,
-// every year", "The last Friday of every month (Staff training)".
-export function describeClosure(closure) {
+// "Every December 25", "Every 4th Thursday of November", "All of August, every year", "The
+// last Friday of every month".
+export function describeClosureRule(closure) {
   const month = closure.freq === 'YEARLY' ? MONTHS[Number(closure.month) - 1] : null;
   let text;
   if (closure.on === 'month') {
@@ -524,67 +588,92 @@ export function describeClosure(closure) {
       ? `Every ${month} ${closure.monthDays.split(',').join(', ')}`
       : `The ${describeMonthDays(closure.monthDays)} of every month`;
   }
-  const label = closure.description ? ` (${closure.description})` : '';
-  return [`${text}${label}`, describeDates(closure), describeSkips(closure.exdates)]
-    .filter(Boolean).join('. ');
+  return text;
 }
+
+// When a closure falls, without its name: "Every December 25. From Dec 1, 2026. Skips Dec 25".
+export const describeClosureWhen = closure => [
+  describeClosureRule(closure), describeDates(closure), describeSkips(closure.exdates),
+].filter(Boolean).join('. ');
+
+export function describeClosure(closure) {
+  const label = closure.description ? ` (${closure.description})` : '';
+  return [
+    `${describeClosureRule(closure)}${label}`,
+    describeDates(closure),
+    describeSkips(closure.exdates),
+  ].filter(Boolean).join('. ');
+}
+
+// "Dec 25, 2026", "Dec 24 – Dec 26, 2026".
+export const describeSpecialDates = entry => (entry.validTo && entry.validTo !== entry.validFrom
+  ? `${formatDate(entry.validFrom, false)} – ${formatDate(entry.validTo)}`
+  : formatDate(entry.validFrom));
+
+// "Closed", "Closed on Saturdays", "10AM to 2PM, 4PM to 6PM".
+export const describeSpecialTimes = entry => (entry.closed
+  ? `Closed${entry.weekday ? ` on ${entry.weekday}s` : ''}`
+  : entry.hours
+    .map(({ opensAt, closesAt }) => `${formatTime(opensAt)} to ${formatTime(closesAt)}`)
+    .join(', '));
 
 // "Dec 25, 2026 (Christmas Day): Closed", "Dec 24 – Dec 26, 2026: 10AM to 2PM, 4PM to 6PM",
 // "Dec 1 – Dec 31, 2026: Closed on Saturdays".
 export function describeSpecialHours(entry) {
-  const dates = entry.validTo && entry.validTo !== entry.validFrom
-    ? `${formatDate(entry.validFrom, false)} – ${formatDate(entry.validTo)}`
-    : formatDate(entry.validFrom);
   const label = entry.description ? ` (${entry.description})` : '';
-  const hours = entry.closed
-    ? `Closed${entry.weekday ? ` on ${entry.weekday}s` : ''}`
-    : entry.hours
-      .map(({ opensAt, closesAt }) => `${formatTime(opensAt)} to ${formatTime(closesAt)}`)
-      .join(', ');
-  return `${dates}${label}: ${hours}`;
+  return `${describeSpecialDates(entry)}${label}: ${describeSpecialTimes(entry)}`;
 }
 
 // Days of the month such as "1,15": 1 to 31, or -1 (the last day) to -31 from the end.
 const isValidMonthDays = monthDays => /^-?\d{1,2}(,-?\d{1,2})*$/.test(monthDays) &&
   monthDays.split(',').map(Number).every(day => day !== 0 && Math.abs(day) <= 31);
 
-// Why a card can't be saved yet: { message, canMerge } or null. canMerge says its ranges
-// overlap or touch and mergeCardRanges would fix it.
-export function getCardError(card) {
+// Why a card can't be saved yet: [{ field, message, canMerge }], empty when it can. `field` is
+// what to fix: 'weeks', 'monthDays', 'days', 'ranges', 'validFrom' or 'validTo'. canMerge says
+// its ranges overlap or touch and mergeCardRanges would fix it.
+export function getCardErrors(card) {
+  const errors = [];
+  const add = (field, message, extra) => errors.push({ field, message, ...extra });
   const isMonthDays = card.freq === 'MONTHLY' && card.monthDays;
   if (card.freq === 'MONTHLY' && !card.monthDays && !card.weeks.length) {
-    return { message: 'Pick which weeks of the month' };
+    add('weeks', 'Pick which weeks of the month');
   }
   if (isMonthDays && !isValidMonthDays(card.monthDays)) {
-    return { message: 'Days of the month look like 1,15 or -1 for the last day' };
+    add('monthDays', 'Days of the month look like 1,15 or -1 for the last day');
   }
-  if (!isMonthDays && !card.days.length) return { message: 'Pick at least one day' };
-  if (card.ranges.some(range => !range.opensAt || !range.closesAt)) {
-    return { message: 'Please enter From & To hours' };
-  }
-  if (card.ranges.some(range => range.opensAt === range.closesAt)) {
-    return { message: 'A time range opens and closes at the same time' };
+  if (!isMonthDays && !card.days.length) add('days', 'Pick at least one day');
+  const filledIn = card.ranges.every(range => range.opensAt && range.closesAt);
+  const empty = card.ranges.some(range => range.opensAt === range.closesAt);
+  if (!filledIn) {
+    add('ranges', 'Please enter From & To hours');
+  } else if (empty) {
+    add('ranges', 'A time range opens and closes at the same time');
   }
   if (card.interval > 1 && !card.validFrom) {
     const unit = card.freq === 'MONTHLY' ? 'months' : 'weeks';
-    return { message: `Pick a start date to count every ${card.interval} ${unit} from` };
+    add('validFrom', `Pick a start date to count every ${card.interval} ${unit} from`);
   }
   if (card.validFrom && card.validTo && card.validTo < card.validFrom) {
-    return { message: 'The end date is before the start date' };
+    add('validTo', 'The end date is before the start date');
   }
-  const spans = card.ranges.map(span);
-  const clash = spans.findIndex((range, i) => i > 0 && range.open <= spans[i - 1].close);
-  if (clash > 0) {
-    const [a, b] = [card.ranges[clash - 1], card.ranges[clash]];
-    const verb = spans[clash].open === spans[clash - 1].close ? 'touch' : 'overlap';
-    return {
-      message:
+  if (filledIn && !empty) {
+    const spans = card.ranges.map(span);
+    const clash = spans.findIndex((range, i) => i > 0 && range.open <= spans[i - 1].close);
+    if (clash > 0) {
+      const [a, b] = [card.ranges[clash - 1], card.ranges[clash]];
+      const verb = spans[clash].open === spans[clash - 1].close ? 'touch' : 'overlap';
+      add(
+        'ranges',
         `${formatRange(a)} and ${formatRange(b)} ${verb}: make them one range, or leave a gap`,
-      canMerge: true,
-    };
+        { canMerge: true },
+      );
+    }
   }
-  return null;
+  return errors;
 }
+
+// The first thing to fix on a card, or null.
+export const getCardError = card => getCardErrors(card)[0] || null;
 
 export function getClosureError(closure) {
   if (closure.on === 'weekday' && !closure.weeks.length) return 'Pick which week of the month';
@@ -597,13 +686,22 @@ export function getClosureError(closure) {
   return null;
 }
 
-export function isSpecialHoursValid(entry) {
-  if (!entry.validFrom) return false;
-  if (entry.validTo && entry.validTo < entry.validFrom) return false;
-  return entry.closed ||
-    (entry.hours.length > 0 &&
-      entry.hours.every(({ opensAt, closesAt }) => !!opensAt && !!closesAt));
+// Why special hours can't be saved yet: { field, message } or null. `field` is what to fix:
+// 'validFrom', 'validTo' or 'hours'.
+export function getSpecialHoursError(entry) {
+  if (!entry.validFrom) return { field: 'validFrom', message: 'Please pick a date' };
+  if (entry.validTo && entry.validTo < entry.validFrom) {
+    return { field: 'validTo', message: 'The end date is before the start date' };
+  }
+  const filledIn = entry.hours.length > 0 &&
+    entry.hours.every(({ opensAt, closesAt }) => !!opensAt && !!closesAt);
+  if (!entry.closed && !filledIn) {
+    return { field: 'hours', message: 'Please enter From & To hours' };
+  }
+  return null;
 }
+
+export const isSpecialHoursValid = entry => !getSpecialHoursError(entry);
 
 // Clashes between time ranges and special hours in the year from `today`, in words: "Sat: 9AM
 // to 5PM and 1st Sat of every month: 4PM to 8PM overlap on Nov 7, 2026 (and 11 more dates)".
@@ -629,4 +727,51 @@ export function describeConflicts(schedule, today = nyToday()) {
       if (type === 'closed-and-open') return `${when} is both closed and open in special hours`;
       return `${a.label} and ${b.label} ${type === 'touching' ? 'touch' : 'overlap'} on ${when}`;
     });
+}
+
+const shortRange = ({ opensAt, closesAt }) => `${formatTime(opensAt)}–${formatTime(closesAt)}`;
+
+// The schedule in one line, for the summary above the editor: "Open Weekdays 9AM–5PM and 1st
+// and 3rd Sat of every month 10AM–2PM · Closed Thanksgiving · Special hours Nov 27".
+export function describeSchedule({ atoms, closures = [], specialHours = [] }) {
+  const open = groupAtoms(atoms).filter(card => !getCardError(card))
+    .map(card => `${describeRepeat(card)} ${card.ranges.map(shortRange).join(', ')}`);
+  const closed = closures.filter(closure => !getClosureError(closure))
+    .map(closure => closure.description || describeClosure(closure));
+  const special = specialHours.filter(isSpecialHoursValid)
+    .map(entry => entry.description || formatDate(entry.validFrom, false));
+  return [
+    open.length ? `Open ${joinWithAnd(open)}` : 'No regular hours',
+    closed.length ? `Closed ${joinWithAnd(closed)}` : '',
+    special.length ? `Special hours ${joinWithAnd(special)}` : '',
+  ].filter(Boolean).join(' · ');
+}
+
+// The next `count` dates a card falls on within a year of `today`, with whether it skips them.
+export function upcomingDates(card, today = nyToday(), count = 4) {
+  const rows = card.atoms.map(atom => toApiRow(atomRow({ ...atom, exdates: [] })));
+  const dates = [];
+  for (let i = 0, date = today; i < 366 && dates.length < count; i += 1, date = addDays(date, 1)) {
+    if (rows.some(row => occursOn(row, date))) {
+      dates.push({ date, skipped: card.exdates.includes(date) });
+    }
+  }
+  return dates;
+}
+
+// The next `count` dates a closure closes the service on, within eight years of `today` so that
+// a February 29 still has some. A closure of a whole month counts once per month.
+export function upcomingClosureDates(closure, today = nyToday(), count = 3) {
+  const row = toApiRow(withoutEmpty(closureRow(closure)));
+  const dates = [];
+  const seen = new Set();
+  for (let i = 0, date = today; i < 366 * 8 && dates.length < count; i += 1) {
+    const key = closure.on === 'month' ? date.slice(0, 7) : date;
+    if (!seen.has(key) && closesOn(row, date)) {
+      seen.add(key);
+      dates.push(date);
+    }
+    date = addDays(date, 1);
+  }
+  return dates;
 }

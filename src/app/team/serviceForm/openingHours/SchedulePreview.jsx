@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import Button from '../../../../components/button';
 import {
   applySchedule, toApiRow, formatTime, formatRange, groupAtoms, describeRepeat,
   describeClosure, describeSpecialHours, nyToday,
@@ -12,26 +11,7 @@ import {
 } from './scheduleRules';
 
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const CELL_STYLE = {
-  verticalAlign: 'top',
-  border: '1px solid #ddd',
-  padding: '.2em',
-  height: '4.5em',
-  width: '14%',
-  fontSize: '.75em',
-};
-const CELL_BUTTON_STYLE = {
-  display: 'block',
-  width: '100%',
-  height: '100%',
-  padding: 0,
-  border: 'none',
-  background: 'none',
-  textAlign: 'left',
-  font: 'inherit',
-  cursor: 'pointer',
-};
-const COLORS = { open: '#e3f4e1', closure: '#fbe3e1', selected: '#fff3c4' };
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const rowsOf = schedule => applySchedule(schedule).map(toApiRow);
 const without = (list, item) => list.filter(other => other !== item);
@@ -73,11 +53,33 @@ function describeDate(schedule, date) {
   return { special, closures, series };
 }
 
+// What a date shows in the calendar: its look, its marker, and a sentence for screen readers.
+function dayKind({
+  intervals, isSpecial, isClosure, isSkipped,
+}) {
+  if (isSpecial) return { kind: 'special', marker: '★', text: 'special hours' };
+  if (isClosure) return { kind: 'closure', marker: '✕', text: 'closed (repeating closure)' };
+  if (isSkipped && !intervals.length) return { kind: 'skip', marker: '⊘', text: 'skipped, closed' };
+  if (intervals.length) return { kind: 'open', marker: isSkipped ? '⊘' : '', text: 'open' };
+  return { kind: 'closed', marker: '', text: 'closed' };
+}
+
+// Why a card's hours don't apply on the selected date.
+function notUsedBecause(details, skipped) {
+  if (details.special.length) return 'Not used this day. Special hours replace it.';
+  const closure = details.closures.find(({ skipped: closureSkipped }) => !closureSkipped);
+  if (closure) {
+    const label = closure.closure.description;
+    return `Not used this day. Closed${label ? ` for ${label}` : ''}.`;
+  }
+  return skipped ? 'Skipped this day.' : '';
+}
+
 // A month calendar of the hours the schedule gives, so the street team can see what they
 // entered. Clicking a date lists what falls on it, where one occurrence of repeating hours, or
 // one year of a closure that repeats, can be skipped without touching the rest.
 function SchedulePreview({
-  schedule, onEditCard, onSkipClosure, viewMode, today: todayProp,
+  schedule, onEditCard, onSkipClosure, onAddSpecialHours, viewMode, today: todayProp,
 }) {
   const today = todayProp || nyToday();
   const [month, setMonth] = useState(today.slice(0, 7));
@@ -92,125 +94,159 @@ function SchedulePreview({
   const shiftMonth = n => setMonth(moment(`${month}-01`).add(n, 'months').format('YYYY-MM'));
   const details = selected && describeDate(schedule, selected);
   const select = date => setSelected(date === selected ? null : date);
-  const struck = isStruck => ({ textDecoration: isStruck ? 'line-through' : 'none' });
 
   return (
-    <div className="mb-3">
-      <div className="d-flex justify-content-between align-items-center mb-1">
-        <Button basic primary compact onClick={() => shiftMonth(-1)}>‹</Button>
-        <strong>{moment(first).format('MMMM YYYY')}</strong>
-        <Button basic primary compact onClick={() => shiftMonth(1)}>›</Button>
+    <div className="oh-calendar">
+      <div className="oh-calendar-head">
+        <h2 className="oh-flex">{moment(first).format('MMMM YYYY')}</h2>
+        {month !== today.slice(0, 7) && (
+          <button type="button" className="oh-link" onClick={() => setMonth(today.slice(0, 7))}>
+            Today
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label="Previous month"
+          className="oh-icon-btn oh-outlined"
+          onClick={() => shiftMonth(-1)}
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          aria-label="Next month"
+          className="oh-icon-btn oh-outlined"
+          onClick={() => shiftMonth(1)}
+        >
+          ›
+        </button>
       </div>
-      <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            {WEEKDAY_HEADERS.map(day => <th key={day} style={{ fontSize: '.75em' }}>{day}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {weeks.map(week => (
-            <tr key={week[0]}>
-              {week.map((date) => {
-                const intervals = intervalsOn(rows, date);
-                const isSpecial = rows.some(row => coversDate(row, date));
-                const isClosure = !isSpecial && rows.some(row => closesOn(row, date));
-                const isSkipped = schedule.atoms.some(atom => atom.exdates.includes(date)) ||
-                  schedule.closures.some(closure => closure.exdates.includes(date));
-                let background = 'white';
-                if (intervals.length) background = COLORS.open;
-                if (isClosure) background = COLORS.closure;
-                if (date === selected) background = COLORS.selected;
-                return (
-                  <td
-                    key={date}
-                    style={{
-                      ...CELL_STYLE,
-                      opacity: date.startsWith(month) ? 1 : 0.4,
-                      background,
-                      outline: date === today ? '2px solid #333' : 'none',
-                    }}
-                  >
-                    <button
-                      type="button"
-                      aria-pressed={date === selected}
-                      onClick={() => select(date)}
-                      style={CELL_BUTTON_STYLE}
-                    >
-                      <div>
-                        {Number(date.slice(8))}
-                        {isSpecial && <span title="Special hours"> ★</span>}
-                        {isClosure && <span title="Closed (repeats)"> ✕</span>}
-                        {isSkipped && <span title="Something skips this date"> ⊘</span>}
-                      </div>
-                      {intervals.map(interval => (
-                        <div key={`${interval.open}-${interval.close}`}>
-                          {formatInterval(interval)}
-                        </div>
-                      ))}
-                    </button>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ fontSize: '.75em' }} className="mt-1">
-        ★ special hours · ✕ closure that repeats · ⊘ skipped
+      <div className="oh-calendar-grid oh-weekdays" aria-hidden="true">
+        {WEEKDAY_HEADERS.map(day => <span key={day}>{day}</span>)}
+      </div>
+      <div className="oh-calendar-grid">
+        {weeks.flat().map((date) => {
+          const intervals = intervalsOn(rows, date);
+          const isSpecial = rows.some(row => coversDate(row, date));
+          const isClosure = !isSpecial && rows.some(row => closesOn(row, date));
+          const isSkipped = schedule.atoms.some(atom => atom.exdates.includes(date)) ||
+            schedule.closures.some(closure => closure.exdates.includes(date));
+          const { kind, marker, text } = dayKind({
+            intervals, isSpecial, isClosure, isSkipped,
+          });
+          const hours = intervals.map(formatInterval).join(', ');
+          const label = [
+            `${DAY_NAMES[isoWeekday(date) % 7]}, ${moment(date).format('MMM D')}: ${text}`,
+            hours,
+            date === today ? '(today)' : '',
+          ].filter(Boolean).join(' ');
+          const classes = ['oh-cal-day', `is-${kind}`];
+          if (!date.startsWith(month)) classes.push('is-outside');
+          if (date === today) classes.push('is-today');
+          if (date === selected) classes.push('is-selected');
+          return (
+            <button
+              key={date}
+              type="button"
+              className={classes.join(' ')}
+              aria-pressed={date === selected}
+              aria-label={label}
+              onClick={() => select(date)}
+            >
+              <span className="oh-cal-top">
+                <span>{Number(date.slice(8))}</span>
+                <span>{marker}</span>
+              </span>
+              {intervals.map(interval => (
+                <span key={`${interval.open}-${interval.close}`} className="oh-cal-hours">
+                  {formatInterval(interval)}
+                </span>
+              ))}
+            </button>
+          );
+        })}
+      </div>
+      <div className="oh-legend">
+        <span><span className="oh-swatch is-open" />Open</span>
+        <span><span className="oh-swatch is-closed" />Closed</span>
+        <span>★ Special</span>
+        <span>✕ Repeating closure</span>
+        <span>⊘ Skipped</span>
+        <span><span className="oh-swatch is-today" />Today</span>
       </div>
 
       {details && (
-        <div className="border rounded p-2 mt-2" style={{ fontSize: '.9em' }}>
-          <strong>{moment(selected).format('dddd, MMMM D, YYYY')}</strong>
+        <div className="oh-day-panel">
+          <h3>{moment(selected).format('dddd, MMM D, YYYY')}</h3>
           {details.special.map(entry => (
-            <div key={describeSpecialHours(entry)}>
-              {describeSpecialHours(entry)} (replaces everything else that day)
+            <div key={describeSpecialHours(entry)} className="oh-day-item is-special">
+              <span className="oh-flex">
+                <strong>★ {describeSpecialHours(entry)}</strong>
+                <span>Replaces everything else that day.</span>
+              </span>
             </div>
           ))}
           {details.closures.map(({ closure, index, skipped }) => (
-            <div key={index} className="d-flex align-items-center justify-content-between">
-              <span style={struck(skipped || details.special.length)}>
-                Closed: {describeClosure(closure)}
+            <div
+              key={index}
+              className={`oh-day-item ${
+                skipped || details.special.length ? 'is-struck' : 'is-closure'
+              }`}
+            >
+              <span className="oh-flex">
+                <strong>✕ Closed{closure.description ? ` · ${closure.description}` : ''}</strong>
+                <span>{describeClosure(closure)}</span>
               </span>
               {!viewMode && !details.special.length && (
-                <Button
-                  basic
-                  primary
-                  compact
+                <button
+                  type="button"
+                  className="oh-btn oh-small"
                   onClick={() => onSkipClosure(index, selected, skipped)}
                 >
-                  {skipped ? 'CLOSE AS USUAL' : 'OPEN AS USUAL THIS TIME'}
-                </Button>
+                  {skipped ? 'Close as usual' : 'Open as usual this time'}
+                </button>
               )}
             </div>
           ))}
           {details.series.map(({ card, skipped }) => {
             const replaced = details.special.length ||
               details.closures.some(({ skipped: closureSkipped }) => !closureSkipped);
+            const reason = notUsedBecause(details, skipped);
             return (
               <div
                 key={`${describeRepeat(card)}-${card.ranges.map(formatRange).join()}`}
-                className="d-flex align-items-center justify-content-between"
+                className={`oh-day-item${skipped || replaced ? ' is-struck' : ''}`}
               >
-                <span style={struck(skipped || replaced)}>
-                  {`${describeRepeat(card)}: `}
-                  {card.ranges.map(formatRange).join(', ')}
+                <span className="oh-flex">
+                  <span className="oh-strike-text">
+                    {`${describeRepeat(card)}: `}
+                    {card.ranges.map(formatRange).join(', ')}
+                  </span>
+                  {(skipped || replaced) && <span>{reason}</span>}
                 </span>
                 {!viewMode && !replaced && (
-                  <Button
-                    basic
-                    primary
-                    compact
+                  <button
+                    type="button"
+                    className="oh-btn oh-small"
                     onClick={() => onEditCard(card, skipped ? 'unskip' : 'skip', selected)}
                   >
-                    {skipped ? 'UNSKIP' : 'SKIP THIS DAY'}
-                  </Button>
+                    {skipped ? 'Unskip' : 'Skip this day'}
+                  </button>
                 )}
               </div>
             );
           })}
           {!details.special.length && !details.closures.length && !details.series.length && (
-            <div>Closed</div>
+            <div className="oh-muted">Closed</div>
+          )}
+          {!viewMode && !details.special.length && (
+            <button
+              type="button"
+              className="oh-btn oh-dashed"
+              onClick={() => onAddSpecialHours(selected)}
+            >
+              + Add special hours for this day
+            </button>
           )}
         </div>
       )}
@@ -228,6 +264,8 @@ SchedulePreview.propTypes = {
   onEditCard: PropTypes.func,
   // (closure index, date, whether it's skipped already)
   onSkipClosure: PropTypes.func,
+  // (date)
+  onAddSpecialHours: PropTypes.func,
   viewMode: PropTypes.bool,
   // YYYY-MM-DD, New York's today by default.
   today: PropTypes.string,
@@ -236,6 +274,7 @@ SchedulePreview.propTypes = {
 SchedulePreview.defaultProps = {
   onEditCard: () => {},
   onSkipClosure: () => {},
+  onAddSpecialHours: () => {},
   viewMode: false,
   today: null,
 };

@@ -1,9 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import PatternDrawer from './PatternDrawer';
 import { DAYS } from '../../../../Constants';
 import {
-  groupAtoms, describeCard, updateCard, splitCard, updateRange, newClosure,
+  groupAtoms, describeCard, updateCard, updateRange, newClosure, cardOnDay,
 } from './recurrence';
 
 const CODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
@@ -60,14 +61,15 @@ describe('ServiceOpeningHoursEdit', () => {
     expect(render([{ closed: true }], true).state('active')).toBe(2);
   });
 
-  it('saves a split card, a skipped date and a closure that repeats', () => {
+  it('keeps hours that change on a date, and saves a skipped date and a repeating closure', () => {
     const updateValue = jest.fn();
-    const wrapper = render([saturday], false, updateValue);
-    const [card] = cardsOf(wrapper);
+    const wrapper = render([
+      { ...saturday, validTo: '2026-11-30' },
+      {
+        ...saturday, opensAt: '10:00', closesAt: '14:00', validFrom: '2026-12-01',
+      },
+    ], false, updateValue);
 
-    wrapper.instance().onEditCard(card)(splitCard, '2026-12-01');
-    const [, later] = cardsOf(wrapper);
-    wrapper.instance().onEditCard(later)(updateRange, 0, { opensAt: '10:00', closesAt: '14:00' });
     wrapper.instance().onSkipCardDate(cardsOf(wrapper)[0], 'skip', '2026-11-14');
     wrapper.instance().onScheduleChange('closures', [newClosure({ description: 'Christmas' })]);
     wrapper.instance().updateValue();
@@ -141,10 +143,124 @@ describe('ServiceOpeningHoursEdit', () => {
     expect(wrapper.html()).toContain('overlap on');
   });
 
-  it('starts "not 24/7" with one card to fill in', () => {
+  it('starts "Set hours" with an empty week, which can\'t be saved yet', () => {
     const wrapper = render([], false);
 
     wrapper.instance().onSelect(1);
-    expect(cardsOf(wrapper).map(describeCard)).toEqual(['No days picked: 9AM to 5PM']);
+    expect(cardsOf(wrapper)).toEqual([]);
+    expect(wrapper.instance().isValid()).toBe(false);
+  });
+
+  it('fills the week and saves it as one card per set of hours', () => {
+    const updateValue = jest.fn();
+    const wrapper = render([], false, updateValue);
+
+    wrapper.instance().onSelect(1);
+    wrapper.instance().onQuickFill(true);
+    expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+    wrapper.instance().updateValue();
+    expect(updateValue.mock.calls[0][0]).toHaveLength(5);
+  });
+
+  it('follows the drawer\'s card as it changes, and undoes the changes on Cancel', () => {
+    const wrapper = render([saturday], false);
+    const [card] = cardsOf(wrapper);
+
+    wrapper.instance().openDrawer(card, null);
+    wrapper.instance().onDrawerEdit(updateCard, { freq: 'MONTHLY', weeks: ['1'] });
+    expect(describeCard(wrapper.instance().drawerCard()))
+      .toBe('1st Sat of every month: 9AM to 5PM');
+    wrapper.instance().onDrawerEdit(updateRange, 0, { closesAt: '13:00' });
+    expect(describeCard(wrapper.instance().drawerCard()))
+      .toBe('1st Sat of every month: 9AM to 1PM');
+
+    wrapper.instance().cancelDrawer();
+    expect(wrapper.state('drawer')).toBeNull();
+    expect(cardsOf(wrapper).map(describeCard)).toEqual(['Sat: 9AM to 5PM']);
+  });
+
+  describe('repeat settings opened from one day', () => {
+    const weekdays = DAYS.slice(0, 5).map((weekday, i) => ({
+      ...saturday, weekday, byday: CODES[i],
+    }));
+    const openMonday = () => {
+      const wrapper = render(weekdays, false);
+      wrapper.instance().openDrawer(cardOnDay(cardsOf(wrapper)[0], 'Monday'), null);
+      return wrapper;
+    };
+
+    it('changes that day only', () => {
+      const wrapper = openMonday();
+
+      wrapper.instance().onDrawerEdit(updateCard, { months: ['6'] });
+      wrapper.instance().onDrawerEdit(updateRange, 0, { closesAt: '13:00' });
+      expect(cardsOf(wrapper).map(describeCard)).toEqual([
+        'Mon, in Jun: 9AM to 1PM',
+        'Tue, Wed, Thu, and Fri: 9AM to 5PM',
+      ]);
+    });
+
+    it('puts the other days back as they were on Cancel', () => {
+      const wrapper = openMonday();
+
+      wrapper.instance().onDrawerEdit(updateCard, { months: ['6'] });
+      wrapper.instance().cancelDrawer();
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+    });
+
+    it('goes back to that day after days of the month', () => {
+      const wrapper = openMonday();
+      const choose = (label, value) => wrapper.find(PatternDrawer).dive()
+        .find({ label }).prop('onChange')(value);
+
+      choose('Repeat unit', 'MONTHLY');
+      choose('Pick by', 'day');
+      expect(wrapper.instance().drawerCard().days).toEqual([]);
+      choose('Pick by', 'week');
+      expect(wrapper.instance().drawerCard().days).toEqual(['Monday']);
+
+      choose('Pick by', 'day');
+      choose('Repeat unit', 'WEEKLY');
+      expect(describeCard(wrapper.instance().drawerCard())).toBe('Mon: 9AM to 5PM');
+    });
+
+    it('shows all year as every month picked, and goes back to it when all are on', () => {
+      const wrapper = openMonday();
+      const months = () => wrapper.find(PatternDrawer).dive().find({ 'aria-label': 'Months' })
+        .children();
+      const click = label => months().filterWhere(chip => chip.prop('label') === label)
+        .prop('onClick')();
+
+      expect(months().map(chip => chip.prop('selected'))).toEqual(Array(12).fill(true));
+      click('December');
+      expect(wrapper.instance().drawerCard().months)
+        .toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']);
+      expect(months().last().prop('selected')).toBe(false);
+      click('December');
+      expect(wrapper.instance().drawerCard().months).toEqual([]);
+    });
+
+    it('asks before removing the hours', () => {
+      const wrapper = openMonday();
+      // One render of the drawer, so it remembers it's asking.
+      const drawer = wrapper.find(PatternDrawer).dive();
+      const button = text => drawer.find('button').filterWhere(b => b.text() === text);
+
+      button('Remove these hours').simulate('click');
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
+      button('Keep them').simulate('click');
+      button('Remove these hours').simulate('click');
+      button('Remove').simulate('click');
+      expect(cardsOf(wrapper).map(describeCard)).toEqual(['Tue, Wed, Thu, and Fri: 9AM to 5PM']);
+      expect(wrapper.state('drawer')).toBe(null);
+    });
+  });
+
+  it('asks for special hours on a date from the calendar, adding nothing yet', () => {
+    const wrapper = render([saturday], false);
+
+    wrapper.instance().onAddSpecialHours('2026-12-24');
+    expect(wrapper.state('exceptionDate')).toBe('2026-12-24');
+    expect(wrapper.state('schedule').specialHours).toEqual([]);
   });
 });
