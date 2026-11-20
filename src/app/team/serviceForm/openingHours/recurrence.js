@@ -300,9 +300,28 @@ export const setCardDays = (atoms, card, days) =>
 export const updateRange = (atoms, card, index, changes) => replaceCard(atoms, card, card.atoms
   .map(atom => (sameRange(atom, card.ranges[index]) ? { ...atom, ...changes } : atom)));
 
+const toMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return (hours * 60) + minutes;
+};
+const toTime = minutes =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+// The range to add after `ranges`: 9 to 5 when there are none, or else two hours starting an
+// hour after the last one closes. It's left empty when that would run past midnight.
+export function nextRange(ranges) {
+  const last = ranges[ranges.length - 1];
+  if (!last) return { opensAt: '09:00', closesAt: '17:00', description: '' };
+  const opens = last.closesAt && last.closesAt > last.opensAt && toMinutes(last.closesAt) + 60;
+  if (!opens || opens + 120 >= MINUTES_PER_DAY) {
+    return { opensAt: '', closesAt: '', description: '' };
+  }
+  return { opensAt: toTime(opens), closesAt: toTime(opens + 120), description: '' };
+}
+
 export const addRange = (atoms, card) => replaceCard(atoms, card, [
   ...card.atoms,
-  ...cardAtoms(card, card.days, [{ opensAt: '', closesAt: '', description: '' }]),
+  ...cardAtoms(card, card.days, [nextRange(card.ranges)]),
 ]);
 
 export const removeRange = (atoms, card, index) => replaceCard(atoms, card, card.atoms
@@ -334,18 +353,27 @@ export const cardOnDay = (card, day) =>
 
 // Sets the time ranges of one day's row in the week table; none closes the day. The day keeps
 // its card's settings (how it repeats, skipped dates), or joins a card with the same ranges, so
-// days with the same hours share a card and a day whose hours change gets its own.
-export function setDayRanges(atoms, day, ranges) {
+// days with the same hours share a card and a day whose hours change gets its own. Given
+// `settings`, the day takes those instead.
+export function setDayRanges(atoms, day, ranges, settings) {
   const cards = groupAtoms(atoms);
   const current = dayCardOn(cards, day);
   const sorted = [...ranges].sort(byOpening).map(rangeOf);
   const same = cards.find(card => isPlainWeekly(card) &&
     JSON.stringify(card.ranges) === JSON.stringify(sorted));
-  const settings = pickSettings(current || same || newAtom());
+  const daySettings = settings || pickSettings(current || same || newAtom());
   const others = current
     ? atoms.filter(atom => !(current.atoms.includes(atom) && atom.day === day))
     : atoms;
-  return dedupe([...others, ...sorted.map(range => newAtom({ ...settings, ...range, day }))]);
+  return dedupe([...others, ...sorted.map(range => newAtom({ ...daySettings, ...range, day }))]);
+}
+
+// Copies one day's hours, and how they repeat, to other days. Its skipped dates stay behind,
+// because they fall on that day.
+export function copyDay(atoms, from, days) {
+  const source = dayCardOn(groupAtoms(atoms), from);
+  const settings = { ...pickSettings(source), exdates: [] };
+  return days.reduce((result, day) => setDayRanges(result, day, source.ranges, settings), atoms);
 }
 
 // Replaces the hours on every weekday with the same plain weekly `ranges` on `days`.
@@ -362,10 +390,6 @@ export const unskipCardDate = (atoms, card, date) => updateCard(atoms, card, {
   exdates: card.exdates.filter(d => d !== date),
 });
 
-const toMinutes = (time) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return (hours * 60) + minutes;
-};
 const span = ({ opensAt, closesAt }) => {
   const open = toMinutes(opensAt);
   const close = toMinutes(closesAt);

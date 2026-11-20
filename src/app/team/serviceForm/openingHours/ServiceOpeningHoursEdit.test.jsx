@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ServiceOpeningHoursEdit from './ServiceOpeningHoursEdit';
+import PatternDrawer from './PatternDrawer';
 import { DAYS } from '../../../../Constants';
 import {
-  groupAtoms, describeCard, updateCard, updateRange, newClosure, setCardDays,
-  cardOnDay,
+  groupAtoms, describeCard, updateCard, updateRange, newClosure, cardOnDay,
 } from './recurrence';
 
 const CODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
@@ -208,11 +208,20 @@ describe('ServiceOpeningHoursEdit', () => {
       expect(cardsOf(wrapper).map(describeCard)).toEqual(['Weekdays: 9AM to 5PM']);
     });
 
-    it('can add a day that already has the same hours', () => {
+    it('goes back to that day after days of the month', () => {
       const wrapper = openMonday();
+      const choose = (label, value) => wrapper.find(PatternDrawer).dive()
+        .find({ label }).prop('onChange')(value);
 
-      wrapper.instance().onDrawerEdit(setCardDays, ['Monday', 'Tuesday']);
-      expect(wrapper.instance().drawerCard().days).toEqual(['Monday', 'Tuesday']);
+      choose('Repeat unit', 'MONTHLY');
+      choose('Pick by', 'day');
+      expect(wrapper.instance().drawerCard().days).toEqual([]);
+      choose('Pick by', 'week');
+      expect(wrapper.instance().drawerCard().days).toEqual(['Monday']);
+
+      choose('Pick by', 'day');
+      choose('Repeat unit', 'WEEKLY');
+      expect(describeCard(wrapper.instance().drawerCard())).toBe('Mon: 9AM to 5PM');
     });
   });
 

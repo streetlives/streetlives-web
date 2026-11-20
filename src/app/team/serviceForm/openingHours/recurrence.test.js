@@ -4,7 +4,7 @@ import {
   describeRepeat, describeClosure, describeWeeks, describeSpecialHours, getCardError,
   getClosureError, describeConflicts, EMPTY_SCHEDULE, getCardErrors, setDayRanges, plainCardOn,
   dayCardOn, fillWeek, describeClosureWhen, upcomingClosureDates,
-  describeSchedule, upcomingDates, skipCardDate,
+  describeSchedule, upcomingDates, skipCardDate, nextRange, copyDay,
 } from './recurrence';
 import { DAYS } from '../../../../Constants';
 
@@ -471,5 +471,49 @@ describe('upcomingClosureDates', () => {
   it('stops at the date it ends', () => {
     expect(upcomingClosureDates(newClosure({ validTo: '2027-12-31' }), TODAY))
       .toEqual(['2026-12-25', '2027-12-25']);
+  });
+});
+
+describe('nextRange', () => {
+  const range = (opensAt, closesAt) => ({ opensAt, closesAt, description: '' });
+
+  it('starts with 9 to 5', () => {
+    expect(nextRange([])).toEqual(range('09:00', '17:00'));
+  });
+
+  it('runs two hours, starting an hour after the last range closes', () => {
+    expect(nextRange([range('09:00', '12:00')])).toEqual(range('13:00', '15:00'));
+    expect(nextRange([range('07:00', '09:30'), range('09:00', '17:00')]))
+      .toEqual(range('18:00', '20:00'));
+  });
+
+  it('is left empty when it would run past midnight, or the last range is unfinished', () => {
+    expect(nextRange([range('18:00', '22:00')])).toEqual(range('', ''));
+    expect(nextRange([range('20:00', '02:00')])).toEqual(range('', ''));
+    expect(nextRange([range('09:00', '')])).toEqual(range('', ''));
+  });
+});
+
+describe('copyDay', () => {
+  it('copies how a day repeats along with its hours, but not its skipped dates', () => {
+    const week = [
+      ...atoms(['Monday'], [['09:00', '17:00']], {
+        freq: 'MONTHLY', weeks: ['1'], exdates: ['2026-12-07'],
+      }),
+      ...atoms(['Tuesday', 'Wednesday'], [['09:00', '17:00']]),
+    ];
+    expect(summary(copyDay(week, 'Monday', ['Tuesday', 'Thursday']))).toEqual([
+      '1st Mon of every month: 9AM to 5PM. Skips Dec 7',
+      '1st Tue and Thu of every month: 9AM to 5PM',
+      'Wed: 9AM to 5PM',
+    ]);
+  });
+
+  it('makes a day weekly again when copying weekly hours to it', () => {
+    const week = [
+      ...atoms(['Monday'], [['09:00', '17:00']], { freq: 'MONTHLY', weeks: ['1'] }),
+      ...atoms(['Tuesday'], [['10:00', '14:00']]),
+    ];
+    expect(summary(copyDay(week, 'Tuesday', ['Monday']))).toEqual(['Mon and Tue: 10AM to 2PM']);
   });
 });

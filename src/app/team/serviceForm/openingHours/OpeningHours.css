@@ -62,15 +62,6 @@
 .oh-muted { font-size: 14px; color: var(--oh-muted); }
 .oh-right { text-align: right; }
 .oh-flex { flex: 1; min-width: 0; }
-.oh-kbd {
-  font: 600 12px ui-monospace, Menlo, monospace;
-  padding: 1px 6px;
-  border: 1px solid #c4c4c0;
-  border-bottom-width: 2px;
-  border-radius: 4px;
-  color: var(--oh-ink-2);
-  background: #fff;
-}
 .oh-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .oh-tag { font-size: 12px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--oh-tint); color: var(--oh-ink-2); }
 
@@ -532,7 +523,6 @@
   .oh-row-actions { grid-column: 1 / -1; justify-content: flex-start; }
   .oh-row-error, .oh-pattern { margin-left: 16px; }
   .oh-popover { left: 16px; right: 16px; width: auto; }
-  .oh-hide-narrow { display: none; }
   .oh-two { grid-template-columns: 1fr; }
   .oh-exception-row { grid-template-columns: 28px minmax(0, 1fr) auto; }
   .oh-exception-row > :nth-child(3), .oh-exception-row > :nth-child(4) { grid-column: 2 / -1; grid-row: auto; }

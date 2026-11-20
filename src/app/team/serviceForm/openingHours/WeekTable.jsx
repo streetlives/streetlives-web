@@ -5,7 +5,7 @@ import moment from 'moment';
 import { DAYS } from '../../../../Constants';
 import {
   isPlainWeekly, dayCardOn, cardOnDay, setDayRanges, getCardError, mergeCardRanges, describeRepeat,
-  describeDates, formatRange, cardKey,
+  describeDates, formatRange, cardKey, nextRange, copyDay,
 } from './recurrence';
 import {
   Switch, TimeInput, NextDayTag, TrashIcon,
@@ -13,7 +13,6 @@ import {
 
 const WEEKDAYS = DAYS.slice(0, 5);
 const DEFAULT_RANGES = [{ opensAt: '09:00', closesAt: '17:00', description: '' }];
-const EMPTY_RANGE = { opensAt: '', closesAt: '', description: '' };
 
 const formatSkip = date => moment(date).format('MMM D');
 
@@ -220,7 +219,7 @@ function WeekTable({ cards, onAtoms, onOpenCard }) {
                         type="button"
                         className="oh-link oh-reveal"
                         aria-label={`Add a time range on ${day}`}
-                        onClick={() => setRanges(day, [...ranges, EMPTY_RANGE])}
+                        onClick={() => setRanges(day, [...ranges, nextRange(ranges)])}
                       >
                         + Range
                       </button>
@@ -265,10 +264,7 @@ function WeekTable({ cards, onAtoms, onOpenCard }) {
                   day={day}
                   ranges={ranges}
                   onClose={closeCopy}
-                  onCopy={targets => onAtoms(atoms => targets.reduce(
-                    (result, target) => setDayRanges(result, target, ranges),
-                    atoms,
-                  ))}
+                  onCopy={targets => onAtoms(atoms => copyDay(atoms, day, targets))}
                 />
               )}
             </div>

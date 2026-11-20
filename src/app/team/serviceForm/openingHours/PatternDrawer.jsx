@@ -2,9 +2,8 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import { DAYS } from '../../../../Constants';
 import {
-  WEEK_OPTIONS, MONTHS, sortDays, sortWeeks, describeRepeat, formatRange, getCardErrors,
+  WEEK_OPTIONS, MONTHS, sortWeeks, describeRepeat, formatRange, getCardErrors,
   updateCard, setCardDays, updateRange, addRange, removeRange, removeCard,
   mergeCardRanges, upcomingDates,
 } from './recurrence';
@@ -42,13 +41,13 @@ FieldError.propTypes = {
   id: PropTypes.string,
 };
 
-// One card of repeating hours, edited in a drawer while the week stays in view: its days and
-// time ranges on the left, how it repeats on the right, as in a Google Calendar event's custom
+// One card of repeating hours, edited in a drawer while the week stays in view: its time
+// ranges on the left, how it repeats on the right, as in a Google Calendar event's custom
 // recurrence. Every edit goes through `onEdit(operation, ...args)` from recurrence.js. Problems
 // show next to their fields, and Done waits until they're fixed; Cancel undoes every edit made
 // since the drawer opened.
 function PatternDrawer({
-  card, onEdit, onDone, onCancel, today,
+  card, weekdays, onEdit, onDone, onCancel, today,
 }) {
   const ref = useRef(null);
   const titleId = useId('drawer-title');
@@ -63,6 +62,9 @@ function PatternDrawer({
     const next = toggle(monthDays, day);
     if (next.length) onEdit(updateCard, { monthDays: sortMonthDays(next).join(',') });
   };
+  // Days of the month have no weekday, so leaving them goes back to `weekdays`.
+  const leaveMonthDays = changes => onEdit((atoms, current) =>
+    setCardDays(atoms, { ...current, ...changes, monthDays: '' }, weekdays));
 
   useModal(ref, onCancel);
 
@@ -92,25 +94,6 @@ function PatternDrawer({
 
         <div className="oh-drawer-body">
           <div className="oh-stack">
-            {!byMonthDay && (
-              <div role="group" aria-label="Days" className="oh-field">
-                <span className="oh-label">Days</span>
-                <div className="oh-chips">
-                  {DAYS.map(day => (
-                    <Chip
-                      key={day}
-                      label={day}
-                      selected={card.days.includes(day)}
-                      onClick={() => onEdit(setCardDays, sortDays(toggle(card.days, day)))}
-                    >
-                      {day.slice(0, 3)}
-                    </Chip>
-                  ))}
-                </div>
-                <FieldError error={errorOn('days')} />
-              </div>
-            )}
-
             <div className="oh-field">
               <span className="oh-label">Hours</span>
               <div className={`oh-box${errorOn('ranges') ? ' is-invalid' : ''}`}>
@@ -222,10 +205,14 @@ function PatternDrawer({
                     { value: 'WEEKLY', label: card.interval > 1 ? 'Weeks' : 'Week' },
                     { value: 'MONTHLY', label: card.interval > 1 ? 'Months' : 'Month' },
                   ]}
-                  onChange={freq => freq !== card.freq &&
-                    onEdit(updateCard, { freq, weeks: [], monthDays: '' })}
+                  onChange={(freq) => {
+                    if (freq === card.freq) return;
+                    if (byMonthDay) leaveMonthDays({ freq, weeks: [] });
+                    else onEdit(updateCard, { freq, weeks: [], monthDays: '' });
+                  }}
                 />
               </div>
+              <FieldError error={errorOn('days')} />
             </div>
 
             {isMonthly && (
@@ -240,7 +227,7 @@ function PatternDrawer({
                   ]}
                   onChange={by => (by === 'day'
                     ? !byMonthDay && onEdit(updateCard, { monthDays: '1', weeks: [] })
-                    : byMonthDay && onEdit(updateCard, { monthDays: '' }))}
+                    : byMonthDay && leaveMonthDays({}))}
                 />
                 {byMonthDay ? (
                   <div role="group" aria-label="Days of the month" className="oh-month-days">
@@ -352,7 +339,7 @@ function PatternDrawer({
         </div>
 
         <div className={`oh-drawer-foot${errors.length ? ' is-invalid' : ''}`}>
-          {errors.length ? (
+          {!!errors.length && (
             <>
               <span className="oh-problems">
                 ! {errors.length} thing{errors.length === 1 ? '' : 's'} to fix before saving
@@ -365,8 +352,6 @@ function PatternDrawer({
                 Go to first problem
               </button>
             </>
-          ) : (
-            <span className="oh-help"><kbd className="oh-kbd">Esc</kbd> to cancel</span>
           )}
           <span className="oh-flex" />
           <button type="button" className="oh-btn" onClick={onCancel}>Cancel</button>
@@ -401,6 +386,8 @@ PatternDrawer.propTypes = {
     validTo: PropTypes.string,
     exdates: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
+  // The days the card had when the drawer opened.
+  weekdays: PropTypes.arrayOf(PropTypes.string).isRequired,
   // (operation from recurrence.js, ...its arguments)
   onEdit: PropTypes.func.isRequired,
   onDone: PropTypes.func.isRequired,

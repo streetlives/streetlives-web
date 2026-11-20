@@ -10,7 +10,7 @@ import ExceptionsEdit, { ExceptionsView } from './ExceptionsEdit';
 import SchedulePreview from './SchedulePreview';
 import WeekTable from './WeekTable';
 import PatternDrawer from './PatternDrawer';
-import { ERROR_STYLE, Segmented, focusFirstProblem } from './controls';
+import { ERROR_STYLE, Segmented } from './controls';
 import {
   readSchedule, applySchedule, isSpecialHoursValid, newAtom, groupAtoms, cardKey, addCard,
   skipCardDate, unskipCardDate, describeCard, getCardError, getClosureError, describeConflicts,
@@ -142,7 +142,6 @@ class ServiceOpeningHours extends Component {
       // A date from the calendar to add special hours on.
       exceptionDate: null,
     };
-    this.editor = React.createRef();
     this.savedHours = JSON.stringify(this.getHoursToSave());
   }
 
@@ -308,19 +307,10 @@ class ServiceOpeningHours extends Component {
   );
 
   openDrawer = (card, opener) => this.setState(({ schedule }) => ({
-    drawer: { tracked: card.atoms, snapshot: schedule.atoms, opener },
+    drawer: {
+      tracked: card.atoms, weekdays: card.days, snapshot: schedule.atoms, opener,
+    },
   }));
-
-  // A new card with no days yet, opened in the drawer; Cancel takes it away again.
-  addPattern = (e) => {
-    const opener = e.currentTarget;
-    const { atoms } = this.state.schedule;
-    const added = addCard(atoms);
-    this.setState(({ schedule }) => ({
-      schedule: { ...schedule, atoms: added },
-      drawer: { tracked: added.filter(atom => !atoms.includes(atom)), snapshot: atoms, opener },
-    }));
-  };
 
   // The drawer's card is only the atoms it tracks: opened from a day's row, that's the one day,
   // even while other days share its hours and settings.
@@ -479,20 +469,7 @@ class ServiceOpeningHours extends Component {
       <div className={`oh-savebar${valid ? '' : ' is-invalid'}`}>
         {dirty && valid && <span className="oh-dot" aria-hidden="true" />}
         <span className="oh-savebar-status" role="status">{status}</span>
-        {!valid && this.state.active !== NOTHING_ACTIVE && (
-          <button
-            type="button"
-            className="oh-link"
-            onClick={() => focusFirstProblem(this.editor.current)}
-          >
-            Show me
-          </button>
-        )}
         <span className="oh-flex" />
-        <span className="oh-help oh-hide-narrow">
-          <kbd className="oh-kbd">{IS_MAC ? '⌘' : 'Ctrl'}</kbd>{' '}
-          <kbd className="oh-kbd">S</kbd> to save
-        </span>
         <button type="button" className="oh-btn" onClick={this.props.onCancel}>Cancel</button>
         <button
           type="button"
@@ -515,7 +492,7 @@ class ServiceOpeningHours extends Component {
     const drawerCard = this.drawerCard();
 
     return (
-      <div className="oh-editor w-100" ref={this.editor}>
+      <div className="oh-editor w-100">
         <div className="oh-head">
           <h1>When is this service available?</h1>
           <Segmented
@@ -554,18 +531,8 @@ class ServiceOpeningHours extends Component {
                     ))}
                   </div>
                 </div>
-                <span className="oh-help">
-                  Pick a time or type it. <kbd className="oh-kbd">Tab</kbd> moves to the next field.
-                </span>
+                <span className="oh-help">Pick a time or type it.</span>
                 <WeekTable cards={cards} onAtoms={this.onAtoms} onOpenCard={this.openDrawer} />
-                <div className="oh-inline">
-                  <button type="button" className="oh-btn" onClick={this.addPattern}>
-                    + Add hours on another pattern
-                  </button>
-                  <span className="oh-help">
-                    For example every other week, or the 1st Saturday of the month.
-                  </span>
-                </div>
               </section>
             )}
             {active === IS_247_ACTIVE && (
@@ -605,6 +572,7 @@ class ServiceOpeningHours extends Component {
         {drawerCard && (
           <PatternDrawer
             card={drawerCard}
+            weekdays={this.state.drawer.weekdays}
             today={nyToday()}
             onEdit={this.onDrawerEdit}
             onDone={this.closeDrawer}

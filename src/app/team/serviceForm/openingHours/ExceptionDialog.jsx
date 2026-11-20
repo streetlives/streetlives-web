@@ -6,6 +6,7 @@ import { DAYS } from '../../../../Constants';
 import {
   WEEK_OPTIONS, MONTHS, newClosure, newSpecialHours, describeClosureRule, getClosureError,
   getSpecialHoursError, upcomingClosureDates, describeSpecialDates, describeSpecialTimes,
+  nextRange,
 } from './recurrence';
 import {
   Segmented, DateAction, TimeInput, NextDayTag, TrashIcon, useId, useModal,
@@ -29,6 +30,7 @@ const WHICH_DAY = [
 const DEFAULT_HOURS = { opensAt: '09:00', closesAt: '17:00' };
 
 const lowerFirst = text => text[0].toLowerCase() + text.slice(1);
+const timesOf = ({ opensAt, closesAt }) => ({ opensAt, closesAt });
 
 function MonthSelect({ value, onChange }) {
   return (
@@ -231,7 +233,7 @@ function ExceptionDialog({
                     type="button"
                     className="oh-link oh-start"
                     onClick={() => updateSpecial({
-                      hours: [...special.hours, { opensAt: '', closesAt: '' }],
+                      hours: [...special.hours, timesOf(nextRange(special.hours))],
                     })}
                   >
                     + Add a time range
@@ -418,10 +420,6 @@ function ExceptionDialog({
         </div>
 
         <div className="oh-dialog-foot">
-          <span className="oh-help">
-            <kbd className="oh-kbd">Enter</kbd> to {isNew ? 'add' : 'save'}
-            {' · '}<kbd className="oh-kbd">Esc</kbd> to cancel
-          </span>
           <span className="oh-flex" />
           <button type="button" className="oh-btn" onClick={onCancel}>Cancel</button>
           <button type="submit" className="oh-btn oh-primary oh-wide" disabled={hasError}>
