@@ -9,7 +9,7 @@ import {
   nextRange,
 } from './recurrence';
 import {
-  Segmented, DateAction, TimeInput, NextDayTag, TrashIcon, useId, useModal,
+  Segmented, DateAction, TimeInput, NextDayTag, TrashIcon, useId, useModal, useFocusNext,
 } from './controls';
 
 const ONCE = 'ONCE';
@@ -63,6 +63,7 @@ function ExceptionDialog({
     return { ...base, weeks: base.weeks.length ? base.weeks : ['1'] };
   });
   const [special, setSpecial] = useState(kind === 'special' ? value : newSpecialHours());
+  const [focusNext, isNext] = useFocusNext();
   const ref = useRef(null);
   const id = useId('exception');
   useModal(ref, onCancel);
@@ -96,13 +97,16 @@ function ExceptionDialog({
     setOften(next);
     if (next === 'MONTHLY' && closure.on === 'month') update({ on: 'days' });
   };
-  const changeHappens = happens => updateSpecial(happens === 'closed'
-    ? { closed: true, hours: [] }
-    : {
-      closed: false,
-      weekday: '',
-      hours: special.hours.length ? special.hours : [{ ...DEFAULT_HOURS }],
-    });
+  const changeHappens = (happens) => {
+    if (happens !== 'closed') focusNext(0);
+    updateSpecial(happens === 'closed'
+      ? { closed: true, hours: [] }
+      : {
+        closed: false,
+        weekday: '',
+        hours: special.hours.length ? special.hours : [{ ...DEFAULT_HOURS }],
+      });
+  };
   const save = (e) => {
     e.preventDefault();
     if (hasError) return;
@@ -200,6 +204,7 @@ function ExceptionDialog({
                         label={`Range ${i + 1} opens`}
                         value={range.opensAt || ''}
                         invalid={!range.opensAt}
+                        focusOnMount={isNext(i)}
                         onChange={opensAt => updateHours(i, { opensAt })}
                       />
                       <span>to</span>
@@ -232,9 +237,12 @@ function ExceptionDialog({
                   <button
                     type="button"
                     className="oh-link oh-start"
-                    onClick={() => updateSpecial({
-                      hours: [...special.hours, timesOf(nextRange(special.hours))],
-                    })}
+                    onClick={() => {
+                      focusNext(special.hours.length);
+                      updateSpecial({
+                        hours: [...special.hours, timesOf(nextRange(special.hours))],
+                      });
+                    }}
                   >
                     + Add a time range
                   </button>

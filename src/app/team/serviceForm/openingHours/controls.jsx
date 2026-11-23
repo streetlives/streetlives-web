@@ -126,11 +126,25 @@ Switch.propTypes = {
 };
 
 // A time picker. A time still being filled in is empty, so it can't be saved half done.
+// A one-shot request to focus a time input as it appears: call `focusNext(key)` just before
+// adding the range or opening the day, and give the input `focusOnMount={isNext(key)}`.
+export function useFocusNext() {
+  const next = useRef(null);
+  // Effects run children first, so the new input has focused by the time this clears it.
+  useEffect(() => { next.current = null; });
+  return [(key) => { next.current = key; }, key => next.current === key];
+}
+
 export function TimeInput({
-  value, onChange, label, invalid,
+  value, onChange, label, invalid, focusOnMount,
 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (focusOnMount) ref.current.focus();
+  }, [focusOnMount]);
   return (
     <input
+      ref={ref}
       type="time"
       className="oh-input oh-time"
       aria-label={label}
@@ -146,6 +160,7 @@ TimeInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   label: PropTypes.string.isRequired,
   invalid: PropTypes.bool,
+  focusOnMount: PropTypes.bool,
 };
 
 // A date and a button that does something with it, revealed by a link: "+ Skip a date".
