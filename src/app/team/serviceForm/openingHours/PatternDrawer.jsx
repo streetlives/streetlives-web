@@ -9,6 +9,7 @@ import {
 } from './recurrence';
 import {
   Chip, Segmented, TimeInput, NextDayTag, TrashIcon, useId, useModal, focusFirstProblem,
+  useFocusNext,
 } from './controls';
 
 const MONTH_DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1));
@@ -77,6 +78,7 @@ function PatternDrawer({
     });
   };
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [focusNext, isNext] = useFocusNext();
 
   useModal(ref, onCancel);
 
@@ -130,6 +132,7 @@ function PatternDrawer({
                         label={`Range ${i + 1} opens`}
                         value={range.opensAt}
                         invalid={!range.opensAt}
+                        focusOnMount={isNext(i)}
                         onChange={opensAt => onEdit(updateRange, i, { opensAt })}
                       />
                       <span>to</span>
@@ -168,7 +171,14 @@ function PatternDrawer({
                   </div>
                 )}
               </div>
-              <button type="button" className="oh-link oh-start" onClick={() => onEdit(addRange)}>
+              <button
+                type="button"
+                className="oh-link oh-start"
+                onClick={() => {
+                  focusNext(card.ranges.length);
+                  onEdit(addRange);
+                }}
+              >
                 + Add a time range (like a lunch break)
               </button>
             </div>

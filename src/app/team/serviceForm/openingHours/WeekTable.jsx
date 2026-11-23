@@ -8,7 +8,7 @@ import {
   describeDates, formatRange, cardKey, nextRange, copyDay,
 } from './recurrence';
 import {
-  Switch, TimeInput, NextDayTag, TrashIcon,
+  Switch, TimeInput, NextDayTag, TrashIcon, useFocusNext,
 } from './controls';
 
 const WEEKDAYS = DAYS.slice(0, 5);
@@ -136,6 +136,7 @@ PatternLine.propTypes = {
 function WeekTable({ cards, onAtoms, onOpenCard }) {
   const [copyFrom, setCopyFrom] = useState(null);
   const copyButtons = useRef({});
+  const [focusNext, isNext] = useFocusNext();
 
   const closeCopy = (restoreFocus) => {
     if (restoreFocus && copyButtons.current[copyFrom]) copyButtons.current[copyFrom].focus();
@@ -148,6 +149,7 @@ function WeekTable({ cards, onAtoms, onOpenCard }) {
   };
   // A day switched on takes the hours of the nearest open day before it.
   const switchOn = (day) => {
+    focusNext(`${day}-0`);
     const before = DAYS.slice(0, DAYS.indexOf(day)).reverse().find(d => rangesOn(d).length);
     setRanges(day, before ? rangesOn(before) : DEFAULT_RANGES);
   };
@@ -194,6 +196,7 @@ function WeekTable({ cards, onAtoms, onOpenCard }) {
                       label={`${day} opens${ranges.length > 1 ? ` (range ${i + 1})` : ''}`}
                       value={range.opensAt}
                       invalid={!range.opensAt}
+                      focusOnMount={isNext(`${day}-${i}`)}
                       onChange={opensAt => updateRange(i, { opensAt })}
                     />
                     <span aria-hidden="true">–</span>
@@ -219,7 +222,10 @@ function WeekTable({ cards, onAtoms, onOpenCard }) {
                         type="button"
                         className="oh-link oh-reveal"
                         aria-label={`Add a time range on ${day}`}
-                        onClick={() => setRanges(day, [...ranges, nextRange(ranges)])}
+                        onClick={() => {
+                          focusNext(`${day}-${ranges.length}`);
+                          setRanges(day, [...ranges, nextRange(ranges)]);
+                        }}
                       >
                         + Range
                       </button>
