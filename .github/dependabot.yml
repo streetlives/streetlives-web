@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Only GitHub Actions version updates are enabled here. npm version updates
+  # are deliberately left off: this is a CRA 3 / React 16 tree whose installs
+  # require `npm ci --legacy-peer-deps`, a flag Dependabot cannot pass, so
+  # version-update PRs would mostly fail to install or break the build.
+  # Repo-level Dependabot *security* updates are unaffected and still open PRs
+  # for vulnerable packages, and `security-audit.yml` reports the backlog.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ["*"]
